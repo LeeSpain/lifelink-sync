@@ -1,138 +1,203 @@
-import React, { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Users, UserPlus, Settings, MapPin, Clock, AlertCircle } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Users, UserPlus, MapPin, Crown, Shield, Plus,
+  MoreVertical, Clock, CheckCircle, XCircle,
+  Mail, UserMinus, Trash2, Copy, Map, AlertTriangle
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuItem,
+  DropdownMenuSeparator
+} from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { useFamilyMembers } from "@/hooks/useFamilyMembers";
-import { FamilyMemberCard } from "@/components/family/FamilyMemberCard";
-import FamilyInviteModal from "@/components/dashboard/family/FamilyInviteModal";
-
-interface Circle {
-  id: string;
-  name: string;
-  members_count: number;
-  is_owner: boolean;
-  billing_status?: string;
-}
+import { useConnections, useConnectionActions, Connection } from "@/hooks/useConnections";
+import { ConnectionInviteModal } from "@/components/dashboard/ConnectionInviteModal";
 
 export default function MyCirclesPage() {
-  const [circles, setCircles] = useState<Circle[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedCircleId, setSelectedCircleId] = useState<string | null>(null);
-  const [showInviteModal, setShowInviteModal] = useState(false);
-  const { user } = useAuth();
+  const { data: familyConnections = [], isLoading: familyLoading } = useConnections('family_circle');
+  const { data: trustedConnections = [], isLoading: trustedLoading } = useConnections('trusted_contact');
+  const { promoteConnection, demoteConnection, revokeConnection } = useConnectionActions();
   const { toast } = useToast();
   const navigate = useNavigate();
-  
-  // Get members and invites for selected circle
-  const { data: familyData, isLoading: membersLoading, refetch: refetchMembers } = useFamilyMembers(selectedCircleId);
 
-  const loadCircles = async () => {
-    if (!user) return;
+  const [inviteModalOpen, setInviteModalOpen] = useState(false);
+  const [inviteType, setInviteType] = useState<'family_circle' | 'trusted_contact'>('family_circle');
 
+  const loading = familyLoading || trustedLoading;
+  const activeFamily = familyConnections.filter(c => c.status === 'active');
+  const pendingFamily = familyConnections.filter(c => c.status === 'pending');
+  const activeTrusted = trustedConnections.filter(c => c.status === 'active');
+  const pendingTrusted = trustedConnections.filter(c => c.status === 'pending');
+  const totalActive = activeFamily.length + activeTrusted.length;
+
+  const openInviteModal = (type: 'family_circle' | 'trusted_contact') => {
+    setInviteType(type);
+    setInviteModalOpen(true);
+  };
+
+  const getInviteUrl = (connection: Connection) => {
+    if (!connection.invite_token) return '';
+    return `${window.location.origin}/invite/connections/${connection.invite_token}`;
+  };
+
+  const copyInviteUrl = (connection: Connection) => {
+    const url = getInviteUrl(connection);
+    navigator.clipboard.writeText(url);
+    toast({
+      title: "Invite link copied",
+      description: "The invitation link has been copied to your clipboard.",
+    });
+  };
+
+  const handlePromote = async (connectionId: string) => {
     try {
-      // Get family groups where user is owner
-      const { data: ownedGroups, error: ownedError } = await supabase
-        .from("family_groups")
-        .select("id, owner_user_id")
-        .eq("owner_user_id", user.id);
-
-      if (ownedError) throw ownedError;
-
-      // Get family memberships where user is a member
-      const { data: memberships, error: memberError } = await supabase
-        .from("family_memberships")
-        .select(`
-          group_id,
-          billing_status,
-          family_groups!inner(id, owner_user_id)
-        `)
-        .eq("user_id", user.id)
-        .eq("status", "active");
-
-      if (memberError) throw memberError;
-
-      // Combine and process circles
-      const allCircleIds = new Set([
-        ...(ownedGroups?.map(g => g.id) || []),
-        ...(memberships?.map(m => m.group_id) || [])
-      ]);
-
-      const circleData: Circle[] = [];
-
-      for (const circleId of allCircleIds) {
-        // Count members
-        const { count } = await supabase
-          .from("family_memberships")
-          .select("*", { count: "exact", head: true })
-          .eq("group_id", circleId)
-          .eq("status", "active");
-
-        const isOwner = ownedGroups?.some(g => g.id === circleId) || false;
-        const membership = memberships?.find(m => m.group_id === circleId);
-
-        circleData.push({
-          id: circleId,
-          name: `Family Circle`, // TODO: Add proper name field to family_groups
-          members_count: count || 0,
-          is_owner: isOwner,
-          billing_status: membership?.billing_status || "active"
-        });
-      }
-
-      setCircles(circleData);
+      await promoteConnection.mutateAsync(connectionId);
     } catch (error) {
-      console.error("Error loading circles:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load family circles",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
+      console.error('Failed to promote connection:', error);
     }
   };
 
-  useEffect(() => {
-    loadCircles();
-  }, [user]);
+  const handleDemote = async (connectionId: string) => {
+    try {
+      await demoteConnection.mutateAsync(connectionId);
+    } catch (error) {
+      console.error('Failed to demote connection:', error);
+    }
+  };
 
-  useEffect(() => {
-    // Auto-select first owned circle
-    if (circles.length > 0 && !selectedCircleId) {
-      const ownedCircle = circles.find(c => c.is_owner);
-      if (ownedCircle) {
-        setSelectedCircleId(ownedCircle.id);
+  const handleRevoke = async (connectionId: string) => {
+    if (window.confirm('Are you sure you want to revoke this connection? This action cannot be undone.')) {
+      try {
+        await revokeConnection.mutateAsync(connectionId);
+      } catch (error) {
+        console.error('Failed to revoke connection:', error);
       }
     }
-  }, [circles, selectedCircleId]);
+  };
 
-  const getBillingStatusColor = (status?: string) => {
-    switch (status) {
-      case "active": return "default";
-      case "grace": return "secondary";
-      case "past_due": return "destructive";
-      default: return "secondary";
+  const getStatusBadge = (connection: Connection) => {
+    switch (connection.status) {
+      case 'active':
+        return <Badge variant="default" className="gap-1"><CheckCircle className="h-3 w-3" />Active</Badge>;
+      case 'pending':
+        return <Badge variant="secondary" className="gap-1"><Clock className="h-3 w-3" />Pending</Badge>;
+      case 'revoked':
+        return <Badge variant="destructive" className="gap-1"><XCircle className="h-3 w-3" />Revoked</Badge>;
+      default:
+        return <Badge variant="outline">Unknown</Badge>;
     }
   };
 
-  const getBillingStatusText = (status?: string) => {
-    switch (status) {
-      case "active": return "Active";
-      case "grace": return "Grace Period";
-      case "past_due": return "Past Due";
-      default: return "Unknown";
-    }
+  // Circle health score
+  const getCircleHealth = () => {
+    let score = 0;
+    if (activeFamily.length >= 2) score += 40;
+    else if (activeFamily.length >= 1) score += 20;
+    if (activeTrusted.length >= 1) score += 30;
+    if (totalActive >= 3) score += 20;
+    if (pendingFamily.length === 0 && pendingTrusted.length === 0) score += 10;
+    return Math.min(score, 100);
   };
+
+  const circleHealth = getCircleHealth();
+
+  const ConnectionCard = ({ connection }: { connection: Connection }) => (
+    <Card className={`transition-all hover:shadow-md ${connection.status === 'pending' ? 'border-dashed' : ''} ${connection.status === 'revoked' ? 'opacity-60' : ''}`}>
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between">
+          <div className="flex items-start gap-3 flex-1">
+            <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
+              connection.type === 'family_circle' ? 'bg-primary/10' : 'bg-secondary/10'
+            }`}>
+              {connection.type === 'family_circle' ?
+                <Crown className="h-5 w-5 text-primary" /> :
+                <Shield className="h-5 w-5 text-secondary" />
+              }
+            </div>
+
+            <div className="flex-1 space-y-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h4 className="font-medium text-foreground">{connection.invite_email}</h4>
+                {getStatusBadge(connection)}
+                <Badge variant="outline" className="text-xs">
+                  Priority {connection.escalation_priority}
+                </Badge>
+              </div>
+
+              {connection.relationship && (
+                <p className="text-sm text-muted-foreground">{connection.relationship}</p>
+              )}
+
+              <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                <span>Channels: {connection.notify_channels.join(', ')}</span>
+                <span>Language: {connection.preferred_language}</span>
+              </div>
+
+              {connection.status === 'pending' && connection.invited_at && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Invited {new Date(connection.invited_at).toLocaleDateString()}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm">
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {connection.status === 'pending' && (
+                <>
+                  <DropdownMenuItem onClick={() => copyInviteUrl(connection)}>
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copy Invite Link
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
+              )}
+
+              {connection.type === 'trusted_contact' && connection.status === 'active' && (
+                <DropdownMenuItem onClick={() => handlePromote(connection.id)}>
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Promote to Family Circle
+                </DropdownMenuItem>
+              )}
+
+              {connection.type === 'family_circle' && connection.status === 'active' && (
+                <DropdownMenuItem onClick={() => handleDemote(connection.id)}>
+                  <UserMinus className="h-4 w-4 mr-2" />
+                  Demote to Trusted Contact
+                </DropdownMenuItem>
+              )}
+
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => handleRevoke(connection.id)}
+                className="text-destructive"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Revoke Connection
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   if (loading) {
     return (
-      <div className="max-w-4xl mx-auto p-6 space-y-4">
+      <div className="max-w-4xl mx-auto space-y-4">
         <div className="h-8 bg-muted rounded animate-pulse" />
         <div className="space-y-3">
           {[1, 2, 3].map(i => (
@@ -145,195 +210,184 @@ export default function MyCirclesPage() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">My Family Circles</h1>
-          <p className="text-muted-foreground">Manage your family groups and location sharing</p>
+          <p className="text-muted-foreground">Manage your family network and emergency connections</p>
         </div>
-        <Button 
-          onClick={() => navigate("/family-access-setup")}
-          className="flex items-center gap-2"
-        >
-          <UserPlus className="w-4 h-4" />
-          Create Circle
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => navigate("/member-dashboard/live-map")}
+            className="flex items-center gap-2"
+          >
+            <Map className="w-4 h-4" />
+            Live Map
+          </Button>
+          <Button
+            onClick={() => openInviteModal('family_circle')}
+            className="flex items-center gap-2"
+          >
+            <UserPlus className="w-4 h-4" />
+            Add Member
+          </Button>
+        </div>
       </div>
 
-      <div className="grid gap-6">
-        {circles.map(circle => {
-          const isSelected = selectedCircleId === circle.id;
-          const currentMembers = isSelected ? familyData?.members || [] : [];
-          const currentInvites = isSelected ? familyData?.pendingInvites || [] : [];
-          
-          return (
-            <Card key={circle.id} className={`transition-all ${isSelected ? 'ring-2 ring-primary ring-offset-2' : 'hover:shadow-md'}`}>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="w-5 h-5 text-primary" />
-                    {circle.name}
-                    {circle.is_owner && (
-                      <Badge variant="outline" className="text-xs">Owner</Badge>
-                    )}
-                  </CardTitle>
-                  <div className="flex gap-2">
-                    <Badge variant={getBillingStatusColor(circle.billing_status)}>
-                      {getBillingStatusText(circle.billing_status)}
-                    </Badge>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-0 space-y-4">
-                {/* Circle Info and Actions */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <Users className="w-4 h-4" />
-                      {circle.members_count} member{circle.members_count !== 1 ? 's' : ''}
-                    </span>
-                    {isSelected && currentInvites.length > 0 && (
-                      <span className="flex items-center gap-1 text-secondary-foreground">
-                        <Clock className="w-4 h-4" />
-                        {currentInvites.length} pending
-                      </span>
-                    )}
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => navigate(`/map?circle=${circle.id}`)}
-                      className="flex items-center gap-1"
-                    >
-                      <MapPin className="w-3 h-3" />
-                      Map
-                    </Button>
-                    {circle.is_owner && (
-                      <Button 
-                        variant="default" 
-                        size="sm"
-                        onClick={() => {
-                          setSelectedCircleId(circle.id);
-                          setShowInviteModal(true);
-                        }}
-                        className="flex items-center gap-1"
-                      >
-                        <UserPlus className="w-3 h-3" />
-                        Add Member
-                      </Button>
-                    )}
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => setSelectedCircleId(isSelected ? null : circle.id)}
-                      className="flex items-center gap-1"
-                    >
-                      <Settings className="w-3 h-3" />
-                      {isSelected ? 'Hide' : 'Manage'}
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Billing Warning */}
-                {circle.billing_status === "past_due" && (
-                  <div className="flex items-center gap-2 p-3 bg-destructive/10 rounded-lg border border-destructive/20">
-                    <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />
-                    <p className="text-sm text-destructive">
-                      Billing is past due. Location sharing has been paused for privacy protection.
-                    </p>
-                  </div>
-                )}
-
-                {/* Expanded Member Management */}
-                {isSelected && circle.is_owner && (
-                  <>
-                    <Separator />
-                    <div className="space-y-4">
-                      {/* Active Members */}
-                      {currentMembers.length > 0 && (
-                        <div className="space-y-3">
-                          <h4 className="text-sm font-medium text-foreground flex items-center gap-2">
-                            <Users className="w-4 h-4" />
-                            Active Members ({currentMembers.length})
-                          </h4>
-                          <div className="space-y-2">
-                            {currentMembers.map(member => (
-                              <FamilyMemberCard 
-                                key={member.id} 
-                                member={member} 
-                                isOwner={circle.is_owner}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Pending Invitations */}
-                      {currentInvites.length > 0 && (
-                        <div className="space-y-3">
-                          <h4 className="text-sm font-medium text-foreground flex items-center gap-2">
-                            <Clock className="w-4 h-4" />
-                            Pending Invitations ({currentInvites.length})
-                          </h4>
-                          <div className="space-y-2">
-                            {currentInvites.map(invite => (
-                              <FamilyMemberCard 
-                                key={invite.id} 
-                                invite={invite} 
-                                isOwner={circle.is_owner}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Empty State for Selected Circle */}
-                      {currentMembers.length === 0 && currentInvites.length === 0 && (
-                        <div className="text-center py-8 text-muted-foreground">
-                          <Users className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                          <p className="text-sm">No family members yet</p>
-                          <p className="text-xs">Click "Add Member" to invite your first family member</p>
-                        </div>
-                      )}
-                    </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-          );
-        })}
-
-        {circles.length === 0 && (
-          <Card className="p-8 text-center">
-            <div className="space-y-4">
-              <Users className="w-12 h-12 text-muted-foreground mx-auto" />
+      {/* Circle Health Summary */}
+      <Card className={`${circleHealth >= 80 ? 'bg-green-50 dark:bg-green-950/30' : circleHealth >= 50 ? 'bg-yellow-50 dark:bg-yellow-950/30' : 'bg-red-50 dark:bg-red-950/30'} border-0`}>
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
               <div>
-                <h3 className="text-lg font-semibold">No Family Circles Yet</h3>
-                <p className="text-muted-foreground">
-                  Create your first family circle to start sharing locations and staying connected.
-                </p>
+                <p className="text-2xl font-bold">{circleHealth}%</p>
+                <p className="text-xs text-muted-foreground">Circle Health</p>
               </div>
-              <Button 
-                onClick={() => navigate("/family-access-setup")}
-                className="flex items-center gap-2"
-              >
-                <UserPlus className="w-4 h-4" />
-                Create Your First Circle
-              </Button>
+              <Separator orientation="vertical" className="h-10" />
+              <div className="grid grid-cols-3 gap-6 text-center">
+                <div>
+                  <div className="text-lg font-bold text-primary">{activeFamily.length}</div>
+                  <div className="text-xs text-muted-foreground">Family</div>
+                </div>
+                <div>
+                  <div className="text-lg font-bold text-secondary-foreground">{activeTrusted.length}</div>
+                  <div className="text-xs text-muted-foreground">Trusted</div>
+                </div>
+                <div>
+                  <div className="text-lg font-bold text-orange-500">{pendingFamily.length + pendingTrusted.length}</div>
+                  <div className="text-xs text-muted-foreground">Pending</div>
+                </div>
+              </div>
             </div>
-          </Card>
-        )}
-      </div>
+            <Badge variant={circleHealth >= 80 ? "default" : circleHealth >= 50 ? "secondary" : "destructive"}>
+              {circleHealth >= 80 ? 'Excellent' : circleHealth >= 50 ? 'Good' : 'Needs Setup'}
+            </Badge>
+          </div>
 
-      {/* Family Invite Modal */}
-      <FamilyInviteModal
-        isOpen={showInviteModal}
-        onOpenChange={setShowInviteModal}
-        onInviteCreated={() => {
-          refetchMembers();
-          loadCircles(); // Refresh circle counts
-        }}
+          {circleHealth < 80 && (
+            <div className="mt-4 flex items-start gap-2 p-3 rounded-lg bg-background/60">
+              <AlertTriangle className="h-4 w-4 text-orange-500 mt-0.5 flex-shrink-0" />
+              <div className="text-xs">
+                <p className="font-medium mb-1">Strengthen your circle:</p>
+                <ul className="space-y-0.5 text-muted-foreground">
+                  {activeFamily.length < 2 && <li>Add at least 2 family members for full coverage</li>}
+                  {activeTrusted.length < 1 && <li>Add a trusted contact for backup notifications</li>}
+                  {(pendingFamily.length + pendingTrusted.length) > 0 && <li>Follow up on {pendingFamily.length + pendingTrusted.length} pending invitations</li>}
+                </ul>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Connections Tabs */}
+      <Tabs defaultValue="family" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="family" className="flex items-center gap-2">
+            <Crown className="h-4 w-4" />
+            Family Circle ({familyConnections.filter(c => c.status !== 'revoked').length})
+          </TabsTrigger>
+          <TabsTrigger value="trusted" className="flex items-center gap-2">
+            <Shield className="h-4 w-4" />
+            Trusted Contacts ({trustedConnections.filter(c => c.status !== 'revoked').length})
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Family Circle Tab */}
+        <TabsContent value="family" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Crown className="h-5 w-5 text-primary" />
+                    Family Circle Members
+                  </CardTitle>
+                  <CardDescription>
+                    Family members have full access to your emergency dashboard, live map, and SOS alerts
+                  </CardDescription>
+                </div>
+                <Button onClick={() => openInviteModal('family_circle')} size="sm">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Invite Family
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {familyConnections.filter(c => c.status !== 'revoked').length === 0 ? (
+                <div className="text-center py-8">
+                  <Crown className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
+                  <h3 className="font-medium mb-2">No family members yet</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Add family members to give them full access to your emergency dashboard and SOS alerts.
+                  </p>
+                  <Button onClick={() => openInviteModal('family_circle')}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Invite Your First Family Member
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {familyConnections.filter(c => c.status !== 'revoked').map((connection) => (
+                    <ConnectionCard key={connection.id} connection={connection} />
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Trusted Contacts Tab */}
+        <TabsContent value="trusted" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="h-5 w-5 text-secondary" />
+                    Trusted Contacts
+                  </CardTitle>
+                  <CardDescription>
+                    Trusted contacts receive notifications and live updates only during active emergencies
+                  </CardDescription>
+                </div>
+                <Button onClick={() => openInviteModal('trusted_contact')} size="sm">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Contact
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {trustedConnections.filter(c => c.status !== 'revoked').length === 0 ? (
+                <div className="text-center py-8">
+                  <Shield className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
+                  <h3 className="font-medium mb-2">No trusted contacts yet</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Add trusted contacts who should be notified during emergencies.
+                  </p>
+                  <Button onClick={() => openInviteModal('trusted_contact')}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add First Trusted Contact
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {trustedConnections.filter(c => c.status !== 'revoked').map((connection) => (
+                    <ConnectionCard key={connection.id} connection={connection} />
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* Invite Modal */}
+      <ConnectionInviteModal
+        open={inviteModalOpen}
+        onOpenChange={setInviteModalOpen}
+        type={inviteType}
       />
     </div>
   );
