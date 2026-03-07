@@ -246,6 +246,87 @@ const AuthPage = () => {
                 </Button>
               </p>
             </div>
+
+            {/* Dev Quick Links */}
+            <div className="mt-8 border-t pt-6">
+              <h3 className="text-sm font-semibold text-muted-foreground mb-4 text-center uppercase tracking-wide">Quick Links (Testing)</h3>
+
+              <div className="space-y-4">
+                {/* Dashboards */}
+                <div>
+                  <p className="text-xs font-semibold text-foreground mb-2">Dashboards</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[
+                      { label: 'Dashboard', to: '/dashboard' },
+                      { label: 'Member', to: '/member-dashboard' },
+                      { label: 'Family', to: '/family-dashboard' },
+                      { label: 'Admin', to: '/admin-dashboard' },
+                    ].map(link => (
+                      <Button key={link.to} asChild variant="outline" size="sm" className="h-7 text-xs">
+                        <Link to={link.to}>{link.label}</Link>
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Apps */}
+                <div>
+                  <p className="text-xs font-semibold text-foreground mb-2">Apps</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[
+                      { label: 'SOS App', to: '/sos-app' },
+                      { label: 'Family App', to: '/family-app' },
+                      { label: 'Smart Redirect', to: '/app' },
+                    ].map(link => (
+                      <Button key={link.to} asChild variant="outline" size="sm" className="h-7 text-xs">
+                        <Link to={link.to}>{link.label}</Link>
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Key Pages */}
+                <div>
+                  <p className="text-xs font-semibold text-foreground mb-2">Key Pages</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[
+                      { label: 'Map', to: '/map' },
+                      { label: 'Circles', to: '/circles' },
+                      { label: 'Places', to: '/places' },
+                      { label: 'History', to: '/history' },
+                      { label: 'Onboarding', to: '/dashboard/onboarding' },
+                      { label: 'Questionnaire', to: '/welcome-questionnaire' },
+                      { label: 'Map Demo', to: '/map-demo' },
+                    ].map(link => (
+                      <Button key={link.to} asChild variant="outline" size="sm" className="h-7 text-xs">
+                        <Link to={link.to}>{link.label}</Link>
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Public Pages */}
+                <div>
+                  <p className="text-xs font-semibold text-foreground mb-2">Public Pages</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[
+                      { label: 'Home', to: '/' },
+                      { label: 'AI Register', to: '/ai-register' },
+                      { label: 'Family Carer', to: '/family-carer-access' },
+                      { label: 'Checkout', to: '/checkout' },
+                      { label: 'Blog', to: '/blog' },
+                      { label: 'Videos', to: '/videos' },
+                      { label: 'Pendant', to: '/devices/lifelink-sync-pendant' },
+                      { label: 'Spain Centre', to: '/regional-center/spain' },
+                    ].map(link => (
+                      <Button key={link.to} asChild variant="outline" size="sm" className="h-7 text-xs">
+                        <Link to={link.to}>{link.label}</Link>
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
