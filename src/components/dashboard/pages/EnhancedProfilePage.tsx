@@ -67,10 +67,16 @@ export default function EnhancedProfilePage() {
       }
     } catch (error) {
       console.error('Error loading profile:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load profile data.",
-        variant: "destructive"
+      // Gracefully degrade - show page with user metadata instead of error
+      setProfile({
+        user_id: user.id,
+        first_name: user.user_metadata?.first_name || '',
+        last_name: user.user_metadata?.last_name || '',
+        phone: '',
+        date_of_birth: null,
+        address: null,
+        country: null,
+        language_preference: 'en',
       });
     } finally {
       setIsLoading(false);
