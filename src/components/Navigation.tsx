@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Shield, Menu, X, MessageCircle } from "lucide-react";
+import { Shield, Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 import LanguageCurrencySelector from '@/components/LanguageCurrencySelector';
@@ -39,7 +39,7 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border" aria-label="Main navigation">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          {/* Logo — LS monogram + wordmark */}
+          {/* Logo */}
           <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity" onClick={handleLogoClick}>
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm font-poppins">LS</span>
@@ -67,18 +67,28 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
               <LanguageCurrencySelector compact />
             </div>
             <div className="flex items-center space-x-3">
-              <Button
-                variant="outline"
-                size="sm"
-                className="font-medium hover:bg-primary/5 hover:border-primary/30 transition-all duration-200 gap-1.5"
+              {/* Clara AI Button with Avatar */}
+              <button
                 onClick={() => {
                   trackButtonClick('navigation', 'Clara AI', { location: 'header' });
                   openClaraChat();
                 }}
+                className="group flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/20 bg-gradient-to-r from-primary/5 to-transparent hover:from-primary/10 hover:border-primary/40 transition-all duration-300"
               >
-                <MessageCircle className="h-4 w-4 text-primary" />
-                Clara AI
-              </Button>
+                <div className="relative">
+                  <img
+                    src="/clara-avatar.png"
+                    alt="Clara AI"
+                    className="w-7 h-7 rounded-full object-cover ring-2 ring-primary/30 group-hover:ring-primary/60 transition-all duration-300"
+                  />
+                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white" />
+                </div>
+                <div className="text-left">
+                  <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">Clara</span>
+                  <span className="text-[10px] text-muted-foreground block leading-none">AI Assistant</span>
+                </div>
+              </button>
+
               <Button asChild variant="outline" size="sm" className="font-medium hover:bg-primary/5 hover:border-primary/30 transition-all duration-200" onClick={handleSignInClick}>
                 <Link to="/auth">{t('nav.signIn', 'Sign In')}</Link>
               </Button>
@@ -93,13 +103,31 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
           </div>
 
           {/* Mobile Menu Button */}
-          <button
-            className="md:hidden p-2"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
+          <div className="flex items-center gap-2 md:hidden">
+            {/* Mobile Clara Button */}
+            <button
+              onClick={() => {
+                trackButtonClick('navigation', 'Clara AI', { location: 'header_mobile' });
+                openClaraChat();
+              }}
+              className="relative flex items-center justify-center"
+            >
+              <img
+                src="/clara-avatar.png"
+                alt="Clara AI"
+                className="w-8 h-8 rounded-full object-cover ring-2 ring-primary/30"
+              />
+              <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white" />
+            </button>
+
+            <button
+              className="p-2"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Menu */}
@@ -122,18 +150,28 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
                 Pricing
               </a>
               <div className="flex flex-col space-y-3 pt-6 mt-4 border-t border-border mx-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="font-medium hover:bg-primary/5 hover:border-primary/30 transition-all duration-200 gap-1.5 justify-center"
+                {/* Mobile Clara Chat Button */}
+                <button
                   onClick={() => {
                     setIsMenuOpen(false);
                     openClaraChat();
                   }}
+                  className="flex items-center gap-3 p-3 rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-transparent hover:from-primary/10 transition-all duration-200"
                 >
-                  <MessageCircle className="h-4 w-4 text-primary" />
-                  Chat with Clara AI
-                </Button>
+                  <div className="relative flex-shrink-0">
+                    <img
+                      src="/clara-avatar.png"
+                      alt="Clara AI"
+                      className="w-10 h-10 rounded-full object-cover ring-2 ring-primary/30"
+                    />
+                    <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
+                  </div>
+                  <div className="text-left">
+                    <span className="text-sm font-semibold text-foreground">Chat with Clara AI</span>
+                    <span className="text-xs text-muted-foreground block">Available 24/7 to help</span>
+                  </div>
+                </button>
+
                 <Button asChild variant="outline" size="sm" className="font-medium hover:bg-primary/5 hover:border-primary/30 transition-all duration-200">
                   <Link to="/auth" onClick={() => setIsMenuOpen(false)}>{t('nav.signIn', 'Sign In')}</Link>
                 </Button>

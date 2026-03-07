@@ -1,9 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { X, Send, MessageCircle, Loader2, Phone, PhoneCall, Globe, Video } from 'lucide-react';
+import { X, Send, Loader2, Phone, PhoneCall, Globe, Video, Sparkles, Shield } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
@@ -43,7 +42,7 @@ const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
     {
       id: '1',
       content: t('clara.greeting', {
-        defaultValue: `👋 Hi {{userName}}! I'm Clara, your AI assistant. I'm here to help you 24/7. You can chat with me here, or click the phone icon to speak with our team. How can I assist you today?`,
+        defaultValue: `Hi {{userName}}! I'm Clara, your AI protection assistant. I'm here to help you 24/7 with anything about LifeLink Sync. How can I assist you today?`,
         userName
       }),
       isUser: false,
@@ -68,17 +67,15 @@ const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
     i18n.changeLanguage(lang);
     setCurrentLanguage(lang);
 
-    // Add system message about language change
     const systemMessage: Message = {
       id: Date.now().toString(),
       content: lang === 'es'
-        ? '🌍 Idioma cambiado a Español. ¡Puedo ayudarte en español ahora!'
-        : '🌍 Language changed to English. I can help you in English now!',
+        ? 'Idioma cambiado a Espanol. Puedo ayudarte en espanol ahora!'
+        : 'Language changed to English. I can help you in English now!',
       isUser: false,
       timestamp: new Date()
     };
     setMessages(prev => [...prev, systemMessage]);
-
     trackChatInteraction('language_changed', context, 0, { language: lang });
   };
 
@@ -86,12 +83,11 @@ const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
     trackChatInteraction('callback_requested', context, 0, { type });
 
     try {
-      // Request instant callback via our callback system
       const { data: { user } } = await supabase.auth.getUser();
 
       const { error } = await supabase.functions.invoke('instant-callback', {
         body: {
-          phone: user?.phone || 'chat-user', // Will need phone collection
+          phone: user?.phone || 'chat-user',
           name: userName,
           email: user?.email || '',
           urgency: 'high',
@@ -107,8 +103,8 @@ const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
       const callbackMessage: Message = {
         id: Date.now().toString(),
         content: currentLanguage === 'es'
-          ? `📞 ¡Excelente! Nuestro equipo te llamará en menos de 60 segundos. ${type === 'video' ? 'Prepárate para una videollamada.' : 'Mantén tu teléfono cerca.'} Tu idioma preferido es Español.`
-          : `📞 Great! Our team will call you back in less than 60 seconds. ${type === 'video' ? 'Get ready for a video call.' : 'Keep your phone nearby.'} Your preferred language is English.`,
+          ? `Excelente! Nuestro equipo te llamara en menos de 60 segundos. ${type === 'video' ? 'Preparate para una videollamada.' : 'Manten tu telefono cerca.'}`
+          : `Great! Our team will call you back in less than 60 seconds. ${type === 'video' ? 'Get ready for a video call.' : 'Keep your phone nearby.'}`,
         isUser: false,
         timestamp: new Date()
       };
@@ -117,13 +113,13 @@ const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
       toast({
         title: currentLanguage === 'es' ? 'Llamada Solicitada' : 'Callback Requested',
         description: currentLanguage === 'es'
-          ? '¡Te llamaremos en 60 segundos!'
+          ? 'Te llamaremos en 60 segundos!'
           : 'We\'ll call you in 60 seconds!',
       });
     } catch (error) {
       console.error('Error requesting callback:', error);
       toast({
-        title: currentLanguage === 'es' ? 'Error' : 'Error',
+        title: 'Error',
         description: currentLanguage === 'es'
           ? 'No pudimos solicitar la llamada. Por favor intenta de nuevo.'
           : 'Unable to request callback. Please try again.',
@@ -181,7 +177,7 @@ const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: currentLanguage === 'es'
-          ? "Disculpa, estoy teniendo problemas de conexión. Por favor intenta de nuevo en un momento."
+          ? "Disculpa, estoy teniendo problemas de conexion. Por favor intenta de nuevo en un momento."
           : "I apologize, but I'm having trouble connecting right now. Please try again in a moment.",
         isUser: false,
         timestamp: new Date()
@@ -202,177 +198,223 @@ const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md h-[90vh] max-h-[600px] min-h-[400px] flex flex-col shadow-2xl border-0">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-gradient-to-r from-primary to-emergency text-white rounded-t-lg flex-shrink-0">
-          <div className="flex items-center space-x-2 min-w-0">
-            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
-              <MessageCircle className="h-4 w-4" />
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center sm:p-4">
+      <div className="w-full sm:max-w-md h-[85vh] sm:h-[600px] sm:max-h-[80vh] min-h-[400px] flex flex-col bg-white sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
+
+        {/* Header */}
+        <div className="relative bg-[hsl(215,28%,17%)] px-4 py-4 flex-shrink-0">
+          {/* Subtle gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent pointer-events-none" />
+
+          <div className="relative flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {/* Clara Avatar */}
+              <div className="relative">
+                <img
+                  src="/clara-avatar.png"
+                  alt="Clara AI"
+                  className="w-11 h-11 rounded-full object-cover ring-2 ring-white/20"
+                />
+                <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-[hsl(215,28%,17%)]" />
+              </div>
+              <div>
+                <h3 className="text-white font-semibold text-base leading-tight">Clara AI</h3>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
+                  <span className="text-white/60 text-xs">
+                    {currentLanguage === 'es' ? 'En linea' : 'Online now'}
+                  </span>
+                </div>
+              </div>
             </div>
-            <div className="min-w-0">
-              <CardTitle className="text-lg truncate">
-                {currentLanguage === 'es' ? 'Asistente Clara AI' : 'Clara AI Assistant'}
-              </CardTitle>
-              <p className="text-xs text-white/80 truncate">
-                {currentLanguage === 'es' ? 'Guía de Protección de Emergencia' : 'Emergency Protection Guide'}
-              </p>
-            </div>
-          </div>
 
-          <div className="flex items-center gap-1 flex-shrink-0">
-            {/* Language Selector */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-white hover:bg-white/20 h-8 w-8 p-0"
-                  title={currentLanguage === 'es' ? 'Cambiar idioma' : 'Change language'}
-                >
-                  <Globe className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => changeLanguage('en')}>
-                  🇺🇸 English {currentLanguage === 'en' && '✓'}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => changeLanguage('es')}>
-                  🇪🇸 Español {currentLanguage === 'es' && '✓'}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Voice Call Button */}
-            <Button
-              onClick={() => requestCallback('voice')}
-              variant="ghost"
-              size="sm"
-              className="text-white hover:bg-white/20 h-8 w-8 p-0"
-              title={currentLanguage === 'es' ? 'Solicitar llamada (60 seg)' : 'Request call (60 sec)'}
-            >
-              <Phone className="h-4 w-4" />
-            </Button>
-
-            {/* Video Call Button */}
-            <Button
-              onClick={() => requestCallback('video')}
-              variant="ghost"
-              size="sm"
-              className="text-white hover:bg-white/20 h-8 w-8 p-0"
-              title={currentLanguage === 'es' ? 'Solicitar videollamada' : 'Request video call'}
-            >
-              <Video className="h-4 w-4" />
-            </Button>
-
-            {/* Close Button */}
-            <Button
-              onClick={() => {
-                trackChatInteraction('chat_closed', context);
-                onClose();
-              }}
-              variant="ghost"
-              size="sm"
-              className="text-white hover:bg-white/20 h-8 w-8 p-0"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        </CardHeader>
-
-        <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
-          <ScrollArea className="flex-1 px-4">
-            <div className="space-y-4 py-4">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                      message.isUser
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted'
-                    }`}
+            <div className="flex items-center gap-0.5">
+              {/* Language */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-white/70 hover:text-white hover:bg-white/10 h-8 w-8 p-0"
+                    title={currentLanguage === 'es' ? 'Cambiar idioma' : 'Change language'}
                   >
-                    <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
-                    <p className="text-xs mt-1 opacity-70">
-                      {message.timestamp.toLocaleTimeString(currentLanguage === 'es' ? 'es-ES' : 'en-US', {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </p>
-                  </div>
-                </div>
-              ))}
-              {isLoading && (
-                <div className="flex justify-start">
-                  <div className="bg-muted rounded-lg px-4 py-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  </div>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-          </ScrollArea>
+                    <Globe className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="min-w-[140px]">
+                  <DropdownMenuItem onClick={() => changeLanguage('en')} className="gap-2">
+                    <span>EN</span> English {currentLanguage === 'en' && <span className="ml-auto text-primary">&#10003;</span>}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => changeLanguage('es')} className="gap-2">
+                    <span>ES</span> Espanol {currentLanguage === 'es' && <span className="ml-auto text-primary">&#10003;</span>}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
-          <div className="border-t p-4 bg-background flex-shrink-0">
-            {/* Quick Action Buttons */}
-            <div className="flex gap-2 mb-3">
+              {/* Voice Call */}
               <Button
                 onClick={() => requestCallback('voice')}
-                variant="outline"
+                variant="ghost"
                 size="sm"
-                className="flex-1 text-xs"
+                className="text-white/70 hover:text-white hover:bg-white/10 h-8 w-8 p-0"
+                title={currentLanguage === 'es' ? 'Llamada de voz' : 'Voice call'}
               >
-                <PhoneCall className="h-3 w-3 mr-1" />
-                {currentLanguage === 'es' ? 'Llamar Ahora' : 'Call Now'}
+                <Phone className="h-4 w-4" />
               </Button>
+
+              {/* Video Call */}
+              <Button
+                onClick={() => requestCallback('video')}
+                variant="ghost"
+                size="sm"
+                className="text-white/70 hover:text-white hover:bg-white/10 h-8 w-8 p-0"
+                title={currentLanguage === 'es' ? 'Videollamada' : 'Video call'}
+              >
+                <Video className="h-4 w-4" />
+              </Button>
+
+              {/* Close */}
               <Button
                 onClick={() => {
-                  setInputMessage(currentLanguage === 'es'
-                    ? '¿Cómo funciona LifeLink Sync?'
-                    : 'How does LifeLink Sync work?');
+                  trackChatInteraction('chat_closed', context);
+                  onClose();
                 }}
-                variant="outline"
+                variant="ghost"
                 size="sm"
-                className="flex-1 text-xs"
+                className="text-white/70 hover:text-white hover:bg-white/10 h-8 w-8 p-0 ml-1"
               >
-                {currentLanguage === 'es' ? '¿Cómo funciona?' : 'How it works?'}
+                <X className="h-4 w-4" />
               </Button>
             </div>
-
-            <div className="flex space-x-2">
-              <Input
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder={currentLanguage === 'es'
-                  ? 'Escribe tu mensaje...'
-                  : 'Type your message...'}
-                disabled={isLoading}
-                className="flex-1"
-              />
-              <Button
-                onClick={sendMessage}
-                disabled={isLoading || !inputMessage.trim()}
-                size="icon"
-              >
-                {isLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Send className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-
-            <p className="text-xs text-muted-foreground mt-2 text-center">
-              {currentLanguage === 'es'
-                ? '💬 Chat • 📞 Llamada en 60 seg • 🌍 English/Español'
-                : '💬 Chat • 📞 60-sec callback • 🌍 English/Español'}
-            </p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+
+        {/* Messages */}
+        <ScrollArea className="flex-1 bg-[hsl(220,14%,96%)]">
+          <div className="px-4 py-4 space-y-4">
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex gap-2.5 ${message.isUser ? 'flex-row-reverse' : 'flex-row'}`}
+              >
+                {/* Avatar for Clara messages */}
+                {!message.isUser && (
+                  <img
+                    src="/clara-avatar.png"
+                    alt="Clara"
+                    className="w-7 h-7 rounded-full object-cover flex-shrink-0 mt-1 ring-1 ring-black/5"
+                  />
+                )}
+
+                <div className={`max-w-[78%] ${message.isUser ? 'items-end' : 'items-start'}`}>
+                  <div
+                    className={`rounded-2xl px-4 py-2.5 ${
+                      message.isUser
+                        ? 'bg-primary text-white rounded-br-md'
+                        : 'bg-white text-foreground shadow-sm border border-black/5 rounded-bl-md'
+                    }`}
+                  >
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{message.content}</p>
+                  </div>
+                  <p className={`text-[10px] mt-1 px-1 ${message.isUser ? 'text-right' : 'text-left'} text-muted-foreground/60`}>
+                    {message.timestamp.toLocaleTimeString(currentLanguage === 'es' ? 'es-ES' : 'en-US', {
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </p>
+                </div>
+              </div>
+            ))}
+
+            {/* Typing indicator */}
+            {isLoading && (
+              <div className="flex gap-2.5">
+                <img
+                  src="/clara-avatar.png"
+                  alt="Clara"
+                  className="w-7 h-7 rounded-full object-cover flex-shrink-0 mt-1 ring-1 ring-black/5"
+                />
+                <div className="bg-white rounded-2xl rounded-bl-md px-4 py-3 shadow-sm border border-black/5">
+                  <div className="flex gap-1">
+                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:0ms]" />
+                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:150ms]" />
+                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:300ms]" />
+                  </div>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+        </ScrollArea>
+
+        {/* Footer / Input Area */}
+        <div className="border-t border-border/50 bg-white p-3 flex-shrink-0">
+          {/* Quick Actions */}
+          <div className="flex gap-2 mb-3">
+            <button
+              onClick={() => requestCallback('voice')}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border border-border hover:border-primary/30 hover:bg-primary/5 text-muted-foreground hover:text-foreground transition-all"
+            >
+              <PhoneCall className="h-3 w-3" />
+              {currentLanguage === 'es' ? 'Llamar' : 'Call Now'}
+            </button>
+            <button
+              onClick={() => {
+                setInputMessage(currentLanguage === 'es'
+                  ? 'Como funciona LifeLink Sync?'
+                  : 'How does LifeLink Sync work?');
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border border-border hover:border-primary/30 hover:bg-primary/5 text-muted-foreground hover:text-foreground transition-all"
+            >
+              <Shield className="h-3 w-3" />
+              {currentLanguage === 'es' ? 'Como funciona?' : 'How it works?'}
+            </button>
+            <button
+              onClick={() => {
+                setInputMessage(currentLanguage === 'es'
+                  ? 'Cuanto cuesta?'
+                  : 'What are the pricing plans?');
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border border-border hover:border-primary/30 hover:bg-primary/5 text-muted-foreground hover:text-foreground transition-all"
+            >
+              <Sparkles className="h-3 w-3" />
+              {currentLanguage === 'es' ? 'Precios' : 'Pricing'}
+            </button>
+          </div>
+
+          {/* Input */}
+          <div className="flex items-center gap-2">
+            <Input
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder={currentLanguage === 'es'
+                ? 'Escribe tu mensaje...'
+                : 'Type your message...'}
+              disabled={isLoading}
+              className="flex-1 rounded-full bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary/30 px-4 h-10"
+            />
+            <Button
+              onClick={sendMessage}
+              disabled={isLoading || !inputMessage.trim()}
+              size="icon"
+              className="rounded-full h-10 w-10 bg-primary hover:bg-primary/90 flex-shrink-0"
+            >
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+
+          <p className="text-[10px] text-muted-foreground/50 mt-2 text-center">
+            {currentLanguage === 'es'
+              ? 'Impulsado por LifeLink AI  |  Disponible 24/7'
+              : 'Powered by LifeLink AI  |  Available 24/7'}
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
