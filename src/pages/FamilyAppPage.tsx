@@ -140,7 +140,7 @@ const FamilyAppPage = () => {
       <div className="absolute top-0 left-0 right-0 z-20 bg-background/95 backdrop-blur-sm border-b p-4">
         <div className="flex items-center justify-between max-w-md mx-auto">
           <Select defaultValue="wakeman-family">
-            <SelectTrigger className="w-[200px]"><SelectValue placeholder="Select family" /></SelectTrigger>
+            <SelectTrigger className="w-full sm:w-[200px]"><SelectValue placeholder="Select family" /></SelectTrigger>
             <SelectContent><SelectItem value="wakeman-family">Wakeman Family</SelectItem></SelectContent>
           </Select>
           <div className="flex items-center gap-2">

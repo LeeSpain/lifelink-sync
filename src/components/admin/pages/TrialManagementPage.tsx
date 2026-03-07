@@ -79,13 +79,13 @@ export default function TrialManagementPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6 p-3 sm:p-6 md:p-0">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Trial Management</h1>
-          <p className="text-muted-foreground">Monitor free trial usage and conversions</p>
+          <h1 className="text-2xl sm:text-3xl font-bold">Trial Management</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Monitor free trial usage and conversions</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button onClick={handleExpireTrials} variant="outline" disabled={expiringLoading}>
             {expiringLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Clock className="h-4 w-4 mr-2" />}
             Run Expiry Check
@@ -98,7 +98,7 @@ export default function TrialManagementPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Trials</CardTitle>
@@ -153,7 +153,7 @@ export default function TrialManagementPage() {
             <p className="text-center text-muted-foreground py-8">No trials found</p>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full min-w-[600px] text-sm">
                 <thead>
                   <tr className="border-b">
                     <th className="text-left py-3 px-2 font-medium">User ID</th>

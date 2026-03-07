@@ -99,7 +99,7 @@ const Pricing: React.FC = () => {
 
         {/* Base Plan */}
         <div className="max-w-lg mx-auto mb-12">
-          <div className="rounded-2xl p-8 bg-[hsl(215,28%,17%)] text-white border-primary shadow-xl">
+          <div className="rounded-2xl p-5 sm:p-8 bg-[hsl(215,28%,17%)] text-white border-primary shadow-xl">
             <Badge className="bg-primary text-white text-xs font-medium mb-4">
               Base Plan
             </Badge>
@@ -137,7 +137,7 @@ const Pricing: React.FC = () => {
             Enhance your protection with modular add-ons. Add or remove anytime.
           </p>
 
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-8">
             {addOns.map((addon, i) => (
               <AddOnCard key={i} {...addon} />
             ))}

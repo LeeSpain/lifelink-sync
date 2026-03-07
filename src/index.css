@@ -203,9 +203,22 @@
     @apply border-border;
   }
 
+  html {
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
     @apply bg-background text-foreground font-inter antialiased;
     letter-spacing: -0.01em;
+    overflow-x: hidden;
+    min-height: 100dvh;
+  }
+
+  /* Ensure images/media never overflow */
+  img, video, svg, canvas {
+    max-width: 100%;
+    height: auto;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -336,8 +349,20 @@
   .responsive-table-container {
     @apply w-full overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0;
   }
-  
+
   .responsive-table {
     @apply w-full min-w-[640px];
+  }
+
+  /* Touch-friendly tap targets */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+}
+
+/* Safe area padding for notched devices */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
   }
 }

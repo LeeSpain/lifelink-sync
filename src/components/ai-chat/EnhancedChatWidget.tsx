@@ -199,7 +199,7 @@ const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center sm:p-4">
-      <div className="w-full sm:max-w-md h-[85vh] sm:h-[600px] sm:max-h-[80vh] min-h-[400px] flex flex-col bg-white sm:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
+      <div className="w-full sm:max-w-md h-[100dvh] sm:h-[600px] sm:max-h-[80vh] min-h-[400px] flex flex-col bg-white sm:rounded-2xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
 
         {/* Header */}
         <div className="relative bg-[hsl(215,28%,17%)] px-4 py-4 flex-shrink-0">

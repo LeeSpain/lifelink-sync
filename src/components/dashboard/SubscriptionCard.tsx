@@ -225,7 +225,7 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
                 {/* Trial Banner */}
                 {subscription?.is_trialing && (
                   <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div>
                         <h4 className="font-semibold text-blue-800">Free Trial Active</h4>
                         <p className="text-sm text-blue-600">
@@ -236,6 +236,7 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
                       </div>
                       <Button
                         size="sm"
+                        className="w-full sm:w-auto"
                         onClick={() => window.location.href = '/pricing'}
                       >
                         Subscribe Now
@@ -401,9 +402,9 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
 
           {/* Enhanced Billing & Invoices Tab */}
           <TabsContent value="billing" className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h4 className="font-medium text-xl">Billing History & Invoices</h4>
-              <Button onClick={loadInvoices} variant="outline" size="sm" disabled={isLoadingInvoices}>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <h4 className="font-medium text-lg sm:text-xl">Billing History & Invoices</h4>
+              <Button onClick={loadInvoices} variant="outline" size="sm" disabled={isLoadingInvoices} className="w-full sm:w-auto">
                 <FileText className="h-4 w-4 mr-2" />
                 {isLoadingInvoices ? 'Loading...' : 'Refresh'}
               </Button>
@@ -452,61 +453,52 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
               <div className="space-y-4">
                 <h5 className="font-medium">Recent Invoices</h5>
                 {invoices.map((invoice) => (
-                  <div key={invoice.id} className="flex items-center justify-between p-6 border rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3">
-                        <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
-                          {invoice.status.toUpperCase()}
-                        </Badge>
-                        <span className="font-semibold text-lg">Invoice #{invoice.number}</span>
-                        {invoice.paid && (
-                          <CheckCircle className="h-5 w-5 text-green-500" />
-                        )}
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4" />
-                          <span>Date: {new Date(invoice.created * 1000).toLocaleDateString()}</span>
-                        </div>
-                        <div>
-                          <span>Description: {invoice.description || 'Monthly Subscription'}</span>
-                        </div>
-                        {invoice.period_start && invoice.period_end && (
-                          <div>
-                            <span>Period: {new Date(invoice.period_start * 1000).toLocaleDateString()} - {new Date(invoice.period_end * 1000).toLocaleDateString()}</span>
-                          </div>
-                        )}
-                      </div>
+                  <div key={invoice.id} className="p-4 sm:p-6 border rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
+                    <div className="flex flex-wrap items-center gap-2 mb-3">
+                      <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
+                        {invoice.status.toUpperCase()}
+                      </Badge>
+                      <span className="font-semibold text-base sm:text-lg">Invoice #{invoice.number}</span>
+                      {invoice.paid && (
+                        <CheckCircle className="h-5 w-5 text-green-500" />
+                      )}
+                      <span className="font-bold text-lg sm:text-xl ml-auto">
+                        {formatCurrency(invoice.amount_paid || invoice.total, invoice.currency)}
+                      </span>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
-                        <p className="font-bold text-xl">
-                          {formatCurrency(invoice.amount_paid || invoice.total, invoice.currency)}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {invoice.currency.toUpperCase()}
-                        </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-sm text-muted-foreground mb-3">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 flex-shrink-0" />
+                        <span>{new Date(invoice.created * 1000).toLocaleDateString()}</span>
                       </div>
-                      <div className="flex flex-col gap-2">
-                        {invoice.invoice_pdf && (
-                          <Button
-                            onClick={() => window.open(invoice.invoice_pdf, '_blank')}
-                            variant="outline"
-                            size="sm"
-                          >
-                            <Download className="h-4 w-4 mr-2" />
-                            Download PDF
-                          </Button>
-                        )}
+                      <div className="truncate">
+                        {invoice.description || 'Monthly Subscription'}
+                      </div>
+                      {invoice.period_start && invoice.period_end && (
+                        <div className="text-xs">
+                          {new Date(invoice.period_start * 1000).toLocaleDateString()} - {new Date(invoice.period_end * 1000).toLocaleDateString()}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {invoice.invoice_pdf && (
                         <Button
-                          onClick={() => downloadInvoice(invoice.id, invoice.number)}
+                          onClick={() => window.open(invoice.invoice_pdf, '_blank')}
                           variant="outline"
                           size="sm"
                         >
-                          <FileText className="h-4 w-4 mr-2" />
-                          View Details
+                          <Download className="h-4 w-4 mr-2" />
+                          PDF
                         </Button>
-                      </div>
+                      )}
+                      <Button
+                        onClick={() => downloadInvoice(invoice.id, invoice.number)}
+                        variant="outline"
+                        size="sm"
+                      >
+                        <FileText className="h-4 w-4 mr-2" />
+                        Details
+                      </Button>
                     </div>
                   </div>
                 ))}

@@ -155,7 +155,7 @@ const AppPreviewSection: React.FC = () => {
 
                 {/* Enhanced Response Metrics */}
                 <div className="mt-8 bg-gradient-to-br from-white via-emergency/5 to-primary/5 rounded-xl p-6 border shadow-lg">
-                  <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-emergency mb-1">&lt; 15 sec</div>
                       <div className="text-xs text-muted-foreground">{t('common.aiDetection')}</div>
@@ -166,7 +166,7 @@ const AppPreviewSection: React.FC = () => {
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-3 gap-3 mb-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
                     <div className="text-center p-2 bg-white/60 rounded-lg">
                       <div className="text-lg font-bold text-wellness">99.8%</div>
                       <div className="text-xs text-muted-foreground">{t('common.successRate')}</div>

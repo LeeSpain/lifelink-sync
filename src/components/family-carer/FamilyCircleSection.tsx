@@ -382,7 +382,7 @@ export const FamilyCircleSection: React.FC = () => {
             </div>
 
             {/* Family members */}
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="text-center">
                 <div className="relative group">
                   <div className="w-18 h-18 bg-white/20 backdrop-blur-md rounded-full border-3 border-white/50 shadow-xl flex items-center justify-center mx-auto mb-2 overflow-hidden">
@@ -416,7 +416,7 @@ export const FamilyCircleSection: React.FC = () => {
             </div>
 
             {/* Trusted contacts */}
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="text-center">
                 <div className="relative group">
                   <div className="w-18 h-18 bg-white/20 backdrop-blur-md rounded-full border-3 border-white/50 shadow-xl flex items-center justify-center mx-auto mb-2 overflow-hidden">

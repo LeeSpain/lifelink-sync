@@ -51,7 +51,7 @@ export const ConnectionsWidget = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Summary Stats */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-2 sm:gap-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-primary">{totalActive}</div>
               <div className="text-sm text-muted-foreground">Active Connections</div>

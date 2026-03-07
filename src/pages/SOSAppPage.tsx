@@ -246,7 +246,7 @@ const SOSAppPage = () => {
                 </Button>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
               <div className="flex items-center gap-2 text-white/80">
                 <MapPin className="h-4 w-4" />
                 <span>Location: {emergencyStatus.location ? 'Active' : 'Disabled'}</span>
@@ -282,7 +282,7 @@ const SOSAppPage = () => {
                 <span className="font-bold">ACTIVE EMERGENCY</span>
                 <Badge variant="destructive" className="bg-red-800">{activeIncident.status.toUpperCase()}</Badge>
               </div>
-              <div className="grid grid-cols-2 gap-2 text-sm text-white/90">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-white/90">
                 <div>Started: {activeIncident.startTime.toLocaleTimeString()}</div>
                 <div>Contacts: {activeIncident.contactsNotified} notified</div>
                 <div>Location: {activeIncident.locationShared ? 'Shared' : 'Pending'}</div>
@@ -300,7 +300,7 @@ const SOSAppPage = () => {
             <div className="space-y-6">
               <div className="flex justify-center mb-8"><EmergencyButton /></div>
 
-              <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                 <Button className="h-16 bg-blue-600/20 border border-blue-500/30 text-white hover:bg-blue-600/30" onClick={() => toast({ title: "Photo Capture", description: "Emergency photo capture feature activated" })}>
                   <div className="flex flex-col items-center gap-2"><Camera className="h-6 w-6" /><span className="text-sm">Photo</span></div>
                 </Button>

@@ -97,14 +97,14 @@ const HeroPhoneMockup = () => {
 
 const Hero = ({ onClaraClick }: HeroProps) => {
   return (
-    <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-[#FAFAF9] pt-16">
+    <section className="relative min-h-[100dvh] sm:min-h-[85vh] flex items-center justify-center overflow-hidden bg-[#FAFAF9] pt-20 sm:pt-16">
       {/* Subtle background texture */}
       <div className="absolute inset-0 opacity-[0.03]" style={{
         backgroundImage: 'radial-gradient(#DC2626 1px, transparent 1px)',
         backgroundSize: '24px 24px'
       }} />
-      <div className="absolute top-20 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-80 h-80 bg-primary/3 rounded-full blur-3xl" />
+      <div className="absolute top-20 right-0 w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-primary/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-40 h-40 sm:w-60 sm:h-60 lg:w-80 lg:h-80 bg-primary/3 rounded-full blur-3xl" />
 
       <div className="container mx-auto px-4 py-16 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center">

@@ -633,7 +633,7 @@ const AIRegister = () => {
                                 </span>
                               </div>
                               <p className="text-muted-foreground mb-3">{premiumPlan.description}</p>
-                              <div className="grid grid-cols-2 gap-2">
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 {premiumPlan.features.map((feature, idx) => (
                                   <div key={idx} className="flex items-center gap-1 text-sm">
                                     <Check className="h-3 w-3 text-green-500" />

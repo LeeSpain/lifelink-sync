@@ -171,7 +171,7 @@ const DashboardHeader = ({ profile, subscription }: DashboardHeaderProps) => {
         </div>
 
         {/* Professional Status Grid */}
-        <div className="grid grid-cols-4 gap-3 mb-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
           {/* Protection Status */}
           <div className="bg-emergency backdrop-blur-sm border border-emergency-glow/30 rounded-lg p-3 shadow-lg">
             <div className="text-center space-y-2">

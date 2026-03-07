@@ -197,13 +197,13 @@ export default function AddonManagementPage() {
   const missingStripe = addons.filter(a => a.is_active && !a.stripe_price_id).length;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6 p-3 sm:p-6 md:p-0">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Add-On Management</h1>
-          <p className="text-muted-foreground">Manage subscription add-ons and pricing</p>
+          <h1 className="text-2xl sm:text-3xl font-bold">Add-On Management</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Manage subscription add-ons and pricing</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {missingStripe > 0 && (
             <Button onClick={handleStripeSetup} variant="outline" disabled={setupLoading}>
               {setupLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Euro className="h-4 w-4 mr-2" />}
@@ -225,7 +225,7 @@ export default function AddonManagementPage() {
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label>Slug</Label>
                     <Input
@@ -250,7 +250,7 @@ export default function AddonManagementPage() {
                     onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
                   />
                 </div>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div>
                     <Label>Price</Label>
                     <Input

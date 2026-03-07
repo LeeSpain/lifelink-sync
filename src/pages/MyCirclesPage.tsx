@@ -245,7 +245,7 @@ export default function MyCirclesPage() {
                 <p className="text-xs text-muted-foreground">Circle Health</p>
               </div>
               <Separator orientation="vertical" className="h-10" />
-              <div className="grid grid-cols-3 gap-6 text-center">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-center">
                 <div>
                   <div className="text-lg font-bold text-primary">{activeFamily.length}</div>
                   <div className="text-xs text-muted-foreground">Family</div>

@@ -64,7 +64,7 @@ export const FamilyCircleOverview = () => {
             <p className="text-3xl font-bold text-foreground">{circleHealth}%</p>
             <p className="text-xs text-muted-foreground">Circle Health</p>
           </div>
-          <div className="flex-1 grid grid-cols-3 gap-3 text-center">
+          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-center">
             <div className="p-2 rounded-lg bg-muted/50">
               <div className="text-lg font-semibold text-foreground">{totalActive}</div>
               <div className="text-xs text-muted-foreground">Active</div>
@@ -83,7 +83,7 @@ export const FamilyCircleOverview = () => {
         <Progress value={circleHealth} className="h-2" />
 
         {/* Connection Types */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="flex items-center gap-2.5 p-3 rounded-lg border">
             <Crown className="h-4 w-4 text-primary" />
             <div className="flex-1 min-w-0">
@@ -106,7 +106,7 @@ export const FamilyCircleOverview = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <Button
             onClick={() => navigate('/member-dashboard/connections')}
             size="sm"

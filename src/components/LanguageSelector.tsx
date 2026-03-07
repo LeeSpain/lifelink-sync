@@ -8,7 +8,7 @@ export const LanguageSelector: React.FC<{ compact?: boolean }> = ({ compact }) =
   return (
     <div className={`flex items-center gap-2 ${compact ? '' : 'ml-2'}`}>
       <Select value={language} onValueChange={(v) => setLanguage(v as any)}>
-        <SelectTrigger className="h-8 w-[120px]">
+        <SelectTrigger className="h-8 w-[100px] sm:w-[120px]">
           <SelectValue placeholder="Language" />
         </SelectTrigger>
         <SelectContent>

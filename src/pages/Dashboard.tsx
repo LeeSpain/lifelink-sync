@@ -166,12 +166,14 @@ const Dashboard = () => {
         
         <div className="flex-1 flex flex-col">
           {/* Header with Sidebar Toggle */}
-          <header className="h-16 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center px-4 gap-4">
+          <header className="h-14 sm:h-16 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center px-3 sm:px-4 gap-2 sm:gap-4">
             <SidebarTrigger />
-            <div className="flex-1">
-              <h1 className="text-xl font-semibold">{t('dashboard.title', { defaultValue: 'Dashboard' })}</h1>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-lg sm:text-xl font-semibold truncate">{t('dashboard.title', { defaultValue: 'Dashboard' })}</h1>
             </div>
-            <LanguageCurrencySelector compact />
+            <div className="hidden sm:block">
+              <LanguageCurrencySelector compact />
+            </div>
           </header>
 
           {/* Dashboard Content */}
@@ -181,18 +183,16 @@ const Dashboard = () => {
               <Route 
                 index 
                 element={
-                  <div className="p-6">
+                  <div className="p-3 sm:p-6">
                     <div className="max-w-none">
                       {/* Welcome Header */}
-                      <div className="mb-8 flex items-center justify-between">
-                        <div>
-                          <h1 className="text-2xl font-bold tracking-tight text-foreground">
-                            Welcome back, {profile?.first_name || 'Member'}
-                          </h1>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            Your protection overview and emergency readiness
-                          </p>
-                        </div>
+                      <div className="mb-4 sm:mb-8">
+                        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+                          Welcome back, {profile?.first_name || 'Member'}
+                        </h1>
+                        <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                          Your protection overview and emergency readiness
+                        </p>
                       </div>
 
                       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -218,28 +218,28 @@ const Dashboard = () => {
 
               {/* Products Page */}
                <Route path="products" element={
-                 <div className="p-6">
+                 <div className="p-3 sm:p-6">
                   <EnhancedMyProductsPage />
                 </div>
               } />
 
               {/* Profile Page */}
                <Route path="profile" element={
-                 <div className="p-6">
+                 <div className="p-3 sm:p-6">
                   <EnhancedProfilePage />
                 </div>
               } />
 
               {/* Family SOS Live View */}
                <Route path="family-sos" element={
-                 <div className="p-6">
+                 <div className="p-3 sm:p-6">
                    <LiveSOSFamily />
                  </div>
                } />
 
                {/* Activity Page */}
                <Route path="activity" element={
-                 <div className="p-6 space-y-6">
+                 <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
                    <div>
                      <h1 className="text-2xl font-bold tracking-tight">Activity & Testing</h1>
                      <p className="text-muted-foreground">View recent activity and system status</p>
@@ -250,7 +250,7 @@ const Dashboard = () => {
 
                {/* Subscription Page */}
                <Route path="subscription" element={
-                 <div className="p-6 space-y-6">
+                 <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
                    <div>
                      <h1 className="text-2xl font-bold tracking-tight">Subscription & Billing</h1>
                      <p className="text-muted-foreground">Manage your plan, payments, and invoices</p>
@@ -262,7 +262,7 @@ const Dashboard = () => {
 
                {/* Mobile App Page */}
                 <Route path="mobile-app" element={
-                  <div className="p-6 space-y-6">
+                  <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
                     <div>
                       <h1 className="text-2xl font-bold tracking-tight">Mobile App</h1>
                       <p className="text-muted-foreground">Set up and manage your mobile app connection</p>
@@ -273,7 +273,7 @@ const Dashboard = () => {
 
                {/* Mobile Dashboard Page */}
                 <Route path="mobile-dashboard" element={
-                  <div className="p-6">
+                  <div className="p-3 sm:p-6">
                     <div className="mb-6">
                       <h1 className="text-2xl font-bold tracking-tight">Mobile Development Dashboard</h1>
                       <p className="text-muted-foreground">Monitor mobile app readiness and native capabilities</p>
@@ -287,7 +287,7 @@ const Dashboard = () => {
               {/* Dashboard pages with full width */}
               <Route path="family" element={<FamilyPage />} />
                <Route path="family-setup" element={
-                 <div className="p-6">
+                 <div className="p-3 sm:p-6">
                    <div className="max-w-4xl mx-auto">
                      <FamilyAccessSetup />
                    </div>
@@ -295,22 +295,22 @@ const Dashboard = () => {
                } />
                <Route path="location" element={<LocationPage />} />
                <Route path="notifications" element={
-                 <div className="p-6">
+                 <div className="p-3 sm:p-6">
                    <NotificationsPage />
                  </div>
                } />
                <Route path="security" element={
-                 <div className="p-6">
+                 <div className="p-3 sm:p-6">
                    <SecurityPage />
                  </div>
                } />
                <Route path="settings" element={
-                 <div className="p-6">
+                 <div className="p-3 sm:p-6">
                    <SettingsPage />
                  </div>
                } />
                <Route path="support" element={
-                 <div className="p-6">
+                 <div className="p-3 sm:p-6">
                    <SupportPage />
                  </div>
                } />
@@ -322,24 +322,24 @@ const Dashboard = () => {
                 </div>
               } />
                <Route path="circles" element={
-                 <div className="p-6">
+                 <div className="p-3 sm:p-6">
                    <MyCirclesPage />
                  </div>
                } />
                <Route path="places" element={
-                 <div className="p-6">
+                 <div className="p-3 sm:p-6">
                    <PlacesManager />
                  </div>
                } />
                <Route path="location-history" element={
-                 <div className="p-6">
+                 <div className="p-3 sm:p-6">
                    <LocationHistoryPage />
                  </div>
                 } />
                 
                 {/* Connections Page */}
                 <Route path="connections" element={
-                  <div className="p-6">
+                  <div className="p-3 sm:p-6">
                     <ConnectionsPage />
                   </div>
                 } />
