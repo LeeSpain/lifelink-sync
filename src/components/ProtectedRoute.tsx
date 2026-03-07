@@ -9,8 +9,11 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, loading } = useAuth();
 
-  // Dev bypass: allow ?dev=1 to skip auth for testing
-  const devBypass = new URLSearchParams(window.location.search).get('dev') === '1';
+  // Dev bypass: ?dev=1 sets localStorage flag, persists across navigation
+  if (new URLSearchParams(window.location.search).get('dev') === '1') {
+    localStorage.setItem('dev_bypass', '1');
+  }
+  const devBypass = localStorage.getItem('dev_bypass') === '1';
 
   console.log('🛡️ ProtectedRoute:', {
     hasUser: !!user,

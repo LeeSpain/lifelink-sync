@@ -9,8 +9,11 @@ interface ProtectedSOSRouteProps {
 const ProtectedSOSRoute = ({ children }: ProtectedSOSRouteProps) => {
   const { user, loading } = useOptimizedAuth();
 
-  // Dev bypass: allow ?dev=1 to skip auth for testing
-  const devBypass = new URLSearchParams(window.location.search).get('dev') === '1';
+  // Dev bypass: ?dev=1 sets localStorage flag, persists across navigation
+  if (new URLSearchParams(window.location.search).get('dev') === '1') {
+    localStorage.setItem('dev_bypass', '1');
+  }
+  const devBypass = localStorage.getItem('dev_bypass') === '1';
 
   console.log('🚨 ProtectedSOSRoute:', {
     hasUser: !!user,

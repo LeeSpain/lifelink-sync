@@ -32,8 +32,9 @@ const FamilyDashboard = () => {
     );
   }
 
-  // Redirect if not authenticated
-  if (!user) {
+  // Redirect if not authenticated (skip if dev bypass is active)
+  const devBypass = localStorage.getItem('dev_bypass') === '1';
+  if (!user && !devBypass) {
     return <Navigate to="/auth" replace />;
   }
 
