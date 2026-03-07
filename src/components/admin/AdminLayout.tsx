@@ -168,6 +168,8 @@ function AdminSidebar() {
   const currentPath = location.pathname;
   const { t } = useTranslation();
   const adminMenuItems = useAdminMenuItems();
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
 
   // State to track which sections are expanded
   const [expandedSections, setExpandedSections] = useState<Set<string>>(() => {
@@ -281,6 +283,45 @@ function AdminSidebar() {
             </SidebarGroup>
           );
         })}
+
+        {/* Sign Out & Home */}
+        <div className="mt-auto border-t border-sidebar-border px-3 py-4">
+          <SidebarMenu className="space-y-1">
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <NavLink
+                  to="/"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                >
+                  <div className="p-1.5 rounded-md bg-sidebar-accent/50">
+                    <Home className="h-4 w-4" />
+                  </div>
+                  {state !== "collapsed" && (
+                    <span className="font-medium text-sm">Home</span>
+                  )}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <button
+                  onClick={async () => {
+                    await signOut();
+                    navigate('/');
+                  }}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground hover:bg-red-50 dark:hover:bg-red-950/20 w-full"
+                >
+                  <div className="p-1.5 rounded-md bg-sidebar-accent/50 group-hover:bg-red-100">
+                    <LogOut className="h-4 w-4" />
+                  </div>
+                  {state !== "collapsed" && (
+                    <span className="font-medium text-sm">Sign Out</span>
+                  )}
+                </button>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </div>
       </SidebarContent>
     </Sidebar>
   );

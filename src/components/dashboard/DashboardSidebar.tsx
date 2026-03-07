@@ -27,9 +27,13 @@ import {
   Map,
   Navigation,
   History,
-  UserPlus
+  UserPlus,
+  LogOut,
+  Home
 } from "lucide-react";
 import { useTranslation } from 'react-i18next';
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const useDashboardItems = () => {
   const { t } = useTranslation();
@@ -128,6 +132,13 @@ export function DashboardSidebar() {
   const collapsed = state === "collapsed";
   const { t } = useTranslation();
   const { dashboardItems, familyCircleItems, settingsItems } = useDashboardItems();
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   const isActive = (path: string) => {
     if (path === '/member-dashboard') {
@@ -294,6 +305,51 @@ export function DashboardSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Separator */}
+        <div className="mx-4 h-px bg-sidebar-border/50"></div>
+
+        {/* Sign Out & Home */}
+        <SidebarGroup className="px-3 py-4 mt-auto">
+          <SidebarGroupContent>
+            <SidebarMenu className="space-y-1">
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <NavLink
+                    to="/"
+                    className="flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group hover:bg-sidebar-accent/30 border border-transparent"
+                  >
+                    <div className="p-1.5 rounded-lg transition-colors bg-sidebar-muted text-sidebar-muted-foreground group-hover:bg-sidebar-accent group-hover:text-sidebar-accent-foreground">
+                      <Home className="h-4 w-4" />
+                    </div>
+                    {!collapsed && (
+                      <span className="text-sm font-medium text-sidebar-foreground group-hover:text-sidebar-accent-foreground">
+                        Home
+                      </span>
+                    )}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <button
+                    onClick={handleSignOut}
+                    className="flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group hover:bg-red-50 dark:hover:bg-red-950/20 border border-transparent w-full"
+                  >
+                    <div className="p-1.5 rounded-lg transition-colors bg-sidebar-muted text-sidebar-muted-foreground group-hover:bg-red-100 group-hover:text-red-600 dark:group-hover:bg-red-950/30">
+                      <LogOut className="h-4 w-4" />
+                    </div>
+                    {!collapsed && (
+                      <span className="text-sm font-medium text-sidebar-foreground group-hover:text-red-600">
+                        Sign Out
+                      </span>
+                    )}
+                  </button>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

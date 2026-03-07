@@ -184,6 +184,11 @@ const AuthPage = () => {
       <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
+            <div className="mb-2">
+              <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                <Link to="/">&larr; Back to Homepage</Link>
+              </Button>
+            </div>
             <CardTitle className="text-2xl font-bold">Welcome</CardTitle>
             <CardDescription>Sign in to your account</CardDescription>
           </CardHeader>
