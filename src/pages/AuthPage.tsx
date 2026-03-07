@@ -92,7 +92,6 @@ const AuthPage = () => {
       }
 
       if (data.user) {
-        setSuccess('Sign in successful! Redirecting...');
         resetRateLimit();
         // Log successful sign in
         setTimeout(() => {
@@ -104,24 +103,25 @@ const AuthPage = () => {
             source: 'auth_page'
           });
         }, 0);
-        
+
         // Check for 'next' parameter to redirect after login
         const nextUrl = searchParams.get('next');
         const planParam = searchParams.get('plan');
-        
-        // Build redirect URL
-        let redirectTo = '/dashboard';
+
         if (nextUrl) {
-          redirectTo = nextUrl;
+          // If there's a specific redirect target, go there
+          let redirectTo = nextUrl;
           if (planParam) {
             redirectTo += `${nextUrl.includes('?') ? '&' : '?'}plan=${planParam}`;
           }
+          setTimeout(() => {
+            navigate(redirectTo);
+          }, 500);
+          setSuccess('Sign in successful! Redirecting...');
+        } else {
+          // Stay on auth page so dev quick links are usable
+          setSuccess(`Signed in as ${data.user.email}. Use the quick links below or go to your dashboard.`);
         }
-        
-        // Redirect after successful sign in
-        setTimeout(() => {
-          navigate(redirectTo);
-        }, 1000);
       }
     } catch (error: any) {
       console.error('Sign in error:', error);
@@ -250,14 +250,27 @@ const AuthPage = () => {
             {/* Dev Quick Links */}
             <div className="mt-8 border-t pt-6">
               <h3 className="text-sm font-semibold text-muted-foreground mb-4 text-center uppercase tracking-wide">Quick Links (Testing)</h3>
-              <p className="text-[10px] text-muted-foreground text-center mb-4">
-                Links marked with * require login first. Log in above, then click.
-              </p>
+
+              {!user && (
+                <p className="text-[10px] text-orange-500 text-center mb-4 font-medium">
+                  Log in above first — protected links only work when signed in.
+                </p>
+              )}
+
+              {user && (
+                <div className="mb-4">
+                  <Alert>
+                    <AlertDescription className="text-xs">
+                      Signed in as <strong>{user.email}</strong> — all links below are now active.
+                    </AlertDescription>
+                  </Alert>
+                </div>
+              )}
 
               <div className="space-y-4">
                 {/* Dashboards */}
                 <div>
-                  <p className="text-xs font-semibold text-foreground mb-2">Dashboards *</p>
+                  <p className="text-xs font-semibold text-foreground mb-2">Dashboards</p>
                   <div className="flex flex-wrap gap-1.5">
                     {[
                       { label: 'Dashboard', to: '/dashboard' },
@@ -265,8 +278,8 @@ const AuthPage = () => {
                       { label: 'Family', to: '/family-dashboard' },
                       { label: 'Admin', to: '/admin-dashboard' },
                     ].map(link => (
-                      <Button key={link.to} asChild variant="outline" size="sm" className="h-7 text-xs">
-                        <a href={link.to}>{link.label}</a>
+                      <Button key={link.to} asChild variant={user ? "default" : "outline"} size="sm" className="h-7 text-xs">
+                        <Link to={link.to}>{link.label}</Link>
                       </Button>
                     ))}
                   </div>
@@ -274,7 +287,7 @@ const AuthPage = () => {
 
                 {/* Apps */}
                 <div>
-                  <p className="text-xs font-semibold text-foreground mb-2">Apps *</p>
+                  <p className="text-xs font-semibold text-foreground mb-2">Apps</p>
                   <div className="flex flex-wrap gap-1.5">
                     {[
                       { label: 'SOS App', to: '/sos-app' },
@@ -282,8 +295,8 @@ const AuthPage = () => {
                       { label: 'Mobile App', to: '/mobile-app' },
                       { label: 'Smart Redirect', to: '/app' },
                     ].map(link => (
-                      <Button key={link.to} asChild variant="outline" size="sm" className="h-7 text-xs">
-                        <a href={link.to}>{link.label}</a>
+                      <Button key={link.to} asChild variant={user ? "default" : "outline"} size="sm" className="h-7 text-xs">
+                        <Link to={link.to}>{link.label}</Link>
                       </Button>
                     ))}
                   </div>
@@ -291,7 +304,7 @@ const AuthPage = () => {
 
                 {/* Key Pages (Protected) */}
                 <div>
-                  <p className="text-xs font-semibold text-foreground mb-2">Key Pages *</p>
+                  <p className="text-xs font-semibold text-foreground mb-2">Key Pages</p>
                   <div className="flex flex-wrap gap-1.5">
                     {[
                       { label: 'Map', to: '/map' },
@@ -302,8 +315,8 @@ const AuthPage = () => {
                       { label: 'Questionnaire', to: '/welcome-questionnaire' },
                       { label: 'Family Setup', to: '/family-access-setup' },
                     ].map(link => (
-                      <Button key={link.to} asChild variant="outline" size="sm" className="h-7 text-xs">
-                        <a href={link.to}>{link.label}</a>
+                      <Button key={link.to} asChild variant={user ? "default" : "outline"} size="sm" className="h-7 text-xs">
+                        <Link to={link.to}>{link.label}</Link>
                       </Button>
                     ))}
                   </div>
@@ -330,7 +343,7 @@ const AuthPage = () => {
                       { label: 'Test Page', to: '/test' },
                     ].map(link => (
                       <Button key={link.to} asChild variant="outline" size="sm" className="h-7 text-xs">
-                        <a href={link.to}>{link.label}</a>
+                        <Link to={link.to}>{link.label}</Link>
                       </Button>
                     ))}
                   </div>
