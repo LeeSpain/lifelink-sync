@@ -9,24 +9,6 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, loading } = useAuth();
 
-  // Dev bypass: ?dev=1 sets localStorage flag, persists across navigation
-  if (new URLSearchParams(window.location.search).get('dev') === '1') {
-    localStorage.setItem('dev_bypass', '1');
-  }
-  const devBypass = localStorage.getItem('dev_bypass') === '1';
-
-  console.log('🛡️ ProtectedRoute:', {
-    hasUser: !!user,
-    loading,
-    devBypass,
-    path: window.location.pathname
-  });
-
-  if (devBypass) {
-    return <>{children}</>;
-  }
-
-  // Show loading while checking authentication
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
@@ -38,7 +20,6 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
-  // Redirect to auth if not logged in
   if (!user) {
     return <Navigate to="/auth" replace />;
   }

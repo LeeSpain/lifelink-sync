@@ -21,12 +21,39 @@ export const useAuth = () => {
   return context;
 };
 
+// Dev bypass mock user for testing without authentication
+const DEV_MOCK_USER = {
+  id: 'dev-test-user-00000000',
+  aud: 'authenticated',
+  role: 'authenticated',
+  email: 'dev@lifelink-sync.com',
+  email_confirmed_at: new Date().toISOString(),
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+  app_metadata: { provider: 'email', providers: ['email'] },
+  user_metadata: { first_name: 'Dev', last_name: 'Tester' },
+  identities: [],
+  factors: [],
+} as unknown as User;
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = React.useState<User | null>(null);
   const [session, setSession] = React.useState<Session | null>(null);
   const [loading, setLoading] = React.useState(true);
 
+  // Check for dev bypass mode
+  const devBypass = typeof window !== 'undefined' && localStorage.getItem('dev_bypass') === '1';
+
   React.useEffect(() => {
+    // Dev bypass: provide mock user immediately, skip real auth
+    if (devBypass) {
+      console.log('🔧 Dev bypass active: using mock user');
+      setUser(DEV_MOCK_USER);
+      setSession(null);
+      setLoading(false);
+      return;
+    }
+
     let mounted = true;
     let initialSessionLoaded = false;
 
@@ -42,7 +69,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             return;
           }
         }
-        
+
         if (mounted && !initialSessionLoaded) {
           initialSessionLoaded = true;
           setSession(session);

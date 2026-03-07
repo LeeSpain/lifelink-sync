@@ -1,21 +1,14 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Routes, Route } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
-import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import MetricsDashboard from "@/components/dashboard/MetricsDashboard";
 import EmergencyActionsWidget from "@/components/dashboard/EmergencyActionsWidget";
 import { FamilyCircleOverview } from "@/components/dashboard/FamilyCircleOverview";
 import { LiveFamilyStatus } from "@/components/dashboard/LiveFamilyStatus";
 import { EmergencyPreparedness } from "@/components/dashboard/EmergencyPreparedness";
-import MyProductsWidget from "@/components/dashboard/MyProductsWidget";
-import PersonalDetailsCard from "@/components/dashboard/PersonalDetailsCard";
-import EmergencyContactsCard from "@/components/dashboard/EmergencyContactsCard";
-import FamilyAccessPanel from "@/components/dashboard/family/FamilyAccessPanel";
 import LiveSOSFamily from "@/components/dashboard/family/LiveSOSFamily";
-import MedicalInfoCard from "@/components/dashboard/MedicalInfoCard";
 import EnhancedProfilePage from "@/components/dashboard/pages/EnhancedProfilePage";
 import EnhancedMyProductsPage from "@/components/dashboard/pages/EnhancedMyProductsPage";
 import SubscriptionCard from "@/components/dashboard/SubscriptionCard";
@@ -27,13 +20,13 @@ import { NotificationsPage } from "@/components/dashboard/pages/NotificationsPag
 import { SecurityPage } from "@/components/dashboard/pages/SecurityPage";
 import { SettingsPage } from "@/components/dashboard/pages/SettingsPage";
 import { SupportPage } from "@/components/dashboard/pages/SupportPage";
-import { FlicControlPage } from "@/components/dashboard/pages/FlicControlPage";
 import FamilyAccessSetup from "@/pages/FamilyAccessSetup";
 import MapScreen from "@/pages/MapScreen";
 import MyCirclesPage from "@/pages/MyCirclesPage";
 import PlacesManager from "@/pages/PlacesManager";
 import LocationHistoryPage from "@/pages/LocationHistoryPage";
 import { ConnectionsPage } from "@/components/dashboard/ConnectionsPage";
+import { MobileDashboard } from "@/components/mobile/MobileDashboard";
 import { useTranslation } from 'react-i18next';
 import { useRealTimeUpdates } from '@/hooks/useRealTimeUpdates';
 import LanguageCurrencySelector from '@/components/LanguageCurrencySelector';
@@ -272,10 +265,7 @@ const Dashboard = () => {
                       <p className="text-muted-foreground">Monitor mobile app readiness and native capabilities</p>
                     </div>
                     <div className="space-y-6">
-                      {React.createElement(() => {
-                        const { MobileDashboard } = require('@/components/mobile/MobileDashboard');
-                        return React.createElement(MobileDashboard);
-                      })}
+                      <MobileDashboard />
                     </div>
                   </div>
                 } />

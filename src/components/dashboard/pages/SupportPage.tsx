@@ -71,7 +71,7 @@ export function SupportPage() {
           message: currentMessage,
           sessionId: `support-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           userId: user?.id || null,
-          context: `dashboard-support - User: ${userName}`,
+          context: `dashboard-support - User: ${user?.user_metadata?.first_name || user?.email?.split('@')[0] || 'User'}`,
           conversation_history: messages.slice(-5)
         }
       });
