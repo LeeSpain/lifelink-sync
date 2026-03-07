@@ -30,7 +30,10 @@ export default function EnhancedProfilePage() {
   }, [user]);
 
   const loadProfile = async () => {
-    if (!user) return;
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
 
     try {
       setIsLoading(true);
@@ -42,7 +45,26 @@ export default function EnhancedProfilePage() {
 
       if (error && error.code !== 'PGRST116') throw error;
 
-      setProfile(profileData);
+      if (!profileData) {
+        // Auto-create a profile row for the user
+        const { data: newProfile, error: createError } = await supabase
+          .from('profiles')
+          .upsert({
+            user_id: user.id,
+            first_name: user.user_metadata?.first_name || '',
+            last_name: user.user_metadata?.last_name || '',
+            updated_at: new Date().toISOString()
+          })
+          .select('*')
+          .maybeSingle();
+
+        if (createError) {
+          console.error('Error creating profile:', createError);
+        }
+        setProfile(newProfile || null);
+      } else {
+        setProfile(profileData);
+      }
     } catch (error) {
       console.error('Error loading profile:', error);
       toast({
