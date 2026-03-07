@@ -9,17 +9,25 @@ interface AdminProtectedRouteProps {
 const AdminProtectedRoute = ({ children }: AdminProtectedRouteProps) => {
   const { user, loading, isAdmin, role } = useOptimizedAuth();
 
+  // Dev bypass: allow ?dev=1 to skip auth for testing
+  const devBypass = new URLSearchParams(window.location.search).get('dev') === '1';
+
   console.log('🔐 AdminProtectedRoute - Enhanced Debug:', {
     user: user?.id || 'none',
     userEmail: user?.email,
     isAdmin,
     role,
     loading,
+    devBypass,
     currentPath: window.location.pathname,
     href: window.location.href,
     shouldRedirect: !loading && user && !isAdmin,
     timestamp: new Date().toISOString()
   });
+
+  if (devBypass) {
+    return <>{children}</>;
+  }
 
   // Show loading while checking authentication and role
   if (loading) {
@@ -42,11 +50,11 @@ const AdminProtectedRoute = ({ children }: AdminProtectedRouteProps) => {
 
   // Enhanced admin check with explicit role verification
   const isDefinitelyAdmin = role === 'admin' || isAdmin;
-  console.log('🔐 AdminProtectedRoute: Admin check result:', { 
-    role, 
-    isAdmin, 
+  console.log('🔐 AdminProtectedRoute: Admin check result:', {
+    role,
+    isAdmin,
     isDefinitelyAdmin,
-    willRedirect: !isDefinitelyAdmin 
+    willRedirect: !isDefinitelyAdmin
   });
 
   // Only redirect if we have a definitive role and it's not admin

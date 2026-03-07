@@ -9,11 +9,19 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, loading } = useAuth();
 
-  console.log('🛡️ ProtectedRoute:', { 
-    hasUser: !!user, 
-    loading, 
-    path: window.location.pathname 
+  // Dev bypass: allow ?dev=1 to skip auth for testing
+  const devBypass = new URLSearchParams(window.location.search).get('dev') === '1';
+
+  console.log('🛡️ ProtectedRoute:', {
+    hasUser: !!user,
+    loading,
+    devBypass,
+    path: window.location.pathname
   });
+
+  if (devBypass) {
+    return <>{children}</>;
+  }
 
   // Show loading while checking authentication
   if (loading) {

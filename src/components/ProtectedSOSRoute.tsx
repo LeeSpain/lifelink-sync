@@ -9,11 +9,19 @@ interface ProtectedSOSRouteProps {
 const ProtectedSOSRoute = ({ children }: ProtectedSOSRouteProps) => {
   const { user, loading } = useOptimizedAuth();
 
-  console.log('🚨 ProtectedSOSRoute:', { 
-    hasUser: !!user, 
-    loading, 
-    path: window.location.pathname 
+  // Dev bypass: allow ?dev=1 to skip auth for testing
+  const devBypass = new URLSearchParams(window.location.search).get('dev') === '1';
+
+  console.log('🚨 ProtectedSOSRoute:', {
+    hasUser: !!user,
+    loading,
+    devBypass,
+    path: window.location.pathname
   });
+
+  if (devBypass) {
+    return <>{children}</>;
+  }
 
   // Show loading while checking authentication
   if (loading) {

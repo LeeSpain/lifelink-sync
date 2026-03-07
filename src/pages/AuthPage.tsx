@@ -247,25 +247,9 @@ const AuthPage = () => {
               </p>
             </div>
 
-            {/* Dev Quick Links */}
+            {/* Dev Quick Links — bypass auth with ?dev=1 */}
             <div className="mt-8 border-t pt-6">
-              <h3 className="text-sm font-semibold text-muted-foreground mb-4 text-center uppercase tracking-wide">Quick Links (Testing)</h3>
-
-              {!user && (
-                <p className="text-[10px] text-orange-500 text-center mb-4 font-medium">
-                  Log in above first — links require authentication.
-                </p>
-              )}
-
-              {user && (
-                <div className="mb-4">
-                  <Alert>
-                    <AlertDescription className="text-xs">
-                      Signed in as <strong>{user.email}</strong> — all links are active.
-                    </AlertDescription>
-                  </Alert>
-                </div>
-              )}
+              <h3 className="text-sm font-semibold text-muted-foreground mb-4 text-center uppercase tracking-wide">Quick Links (Dev)</h3>
 
               <div className="space-y-4">
                 {/* Dashboards */}
@@ -273,19 +257,12 @@ const AuthPage = () => {
                   <p className="text-xs font-semibold text-foreground mb-2">Dashboards</p>
                   <div className="flex flex-wrap gap-1.5">
                     {[
-                      { label: 'Member Dashboard', to: '/member-dashboard' },
-                      { label: 'Family Dashboard', to: '/family-dashboard' },
-                      { label: 'Admin Dashboard', to: '/admin-dashboard' },
+                      { label: 'Member Dashboard', href: '/member-dashboard?dev=1' },
+                      { label: 'Family Dashboard', href: '/family-dashboard?dev=1' },
+                      { label: 'Admin Dashboard', href: '/admin-dashboard?dev=1' },
                     ].map(link => (
-                      <Button
-                        key={link.to}
-                        variant={user ? "default" : "outline"}
-                        size="sm"
-                        className="h-7 text-xs"
-                        disabled={!user}
-                        onClick={() => navigate(link.to)}
-                      >
-                        {link.label}
+                      <Button key={link.href} asChild variant="default" size="sm" className="h-7 text-xs">
+                        <a href={link.href}>{link.label}</a>
                       </Button>
                     ))}
                   </div>
@@ -296,41 +273,16 @@ const AuthPage = () => {
                   <p className="text-xs font-semibold text-foreground mb-2">Apps</p>
                   <div className="flex flex-wrap gap-1.5">
                     {[
-                      { label: 'SOS App', to: '/sos-app' },
-                      { label: 'Family App', to: '/family-app' },
-                      { label: 'Mobile App', to: '/mobile-app' },
+                      { label: 'SOS App', href: '/sos-app?dev=1' },
+                      { label: 'Family App', href: '/family-app?dev=1' },
+                      { label: 'Mobile App', href: '/mobile-app?dev=1' },
                     ].map(link => (
-                      <Button
-                        key={link.to}
-                        variant={user ? "default" : "outline"}
-                        size="sm"
-                        className="h-7 text-xs"
-                        disabled={!user}
-                        onClick={() => navigate(link.to)}
-                      >
-                        {link.label}
+                      <Button key={link.href} asChild variant="default" size="sm" className="h-7 text-xs">
+                        <a href={link.href}>{link.label}</a>
                       </Button>
                     ))}
                   </div>
                 </div>
-
-                {/* Sign out helper */}
-                {user && (
-                  <div className="pt-2 border-t">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 text-xs text-muted-foreground w-full"
-                      onClick={async () => {
-                        await supabase.auth.signOut();
-                        setSuccess('');
-                        setError('');
-                      }}
-                    >
-                      Sign Out
-                    </Button>
-                  </div>
-                )}
               </div>
             </div>
           </CardContent>
