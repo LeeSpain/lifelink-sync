@@ -148,7 +148,7 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
       const daysLeft = trialEnd ? Math.max(0, Math.ceil((trialEnd.getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : 0;
       return {
         status: `Trial (${daysLeft}d left)`,
-        color: "bg-blue-100 text-blue-800",
+        color: "bg-muted text-foreground",
         icon: <CheckCircle className="h-4 w-4" />,
         description: "Your free trial is active"
       };
@@ -156,14 +156,14 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
     if (subscription?.subscribed) {
       return {
         status: "Active",
-        color: "bg-green-100 text-green-800",
+        color: "bg-muted text-foreground",
         icon: <CheckCircle className="h-4 w-4" />,
         description: "Your emergency protection is active"
       };
     }
     return {
       status: "Inactive",
-      color: "bg-red-100 text-red-800",
+      color: "bg-muted text-foreground",
       icon: <AlertCircle className="h-4 w-4" />,
       description: "Complete your subscription to activate protection"
     };
@@ -180,19 +180,19 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
 
   const getStatusBadge = (status: string) => {
     const statusColors = {
-      pending: 'bg-yellow-100 text-yellow-800',
-      accepted: 'bg-green-100 text-green-800',
-      declined: 'bg-red-100 text-red-800',
-      expired: 'bg-gray-100 text-gray-800'
+      pending: 'bg-muted text-foreground',
+      accepted: 'bg-muted text-foreground',
+      declined: 'bg-muted text-foreground',
+      expired: 'bg-muted text-foreground'
     };
     return statusColors[status as keyof typeof statusColors] || 'bg-gray-100 text-gray-800';
   };
 
   return (
-    <Card className="bg-white/95 backdrop-blur-sm">
+    <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <CreditCard className="h-5 w-5 text-blue-500" />
+          <CreditCard className="h-5 w-5 text-primary" />
           Subscription & Billing
         </CardTitle>
       </CardHeader>
@@ -224,11 +224,11 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
               <div className="space-y-6">
                 {/* Trial Banner */}
                 {subscription?.is_trialing && (
-                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="p-4 bg-muted/50 rounded-lg border">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div>
-                        <h4 className="font-semibold text-blue-800">Free Trial Active</h4>
-                        <p className="text-sm text-blue-600">
+                        <h4 className="font-semibold text-foreground">Free Trial Active</h4>
+                        <p className="text-sm text-muted-foreground">
                           Ends {subscription.trial_end
                             ? new Date(subscription.trial_end).toLocaleDateString()
                             : 'soon'}
@@ -247,8 +247,8 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
 
                 {/* Active Add-ons */}
                 {subscription?.active_addons && subscription.active_addons.length > 0 && (
-                  <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-                    <h4 className="font-semibold text-purple-800 mb-2">Active Add-Ons</h4>
+                  <div className="p-4 bg-muted/50 rounded-lg border">
+                    <h4 className="font-semibold text-foreground mb-2">Active Add-Ons</h4>
                     <div className="flex flex-wrap gap-2">
                       {subscription.active_addons.map((slug: string) => (
                         <Badge key={slug} variant="secondary" className="capitalize">
@@ -266,24 +266,24 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
 
                 {/* Payment Overview */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                    <h4 className="font-semibold text-green-800 mb-1">Current Plan</h4>
-                    <p className="text-lg font-bold text-green-900 capitalize">
+                  <div className="p-4 bg-muted/50 rounded-lg border">
+                    <h4 className="font-semibold text-foreground mb-1">Current Plan</h4>
+                    <p className="text-lg font-bold text-foreground capitalize">
                       {subscription.subscription_tier?.replace('_', ' ') || 'Basic'}
                     </p>
                   </div>
-                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <h4 className="font-semibold text-blue-800 mb-1">Next Billing</h4>
-                    <p className="text-lg font-bold text-blue-900">
-                      {subscription.subscription_end 
+                  <div className="p-4 bg-muted/50 rounded-lg border">
+                    <h4 className="font-semibold text-foreground mb-1">Next Billing</h4>
+                    <p className="text-lg font-bold text-foreground">
+                      {subscription.subscription_end
                         ? new Date(subscription.subscription_end).toLocaleDateString()
                         : 'Unknown'
                       }
                     </p>
                   </div>
-                  <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-                    <h4 className="font-semibold text-purple-800 mb-1">Payment Status</h4>
-                    <p className="text-lg font-bold text-purple-900">Active</p>
+                  <div className="p-4 bg-muted/50 rounded-lg border">
+                    <h4 className="font-semibold text-foreground mb-1">Payment Status</h4>
+                    <p className="text-lg font-bold text-foreground">Active</p>
                   </div>
                 </div>
 
@@ -293,7 +293,7 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div>
                       <span className="text-muted-foreground">Current Status:</span>
-                      <span className="ml-2 font-semibold text-green-600">
+                      <span className="ml-2 font-semibold text-foreground">
                         {subscription.subscribed ? 'Active' : 'Inactive'}
                       </span>
                     </div>
@@ -403,7 +403,7 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
           {/* Enhanced Billing & Invoices Tab */}
           <TabsContent value="billing" className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <h4 className="font-medium text-lg sm:text-xl">Billing History & Invoices</h4>
+              <h4 className="font-semibold text-sm">Billing History & Invoices</h4>
               <Button onClick={loadInvoices} variant="outline" size="sm" disabled={isLoadingInvoices} className="w-full sm:w-auto">
                 <FileText className="h-4 w-4 mr-2" />
                 {isLoadingInvoices ? 'Loading...' : 'Refresh'}
@@ -413,26 +413,26 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
             {/* Billing Summary */}
             {subscription?.subscribed && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                  <h5 className="font-semibold text-green-800 mb-1">Total Invoices</h5>
-                  <p className="text-2xl font-bold text-green-900">{invoices.length}</p>
-                  <p className="text-xs text-green-600">Available invoices</p>
+                <div className="p-4 bg-muted/50 rounded-lg border">
+                  <h5 className="font-semibold text-foreground mb-1">Total Invoices</h5>
+                  <p className="text-lg font-bold text-foreground">{invoices.length}</p>
+                  <p className="text-xs text-muted-foreground">Available invoices</p>
                 </div>
-                <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <h5 className="font-semibold text-blue-800 mb-1">Latest Invoice</h5>
-                  <p className="text-2xl font-bold text-blue-900">
+                <div className="p-4 bg-muted/50 rounded-lg border">
+                  <h5 className="font-semibold text-foreground mb-1">Latest Invoice</h5>
+                  <p className="text-lg font-bold text-foreground">
                     {invoices.length > 0 ? formatCurrency(invoices[0].amount_paid, invoices[0].currency) : '€0.00'}
                   </p>
-                  <p className="text-xs text-blue-600">
+                  <p className="text-xs text-muted-foreground">
                     {invoices.length > 0 ? new Date(invoices[0].created * 1000).toLocaleDateString() : 'No invoices yet'}
                   </p>
                 </div>
-                <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-                  <h5 className="font-semibold text-purple-800 mb-1">Status</h5>
-                  <p className="text-lg font-bold text-purple-900">
+                <div className="p-4 bg-muted/50 rounded-lg border">
+                  <h5 className="font-semibold text-foreground mb-1">Status</h5>
+                  <p className="text-lg font-bold text-foreground">
                     {subscription.subscribed ? 'Active' : 'Inactive'}
                   </p>
-                  <p className="text-xs text-purple-600">Subscription status</p>
+                  <p className="text-xs text-muted-foreground">Subscription status</p>
                 </div>
               </div>
             )}
@@ -453,9 +453,9 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
               <div className="space-y-4">
                 <h5 className="font-medium">Recent Invoices</h5>
                 {invoices.map((invoice) => (
-                  <div key={invoice.id} className="p-4 sm:p-6 border rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
+                  <div key={invoice.id} className="p-3 border rounded-lg hover:bg-muted/50 transition-colors">
                     <div className="flex flex-wrap items-center gap-2 mb-3">
-                      <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
+                      <Badge variant="secondary">
                         {invoice.status.toUpperCase()}
                       </Badge>
                       <span className="font-semibold text-base sm:text-lg">Invoice #{invoice.number}</span>

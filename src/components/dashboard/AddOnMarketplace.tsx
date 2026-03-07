@@ -13,8 +13,8 @@ const iconMap: Record<string, React.ReactNode> = {
 };
 
 const categoryColors: Record<string, string> = {
-  family: 'bg-blue-50 border-blue-200',
-  wellness: 'bg-purple-50 border-purple-200',
+  family: 'bg-muted/50',
+  wellness: 'bg-muted/50',
 };
 
 const AddOnCard: React.FC<{
@@ -29,7 +29,7 @@ const AddOnCard: React.FC<{
     : [];
 
   return (
-    <div className={`rounded-lg border p-4 ${categoryColors[addon.category] || 'bg-gray-50 border-gray-200'}`}>
+    <div className={`rounded-lg border p-4 ${categoryColors[addon.category] || 'bg-muted/50'}`}>
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
           <div className="text-primary">
@@ -43,7 +43,7 @@ const AddOnCard: React.FC<{
           </div>
         </div>
         <div className="text-right">
-          <span className="font-bold text-lg">&euro;{addon.price.toFixed(2)}</span>
+          <span className="font-bold text-base">&euro;{addon.price.toFixed(2)}</span>
           <span className="text-xs text-muted-foreground">/mo</span>
         </div>
       </div>
@@ -113,10 +113,10 @@ const AddOnMarketplace: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Card className="bg-white/95 backdrop-blur-sm">
+      <Card className="">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-purple-500" />
+            <Sparkles className="h-5 w-5 text-primary" />
             Add-Ons
           </CardTitle>
         </CardHeader>
@@ -131,10 +131,10 @@ const AddOnMarketplace: React.FC = () => {
 
   if (error) {
     return (
-      <Card className="bg-white/95 backdrop-blur-sm">
+      <Card className="">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-purple-500" />
+            <Sparkles className="h-5 w-5 text-primary" />
             Add-Ons
           </CardTitle>
         </CardHeader>
@@ -156,11 +156,11 @@ const AddOnMarketplace: React.FC = () => {
     }, 0);
 
   return (
-    <Card className="bg-white/95 backdrop-blur-sm">
+    <Card className="">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-purple-500" />
+            <Sparkles className="h-5 w-5 text-primary" />
             Add-Ons
             {activeSlugs.length > 0 && (
               <Badge variant="secondary">{activeSlugs.length} active</Badge>
@@ -177,10 +177,10 @@ const AddOnMarketplace: React.FC = () => {
         {/* CLARA Complete banner */}
         <div className={`rounded-lg border p-3 ${data?.clara_complete_unlocked
           ? 'bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200'
-          : 'bg-gray-50 border-gray-200'
+          : 'bg-muted/50'
         }`}>
           <div className="flex items-center gap-2">
-            <Sparkles className={`h-4 w-4 ${data?.clara_complete_unlocked ? 'text-purple-600' : 'text-gray-400'}`} />
+            <Sparkles className={`h-4 w-4 ${data?.clara_complete_unlocked ? 'text-primary' : 'text-muted-foreground'}`} />
             <span className="font-semibold text-sm">CLARA Complete</span>
             <Badge variant={data?.clara_complete_unlocked ? 'default' : 'secondary'} className="text-xs">
               {data?.clara_complete_unlocked ? 'UNLOCKED' : 'LOCKED'}

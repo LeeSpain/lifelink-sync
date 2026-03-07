@@ -53,23 +53,23 @@ export const ConnectionsWidget = () => {
           {/* Summary Stats */}
           <div className="grid grid-cols-3 gap-2 sm:gap-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-primary">{totalActive}</div>
+              <div className="text-lg font-semibold text-primary">{totalActive}</div>
               <div className="text-sm text-muted-foreground">Active Connections</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-orange-500">{totalPending}</div>
+              <div className="text-lg font-semibold text-foreground">{totalPending}</div>
               <div className="text-sm text-muted-foreground">Pending Invites</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-500">{activeFamily.length}</div>
+              <div className="text-lg font-semibold text-foreground">{activeFamily.length}</div>
               <div className="text-sm text-muted-foreground">Family Members</div>
             </div>
           </div>
 
           {/* Connection Types */}
           <div className="grid md:grid-cols-2 gap-4">
-            <div className="flex items-center gap-3 p-3 rounded-lg border bg-primary/5">
-              <Crown className="h-8 w-8 text-primary" />
+            <div className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
+              <Crown className="h-5 w-5 text-primary" />
               <div className="flex-1">
                 <div className="font-semibold">Family Circle</div>
                 <div className="text-sm text-muted-foreground">
@@ -79,8 +79,8 @@ export const ConnectionsWidget = () => {
               <Badge variant="default">{activeFamily.length}</Badge>
             </div>
 
-            <div className="flex items-center gap-3 p-3 rounded-lg border bg-secondary/5">
-              <Shield className="h-8 w-8 text-secondary" />
+            <div className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
+              <Shield className="h-5 w-5 text-muted-foreground" />
               <div className="flex-1">
                 <div className="font-semibold">Trusted Contacts</div>
                 <div className="text-sm text-muted-foreground">
@@ -93,11 +93,11 @@ export const ConnectionsWidget = () => {
 
           {/* Quick Actions */}
           <div className="flex gap-2">
-            <Button onClick={handleManageConnections} className="flex-1">
+            <Button onClick={handleManageConnections} size="sm" className="flex-1">
               <Plus className="h-4 w-4 mr-2" />
               Add Connection
             </Button>
-            <Button onClick={handleManageConnections} variant="outline" className="flex-1">
+            <Button onClick={handleManageConnections} variant="outline" size="sm" className="flex-1">
               View All
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
