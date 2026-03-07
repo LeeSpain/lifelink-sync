@@ -250,11 +250,14 @@ const AuthPage = () => {
             {/* Dev Quick Links */}
             <div className="mt-8 border-t pt-6">
               <h3 className="text-sm font-semibold text-muted-foreground mb-4 text-center uppercase tracking-wide">Quick Links (Testing)</h3>
+              <p className="text-[10px] text-muted-foreground text-center mb-4">
+                Links marked with * require login first. Log in above, then click.
+              </p>
 
               <div className="space-y-4">
                 {/* Dashboards */}
                 <div>
-                  <p className="text-xs font-semibold text-foreground mb-2">Dashboards</p>
+                  <p className="text-xs font-semibold text-foreground mb-2">Dashboards *</p>
                   <div className="flex flex-wrap gap-1.5">
                     {[
                       { label: 'Dashboard', to: '/dashboard' },
@@ -263,7 +266,7 @@ const AuthPage = () => {
                       { label: 'Admin', to: '/admin-dashboard' },
                     ].map(link => (
                       <Button key={link.to} asChild variant="outline" size="sm" className="h-7 text-xs">
-                        <Link to={link.to}>{link.label}</Link>
+                        <a href={link.to}>{link.label}</a>
                       </Button>
                     ))}
                   </div>
@@ -271,23 +274,24 @@ const AuthPage = () => {
 
                 {/* Apps */}
                 <div>
-                  <p className="text-xs font-semibold text-foreground mb-2">Apps</p>
+                  <p className="text-xs font-semibold text-foreground mb-2">Apps *</p>
                   <div className="flex flex-wrap gap-1.5">
                     {[
                       { label: 'SOS App', to: '/sos-app' },
                       { label: 'Family App', to: '/family-app' },
+                      { label: 'Mobile App', to: '/mobile-app' },
                       { label: 'Smart Redirect', to: '/app' },
                     ].map(link => (
                       <Button key={link.to} asChild variant="outline" size="sm" className="h-7 text-xs">
-                        <Link to={link.to}>{link.label}</Link>
+                        <a href={link.to}>{link.label}</a>
                       </Button>
                     ))}
                   </div>
                 </div>
 
-                {/* Key Pages */}
+                {/* Key Pages (Protected) */}
                 <div>
-                  <p className="text-xs font-semibold text-foreground mb-2">Key Pages</p>
+                  <p className="text-xs font-semibold text-foreground mb-2">Key Pages *</p>
                   <div className="flex flex-wrap gap-1.5">
                     {[
                       { label: 'Map', to: '/map' },
@@ -296,10 +300,10 @@ const AuthPage = () => {
                       { label: 'History', to: '/history' },
                       { label: 'Onboarding', to: '/dashboard/onboarding' },
                       { label: 'Questionnaire', to: '/welcome-questionnaire' },
-                      { label: 'Map Demo', to: '/map-demo' },
+                      { label: 'Family Setup', to: '/family-access-setup' },
                     ].map(link => (
                       <Button key={link.to} asChild variant="outline" size="sm" className="h-7 text-xs">
-                        <Link to={link.to}>{link.label}</Link>
+                        <a href={link.to}>{link.label}</a>
                       </Button>
                     ))}
                   </div>
@@ -316,11 +320,17 @@ const AuthPage = () => {
                       { label: 'Checkout', to: '/checkout' },
                       { label: 'Blog', to: '/blog' },
                       { label: 'Videos', to: '/videos' },
+                      { label: 'Contact', to: '/contact' },
+                      { label: 'Support', to: '/support' },
+                      { label: 'Privacy', to: '/privacy' },
+                      { label: 'Terms', to: '/terms' },
                       { label: 'Pendant', to: '/devices/lifelink-sync-pendant' },
                       { label: 'Spain Centre', to: '/regional-center/spain' },
+                      { label: 'Map Demo', to: '/map-demo' },
+                      { label: 'Test Page', to: '/test' },
                     ].map(link => (
                       <Button key={link.to} asChild variant="outline" size="sm" className="h-7 text-xs">
-                        <Link to={link.to}>{link.label}</Link>
+                        <a href={link.to}>{link.label}</a>
                       </Button>
                     ))}
                   </div>
