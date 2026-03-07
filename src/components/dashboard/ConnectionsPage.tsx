@@ -15,7 +15,7 @@ export const ConnectionsPage: React.FC = () => {
   return (
     <div className="w-full space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Emergency Connections</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Emergency Connections</h1>
         <p className="text-muted-foreground">
           Manage your emergency network and family connections
         </p>

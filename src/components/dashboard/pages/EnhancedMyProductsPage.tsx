@@ -313,8 +313,8 @@ const EnhancedMyProductsPage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">My Products & Devices</h1>
-        <p className="text-sm text-muted-foreground">Manage your connected products, devices, and subscriptions</p>
+        <h1 className="text-2xl font-bold tracking-tight">My Products & Devices</h1>
+        <p className="text-muted-foreground">Manage your connected products, devices, and subscriptions</p>
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">

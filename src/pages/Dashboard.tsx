@@ -183,10 +183,10 @@ const Dashboard = () => {
                     <div className="max-w-none">
                       {/* Welcome Header */}
                       <div className="mb-6">
-                        <h1 className="text-3xl font-bold">
+                        <h1 className="text-2xl font-bold tracking-tight">
                           Welcome back, {profile?.first_name || 'Member'}!
                         </h1>
-                        <p className="text-muted-foreground mt-1">
+                        <p className="text-muted-foreground">
                           Here's your protection status at a glance
                         </p>
                       </div>
@@ -238,21 +238,33 @@ const Dashboard = () => {
 
                {/* Activity Page */}
                <Route path="activity" element={
-                 <div className="p-6">
+                 <div className="p-6 space-y-6">
+                   <div>
+                     <h1 className="text-2xl font-bold tracking-tight">Activity & Testing</h1>
+                     <p className="text-muted-foreground">View recent activity and system status</p>
+                   </div>
                    <ActivityCard />
                  </div>
                } />
 
                {/* Subscription Page */}
                <Route path="subscription" element={
-                 <div className="p-6">
+                 <div className="p-6 space-y-6">
+                   <div>
+                     <h1 className="text-2xl font-bold tracking-tight">Subscription & Billing</h1>
+                     <p className="text-muted-foreground">Manage your plan, payments, and invoices</p>
+                   </div>
                    <SubscriptionCard subscription={subscription} />
                  </div>
                } />
 
                {/* Mobile App Page */}
                 <Route path="mobile-app" element={
-                  <div className="p-6">
+                  <div className="p-6 space-y-6">
+                    <div>
+                      <h1 className="text-2xl font-bold tracking-tight">Mobile App</h1>
+                      <p className="text-muted-foreground">Set up and manage your mobile app connection</p>
+                    </div>
                     <MobileAppCard />
                   </div>
                 } />
@@ -261,7 +273,7 @@ const Dashboard = () => {
                 <Route path="mobile-dashboard" element={
                   <div className="p-6">
                     <div className="mb-6">
-                      <h1 className="text-2xl font-bold">Mobile Development Dashboard</h1>
+                      <h1 className="text-2xl font-bold tracking-tight">Mobile Development Dashboard</h1>
                       <p className="text-muted-foreground">Monitor mobile app readiness and native capabilities</p>
                     </div>
                     <div className="space-y-6">

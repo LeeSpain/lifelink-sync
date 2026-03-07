@@ -126,23 +126,16 @@ export function FamilyPage() {
     <div className="p-6">
       <div className="space-y-6">
         {/* Header */}
-        <Card className="bg-white/95 backdrop-blur-sm">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-blue-500" />
-                Family
-              </CardTitle>
-              <Button onClick={() => setShowInviteForm(true)} variant="outline" size="sm" className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
-                Invite Family Member
-              </Button>
-            </div>
-            <CardDescription>
-              Manage your family members and monitor their safety
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Family</h1>
+            <p className="text-muted-foreground">Manage your family members and invitations</p>
+          </div>
+          <Button onClick={() => setShowInviteForm(true)} variant="outline" size="sm" className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            Invite Family Member
+          </Button>
+        </div>
 
         {/* Invite Form */}
         {showInviteForm && (

@@ -126,17 +126,10 @@ export function LocationPage() {
     <div className="p-6">
       <div className="space-y-6">
         {/* Header */}
-        <Card className="bg-white/95 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-2xl">
-              <MapPin className="h-6 w-6 text-primary" />
-              Location Services
-            </CardTitle>
-            <CardDescription className="text-base">
-              Manage your location sharing and safe zones
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Location Services</h1>
+          <p className="text-muted-foreground">Manage your location sharing and safe zones</p>
+        </div>
 
         {/* Location Settings */}
         <Card>
