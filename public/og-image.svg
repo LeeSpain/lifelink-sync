@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1a2332"/>
+      <stop offset="100%" stop-color="#253347"/>
+    </linearGradient>
+    <linearGradient id="redGlow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#991B1B"/>
+      <stop offset="50%" stop-color="#DC2626"/>
+      <stop offset="100%" stop-color="#EF4444"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="900" cy="315" r="200" fill="#DC2626" opacity="0.08"/>
+  <circle cx="900" cy="315" r="120" fill="#DC2626" opacity="0.05"/>
+  <rect x="80" y="215" width="88" height="88" rx="18" fill="url(#redGlow)"/>
+  <text x="124" y="275" font-family="'Poppins','Helvetica Neue',Arial,sans-serif" font-weight="700" font-size="42" fill="white" text-anchor="middle">LS</text>
+  <text x="190" y="274" font-family="'Poppins','Helvetica Neue',Arial,sans-serif" font-weight="700" font-size="48" fill="white">LifeLink <tspan fill="#EF4444">Sync</tspan></text>
+  <text x="80" y="340" font-family="'Inter','Helvetica Neue',Arial,sans-serif" font-weight="400" font-size="28" fill="#94A3B8">Always There. Always Ready.</text>
+  <text x="80" y="400" font-family="'Inter','Helvetica Neue',Arial,sans-serif" font-weight="400" font-size="18" fill="#64748B">Emergency protection for individuals and families</text>
+  <line x1="80" y1="500" x2="520" y2="500" stroke="#334155" stroke-width="1"/>
+  <text x="80" y="530" font-family="'Inter','Helvetica Neue',Arial,sans-serif" font-weight="400" font-size="14" fill="#475569">lifelink-sync.com</text>
+  <text x="80" y="555" font-family="'Inter','Helvetica Neue',Arial,sans-serif" font-weight="400" font-size="13" fill="#374151">A Vision-Sync platform</text>
+</svg>

@@ -18,7 +18,7 @@ const getPageSEO = (pageType: PageSEOProps['pageType']) => {
       title: 'LifeLink Sync - AI-Powered Emergency Protection & 24/7 Safety Monitoring',
       description: 'Advanced emergency protection with AI assistant, GPS tracking, and 24/7 monitoring. Instant SOS alerts, family notifications, and professional emergency response worldwide.',
       keywords: ['emergency protection', 'AI safety assistant', 'SOS service', 'GPS tracking', '24/7 monitoring', 'personal safety', 'emergency response', 'safety app', 'emergency alert system', 'AI emergency assistance'],
-      image: '/lovable-uploads/7ad599e6-d1cd-4a1b-84f4-9b6b1e4242e1.png',
+      image: '/lovable-uploads/lifelink-sync-og.png',
       structuredData: {
         "@context": "https://schema.org",
         "@type": "WebSite",

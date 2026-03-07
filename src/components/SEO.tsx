@@ -43,7 +43,7 @@ export const SEO: React.FC<SEOProps> = ({
   robotsDirectives = []
 }) => {
   const url = canonical || (typeof window !== 'undefined' ? window.location.href : '/');
-  const img = image || '/lovable-uploads/7ad599e6-d1cd-4a1b-84f4-9b6b1e4242e1.png';
+  const img = image || '/lovable-uploads/lifelink-sync-og.png';
   const imgAlt = imageAlt || `${title} - LifeLink Sync Emergency Protection`;
 
   // Enhanced title with proper length (50-60 chars optimal)

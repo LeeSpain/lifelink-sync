@@ -17,7 +17,7 @@ performanceMonitor.mark('app-start');
 // Preload critical resources
 const preloadCriticalResources = () => {
   const criticalImages = [
-    '/lovable-uploads/7ad599e6-d1cd-4a1b-84f4-9b6b1e4242e1.png',
+    '/lovable-uploads/lifelink-sync-icon-512.png',
   ];
   
   criticalImages.forEach(src => {

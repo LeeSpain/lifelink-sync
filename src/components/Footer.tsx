@@ -1,5 +1,5 @@
 import React from "react";
-import { Mail } from "lucide-react";
+import { Mail, Twitter, Facebook, Instagram, Linkedin } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from 'react-i18next';
@@ -31,6 +31,20 @@ const Footer = () => {
             <p className="text-sm text-gray-400">
               Complete emergency protection for individuals and families. One-touch SOS, Clara AI, live location sharing, and coordinated family response.
             </p>
+            <div className="flex items-center space-x-4 pt-2">
+              <a href="https://twitter.com/lifelinksync" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary transition-colors">
+                <Twitter className="h-5 w-5" />
+              </a>
+              <a href="https://facebook.com/lifelinksync" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary transition-colors">
+                <Facebook className="h-5 w-5" />
+              </a>
+              <a href="https://instagram.com/lifelinksync" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary transition-colors">
+                <Instagram className="h-5 w-5" />
+              </a>
+              <a href="https://linkedin.com/company/lifelink-sync" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary transition-colors">
+                <Linkedin className="h-5 w-5" />
+              </a>
+            </div>
           </div>
 
           {/* Quick Links */}
