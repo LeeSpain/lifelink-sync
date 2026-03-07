@@ -1,0 +1,712 @@
+{
+  "nav": {
+    "features": "Features",
+    "pricing": "Pricing",
+    "support": "Support",
+    "devices": "Devices",
+    "signIn": "Sign In",
+    "subscribeNow": "Subscribe Now",
+    "joinNow": "Join Now",
+    "regionalCenter": "Contact Regional Center",
+    "introVideo": "Intro Video"
+  },
+  "footer": {
+    "companyDescription": "Emergency response and family safety platform providing peace of mind through advanced protection services.",
+    "quickLinks": "Quick Links",
+    "blog": "Blog",
+    "safetyProducts": "Safety Products", 
+    "regionalServices": "Regional Services",
+    "familyCarerAccess": "Family & Carer Access",
+    "familyDashboard": "Family Dashboard",
+    "pricing": "Pricing",
+    "devices": "Devices",
+    "support": "Support",
+    "account": "Account",
+    "signIn": "Sign In",
+    "subscribe": "Subscribe",
+    "signOut": "Sign Out",
+    "membersDashboard": "Members Dashboard",
+    "adminDashboard": "Admin Dashboard",
+    "connect": "Connect",
+    "contactUs": "Contact Us",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "supportLink": "Support",
+    "rights": "All rights reserved."
+  },
+  "admin": {
+    "header": {
+      "title": "Admin Dashboard",
+      "subtitle": "LifeLink Sync Management Portal"
+    }
+  },
+  "dashboard": {
+    "signOut": "Sign Out",
+    "greeting": {
+      "morning": "Good Morning",
+      "afternoon": "Good Afternoon",
+      "evening": "Good Evening"
+    },
+    "title": "Dashboard"
+  },
+  "pricing": {
+    "subscribeNow": "Subscribe Now",
+    "details": "Details",
+    "corePlan": "CORE PLAN",
+    "addOn": "ADD-ON",
+    "oneTime": "ONE-TIME PURCHASE",
+    "title": "Your Core Protection Subscription",
+    "subtitle": "One simple subscription that unlocks professional emergency protection. Add optional extras — Family Access, Regional Call Centers, and Safety Devices — anytime. Activate instantly in the app.",
+    "everythingIncluded": "Everything Included:",
+    "familyTitle": "Family & Carer Access",
+    "familyDesc": "After you join, you can invite trusted family members or carers to your dashboard. They'll have secure access to your emergency profile and protection status, receive instant alerts, view GPS location during an SOS, and help coordinate a rapid response. All data is encrypted and GDPR-compliant, with granular permission controls for complete peace of mind.",
+    "familyFeatures": "Family Features:",
+    "safetyProductsTitle": "Safety Products",
+    "safetyProductsDesc": "Enhance your safety with our Bluetooth-enabled emergency devices that work seamlessly with all subscription plans",
+    "oneTimeLabel": "one-time",
+    "productSpecs": "Complete product specifications and setup information"
+  },
+  "hero": {
+    "badge": "Device-Free Emergency Protection",
+    "titlePart1": "Transform Your Phone Into a ",
+    "titleEmphasis": "Life-Saving",
+    "titlePart2": "Assistant",
+    "description": "LifeLink Sync provides multilingual emergency protection with AI Guardian, professional call center access, and family connectivity — globally available.",
+    "ctaJoin": "Join Today",
+    "ctaTalk": "Talk To Clara",
+    "meetClara": "Meet Clara"
+  },
+  "features": {
+    "familyTracker": "Family Tracker",
+    "grandmaSafe": "Grandma is safe",
+    "atHome": "At home • 2 min ago",
+    "emergencyActive": "Emergency Active",
+    "responding": "Responding",
+    "liveLocation": "Live Location",
+    "realtimeTracking": "Real-time family tracking",
+    "instantAlerts": "Instant Alerts",
+    "emergencyNotifications": "Emergency notifications",
+    "keepFamilyConnected": "Keep Your Family Connected & Protected",
+    "familyDescription": "See exactly where your loved ones are, get instant alerts when they need help, and coordinate care seamlessly across your entire family network.",
+    "familyNetwork": "Family Network",
+    "familyNetworkDesc": "Connect all family members with secure, role-based access to location and emergency information.",
+    "emergencyAlerts": "Emergency Alerts", 
+    "emergencyAlertsDesc": "Instant notifications when someone activates SOS, with location data and response coordination.",
+    "monitoring247": "24/7 Monitoring",
+    "monitoring247Desc": "Professional monitoring and family alerts ensure someone is always watching over your loved ones.",
+    "familyVideo": "Family Video",
+    "connectFirstFree": "Connect your first family member for free • No setup fees",
+    "title": "Complete Emergency Protection Suite",
+    "description": "Professional emergency protection with global call center access, Bluetooth device support, and AI monitoring — starting from €4.99/month with worldwide coverage.",
+    "items": [
+      { "title": "24/7 Emergency Response", "description": "One-tap SOS activation with instant GPS location sharing to emergency contacts and professional call center." },
+      { "title": "AI Health Monitoring", "description": "Intelligent wellness tracking with Premium Protection plan including AI-powered health insights." },
+      { "title": "Global Call Center Access", "description": "Professional emergency response coordination available 24/7 with multilingual support worldwide." },
+      { "title": "Family Emergency Alerts", "description": "Instant SOS notifications to up to 5 emergency contacts with Family Connection and Premium plans." },
+      { "title": "GPS Location Tracking", "description": "Real-time location sharing during emergencies with precise coordinates sent to responders." },
+      { "title": "Bluetooth Device Support", "description": "Compatible with LifeLink Sync Bluetooth Pendant for hands-free emergency activation up to 100m range." }
+    ]
+  },
+  "familyConnections": {
+    "badge": "Family Care Network",
+    "title": "Family & Carers Connections",
+    "description": "Build a secure network of trusted family members and carers who can provide support, monitor wellbeing, and coordinate care during both everyday situations and emergencies.",
+    "features": [
+      {
+        "title": "Trusted Family Network",
+        "description": "Connect family members and carers with secure access levels, role-based permissions, and encrypted communication channels."
+      },
+      {
+        "title": "Real-time Emergency Alerts",
+        "description": "Instant notifications to all connected family members with location data, emergency type, and response coordination tools."
+      },
+      {
+        "title": "Location Sharing Control",
+        "description": "Privacy-controlled location sharing with customizable permissions, geofencing alerts, and activity tracking for peace of mind."
+      },
+      {
+        "title": "Care Coordination Hub",
+        "description": "Seamless coordination between family members and carers with shared calendars, notes, medication reminders, and care plans."
+      },
+      {
+        "title": "Privacy & Access Controls",
+        "description": "Granular settings for information sharing, access levels, and communication preferences with full transparency and control."
+      },
+      {
+        "title": "24/7 Family Support",
+        "description": "Professional support available to all connected family members with expert guidance and emergency response coordination."
+      }
+    ],
+    "cta": {
+      "title": "Start Building Your Family Care Network",
+      "description": "Connect with your loved ones and create a secure support system that works for everyone in your family.",
+      "button": "Get Family Access"
+    }
+  },
+  "appDownload": {
+    "title": "Meet Clara - Your AI Assistant",
+    "subtitle": "Experience the future of emergency support with intelligent AI assistance",
+    "platformBadge": "AI POWERED",
+    "appName": "Clara AI Assistant",
+    "heroDescription": "Advanced AI technology that understands your needs, learns from interactions, and provides instant, intelligent emergency support 24/7.",
+    "cta": "Talk to Clara",
+    "features": {
+      "intelligentSupport": { "title": "Intelligent Support", "description": "Natural language processing for instant help and emergency assistance" },
+      "learningAI": { "title": "Learning AI", "description": "Gets smarter over time, adapting to your specific needs and preferences" },
+      "instantResponse": { "title": "Instant Response", "description": "Immediate AI-powered assistance available 24/7 in multiple languages" }
+    },
+    "infoTitle": "Important Information",
+    "planFeaturesTitle": "Plan Features:",
+    "bullets": {
+      "noFees": "No setup fees or hidden costs",
+      "cancelAnytime": "Cancel anytime with 30 days notice",
+      "hardwareSeparate": "Hardware devices sold separately",
+      "supportIncluded": "Full customer support included"
+    },
+    "cancellationTitle": "Cancellation Policy:",
+    "cancellationDescription": "You can cancel your subscription at any time. Your access will continue until the end of your current billing period. Hardware purchases are non-refundable but carry a 1-year warranty."
+  },
+  "appPreview": {
+    "title": "Experience Your Emergency Protection App",
+    "description": "See exactly what you'll get with LifeLink Sync. This interactive preview shows your personal emergency dashboard, one-tap SOS activation, family connections, and Bluetooth device integration.",
+    "loading": "Loading preview...",
+    "note": "This preview demonstrates the actual app interface you'll use for emergency protection."
+  },
+  "dashboardOverview": {
+    "welcome": "Welcome back, {{name}}!",
+    "subtitle": "Your safety dashboard - everything you need at a glance",
+    "protected": "Protected",
+    "inactive": "Inactive",
+    "quickActions": "Quick Actions",
+    "profileCompletion": "Profile Completion",
+    "overallProgress": "Overall Progress",
+    "recentActivity": "Recent Activity",
+    "noRecentActivity": "No recent activity",
+    "actions": {
+      "testEmergency": {
+        "title": "Test Emergency System",
+        "description": "Verify all systems are working"
+      },
+      "completeSetup": {
+        "title": "Complete Setup",
+        "descriptionIncomplete": "Finish your profile setup",
+        "descriptionComplete": "Review and update profile"
+      }
+    },
+    "status": {
+      "emergency": {
+        "title": "Emergency Readiness",
+        "ready": "Fully prepared for emergencies",
+        "activatePlan": "Activate protection plan",
+        "addContacts": "Add more emergency contacts"
+      },
+      "account": {
+        "title": "Account Health",
+        "complete": "Account setup complete",
+        "completeProfile": "Complete your profile",
+        "enableLocation": "Enable location sharing"
+      }
+    },
+    "checklist": {
+      "personalDetails": "Personal Details",
+      "emergencyContacts": "Emergency Contacts",
+      "medicalInformation": "Medical Information",
+      "subscriptionActive": "Subscription Active"
+    }
+  },
+  "common": {
+    "perMonth": "/month",
+    "buyNow": "Buy now",
+    "howItWorks": "How it works",
+    "learnMore": "Learn more",
+    "visitor": "Visitor",
+    "comingSoon": "Coming Soon"
+  },
+  "products": {
+    "icePendant": {
+      "name": "LifeLink Sync Bluetooth Pendant",
+      "description": "Hands-free emergency pendant compatible with LifeLink Sync."
+    }
+  },
+  "plans": {
+    "premium": {
+      "name": "Premium Protection",
+      "description": "Advanced protection with AI monitoring"
+    },
+    "family": {
+      "name": "Family Connection",
+      "description": "Invite trusted family or carers with shared alerts and location."
+    }
+  },
+  "devices": {
+    "icePendant": {
+      "hero": "A discreet, one-button pendant that instantly activates your emergency plan via the LifeLink Sync app. Designed for reliability, comfort, and peace of mind.",
+      "seoTitle": "LifeLink Sync Bluetooth Pendant – LifeLink Sync",
+      "metaDescription": "Hands-free emergency pendant with Bluetooth, waterproof design, and 7-day battery."
+    }
+  },
+  "register": {
+    "plans": {
+      "personal": { "name": "Personal Account", "desc": "Individual emergency contact system" },
+      "guardian": { "name": "Guardian Wellness", "desc": "Advanced health monitoring and alerts" },
+      "family": { "name": "Family Sharing", "desc": "Perfect for families with multiple members" },
+      "callcenterES": { "name": "Call Centre Spain", "desc": "24/7 professional emergency response" }
+    }
+  },
+  "regionServices": {
+    "spain": {
+      "name": "Call Centre Spain",
+      "description": "Specialized emergency response for Spain with local language support and 24/7 availability."
+    }
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "Get in touch with our team",
+    "description": "Have questions about LifeLink Sync? Need help with your account? Get in touch with our support team.",
+    "form": {
+      "name": "Full Name",
+      "email": "Email Address", 
+      "subject": "Subject",
+      "message": "Message",
+      "acceptTerms": "I agree to the Terms of Service and Privacy Policy",
+      "submit": "Send Message",
+      "sending": "Sending...",
+      "success": "Message sent successfully!",
+      "error": "Failed to send message. Please try again."
+    }
+  },
+  "support": {
+    "title": "Support",
+    "subtitle": "We're here to help. Reach us anytime.",
+    "email": {
+      "title": "Email Support",
+      "address": "support@lifelink-sync.com"
+    },
+    "emergency": {
+      "title": "Emergency Hotline", 
+      "description": "Use in-app SOS to dial your regional emergency number."
+    },
+    "faq": {
+      "title": "FAQs",
+      "description": "Coming soon."
+    }
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "description": "Your privacy matters. This page describes how we handle your data.",
+    "fallback": "Our comprehensive Privacy Policy is displayed in an interactive dialog for better readability. If you're having trouble viewing the policy, please contact us at",
+    "email": "hello@lifelink-sync.com"
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "description": "Please read these terms carefully before using LifeLink Sync.",
+    "fallback": "Our comprehensive Terms of Service are displayed in an interactive dialog for better readability. If you're having trouble viewing the terms, please contact us at",
+    "email": "hello@lifelink-sync.com"
+  },
+  "regionalDashboard": {
+    "title": "Regional Call Center",
+    "subtitle": "Emergency control center dashboard",
+    "accessRestricted": "Access Restricted",
+    "noPermission": "You don't have permission to access the regional call center.",
+    "activeCustomers": "Active Customers",
+    "connectedCustomers": "Connected customers",
+    "openAlerts": "Open Alerts",
+    "pendingEvents": "Pending events",
+    "systemStatus": "System Status",
+    "operational": "OPERATIONAL",
+    "allSystemsFunctioning": "All systems functioning",
+    "activeSosEvents": "Active SOS Events",
+    "noActiveSos": "No active SOS events at this time",
+    "sosEventsWillAppear": "SOS events will appear here when activated",
+    "notificationCenter": "Notification Center",
+    "noPendingNotifications": "No pending notifications",
+    "familyNotificationsWillAppear": "Family notifications will appear here",
+    "systemInformation": "System Information",
+    "organization": "Organization",
+    "notAssigned": "Not assigned",
+    "role": "Role",
+    "platformAdmin": "Platform Admin",
+    "regionalSupervisor": "Regional Supervisor",
+    "regionalOperator": "Regional Operator",
+    "user": "User"
+  },
+  "regionalCenterES": {
+    "h1": "Spain Regional Call Centre",
+    "intro": "24/7 bilingual emergency support for residents and visitors in Spain.",
+    "heroDescription": "Our trained agents speak English and Spanish and can coordinate emergency services, provide live translation, and assist with follow-up.",
+    "ctaSOS": "Open SOS",
+    "ctaSupport": "Visit Support",
+    "whatWeDoTitle": "What we do",
+    "whatWeDo": [
+      "Emergency call handling and triage",
+      "Live translation between English and Spanish during emergency calls",
+      "Coordination with local emergency services and first responders",
+      "Contacting your designated emergency contacts",
+      "Medical and travel information assistance",
+      "Follow-up and case updates until resolution"
+    ],
+    "whenToContactTitle": "When to contact us",
+    "whenToContact": [
+      "You need help communicating with emergency services in Spain",
+      "You prefer to speak in English or Spanish during an urgent situation",
+      "You are traveling in Spain and need assistance",
+      "You need help coordinating with family or caregivers",
+      "You have an urgent device or subscription issue impacting your safety"
+    ],
+    "coverageTitle": "Coverage & hours",
+    "coverageHours": "24/7, 365 days",
+    "coverageLanguages": "Languages: English and Spanish",
+    "coverageRegion": "Region: Spain (ES)",
+    "confidentialityTitle": "Confidentiality & safety",
+    "confidentialityDesc": "All calls are recorded for safety and training. Personal data is handled according to our Privacy Policy.",
+    "noEmergency": "If you are in immediate danger, call 112 (Spain's emergency number)."
+  },
+  "admin": {
+    "title": "Admin Dashboard",
+    "subtitle": "LifeLink Sync Management Portal",
+    "overview": "📊 Overview & Analytics",
+    "aiMarketing": "🤖 AI & Marketing Intelligence",
+    "customerManagement": "👥 Customer Management",
+    "aiChatLeads": "💬 AI Chat & Leads",
+    "communicationMarketing": "📧 Communication & Marketing",
+    "liveMapManagement": "🗺️ Live Map Management",
+    "emergencySafety": "🚨 Emergency & Safety",
+    "productServices": "🛍️ Product & Services",
+    "system": "⚙️ System",
+    "dashboard": "Dashboard",
+    "analytics": "Analytics",
+    "videoAnalytics": "Video Analytics",
+    "revenueAnalytics": "Revenue Analytics",
+    "userGrowth": "User Growth",
+    "claraAiAgent": "Clara AI Agent",
+    "rivenMarketingAi": "Riven Marketing AI",
+    "allCustomers": "All Customers",
+    "subscriptions": "Subscriptions",
+    "familyAccounts": "Family Accounts",
+    "leadManagement": "Lead Management",
+    "leadIntelligence": "Lead Intelligence",
+    "conversations": "Conversations",
+    "aiPerformance": "AI Performance",
+    "contactSubmissions": "Contact Submissions",
+    "emailCampaigns": "Email Campaigns",
+    "communicationCenter": "Communication Center",
+    "socialMediaIntegration": "Social Media Integration",
+    "contentAutomation": "Content Automation",
+    "liveMapMonitor": "Live Map Monitor",
+    "circleAnalytics": "Circle Analytics",
+    "geofenceManagement": "Geofence Management",
+    "locationData": "Location Data",
+    "emergencyIncidents": "Emergency Incidents",
+    "safetyMonitoring": "Safety Monitoring",
+    "products": "Products",
+    "regionalServices": "Regional Services",
+    "subscriptionPlans": "Subscription Plans",
+    "flickControl": "Flic Control",
+    "userActivity": "User Activity",
+    "systemSettings": "System Settings",
+    "reports": "Reports",
+    "appTesting": "App Testing",
+    "regionalManagement": "🌍 Regional Management",
+    "regionalManagementDescription": "Centralized control over all regional emergency response operations",
+    "regionalHub": "Regional Hub",
+    "regionalOrganizations": "Organizations",
+    "regionalUsers": "Regional Staff",
+    "regionalAudit": "Audit Log"
+  },
+  "dashboard": {
+    "greeting": {
+      "morning": "Good morning",
+      "afternoon": "Good afternoon", 
+      "evening": "Good evening"
+    },
+    "signOut": "Sign Out",
+    "overview": "Overview",
+    "profile": "Profile",
+    "myProducts": "My Products",
+    "flickControl": "Flic Control",
+    "activity": "Activity",
+    "mobileApp": "Mobile App",
+    "liveMap": "Live Map",
+    "liveFamilyMap": "Live Family Map",
+    "myCircles": "My Circles",
+    "placesGeofences": "Places & Geofences",
+    "locationHistory": "Location History",
+    "settings": "Settings",
+    "subscription": "Subscription",
+    "notifications": "Notifications",
+    "security": "Security",
+    "support": "Support",
+    "memberPortal": "Member Portal",
+    "iceAdmin": "LifeLink Sync Admin",
+    "managementDashboard": "Management Dashboard"
+  },
+  "clara": {
+    "title": "Clara AI Assistant",
+    "greeting": "👋 Hi {{userName}}! I'm Clara, your AI assistant. I'm here to help you with your emergency protection registration. How can I assist you today?",
+    "placeholder": "Ask Clara about emergency protection...",
+    "error": {
+      "title": "Error",
+      "description": "Failed to send message. Please try again."
+    }
+  },
+  "introVideo": {
+    "title": "LifeLink Sync Introduction Videos",
+    "description": "Choose a video to learn more about LifeLink Sync"
+  },
+  "familyCarerAccess": {
+    "sectionBadge": "Family & Carer Support",
+    "title": "Family & Carer Access",
+    "subtitle": "Connect your loved ones and care providers for comprehensive emergency support and peace of mind",
+    "cardTitle": "Complete Family Protection",
+    "cardSubtitle": "per connection",
+    "cardDescription": "Connect each family member or professional carer for comprehensive emergency coordination. Each connection enables instant alerts, location sharing, and coordinated response during critical situations.",
+    "learnMore": "Learn More",
+    "watchVideo": "Watch Video",
+    "secureNote": "Secure access control • Privacy protected • Pay only for active connections",
+    "footerText": "Connecting families for stronger emergency response",
+    "features": {
+      "trustedContacts": {
+        "title": "Trusted Contacts",
+        "description": "Add family members and carers as emergency contacts with priority access levels"
+      },
+      "careCoordination": {
+        "title": "Care Coordination",
+        "description": "Seamless coordination between family members during emergencies"
+      },
+      "privacyControls": {
+        "title": "Privacy Controls",
+        "description": "Granular privacy settings to control what information is shared with whom"
+      },
+      "realTimeUpdates": {
+        "title": "Real-time Updates",
+        "description": "Instant notifications and status updates for all authorized contacts"
+      },
+      "locationSharing": {
+        "title": "Location Sharing",
+        "description": "Share your location with trusted contacts during emergencies or when requested by authorized carers"
+      },
+      "activityTracking": {
+        "title": "Care Activity Tracking",
+        "description": "Monitor and track care activities, medication schedules, and health status updates"
+      }
+    },
+    "page": {
+      "heroTag": "Family Connection Platform",
+      "heroTitle": "Connect Your",
+      "heroTitleHighlight": "Loved Ones",
+      "heroSubtitle": "Build a comprehensive support network that keeps your family connected and protected during emergencies and everyday care moments",
+      "startConnecting": "Start Connecting",
+      "featuresTag": "Comprehensive Care Network",
+      "featuresTitle": "Everything Your Family Needs",
+      "featuresSubtitle": "Advanced features designed to create the strongest possible support network for your loved ones",
+      "accessLevelsTag": "Secure Access Management",
+      "accessLevelsTitle": "Customized Access Levels",
+      "accessLevelsSubtitle": "Grant the right level of access to each person in your care network, from emergency-only contacts to full care coordinators",
+      "useCasesTag": "Real-World Applications",
+      "useCasesTitle": "Perfect for Every Care Situation",
+      "useCasesSubtitle": "From multi-generational families to professional care teams, see how our platform adapts to your unique needs",
+      "ctaTag": "Ready to Connect Your Family?",
+      "ctaTitle": "Start Building Your",
+      "ctaTitleHighlight": "Care Network",
+      "ctaTitleSuffix": "Today",
+      "ctaSubtitle": "Join thousands of families who trust LifeLink Sync to keep their loved ones connected, protected, and cared for",
+      "startFamilyNetwork": "Start Your Family Network",
+      "viewPricingPlans": "View Pricing Plans",
+      "accessLevels": {
+        "emergencyOnly": {
+          "title": "Emergency Only",
+          "description": "Basic contact information and emergency alerts",
+          "permissions": [
+            "Emergency notifications",
+            "Basic profile information",
+            "Emergency contact details"
+          ]
+        },
+        "familyMember": {
+          "title": "Family Member",
+          "description": "Extended family access with care coordination",
+          "permissions": [
+            "All emergency features",
+            "Location sharing",
+            "Care plan access",
+            "Medical information",
+            "Activity updates"
+          ]
+        },
+        "primaryCarer": {
+          "title": "Primary Carer",
+          "description": "Full care coordination and management access",
+          "permissions": [
+            "Complete profile access",
+            "Care plan management",
+            "Emergency response coordination",
+            "Medical record access",
+            "Communication hub"
+          ]
+        }
+      },
+      "useCases": {
+        "multiGenerational": {
+          "title": "Multi-Generational Families",
+          "description": "Connect grandparents, parents, and adult children with appropriate access levels for each generation."
+        },
+        "professionalCare": {
+          "title": "Professional Care Teams",
+          "description": "Integrate home care workers, nurses, and healthcare providers into your emergency response network."
+        },
+        "emergencyResponse": {
+          "title": "Emergency Response",
+          "description": "Ensure rapid response during emergencies with automatic notifications to all authorized contacts."
+        },
+        "routineCare": {
+          "title": "Routine Care Management",
+          "description": "Coordinate daily care activities, medication reminders, and health monitoring."
+        }
+      }
+    }
+  },
+  "finalCta": {
+    "title": "Ready to Protect Your Family?",
+    "description": "Join thousands of families who trust LifeLink Sync for comprehensive emergency protection. Start today and experience peace of mind with professional monitoring, family connectivity, and AI-powered assistance.",
+    "startProtection": "Start Protection",
+    "connectFamily": "Connect Family"
+  },
+  "mockupNames": {
+    "dad": "Dad",
+    "mom": "Mom",
+    "grandma": "Grandma",
+    "clara": "Clara"
+  },
+  "deviceStatus": {
+    "deviceBattery": "Device Battery",
+    "healthStatus": "Health Status",
+    "guardianAI": "Guardian AI",
+    "reminders": "Reminders",
+    "bluetoothStatus": "Bluetooth device status",
+    "liveHeartRate": "Live heart rate via device",
+    "active": "Active",
+    "idle": "Idle",
+    "standingBy": "Standing by",
+    "nextIn": "Next in 30 min",
+    "allDone": "All done",
+    "connected": "Connected",
+    "disconnected": "Disconnected",
+    "ready": "Ready",
+    "pendant": "Pendant",
+    "manage": "Manage",
+    "bpm": "BPM"
+  },
+  "appPreview": {
+    "appName": "LifeLink Sync",
+    "tagline": "Tap once for immediate help",
+    "voiceOff": "Voice OFF",
+    "emergencySOS": "Emergency SOS",
+    "tapForHelp": "Tap for immediate help"
+  },
+  "common": {
+    "watchVideo": "Watch Video",
+    "learnMore": "Learn more",
+    "getStarted": "Get Started",
+    "buyNow": "Buy Now",
+    "subscribeNow": "Subscribe Now",
+    "comingSoon": "Coming Soon",
+    "oneTime": "One-time",
+    "activeNow": "Active now",
+    "justNow": "Just now",
+    "available247": "Available 24/7",
+    "advanced": "Advanced",
+    "multilingual": "Multilingual",
+    "aiFeatures": "Advanced AI • Multilingual • Available 24/7",
+    "typeMessage": "Type your message...",
+    "viewDevices": "View Smart Devices",
+    "compatible": "Compatible with Alexa, Google Assistant & Apple HomeKit",
+    "smartDeviceIntegration": "Smart Device Integration",
+    "voiceActivatedProtection": "Voice-Activated Emergency Protection",
+    "instantResponse": "Instant Emergency Response",
+    "responseDescription": "Connect your smart devices and emergency contacts for instant, hands-free protection when you need it most",
+    "deviceIntegrationDescription": "Connect your smart speakers, Bluetooth pendant, and mobile devices for comprehensive emergency protection that activates with your voice or a simple button press.",
+    "smartSpeaker": "Smart Speaker Voice Commands",
+    "smartSpeakerDesc": "Say \"help, help, help\" three times on any smart device for instant emergency activation when your hands aren't free.",
+    "bluetoothPendant": "Bluetooth Emergency Pendant",
+    "bluetoothPendantDesc": "Wearable device with one-button emergency activation. Works up to 100 meters from your phone with instant SOS alerts.",
+    "voiceRecognition": "Voice Recognition Technology",
+    "voiceRecognitionDesc": "Advanced AI recognizes distress calls, unusual sounds, or specific trigger words to automatically activate emergency protocols.",
+    "voiceButtonActivation": "Voice/Button Activation",
+    "helpCommand": "\"Help me\" or pendant button press",
+    "locationAlert": "Location & Alert Sent",
+    "gpsShared": "GPS coordinates shared instantly",
+    "emergencyContacts": "Emergency Contacts Called",
+    "familyNotified": "Family, carers & services notified",
+    "professionalResponse": "Professional Response",
+    "monitoringCenter": "24/7 monitoring center activated",
+    "aiDetection": "AI Detection",
+    "responseTime": "Response Time",
+    "successRate": "Success Rate",
+    "monitoring": "Monitoring",
+    "countries": "Countries",
+    "professionalNetwork": "Professional Emergency Response Network"
+  },
+  "howItWorks": {
+    "title": "How LifeLink Sync Works",
+    "subtitle": "Emergency coordination reimagined with AI. Simple, fast, and always available.",
+    "keyFeatures": "Key Features",
+    "importantNotice": "Important Notice",
+    "readyToStart": "Ready to Get Started?",
+    "readySubtitle": "Talk to Clara right now. Chat, call, or request a video call in seconds.",
+    "chatWithClara": "Chat with Clara",
+    "callNow": "Call Now (60 sec)",
+    "availabilityNotice": "Available in English & Spanish • 24/7 • Free to start",
+    "steps": {
+      "step1": {
+        "title": "Press Your Emergency Button",
+        "description": "Activate LifeLink Sync with one tap from your phone, or use a Flic button for instant access."
+      },
+      "step2": {
+        "title": "All Contacts Ring Simultaneously",
+        "description": "Your emergency contacts all receive calls at once, not one-by-one. Get help 15x faster than traditional systems."
+      },
+      "step3": {
+        "title": "Clara AI Joins to Coordinate",
+        "description": "Our AI coordinator Clara joins the call, greets everyone, captures ETAs, and keeps responders updated in real-time."
+      },
+      "step4": {
+        "title": "Help Arrives Faster",
+        "description": "Your location is shared automatically. Everyone knows who's coming, when they'll arrive, and what's needed."
+      }
+    },
+    "features": {
+      "callback": {
+        "title": "60-Second Callback",
+        "description": "Click the phone icon in chat to talk to our team in under 60 seconds. No waiting, no forms."
+      },
+      "bilingual": {
+        "title": "English & Spanish Support",
+        "description": "Switch languages instantly. Clara and our team speak both English and Spanish fluently."
+      },
+      "video": {
+        "title": "Video Calls Available",
+        "description": "Need to show something? Request a video call for face-to-face assistance."
+      },
+      "available247": {
+        "title": "24/7 Availability",
+        "description": "Clara never sleeps. Get help anytime, day or night, 365 days a year."
+      },
+      "memory": {
+        "title": "Perfect Memory",
+        "description": "Clara remembers every interaction. She knows your history and provides personalized assistance."
+      },
+      "chatAndCall": {
+        "title": "Chat & Call Anytime",
+        "description": "Prefer text? Chat with Clara. Need to talk? Click to call. You choose how to connect."
+      }
+    },
+    "disclaimer": {
+      "title": "Important Notice",
+      "message": "LifeLink Sync is an emergency coordination tool. It is NOT a replacement for 911 (US) or 112 (EU).",
+      "lifeThreatening": "In a life-threatening emergency:",
+      "step1": "CALL 911 (US) or 112 (EU) FIRST",
+      "step2": "Then use LifeLink Sync to notify your contacts",
+      "step3": "Do not delay calling official emergency services"
+    }
+  }
+}

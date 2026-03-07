@@ -1,0 +1,61 @@
+name: Android Build (Capacitor)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # ✅ MUST be Node 20+ before any npm/npx/cap steps
+      - name: Set up Node (Capacitor 7 needs >=20)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Print versions (sanity check)
+        run: |
+          node -v
+          npm -v
+
+      - name: Set up Java (AGP requires 17)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        run: |
+          sdkmanager --install "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web assets (Vite)
+        run: npm run build
+
+      - name: Ensure Capacitor Android project exists
+        run: |
+          npm i -D @capacitor/cli @capacitor/core @capacitor/android
+          npx cap add android --yes || true
+          npx cap sync android
+
+      - name: Build Android App Bundle (AAB)
+        run: |
+          cd android
+          chmod +x ./gradlew
+          ./gradlew bundleRelease
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release.aab
+          path: android/app/build/outputs/bundle/release/app-release.aab

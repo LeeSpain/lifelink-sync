@@ -1,0 +1,617 @@
+{
+  "nav": {
+    "features": "Functies",
+    "pricing": "Prijzen",
+    "support": "Ondersteuning",
+    "devices": "Apparaten",
+    "signIn": "Inloggen",
+    "subscribeNow": "Abonneer Nu",
+    "joinNow": "Meld je aan",
+    "regionalCenter": "Regionaal centrum contacteren"
+  },
+  "footer": {
+    "quickLinks": "Snelle links",
+    "pricing": "Prijzen",
+    "devices": "Apparaten",
+    "support": "Ondersteuning",
+    "account": "Account",
+    "signIn": "Inloggen",
+    "subscribe": "Abonneren",
+    "signOut": "Uitloggen",
+    "membersDashboard": "Leden Dashboard",
+    "adminDashboard": "Admin Dashboard",
+    "connect": "Contact",
+    "privacy": "Privacybeleid",
+    "terms": "Servicevoorwaarden",
+    "supportLink": "Ondersteuning",
+    "rights": "Alle rechten voorbehouden."
+  },
+  "admin": {
+    "header": {
+      "title": "Admin Dashboard",
+      "subtitle": "LifeLink Sync Beheerportal"
+    }
+  },
+  "dashboard": {
+    "signOut": "Uitloggen",
+    "greeting": {
+      "morning": "Goedemorgen",
+      "afternoon": "Goedemiddag",
+      "evening": "Goedenavond"
+    },
+    "title": "Dashboard"
+  },
+  "pricing": {
+    "subscribeNow": "Abonneer Nu",
+    "details": "Details",
+    "corePlan": "KERNPLAN",
+    "addOn": "UITBREIDING",
+    "oneTime": "EENMALIGE AANKOOP",
+    "title": "Jouw kernbeschermingsabonnement",
+    "subtitle": "Eén eenvoudig abonnement dat professionele noodbescherming biedt. Voeg optionele extra's toe — Familie Toegang, Regionale Callcenters en Veiligheidsapparaten — wanneer je wilt. Activeer direct in de app.",
+    "everythingIncluded": "Alles inbegrepen:",
+    "familyTitle": "Familie- en Zorgtoegang",
+    "familyDesc": "Na aanmelding kun je vertrouwde familieleden of zorgverleners uitnodigen voor je dashboard. Zij hebben veilige toegang tot je noodprofiel en beschermingsstatus, ontvangen directe meldingen, zien GPS-locatie tijdens een SOS en helpen een snelle respons te coördineren.",
+    "familyFeatures": "Familiefuncties:",
+    "safetyProductsTitle": "Veiligheidsproducten",
+    "safetyProductsDesc": "Verhoog je veiligheid met onze Bluetooth-noodapparaten die naadloos werken met alle abonnementen",
+    "oneTimeLabel": "eenmalig",
+    "productSpecs": "Volledige productspecificaties en installatie-informatie"
+  },
+  "hero": {
+    "badge": "Apparaatvrije Noodbescherming",
+    "titlePart1": "Transformeer Je Telefoon Tot een",
+    "titleEmphasis": "Levensreddende",
+    "titlePart2": "Assistent",
+    "description": "LifeLink Sync biedt meertalige noodbescherming met AI Guardian, professionele callcenter toegang en familieconnectiviteit — wereldwijd beschikbaar.",
+    "ctaJoin": "Doe vandaag mee",
+    "ctaTalk": "Praat met Clara",
+    "meetClara": "Ontmoet Clara"
+  },
+  "features": {
+    "familyTracker": "Familie Tracker",
+    "grandmaSafe": "Oma is veilig",
+    "atHome": "Thuis • 2 min geleden",
+    "emergencyActive": "Noodgeval Actief",
+    "responding": "Aan het reageren",
+    "liveLocation": "Live Locatie",
+    "realtimeTracking": "Real-time familie tracking",
+    "instantAlerts": "Directe Waarschuwingen",
+    "emergencyNotifications": "Noodmeldingen",
+    "keepFamilyConnected": "Houd Je Familie Verbonden & Beschermd",
+    "familyDescription": "Zie precies waar je dierbaren zijn, krijg directe waarschuwingen wanneer ze hulp nodig hebben, en coördineer zorg naadloos binnen je hele familienetwerk.",
+    "familyNetwork": "Familie Netwerk",
+    "familyNetworkDesc": "Verbind alle familieleden met veilige, rolgebaseerde toegang tot locatie en noodinformatie.",
+    "emergencyAlerts": "Noodwaarschuwingen",
+    "emergencyAlertsDesc": "Directe meldingen wanneer iemand SOS activeert, met locatiegegevens en responscoördinatie.",
+    "monitoring247": "24/7 Monitoring",
+    "monitoring247Desc": "Professionele monitoring en familiewaarschuwingen zorgen ervoor dat er altijd iemand over je dierbaren waakt.",
+    "familyVideo": "Familie Video",
+    "connectFirstFree": "Verbind je eerste familielid gratis • Geen installatiekosten"
+  },
+  "hero": {
+    "badge": "Noodbescherming zonder apparaat",
+    "titlePart1": "Verander je telefoon in een",
+    "titleEmphasis": "levensredende",
+    "titlePart2": "assistent",
+    "description": "LifeLink Sync biedt meertalige noodbescherming met AI Guardian, professioneel callcenter en familieverbinding — wereldwijd beschikbaar.",
+    "ctaJoin": "Meld je vandaag aan",
+    "ctaTalk": "Praat met Clara"
+  },
+  "features": {
+    "title": "Complete noodbeschermingssuite",
+    "description": "Professionele noodbescherming met wereldwijd callcenter, Bluetooth-apparaten en AI-monitoring — vanaf €1,99/maand met wereldwijde dekking.",
+    "items": [
+      { "title": "24/7 Noodrespons", "description": "SOS met één tik en directe GPS-locatie naar noodcontacten en callcenter." },
+      { "title": "AI Gezondheidsmonitoring", "description": "Slimme welzijnsmeting met het Premium-plan inclusief AI-gestuurde inzichten." },
+      { "title": "Toegang tot wereldwijd callcenter", "description": "Professionele coördinatie van noodrespons 24/7 met meertalige ondersteuning." },
+      { "title": "Noodmeldingen voor familie", "description": "Directe SOS-meldingen naar maximaal 5 contacten met Familie en Premium." },
+      { "title": "GPS-locatietracking", "description": "Realtime locatie delen tijdens noodgevallen met nauwkeurige coördinaten." },
+      { "title": "Bluetooth-apparaatondersteuning", "description": "Compatibel met LifeLink Sync Bluetooth-hanger voor handsfree activatie tot 100 m." }
+    ]
+  },
+  "familyConnections": {
+    "badge": "Familie Zorgnetwerk",
+    "title": "Familie & Verzorger Verbindingen",
+    "description": "Bouw een veilig netwerk van vertrouwde familieleden en verzorgers die ondersteuning kunnen bieden, welzijn kunnen monitoren en zorg kunnen coördineren tijdens zowel dagelijkse situaties als noodsituaties.",
+    "features": [
+      {
+        "title": "Vertrouwd Familienetwerk",
+        "description": "Verbind familieleden en verzorgers met veilige toegangsniveaus, rolgebaseerde rechten en versleutelde communicatiekanalen."
+      },
+      {
+        "title": "Real-time Noodwaarschuwingen",
+        "description": "Directe meldingen naar alle verbonden familieleden met locatiegegevens, noodtype en respons coördinatie tools."
+      },
+      {
+        "title": "Locatie Delen Controle",
+        "description": "Privacy-gecontroleerde locatie delen met aanpasbare rechten, geofencing waarschuwingen en activiteiten tracking voor gemoedsrust."
+      },
+      {
+        "title": "Zorgcoördinatie Hub",
+        "description": "Naadloze coördinatie tussen familieleden en verzorgers met gedeelde agenda's, notities, medicatie herinneringen en zorgplannen."
+      },
+      {
+        "title": "Privacy & Toegangscontroles",
+        "description": "Gedetailleerde instellingen voor informatie delen, toegangsniveaus en communicatie voorkeuren met volledige transparantie en controle."
+      },
+      {
+        "title": "24/7 Familie Ondersteuning",
+        "description": "Professionele ondersteuning beschikbaar voor alle verbonden familieleden met expert begeleiding en noodrespons coördinatie."
+      }
+    ],
+    "cta": {
+      "title": "Begin met Bouwen van je Familie Zorgnetwerk",
+      "description": "Verbind met je dierbaren en creëer een veilig ondersteuningssysteem dat werkt voor iedereen in je familie.",
+      "button": "Krijg Familie Toegang"
+    }
+  },
+  "appDownload": {
+    "title": "Professionele mobiele app",
+    "subtitle": "Download LifeLink Sync - jouw complete beschermingsplatform",
+    "platformBadge": "PROFESSIONEEL PLATFORM",
+    "appName": "LifeLink Sync",
+    "heroDescription": "Professioneel noodbeschermingsplatform voor individuen en families. Download gratis en activeer daarna je premiumfuncties.",
+    "cta": "Gratis starten",
+    "features": {
+      "emergencySOS": { "title": "Nood-SOS", "description": "SOS-knop met één tik met GPS-locatie en directe meldingen" },
+      "globalCoverage": { "title": "Wereldwijde dekking", "description": "Werkt wereldwijd met meertalige ondersteuning en 24/7 monitoring" },
+      "instantSetup": { "title": "Directe installatie", "description": "Binnen enkele minuten klaar met eenvoudige configuratie" }
+    },
+    "infoTitle": "Belangrijke informatie",
+    "planFeaturesTitle": "Planfuncties:",
+    "bullets": {
+      "noFees": "Geen installatiekosten of verborgen kosten",
+      "cancelAnytime": "Op elk moment opzeggen met 30 dagen opzegtermijn",
+      "hardwareSeparate": "Hardware apart verkrijgbaar",
+      "supportIncluded": "Volledige klantenondersteuning inbegrepen"
+    },
+    "cancellationTitle": "Annuleringsbeleid:",
+    "cancellationDescription": "Je kunt je abonnement op elk moment annuleren. Toegang blijft tot het einde van je huidige factureringsperiode. Hardwareaankopen zijn niet-restitueerbaar maar hebben 1 jaar garantie."
+  },
+  "appPreview": {
+    "title": "Bekijk hoe de app eruitziet",
+    "description": "Bekijk een live preview van onze mobiele app. Werkt automatisch bij wanneer admins opslaan en verbindt met slimme apparaten voor realtime gegevens.",
+    "loading": "Voorbeeld laden...",
+    "note": "Dit voorbeeld werkt automatisch bij wanneer admins wijzigingen opslaan op de testpagina."
+  },
+  "dashboardOverview": {
+    "welcome": "Welkom terug, {{name}}!",
+    "subtitle": "Jouw veiligheidsdashboard - alles in één oogopslag",
+    "protected": "Beschermd",
+    "inactive": "Inactief",
+    "quickActions": "Snelle acties",
+    "profileCompletion": "Profielvoltooiing",
+    "overallProgress": "Algemene voortgang",
+    "recentActivity": "Recente activiteit",
+    "noRecentActivity": "Geen recente activiteit",
+    "actions": {
+      "testEmergency": {
+        "title": "Noodsysteem testen",
+        "description": "Controleer of alle systemen werken"
+      },
+      "completeSetup": {
+        "title": "Configuratie voltooien",
+        "descriptionIncomplete": "Rond je profielconfiguratie af",
+        "descriptionComplete": "Profiel bekijken en bijwerken"
+      }
+    },
+    "status": {
+      "emergency": {
+        "title": "Noodgereedheid",
+        "ready": "Volledig voorbereid op noodgevallen",
+        "activatePlan": "Activeer beschermingsplan",
+        "addContacts": "Voeg meer noodcontacten toe"
+      },
+      "account": {
+        "title": "Accountgezondheid",
+        "complete": "Accountinstelling voltooid",
+        "completeProfile": "Vul je profiel aan",
+        "enableLocation": "Locatiedeling inschakelen"
+      }
+    },
+    "checklist": {
+      "personalDetails": "Persoonlijke gegevens",
+      "emergencyContacts": "Noodcontacten",
+      "medicalInformation": "Medische informatie",
+      "subscriptionActive": "Abonnement actief"
+    }
+  },
+  "common": {
+    "perMonth": "/maand",
+    "buyNow": "Nu kopen",
+    "howItWorks": "Hoe het werkt",
+    "learnMore": "Meer informatie",
+    "visitor": "Bezoeker",
+    "comingSoon": "Binnenkort"
+  },
+  "products": {
+    "icePendant": {
+      "name": "LifeLink Sync Bluetooth-hanger",
+      "description": "Handsfree noodhanger compatibel met LifeLink Sync."
+    }
+  },
+  "plans": {
+    "premium": {
+      "name": "Premium Bescherming",
+      "description": "Geavanceerde bescherming met AI-monitoring"
+    },
+    "family": {
+      "name": "Familieverbinding",
+      "description": "Nodig vertrouwde familie of zorgverleners uit met gedeelde meldingen en locatie."
+    }
+  },
+  "devices": {
+    "icePendant": {
+      "hero": "Een discrete hanger met één knop die direct je noodplan activeert via de LifeLink Sync‑app. Ontworpen voor betrouwbaarheid, comfort en gemoedsrust.",
+      "seoTitle": "LifeLink Sync Bluetooth-hanger – LifeLink Sync",
+      "metaDescription": "Handsfree noodhanger met Bluetooth, waterdicht ontwerp en 7 dagen batterij."
+    }
+  },
+  "register": {
+    "plans": {
+      "personal": { "name": "Persoonlijk Account", "desc": "Individueel noodcontactsysteem" },
+      "guardian": { "name": "Guardian Wellness", "desc": "Geavanceerde gezondheidsmonitoring en meldingen" },
+      "family": { "name": "Gezinsdeling", "desc": "Perfect voor gezinnen met meerdere leden" },
+      "callcenterES": { "name": "Callcenter Spanje", "desc": "24/7 professionele noodrespons" }
+    }
+  },
+  "contact": {
+    "title": "Contact",
+    "subtitle": "Neem contact op met ons team",
+    "description": "Heb je vragen over LifeLink Sync? Hulp nodig bij je account? Neem contact op met ons supportteam.",
+    "form": {
+      "name": "Volledige naam",
+      "email": "E-mailadres",
+      "subject": "Onderwerp",
+      "message": "Bericht",
+      "acceptTerms": "Ik ga akkoord met de servicevoorwaarden en het privacybeleid",
+      "submit": "Bericht verzenden",
+      "sending": "Verzenden...",
+      "success": "Bericht succesvol verzonden!",
+      "error": "Verzenden mislukt. Probeer opnieuw."
+    }
+  },
+  "support": {
+    "title": "Ondersteuning",
+    "subtitle": "We zijn er om te helpen. Bereik ons altijd.",
+    "email": {
+      "title": "E-mailondersteuning",
+      "address": "support@lifelink-sync.com"
+    },
+    "emergency": {
+      "title": "Noodlijn",
+      "description": "Gebruik de SOS-functie in de app om je regionale alarmnummer te bellen."
+    },
+    "faq": {
+      "title": "Veelgestelde vragen",
+      "description": "Binnenkort beschikbaar."
+    }
+  },
+  "privacy": {
+    "title": "Privacybeleid",
+    "description": "Jouw privacy is belangrijk. Deze pagina beschrijft hoe we met je gegevens omgaan.",
+    "fallback": "Ons uitgebreide privacybeleid wordt weergegeven in een interactieve dialoog voor betere leesbaarheid. Als je problemen hebt met het bekijken van het beleid, neem dan contact met ons op via",
+    "email": "hello@lifelink-sync.com"
+  },
+  "terms": {
+    "title": "Servicevoorwaarden",
+    "description": "Lees deze voorwaarden zorgvuldig voordat je LifeLink Sync gebruikt.",
+    "fallback": "Onze uitgebreide servicevoorwaarden worden weergegeven in een interactieve dialoog voor betere leesbaarheid. Als je problemen hebt met het bekijken van de voorwaarden, neem dan contact met ons op via",
+    "email": "hello@lifelink-sync.com"
+  },
+  "regionServices": {
+    "spain": {
+      "name": "Callcenter Spanje",
+      "description": "Gespecialiseerde noodhulp voor Spanje met lokale taalondersteuning en 24/7 beschikbaarheid."
+    }
+  },
+  "clara": {
+    "title": "Clara AI Assistent",
+    "greeting": "👋 Hallo {{userName}}! Ik ben Clara, je AI-assistent. Ik ben hier om je te helpen met je noodbeschermingsregistratie. Hoe kan ik je vandaag helpen?",
+    "placeholder": "Vraag Clara over noodbescherming...",
+    "error": {
+      "title": "Fout",
+      "description": "Bericht verzenden mislukt. Probeer het opnieuw."
+    }
+  },
+  "regionalDashboard": {
+    "title": "Regionaal Callcenter",
+    "subtitle": "Noodcontrolecentrum dashboard",
+    "accessRestricted": "Toegang Beperkt",
+    "noPermission": "Je hebt geen toestemming om het regionale callcenter te bezoeken.",
+    "activeCustomers": "Actieve Klanten",
+    "connectedCustomers": "Verbonden klanten",
+    "openAlerts": "Open Meldingen",
+    "pendingEvents": "Wachtende gebeurtenissen",
+    "systemStatus": "Systeemstatus",
+    "operational": "OPERATIONEEL",
+    "allSystemsFunctioning": "Alle systemen functioneren",
+    "activeSosEvents": "Actieve SOS Gebeurtenissen",
+    "noActiveSos": "Geen actieve SOS gebeurtenissen op dit moment",
+    "sosEventsWillAppear": "SOS gebeurtenissen verschijnen hier wanneer geactiveerd",
+    "notificationCenter": "Notificatiecentrum",
+    "noPendingNotifications": "Geen wachtende notificaties",
+    "familyNotificationsWillAppear": "Familie notificaties verschijnen hier",
+    "systemInformation": "Systeeminformatie",
+    "organization": "Organisatie",
+    "notAssigned": "Niet toegewezen",
+    "role": "Rol",
+    "platformAdmin": "Platform Beheerder",
+    "regionalSupervisor": "Regionale Supervisor",
+    "regionalOperator": "Regionale Operator",
+    "user": "Gebruiker"
+  },
+  "admin": {
+    "title": "Admin Dashboard",
+    "subtitle": "LifeLink Sync Beheerportaal",
+    "overview": "📊 Overzicht & Analytics",
+    "aiMarketing": "🤖 AI & Marketing Intelligence",
+    "customerManagement": "👥 Klantenbeheer",
+    "aiChatLeads": "💬 AI Chat & Leads",
+    "communicationMarketing": "📧 Communicatie & Marketing",
+    "liveMapManagement": "🗺️ Live Kaart Beheer",
+    "emergencySafety": "🚨 Noodgeval & Veiligheid",
+    "productServices": "🛍️ Producten & Services",
+    "system": "⚙️ Systeem",
+    "dashboard": "Dashboard",
+    "analytics": "Analytics",
+    "videoAnalytics": "Video Analytics",
+    "revenueAnalytics": "Omzet Analytics",
+    "userGrowth": "Gebruikersgroei",
+    "claraAiAgent": "Clara AI Agent",
+    "rivenMarketingAi": "Riven Marketing AI",
+    "allCustomers": "Alle Klanten",
+    "subscriptions": "Abonnementen",
+    "familyAccounts": "Familie Accounts",
+    "leadManagement": "Lead Beheer",
+    "leadIntelligence": "Lead Intelligentie",
+    "conversations": "Gesprekken",
+    "aiPerformance": "AI Prestaties",
+    "contactSubmissions": "Contact Inzendingen",
+    "emailCampaigns": "E-mail Campagnes",
+    "communicationCenter": "Communicatiecentrum",
+    "socialMediaIntegration": "Social Media Integratie",
+    "contentAutomation": "Content Automatisering",
+    "liveMapMonitor": "Live Kaart Monitor",
+    "circleAnalytics": "Cirkel Analytics",
+    "geofenceManagement": "Geofence Beheer",
+    "locationData": "Locatiegegevens",
+    "emergencyIncidents": "Noodgevallen",
+    "safetyMonitoring": "Veiligheidsmonitoring",
+    "products": "Producten",
+    "regionalServices": "Regionale Services",
+    "subscriptionPlans": "Abonnementsplannen",
+    "flickControl": "Flic Besturing",
+    "userActivity": "Gebruikersactiviteit",
+    "systemSettings": "Systeeminstellingen",
+    "reports": "Rapporten",
+    "appTesting": "App Testen",
+    "regionalManagement": "🌍 Regionaal Beheer",
+    "regionalManagementDescription": "Gecentraliseerde controle over alle regionale noodresponse operaties",
+    "regionalHub": "Regionaal Hub",
+    "regionalOrganizations": "Organisaties",
+    "regionalUsers": "Regionaal Personeel",
+    "regionalAudit": "Audit Log"
+  },
+  "dashboard": {
+    "greeting": {
+      "morning": "Goedemorgen",
+      "afternoon": "Goedemiddag",
+      "evening": "Goedenavond"
+    },
+    "signOut": "Uitloggen",
+    "overview": "Overzicht",
+    "profile": "Profiel",
+    "myProducts": "Mijn Producten",
+    "flickControl": "Flic Besturing",
+    "activity": "Activiteit",
+    "mobileApp": "Mobiele App",
+    "liveMap": "Live Kaart",
+    "liveFamilyMap": "Live Familie Kaart",
+    "myCircles": "Mijn Cirkels",
+    "placesGeofences": "Plaatsen & Geofences",
+    "locationHistory": "Locatiegeschiedenis",
+    "settings": "Instellingen",
+    "subscription": "Abonnement",
+    "notifications": "Meldingen",
+    "security": "Veiligheid",
+    "support": "Ondersteuning",
+    "memberPortal": "Ledenportaal",
+    "iceAdmin": "LifeLink Sync Beheer",
+    "managementDashboard": "Beheer Dashboard"
+  },
+  "familyCarerAccess": {
+    "sectionBadge": "Familie & Verzorger Ondersteuning",
+    "title": "Familie & Verzorger Toegang",
+    "subtitle": "Verbind je dierbaren en zorgverleners voor uitgebreide noodhulpondersteuning en gemoedsrust",
+    "cardTitle": "Volledige Familiebescherming",
+    "cardSubtitle": "per verbinding",
+    "cardDescription": "Verbind elk familielid of professionele verzorger voor uitgebreide noodcoördinatie. Elke verbinding maakt directe waarschuwingen, locatie delen en gecoördineerde respons mogelijk tijdens kritieke situaties.",
+    "learnMore": "Meer Informatie",
+    "watchVideo": "Video Bekijken",
+    "secureNote": "Veilige toegangscontrole • Privacy beschermd • Betaal alleen voor actieve verbindingen",
+    "footerText": "Families verbinden voor sterkere noodrespons",
+    "features": {
+      "trustedContacts": {
+        "title": "Vertrouwde Contacten",
+        "description": "Voeg familieleden en verzorgers toe als noodcontacten met prioriteitstoegang"
+      },
+      "careCoordination": {
+        "title": "Zorgcoördinatie",
+        "description": "Naadloze coördinatie tussen familieleden tijdens noodsituaties"
+      },
+      "privacyControls": {
+        "title": "Privacy Controles",
+        "description": "Gedetailleerde privacy-instellingen om te bepalen welke informatie met wie wordt gedeeld"
+      },
+      "realTimeUpdates": {
+        "title": "Real-time Updates",
+        "description": "Directe meldingen en status updates voor alle geautoriseerde contacten"
+      },
+      "locationSharing": {
+        "title": "Locatie Delen",
+        "description": "Deel je locatie met vertrouwde contacten tijdens noodsituaties of wanneer verzocht door geautoriseerde verzorgers"
+      },
+      "activityTracking": {
+        "title": "Zorgactiviteit Tracking",
+        "description": "Monitor en volg zorgactiviteiten, medicatieschema's en gezondheidsstatus updates"
+      }
+    },
+    "page": {
+      "heroTag": "Familie Verbinding Platform",
+      "heroTitle": "Verbind Je",
+      "heroTitleHighlight": "Dierbaren",
+      "heroSubtitle": "Bouw een uitgebreid ondersteuningsnetwerk dat je familie verbonden en beschermd houdt tijdens noodsituaties en dagelijkse zorgmomenten",
+      "startConnecting": "Begin met Verbinden",
+      "featuresTag": "Uitgebreid Zorgnetwerk",
+      "featuresTitle": "Alles Wat Je Familie Nodig Heeft",
+      "featuresSubtitle": "Geavanceerde functies ontworpen om het sterkst mogelijke ondersteuningsnetwerk voor je dierbaren te creëren",
+      "accessLevelsTag": "Veilig Toegangsbeheer",
+      "accessLevelsTitle": "Aangepaste Toegangsniveaus",
+      "accessLevelsSubtitle": "Ken het juiste toegangsniveau toe aan elke persoon in je zorgnetwerk, van alleen-nood contacten tot volledige zorgcoördinatoren",
+      "useCasesTag": "Praktische Toepassingen",
+      "useCasesTitle": "Perfect voor Elke Zorgsituatie",
+      "useCasesSubtitle": "Van multigenerationele families tot professionele zorgteams, zie hoe ons platform zich aanpast aan jouw unieke behoeften",
+      "ctaTag": "Klaar om Je Familie te Verbinden?",
+      "ctaTitle": "Begin Vandaag met het Bouwen van Je",
+      "ctaTitleHighlight": "Zorgnetwerk",
+      "ctaTitleSuffix": "",
+      "ctaSubtitle": "Sluit je aan bij duizenden families die LifeLink Sync vertrouwen om hun dierbaren verbonden, beschermd en verzorgd te houden",
+      "startFamilyNetwork": "Start Je Familienetwerk",
+      "viewPricingPlans": "Bekijk Prijsplannen",
+      "accessLevels": {
+        "emergencyOnly": {
+          "title": "Alleen Noodsituaties",
+          "description": "Basis contactinformatie en noodwaarschuwingen",
+          "permissions": [
+            "Noodmeldingen",
+            "Basis profielinformatie",
+            "Noodcontact details"
+          ]
+        },
+        "familyMember": {
+          "title": "Familielid",
+          "description": "Uitgebreide familietoegang met zorgcoördinatie",
+          "permissions": [
+            "Alle noodfuncties",
+            "Locatie delen",
+            "Zorgplan toegang",
+            "Medische informatie",
+            "Activiteiten updates"
+          ]
+        },
+        "primaryCarer": {
+          "title": "Primaire Verzorger",
+          "description": "Volledige zorgcoördinatie en beheer toegang",
+          "permissions": [
+            "Volledige profiel toegang",
+            "Zorgplan beheer",
+            "Noodrespons coördinatie",
+            "Medisch dossier toegang",
+            "Communicatie hub"
+          ]
+        }
+      },
+      "useCases": {
+        "multiGenerational": {
+          "title": "Multigenerationele Families",
+          "description": "Verbind grootouders, ouders en volwassen kinderen met passende toegangsniveaus voor elke generatie."
+        },
+        "professionalCare": {
+          "title": "Professionele Zorgteams",
+          "description": "Integreer thuiszorgmedewerkers, verpleegkundigen en zorgverleners in je noodresponsnetwerk."
+        },
+        "emergencyResponse": {
+          "title": "Noodrespons",
+          "description": "Verzeker snelle respons tijdens noodsituaties met automatische meldingen naar alle geautoriseerde contacten."
+        },
+        "routineCare": {
+          "title": "Routine Zorgbeheer",
+          "description": "Coördineer dagelijkse zorgactiviteiten, medicatie herinneringen en gezondheidsmonitoring."
+        }
+      }
+    }
+  },
+  "finalCta": {
+    "title": "Klaar om Je Familie te Beschermen?",
+    "description": "Sluit je aan bij duizenden families die LifeLink Sync vertrouwen voor uitgebreide noodbescherming. Begin vandaag en ervaar gemoedsrust met professionele monitoring, familieconnectiviteit en AI-assistentie.",
+    "startProtection": "Start Bescherming",
+    "connectFamily": "Verbind Familie"
+  },
+  "mockupNames": {
+    "dad": "Papa",
+    "mom": "Mama",
+    "grandma": "Oma",
+    "clara": "Clara"
+  },
+  "deviceStatus": {
+    "deviceBattery": "Apparaatbatterij",
+    "healthStatus": "Gezondheidsstatus",
+    "guardianAI": "Guardian AI",
+    "reminders": "Herinneringen",
+    "bluetoothStatus": "Bluetooth apparaatstatus",
+    "liveHeartRate": "Live hartslag via apparaat",
+    "active": "Actief",
+    "idle": "Inactief",
+    "standingBy": "Stand-by",
+    "nextIn": "Volgende over 30 min",
+    "allDone": "Alles klaar",
+    "connected": "Verbonden",
+    "disconnected": "Niet verbonden",
+    "ready": "Gereed",
+    "pendant": "Hanger",
+    "manage": "Beheren",
+    "bpm": "BPM"
+  },
+  "appPreview": {
+    "appName": "LifeLink Sync",
+    "tagline": "Tik eenmaal voor onmiddellijke hulp",
+    "voiceOff": "Stem UIT",
+    "emergencySOS": "Nood SOS",
+    "tapForHelp": "Tik voor onmiddellijke hulp"
+  },
+  "common": {
+    "watchVideo": "Video Bekijken",
+    "learnMore": "Meer informatie",
+    "getStarted": "Aan de slag",
+    "buyNow": "Nu kopen",
+    "subscribeNow": "Nu abonneren",
+    "comingSoon": "Binnenkort beschikbaar",
+    "oneTime": "Eenmalig",
+    "activeNow": "Nu actief",
+    "justNow": "Net nu",
+    "available247": "24/7 beschikbaar",
+    "advanced": "Geavanceerd",
+    "multilingual": "Meertalig",
+    "aiFeatures": "Geavanceerde AI • Meertalig • 24/7 beschikbaar",
+    "typeMessage": "Typ je bericht...",
+    "viewDevices": "Apparaten bekijken",
+    "compatible": "Compatible met Alexa, Google Assistant en Apple HomeKit",
+    "smartDeviceIntegration": "Slimme Apparaat Integratie",
+    "voiceActivatedProtection": "Spraakgestuurde Noodbeveiliging",
+    "instantResponse": "Onmiddellijke Noodrespons",
+    "responseDescription": "Verbind je slimme apparaten en noodcontacten voor onmiddellijke, handsfree bescherming wanneer je het het meest nodig hebt",
+    "deviceIntegrationDescription": "Verbind je slimme speakers, Bluetooth hanger en mobiele apparaten voor uitgebreide noodbeveiliging die activeert met je stem of een eenvoudige knopdruk.",
+    "smartSpeaker": "Slimme Speaker Spraakopdrachten",
+    "smartSpeakerDesc": "Zeg \"help, help, help\" drie keer op elk slim apparaat voor onmiddellijke noodactivering wanneer je handen niet vrij zijn.",
+    "bluetoothPendant": "Bluetooth Noodhanger",
+    "bluetoothPendantDesc": "Draagbaar apparaat met één-knop noodactivering. Werkt tot 100 meter van je telefoon met onmiddellijke SOS-waarschuwingen.",
+    "voiceRecognition": "Spraakherkenning Technologie",
+    "voiceRecognitionDesc": "Geavanceerde AI herkent noodkreten, ongebruikelijke geluiden of specifieke triggerwoorden om automatisch noodprotocollen te activeren.",
+    "voiceButtonActivation": "Spraak/Knop Activering",
+    "helpCommand": "\"Help me\" of hanger knopdruk",
+    "locationAlert": "Locatie & Waarschuwing Verzonden",
+    "gpsShared": "GPS-coördinaten onmiddellijk gedeeld",
+    "emergencyContacts": "Noodcontacten Gebeld",
+    "familyNotified": "Familie, verzorgers en diensten op de hoogte gesteld",
+    "professionalResponse": "Professionele Respons",
+    "monitoringCenter": "24/7 bewakingscentrum geactiveerd",
+    "aiDetection": "AI Detectie",
+    "responseTime": "Responstijd",
+    "successRate": "Slagingspercentage",
+    "monitoring": "Bewaking",
+    "countries": "Landen",
+    "professionalNetwork": "Professioneel Noodrespons Netwerk"
+  }
+}

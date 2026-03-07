@@ -1,0 +1,288 @@
+project_id = "mqroziggaalltuzoyyao"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+
+[studio]
+enabled = true
+port = 54323
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.reconcile-stripe-data]
+verify_jwt = true
+
+[functions.get-admin-revenue]
+verify_jwt = true
+
+[functions.create-mixed-payment]
+verify_jwt = true
+
+[functions.process-mixed-payment]
+verify_jwt = true
+
+[functions.gmail-oauth]
+verify_jwt = true
+
+[functions.gmail-oauth-callback]
+verify_jwt = false
+
+[functions.gmail-integration]
+verify_jwt = true
+
+[functions.email-automation]
+verify_jwt = true
+
+[functions.email-scheduler]
+verify_jwt = true
+
+[functions.riven-marketing-enhanced]
+verify_jwt = true
+
+[functions.workflow-automation]
+verify_jwt = true
+
+[functions.process-family-payment]
+verify_jwt = true
+
+[functions.family-subscription-checkout]
+verify_jwt = true
+
+[functions.ai-auto-reply]
+verify_jwt = true
+
+[functions.ai-chat]
+verify_jwt = false
+
+[functions.ai-registration]
+verify_jwt = false
+
+[functions.analytics-aggregator]
+verify_jwt = true
+
+[functions.auth-security-monitor]
+verify_jwt = true
+
+[functions.automation-triggers]
+verify_jwt = true
+
+[functions.billing-invoices]
+verify_jwt = true
+
+[functions.blog-publisher]
+verify_jwt = true
+
+[functions.bulk-messaging]
+verify_jwt = true
+
+[functions.business-info]
+verify_jwt = false
+
+[functions.campaign-manager]
+verify_jwt = true
+
+[functions.check-spain-rule]
+verify_jwt = true
+
+[functions.check-subscription]
+verify_jwt = true
+
+[functions.connections-accept]
+verify_jwt = true
+
+[functions.connections-demote]
+verify_jwt = true
+
+[functions.connections-invite]
+verify_jwt = true
+
+[functions.connections-promote]
+verify_jwt = true
+
+[functions.connections-reorder]
+verify_jwt = true
+
+[functions.connections-revoke]
+verify_jwt = true
+
+[functions.contact-form]
+verify_jwt = false
+
+[functions.content-cleaner]
+verify_jwt = true
+
+[functions.content-generator]
+verify_jwt = true
+
+[functions.content-publisher]
+verify_jwt = true
+
+[functions.content-scheduler]
+verify_jwt = true
+
+[functions.create-checkout]
+verify_jwt = true
+
+[functions.create-payment]
+verify_jwt = true
+
+[functions.create-payment-intent]
+verify_jwt = true
+
+[functions.detect-place-events]
+verify_jwt = true
+
+[functions.geo-lookup]
+verify_jwt = false
+
+[functions.posting-processor]
+verify_jwt = true
+
+[functions.setup-family-stripe-products]
+verify_jwt = true
+
+[functions.email-campaign-creator]
+verify_jwt = true
+
+[functions.email-processor]
+verify_jwt = false
+
+[functions.email-publisher]
+verify_jwt = false
+
+[functions.get-customer-activity]
+verify_jwt = true
+
+[functions.send-customer-communication]
+verify_jwt = true
+
+[functions.assign-customer-product]
+verify_jwt = true
+
+[functions.assign-customer-service]
+verify_jwt = true
+
+[functions.automation-runner]
+verify_jwt = false
+
+[functions.lead-intelligence]
+verify_jwt = false
+
+[functions.create-subscriptions]
+verify_jwt = true
+
+[functions.customer-portal]
+verify_jwt = true
+
+[functions.emergency-service-integration]
+verify_jwt = true
+
+[functions.emergency-sos-enhanced]
+verify_jwt = true
+
+[functions.emergency-sos]
+verify_jwt = true
+
+[functions.enforce-location-retention]
+verify_jwt = true
+
+[functions.enhanced-email-automation]
+verify_jwt = true
+
+[functions.family-invite-management]
+verify_jwt = true
+
+[functions.family-invites]
+verify_jwt = true
+
+[functions.family-sos-acknowledge]
+verify_jwt = true
+
+[functions.family-sos-alerts]
+verify_jwt = true
+
+[functions.family-sos-enhanced]
+verify_jwt = true
+
+[functions.flic-webhook]
+verify_jwt = false
+
+[functions.free-trial-signup]
+verify_jwt = false
+
+[functions.get-stripe-config]
+verify_jwt = false
+
+[functions.gmail-token-security]
+verify_jwt = true
+
+[functions.image-generator]
+verify_jwt = true
+
+[functions.manage-customer-subscription]
+verify_jwt = true
+
+[functions.notify-user]
+verify_jwt = true
+
+[functions.record-location-ping]
+verify_jwt = true
+
+[functions.regional-close-event]
+verify_jwt = true
+
+[functions.regional-quick-notification]
+verify_jwt = true
+
+[functions.regional-send-note]
+verify_jwt = true
+
+[functions.regional-user-invite]
+verify_jwt = true
+
+[functions.send-welcome-email]
+verify_jwt = true
+
+[functions.setup-stripe-products]
+verify_jwt = true
+
+[functions.smart-routing]
+verify_jwt = true
+
+[functions.social-media-oauth]
+verify_jwt = true
+
+[functions.social-media-publisher]
+verify_jwt = true
+
+[functions.social-oauth-handler]
+verify_jwt = false
+
+[functions.sos-create]
+verify_jwt = true
+
+[functions.system-health]
+verify_jwt = true
+
+[functions.transfer-client-to-care]
+verify_jwt = true
+
+[functions.twilio-status-webhook]
+verify_jwt = false
+
+[functions.unified-inbox]
+verify_jwt = true
+
+[functions.video-analytics-ingest]
+verify_jwt = false
+
+[functions.email-campaigns]
+verify_jwt = true
