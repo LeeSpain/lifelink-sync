@@ -48,6 +48,15 @@ jobs:
     - name: Lint
       run: npm run lint
 
+    - name: Security audit
+      run: npm audit --audit-level=high || true
+
+    - name: Build check
+      run: npm run build
+      env:
+        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+        VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
     - name: Install Vercel CLI
       run: npm install --global vercel@latest
 

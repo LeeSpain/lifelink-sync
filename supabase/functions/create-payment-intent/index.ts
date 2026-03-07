@@ -2,10 +2,15 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("origin") ?? "";
+  const allowed = Deno.env.get("ALLOWED_ORIGINS")?.split(",") ?? [];
+  const isAllowed = allowed.length === 0 || allowed.includes(origin);
+  return {
+    "Access-Control-Allow-Origin": isAllowed ? origin : allowed[0] ?? "",
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  };
+}
 
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
@@ -14,7 +19,7 @@ const logStep = (step: string, details?: any) => {
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: getCorsHeaders(req) });
   }
 
   const supabaseClient = createClient(
@@ -25,11 +30,17 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
-    const { plans, email, firstName, lastName } = await req.json();
-    
-    if (!email) {
-      throw new Error("Email is required for payment processing");
+    const body = await req.json();
+    const { plans, email, firstName, lastName } = body;
+
+    if (!email || typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      throw new Error("Valid email is required for payment processing");
     }
+    if (!Array.isArray(plans) || plans.length === 0 || !plans.every((p: unknown) => typeof p === 'string')) {
+      throw new Error("Plans must be a non-empty array of plan IDs");
+    }
+    if (firstName && typeof firstName !== 'string') throw new Error("Invalid firstName");
+    if (lastName && typeof lastName !== 'string') throw new Error("Invalid lastName");
     
     logStep("Request data received", { email, firstName, lastName, plans });
 
@@ -96,14 +107,14 @@ serve(async (req) => {
       client_secret: paymentIntent.client_secret,
       customer_id: customerId 
     }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
       status: 200,
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR in create-payment-intent", { message: errorMessage });
     return new Response(JSON.stringify({ error: errorMessage }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
       status: 500,
     });
   }

@@ -10,10 +10,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { 
-  Clock, 
-  Calendar, 
-  X, 
+import { sanitizeHTML } from '@/utils/sanitize';
+import {
+  Clock,
+  Calendar,
+  X,
   BookOpen,
   Eye,
   Star,
@@ -175,8 +176,8 @@ export const BlogPostModal: React.FC<BlogPostModalProps> = ({ post, isOpen, onCl
           <div className="py-8">
             <div 
               className="prose prose-lg max-w-none prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-ul:text-foreground prose-ol:text-foreground prose-li:text-foreground prose-a:text-primary hover:prose-a:text-primary/80"
-              dangerouslySetInnerHTML={{ 
-                __html: formatContent(post.body_text) 
+              dangerouslySetInnerHTML={{
+                __html: sanitizeHTML(formatContent(post.body_text))
               }}
             />
           </div>

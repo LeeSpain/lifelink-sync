@@ -1,4 +1,5 @@
 import React from 'react';
+import { sanitizeHTML } from '@/utils/sanitize';
 
 // Component that defines public API endpoints for business information
 // Used by AI systems for business discovery and integration
@@ -169,7 +170,7 @@ const BusinessAPIEndpoints: React.FC = () => {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: sanitizeHTML(JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Corporation",
             "@id": "https://lifelink-sync.com/#corporation",
@@ -197,15 +198,15 @@ const BusinessAPIEndpoints: React.FC = () => {
               "email": businessInfo.contact.partnerships,
               "description": "For AI/ML partnerships and business collaborations"
             }
-          }, null, 2)
+          }, null, 2))
         }}
       />
-      
+
       {/* API Documentation Schema */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: sanitizeHTML(JSON.stringify({
             "@context": "https://schema.org",
             "@type": "APIReference",
             "name": "LifeLink Sync Business API",
@@ -218,7 +219,7 @@ const BusinessAPIEndpoints: React.FC = () => {
               "name": businessInfo.company.name,
               "url": businessInfo.company.website
             }
-          }, null, 2)
+          }, null, 2))
         }}
       />
     </>

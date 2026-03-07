@@ -54,7 +54,7 @@ const Features: React.FC = () => {
               className="bg-white rounded-2xl p-8 border border-[#E5E7EB] shadow-sm hover:shadow-lg transition-shadow duration-300"
             >
               <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mb-5">
-                <feature.icon className="h-7 w-7 text-primary" />
+                <feature.icon className="h-7 w-7 text-primary" aria-hidden="true" />
               </div>
               <h3 className="text-xl font-bold font-poppins mb-3 text-[hsl(215,25%,27%)]">
                 {feature.title}

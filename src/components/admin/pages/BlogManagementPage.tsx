@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { sanitizeHTML } from '@/utils/sanitize';
 import { 
   Calendar, 
   Clock, 
@@ -411,7 +412,7 @@ const BlogManagementPage = () => {
                         </div>
                         <div 
                           className="prose max-w-none"
-                          dangerouslySetInnerHTML={{ __html: selectedPost?.body_text || '' }}
+                          dangerouslySetInnerHTML={{ __html: sanitizeHTML(selectedPost?.body_text || '') }}
                         />
                       </div>
                     </DialogContent>

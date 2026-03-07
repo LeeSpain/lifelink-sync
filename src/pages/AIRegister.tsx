@@ -67,7 +67,6 @@ interface PersonalDetails {
 
 const AIRegister = () => {
   const navigate = useNavigate();
-  console.log('🎯 AIRegister component started - checking for any cached issues');
   const [personalDetails, setPersonalDetails] = useState<PersonalDetails>({
     firstName: '',
     lastName: '',
@@ -94,22 +93,13 @@ const AIRegister = () => {
   const { t } = useTranslation();
   const { language } = usePreferences();
 
-  // Check for test mode parameter
+  // Test mode only available in development builds
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('test') === 'true') {
-      setTestingMode(true);
-      // Pre-populate with test data for convenience
-      setPersonalDetails({
-        firstName: 'Test',
-        lastName: 'User',
-        email: 'test@example.com',
-        password: 'testpass123',
-        phone: '+34123456789',
-        city: 'Madrid',
-        country: 'Spain',
-        acceptTerms: false,
-      });
+    if (import.meta.env.DEV) {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('test') === 'true') {
+        setTestingMode(true);
+      }
     }
   }, []);
 
@@ -255,10 +245,11 @@ const AIRegister = () => {
       });
       return false;
     }
-    if (password.length < 6) {
+    const passwordCheck = validatePasswordStrength(password);
+    if (!passwordCheck.isValid) {
       toast({
         title: t('register.invalidPasswordTitle', { defaultValue: 'Invalid Password' }),
-        description: t('register.invalidPasswordDesc', { defaultValue: 'Password must be at least 6 characters long.' }),
+        description: passwordCheck.errors[0],
         variant: "destructive"
       });
       return false;

@@ -12,6 +12,7 @@ import {
   Edit
 } from 'lucide-react';
 import ImageFallback from './ImageFallback';
+import { sanitizeHTML } from '@/utils/sanitize';
 
 interface BlogPreviewModalProps {
   content: {
@@ -202,7 +203,7 @@ const BlogPreviewModal: React.FC<BlogPreviewModalProps> = ({
               <div className="prose prose-lg max-w-none">
                 {content.body_text ? (
                   <div 
-                    dangerouslySetInnerHTML={{ __html: sanitizeHtmlContent(content.body_text) }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHTML(content.body_text) }}
                     className="text-foreground leading-relaxed"
                   />
                 ) : (

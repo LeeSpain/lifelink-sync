@@ -47,7 +47,7 @@ import FamilyCarerAccessPage from "./pages/FamilyCarerAccess";
 // Interactive and Mobile Pages
 import FamilyAccessSetup from "./pages/FamilyAccessSetup";
 import AIRegister from "./pages/AIRegister";
-import TestRegistration from "./pages/TestRegistration";
+const TestRegistration = import.meta.env.DEV ? React.lazy(() => import("./pages/TestRegistration")) : null;
 
 // Payment Pages
 import PaymentSuccess from "./pages/PaymentSuccess";
@@ -60,8 +60,8 @@ import CheckoutPage from "./pages/CheckoutPage";
 import CheckoutSuccessPage from "./pages/CheckoutSuccessPage";
 import CheckoutCancelPage from "./pages/CheckoutCancelPage";
 
-// Test Pages  
-import TestPage from "./pages/TestPage";
+// Test Pages (dev only)
+const TestPage = import.meta.env.DEV ? React.lazy(() => import("./pages/TestPage")) : null;
 
 // Device Pages
 import DeviceIceSosPendant from "./pages/DeviceIceSosPendant";
@@ -77,6 +77,7 @@ import ProtectedSOSRoute from "./components/ProtectedSOSRoute";
 import SmartAppRedirect from "./components/SmartAppRedirect";
 
 import ScrollToTop from "./components/ScrollToTop";
+import CookieConsent from "./components/CookieConsent";
 
 // Component to handle page tracking inside Router context
 function AppWithTracking() {
@@ -85,7 +86,7 @@ function AppWithTracking() {
   return (
     <>
       <ScrollToTop />
-      <div className="min-h-screen bg-background text-foreground">
+      <main id="main-content" className="min-h-screen bg-background text-foreground">
         <Routes>
           {/* Public Landing Page */}
           <Route path="/" element={
@@ -105,11 +106,13 @@ function AppWithTracking() {
                     <AIRegister />
                   </OptimizedSuspense>
                 } />
-                <Route path="/test-registration" element={
-                  <OptimizedSuspense skeletonType="card">
-                    <TestRegistration />
-                  </OptimizedSuspense>
-                } />
+                {import.meta.env.DEV && TestRegistration && (
+                  <Route path="/test-registration" element={
+                    <OptimizedSuspense skeletonType="card">
+                      <TestRegistration />
+                    </OptimizedSuspense>
+                  } />
+                )}
 
                 {/* Blog Pages */}
                 <Route path="/blog" element={
@@ -356,11 +359,13 @@ function AppWithTracking() {
                   </OptimizedSuspense>
                 } />
 
-                 <Route path="/test" element={
-                  <OptimizedSuspense skeletonType="card">
-                    <TestPage />
-                  </OptimizedSuspense>
-                } />
+                {import.meta.env.DEV && TestPage && (
+                  <Route path="/test" element={
+                    <OptimizedSuspense skeletonType="card">
+                      <TestPage />
+                    </OptimizedSuspense>
+                  } />
+                )}
 
                 {/* Device Pages */}
                 <Route path="/devices/lifelink-sync-pendant" element={
@@ -399,15 +404,11 @@ function AppWithTracking() {
                   <Navigate to="/member-dashboard/profile" replace />
                 } />
 
-                {/* Catch all route */}
-                <Route path="*" element={
-                  <OptimizedSuspense skeletonType="card">
-                    <Index />
-                  </OptimizedSuspense>
-                } />
+                {/* 404 - redirect to home */}
+                <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
               <DeviceManagerButton />
-            </div>
+            </main>
             <Toaster />
           </>
         );
@@ -422,6 +423,7 @@ function App() {
             <ClaraChatProvider>
               <AppWithTracking />
               <GlobalClaraChat />
+              <CookieConsent />
             </ClaraChatProvider>
           </AnalyticsProvider>
         </EnhancedErrorBoundary>

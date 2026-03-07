@@ -6,6 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { MapPin, Users, Clock, CheckCircle, Phone, AlertTriangle } from "lucide-react";
+import { sanitizeHTML } from '@/utils/sanitize';
 
 interface SOSEvent {
   id: string;
@@ -229,7 +230,7 @@ const LiveSOSFamily = () => {
       </div>
     `;
 
-    mapRef.current.innerHTML = mapHtml;
+    mapRef.current.innerHTML = sanitizeHTML(mapHtml);
   };
 
   const handleAcknowledge = async () => {

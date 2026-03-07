@@ -30,7 +30,11 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border">
+    <>
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[60] focus:bg-primary focus:text-white focus:px-4 focus:py-2 focus:rounded">
+        Skip to main content
+      </a>
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border" aria-label="Main navigation">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo — LS monogram + wordmark */}
@@ -121,6 +125,7 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
         )}
       </div>
     </nav>
+    </>
   );
 };
 

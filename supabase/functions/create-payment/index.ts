@@ -2,10 +2,15 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("origin") ?? "";
+  const allowed = Deno.env.get("ALLOWED_ORIGINS")?.split(",") ?? [];
+  const isAllowed = allowed.length === 0 || allowed.includes(origin);
+  return {
+    "Access-Control-Allow-Origin": isAllowed ? origin : allowed[0] ?? "",
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  };
+}
 
 // Helper logging function for enhanced debugging
 const logStep = (step: string, details?: any) => {
@@ -15,7 +20,7 @@ const logStep = (step: string, details?: any) => {
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: getCorsHeaders(req) });
   }
 
   try {
@@ -42,9 +47,19 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    const { productId, amount, currency, productName } = await req.json();
-    if (!productId || !amount || !currency || !productName) {
-      throw new Error("Missing required fields: productId, amount, currency, productName");
+    const body = await req.json();
+    const { productId, amount, currency, productName } = body;
+    if (!productId || typeof productId !== 'string') {
+      throw new Error("Valid productId is required");
+    }
+    if (typeof amount !== 'number' || !Number.isFinite(amount) || amount <= 0 || amount > 99999999) {
+      throw new Error("Amount must be a positive number in cents (max 999,999.99)");
+    }
+    if (!currency || typeof currency !== 'string' || !/^[a-zA-Z]{3}$/.test(currency)) {
+      throw new Error("Valid 3-letter currency code is required");
+    }
+    if (!productName || typeof productName !== 'string' || productName.length > 200) {
+      throw new Error("Valid productName is required (max 200 chars)");
     }
     logStep("Payment data received", { productId, amount, currency, productName });
 
@@ -116,14 +131,14 @@ serve(async (req) => {
     }
 
     return new Response(JSON.stringify({ url: session.url }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
       status: 200,
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR in create-payment", { message: errorMessage });
     return new Response(JSON.stringify({ error: errorMessage }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
       status: 500,
     });
   }

@@ -18,6 +18,7 @@ import { BulkEmailCRM } from './BulkEmailCRM';
 import { EmailCampaignControls } from './EmailCampaignControls';
 import { EmailTemplateEditor } from './EmailTemplateEditor';
 import { EmailAnalyticsDashboard } from './EmailAnalyticsDashboard';
+import { sanitizeHTML } from '@/utils/sanitize';
 import { SocialPostingStatus } from './SocialPostingStatus';
 
 type WorkflowStage = 'command' | 'process' | 'approval' | 'success';
@@ -1660,7 +1661,7 @@ export const SimplifiedRivenWorkflow: React.FC = () => {
                   <div className="prose prose-lg max-w-none prose-headings:text-foreground prose-headings:font-bold prose-p:text-foreground prose-p:leading-relaxed prose-strong:text-foreground prose-ul:text-foreground prose-ol:text-foreground prose-li:text-foreground">
                     <div 
                       className="formatted-content space-y-6"
-                      dangerouslySetInnerHTML={{ __html: selectedContent.body_text }} 
+                      dangerouslySetInnerHTML={{ __html: sanitizeHTML(selectedContent.body_text) }} 
                     />
                   </div>
                   

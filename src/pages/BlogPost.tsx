@@ -19,7 +19,7 @@ import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
 import ImageFallback from '@/components/admin/ImageFallback';
-import { sanitizeHtmlContent } from '@/utils/contentSanitizer';
+import { sanitizeHTML } from '@/utils/sanitize';
 
 interface BlogPost {
   id: string;
@@ -357,7 +357,7 @@ const BlogPost = () => {
                 [&>*]:mb-8 [&>h1]:mb-10 [&>h2]:mb-8 [&>h3]:mb-6 [&>p]:mb-8 [&>ul]:mb-8 [&>ol]:mb-8">
                 {blogPost.body_text ? (
                   <div 
-                    dangerouslySetInnerHTML={{ __html: sanitizeHtmlContent(blogPost.body_text) }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHTML(blogPost.body_text) }}
                   />
                 ) : (
                   <div className="text-center py-20">

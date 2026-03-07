@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { sanitizeHTML } from '@/utils/sanitize';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Save, 
@@ -392,7 +393,7 @@ const BlogEditModal: React.FC<BlogEditModalProps> = ({
                   <div className="prose prose-sm max-w-none">
                     {editedContent.body_text ? (
                       <div 
-                        dangerouslySetInnerHTML={{ __html: editedContent.body_text }}
+                        dangerouslySetInnerHTML={{ __html: sanitizeHTML(editedContent.body_text) }}
                         className="leading-relaxed"
                       />
                     ) : (

@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add src/components/ProtectedRoute.tsx src/components/ProtectedSOSRoute.tsx src/components/AdminProtectedRoute.tsx src/pages/AuthPage.tsx)",
+      "Bash(git add src/components/ProtectedRoute.tsx src/components/ProtectedSOSRoute.tsx src/components/AdminProtectedRoute.tsx src/pages/FamilyDashboard.tsx)",
+      "Bash(npm install dompurify)",
+      "Bash(npm install -D @types/dompurify)",
+      "Bash(VITE_SUPABASE_URL=\"https://test.supabase.co\" VITE_SUPABASE_ANON_KEY=\"test-key\" npm run build)",
+      "Bash(npx vite build)",
+      "Bash(git add src/pages/Dashboard.tsx src/components/dashboard/pages/EnhancedProfilePage.tsx src/components/dashboard/pages/EnhancedMyProductsPage.tsx src/components/dashboard/pages/NotificationsPage.tsx src/components/dashboard/ConnectionsPage.tsx src/pages/MyCirclesPage.tsx src/pages/PlacesManager.tsx src/pages/LocationHistoryPage.tsx src/components/dashboard/pages/FamilyPage.tsx src/components/dashboard/pages/LocationPage.tsx)",
+      "Bash(git status -u)",
+      "Bash(git commit:*)"
+    ]
+  }
+}

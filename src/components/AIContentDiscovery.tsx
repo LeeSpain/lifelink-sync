@@ -1,4 +1,5 @@
 import React from 'react';
+import { sanitizeHTML } from '@/utils/sanitize';
 
 interface AIContentDiscoveryProps {
   pageType?: string;
@@ -116,7 +117,7 @@ const AIContentDiscovery: React.FC<AIContentDiscoveryProps> = ({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: sanitizeHTML(JSON.stringify({
             "@context": "https://schema.org",
             "@type": "DigitalDocument",
             "name": `LifeLink Sync - ${pageType} Content`,
@@ -160,7 +161,7 @@ const AIContentDiscovery: React.FC<AIContentDiscoveryProps> = ({
                 "description": "Technology solutions for protecting families and loved ones"
               }
             ]
-          }, null, 2)
+          }, null, 2))
         }}
       />
 
@@ -168,7 +169,7 @@ const AIContentDiscovery: React.FC<AIContentDiscoveryProps> = ({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: sanitizeHTML(JSON.stringify({
             "@context": "https://schema.org",
             "@graph": [
               {
@@ -197,7 +198,7 @@ const AIContentDiscovery: React.FC<AIContentDiscoveryProps> = ({
                 "skillLevel": "Expert"
               }
             ]
-          }, null, 2)
+          }, null, 2))
         }}
       />
     </>

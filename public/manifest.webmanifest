@@ -2,16 +2,14 @@
   "name": "LifeLink Sync - Emergency Protection & AI Safety Assistant",
   "short_name": "LifeLink Sync",
   "description": "AI-powered emergency protection with 24/7 monitoring, GPS tracking, and instant SOS alerts for families worldwide",
-  "start_url": "/app",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#0b0b0f",
   "theme_color": "#ef4444",
-  "permissions": [
-    "geolocation"
-  ],
+  "categories": ["health", "safety", "emergency", "family"],
   "icons": [
     {
-      "src": "/lovable-uploads/lifelink-sync-icon-512.png",
+      "src": "/lovable-uploads/lifelink-sync-icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },

@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Shield, FileText, AlertTriangle, Stethoscope } from "lucide-react";
+import { sanitizeHTML } from '@/utils/sanitize';
 
 const LegalComplianceModal = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -130,7 +131,7 @@ const LegalComplianceModal = () => {
                     
                     {pageContent[page.id] ? (
                       <div 
-                        dangerouslySetInnerHTML={{ __html: pageContent[page.id] }}
+                        dangerouslySetInnerHTML={{ __html: sanitizeHTML(pageContent[page.id]) }}
                         className="prose prose-base max-w-none text-foreground [&>h1]:text-2xl [&>h1]:font-bold [&>h1]:mb-4 [&>h2]:text-xl [&>h2]:font-semibold [&>h2]:mb-3 [&>h3]:text-lg [&>h3]:font-medium [&>h3]:mb-2 [&>p]:mb-4 [&>p]:leading-relaxed [&>ul]:mb-4 [&>li]:mb-2 [&>.important]:bg-destructive/10 [&>.important]:border-l-4 [&>.important]:border-destructive [&>.important]:p-4 [&>.important]:rounded-r [&>.contact]:bg-muted [&>.contact]:p-4 [&>.contact]:rounded [&>.disclaimer]:text-muted-foreground [&>.disclaimer]:text-sm [&>.emergency]:bg-primary/10 [&>.emergency]:border-l-4 [&>.emergency]:border-primary [&>.emergency]:p-4 [&>.emergency]:rounded-r [&>a]:text-primary [&>a]:underline"
                       />
                     ) : (

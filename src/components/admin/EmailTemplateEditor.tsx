@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Eye, Code, Save, Send, User, Mail, Image } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { sanitizeHTML } from '@/utils/sanitize';
 
 interface EmailTemplateEditorProps {
   content: any;
@@ -448,7 +449,7 @@ ${template.includeUnsubscribe ? 'Update Preferences: {{preferences_url}}' : ''}
                 </div>
                 <div 
                   className="border rounded bg-white p-4 max-h-96 overflow-y-auto"
-                  dangerouslySetInnerHTML={{ __html: generateEmailHTML() }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHTML(generateEmailHTML()) }}
                 />
               </div>
             </div>

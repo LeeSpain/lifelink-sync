@@ -11,11 +11,49 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const STRIPE_WEBHOOK_SECRET = Deno.env.get("STRIPE_WEBHOOK_SECRET");
 
-function verifyStripeSignature(req: Request, secret: string): boolean {
-  // TODO: Implement proper Stripe signature verification
-  // For now, we'll just check if the secret exists and request has signature header
-  const signature = req.headers.get("stripe-signature");
-  return !!(secret && signature);
+async function verifyStripeSignature(
+  payload: string,
+  sigHeader: string,
+  secret: string
+): Promise<boolean> {
+  const parts = sigHeader.split(",");
+  const timestampPart = parts.find((p) => p.startsWith("t="));
+  const signaturePart = parts.find((p) => p.startsWith("v1="));
+
+  if (!timestampPart || !signaturePart) return false;
+
+  const timestamp = timestampPart.slice(2);
+  const expectedSig = signaturePart.slice(3);
+
+  // Reject events older than 5 minutes to prevent replay attacks
+  const age = Math.floor(Date.now() / 1000) - parseInt(timestamp, 10);
+  if (isNaN(age) || age > 300) return false;
+
+  const signedPayload = `${timestamp}.${payload}`;
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const signatureBuffer = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    encoder.encode(signedPayload)
+  );
+  const computedSig = Array.from(new Uint8Array(signatureBuffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+
+  // Constant-time comparison
+  if (computedSig.length !== expectedSig.length) return false;
+  let mismatch = 0;
+  for (let i = 0; i < computedSig.length; i++) {
+    mismatch |= computedSig.charCodeAt(i) ^ expectedSig.charCodeAt(i);
+  }
+  return mismatch === 0;
 }
 
 serve(async (req) => {
@@ -24,17 +62,22 @@ serve(async (req) => {
       return new Response("Method Not Allowed", { status: 405 });
     }
 
-    // Verify Stripe webhook signature if secret is configured
-    if (STRIPE_WEBHOOK_SECRET && !verifyStripeSignature(req, STRIPE_WEBHOOK_SECRET)) {
-      console.error("❌ Invalid Stripe signature");
-      return new Response("Invalid signature", { status: 400 });
+    const body = await req.text();
+
+    // Verify Stripe webhook signature - reject if secret is configured but verification fails
+    if (STRIPE_WEBHOOK_SECRET) {
+      const sigHeader = req.headers.get("stripe-signature");
+      if (!sigHeader || !(await verifyStripeSignature(body, sigHeader, STRIPE_WEBHOOK_SECRET))) {
+        console.error("Invalid Stripe webhook signature");
+        return new Response("Invalid signature", { status: 400 });
+      }
     }
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
       auth: { persistSession: false }
     });
 
-    const event = await req.json();
+    const event = JSON.parse(body);
     console.log("💳 Processing Stripe webhook:", event.type);
 
     // Extract user_id from metadata - could be owner_user_id for subscriptions or user_id for orders

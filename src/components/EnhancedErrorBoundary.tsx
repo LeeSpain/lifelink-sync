@@ -35,9 +35,8 @@ class EnhancedErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('🚨 Enhanced Error Boundary caught error:', error);
-    console.error('Error Info:', errorInfo);
-    
+    console.error('ErrorBoundary caught error:', error);
+
     // Call custom error handler if provided
     this.props.onError?.(error, errorInfo);
 
