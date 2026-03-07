@@ -9,7 +9,36 @@
       "Bash(npx vite build)",
       "Bash(git add src/pages/Dashboard.tsx src/components/dashboard/pages/EnhancedProfilePage.tsx src/components/dashboard/pages/EnhancedMyProductsPage.tsx src/components/dashboard/pages/NotificationsPage.tsx src/components/dashboard/ConnectionsPage.tsx src/pages/MyCirclesPage.tsx src/pages/PlacesManager.tsx src/pages/LocationHistoryPage.tsx src/components/dashboard/pages/FamilyPage.tsx src/components/dashboard/pages/LocationPage.tsx)",
       "Bash(git status -u)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(ls -lt /Users/leewakeman/lifelink-sync/lifelink-sync/supabase/migrations/*.sql)",
+      "Bash(grep -l \"CREATE TABLE.*products\\\\|CREATE TABLE.*regional_services\" /Users/leewakeman/lifelink-sync/lifelink-sync/supabase/migrations/*.sql)",
+      "mcp__claude_ai_Vercel__list_projects",
+      "Bash(git add vercel.json index.html)",
+      "Bash(git push origin main)",
+      "WebFetch(domain:lifelink-sync.vercel.app)",
+      "Bash(git add src/integrations/supabase/client.ts)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(git add src/components/Navigation.tsx src/components/ai-chat/EnhancedChatWidget.tsx)",
+      "Bash(git add src/components/dashboard/pages/EnhancedProfilePage.tsx)",
+      "Bash(git add src/components/dashboard/DashboardSidebar.tsx src/components/admin/AdminLayout.tsx src/pages/AuthPage.tsx)",
+      "mcp__claude_ai_Vercel__list_teams",
+      "mcp__claude_ai_Vercel__list_deployments",
+      "Bash(git add src/index.css src/components/Hero.tsx src/components/LanguageCurrencySelector.tsx src/components/LanguageSelector.tsx src/components/Pricing.tsx src/components/AppPreviewSection.tsx src/components/WelcomeQuestionnaire.tsx src/components/ai-chat/EnhancedChatWidget.tsx src/components/dashboard/AddOnMarketplace.tsx src/components/dashboard/ConnectionsWidget.tsx src/components/dashboard/DashboardHeader.tsx src/components/dashboard/FamilyCircleOverview.tsx src/components/dashboard/LiveFamilyStatus.tsx src/components/dashboard/SubscriptionCard.tsx src/components/family-carer/FamilyCircleSection.tsx src/components/admin/pages/AddonManagementPage.tsx src/components/admin/pages/TrialManagementPage.tsx src/pages/AIRegister.tsx src/pages/Dashboard.tsx src/pages/FamilyAppPage.tsx src/pages/MyCirclesPage.tsx src/pages/PlacesManager.tsx src/pages/SOSAppPage.tsx)",
+      "Bash(node -e \"JSON.parse\\(require\\(''fs''\\).readFileSync\\(''src/locales/en/common.json'',''utf8''\\)\\); console.log\\(''EN: valid''\\)\")",
+      "Bash(node -e \"JSON.parse\\(require\\(''fs''\\).readFileSync\\(''src/locales/es/common.json'',''utf8''\\)\\); console.log\\(''ES: valid''\\)\")",
+      "Bash(node -e \"JSON.parse\\(require\\(''fs''\\).readFileSync\\(''src/locales/nl/common.json'',''utf8''\\)\\); console.log\\(''NL: valid''\\)\")",
+      "Bash(for f in src/components/dashboard/*.tsx src/components/family-dashboard/*.tsx src/pages/MyCirclesPage.tsx)",
+      "Bash(do if ! grep -q 'useTranslation' \"$f\")",
+      "Bash(then echo \"NO i18n: $f\")",
+      "Bash(fi)",
+      "Bash(done)",
+      "Bash(for f in src/components/dashboard/*.tsx)",
+      "Bash(git add src/components/dashboard/DashboardHeader.tsx src/components/dashboard/SubscriptionCard.tsx src/components/dashboard/AddOnMarketplace.tsx src/components/dashboard/ConnectionsWidget.tsx)",
+      "Bash(node -e \"const j=JSON.parse\\(require\\(''fs''\\).readFileSync\\(''/Users/leewakeman/lifelink-sync/lifelink-sync/src/locales/en/common.json'',''utf8''\\)\\); console.log\\(Object.keys\\(j\\).join\\(''\\\\n''\\)\\)\")",
+      "Bash(npx tsc --noEmit --skipLibCheck)"
+    ],
+    "additionalDirectories": [
+      "/Users/leewakeman/lifelink-sync/lifelink-sync/.claude"
     ]
   }
 }

@@ -9,12 +9,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useTranslation } from 'react-i18next';
 
 const FamilyDashboardHome = () => {
   const navigate = useNavigate();
   const { user } = useOptimizedAuth();
   const { data: familyRole } = useFamilyRole();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const [activeSOSEvents, setActiveSOSEvents] = useState<any[]>([]);
   const [ownerProfile, setOwnerProfile] = useState<any>(null);
@@ -86,8 +88,8 @@ const FamilyDashboardHome = () => {
     } catch (error) {
       console.error('Error loading dashboard data:', error);
       toast({
-        title: "Error",
-        description: "Failed to load family emergency information",
+        title: t('familyDashboard.error'),
+        description: t('familyDashboard.loadError'),
         variant: "destructive"
       });
     } finally {
@@ -107,16 +109,16 @@ const FamilyDashboardHome = () => {
       if (error) throw error;
 
       toast({
-        title: "Response Sent",
-        description: "Your family has been notified that you received the alert and are on your way."
+        title: t('familyDashboard.responseSent'),
+        description: t('familyDashboard.responseSentDesc')
       });
 
       loadDashboardData();
     } catch (error) {
       console.error('Error acknowledging SOS:', error);
       toast({
-        title: "Error",
-        description: "Failed to send response. Please try again.",
+        title: t('familyDashboard.error'),
+        description: t('familyDashboard.responseError'),
         variant: "destructive"
       });
     }
@@ -128,7 +130,7 @@ const FamilyDashboardHome = () => {
         <div className="flex items-center justify-center h-64">
           <div className="text-center space-y-3">
             <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-            <p className="text-sm text-muted-foreground">Loading dashboard...</p>
+            <p className="text-sm text-muted-foreground">{t('familyDashboard.loadingDashboard')}</p>
           </div>
         </div>
       </div>
@@ -143,15 +145,15 @@ const FamilyDashboardHome = () => {
             <div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
               <Users className="h-8 w-8 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-semibold mb-2">No Family Access</h3>
+            <h3 className="text-lg font-semibold mb-2">{t('familyDashboard.noFamilyAccess')}</h3>
             <p className="text-muted-foreground mb-4">
-              You don't have access to any family emergency systems yet. Contact the emergency plan owner to get invited.
+              {t('familyDashboard.noAccessDesc')}
             </p>
             <Button
               variant="outline"
               onClick={() => navigate('/member-dashboard')}
             >
-              Go to Main Dashboard
+              {t('familyDashboard.goToMainDashboard')}
             </Button>
           </Card>
         </div>
@@ -165,14 +167,14 @@ const FamilyDashboardHome = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            Family Emergency Dashboard
+            {t('familyDashboard.title')}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Monitor and respond to family emergencies
+            {t('familyDashboard.subtitle')}
           </p>
         </div>
         <Badge variant="outline" className="h-7">
-          {familyRole?.role === 'owner' ? 'Owner' : 'Family Member'}
+          {familyRole?.role === 'owner' ? t('familyDashboard.owner') : t('familyDashboard.familyMember')}
         </Badge>
       </div>
 
@@ -188,12 +190,12 @@ const FamilyDashboardHome = () => {
             </Avatar>
             <div className="flex-1">
               <h2 className="text-lg font-semibold text-foreground">
-                Connected to {ownerProfile?.first_name || 'Family Owner'}
+                {t('familyDashboard.connectedTo', { name: ownerProfile?.first_name || t('familyDashboard.familyMember') })}
               </h2>
               <p className="text-sm text-muted-foreground">
                 {familyRole?.role === 'owner'
-                  ? 'You manage this family emergency system'
-                  : 'Family emergency monitoring access'
+                  ? t('familyDashboard.manageSystem')
+                  : t('familyDashboard.monitoringAccess')
                 }
               </p>
             </div>
@@ -207,14 +209,14 @@ const FamilyDashboardHome = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-destructive">
               <AlertTriangle className="h-5 w-5" />
-              Emergency Alert Active
+              {t('familyDashboard.emergencyAlertActive')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {activeSOSEvents.map((event) => (
               <div key={event.id} className="space-y-4">
                 <div>
-                  <p className="font-medium">Emergency SOS triggered by {ownerProfile?.first_name}</p>
+                  <p className="font-medium">{t('familyDashboard.sosTriggeredBy', { name: ownerProfile?.first_name })}</p>
                   <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Clock className="h-3 w-3" />
@@ -234,14 +236,14 @@ const FamilyDashboardHome = () => {
                     variant="destructive"
                   >
                     <CheckCircle className="h-4 w-4 mr-2" />
-                    Acknowledge & Respond
+                    {t('familyDashboard.acknowledgeRespond')}
                   </Button>
                   <Button
                     variant="outline"
                     onClick={() => navigate(`/family-dashboard/live-map?event=${event.id}`)}
                   >
                     <MapPin className="h-4 w-4 mr-2" />
-                    View Location
+                    {t('familyDashboard.viewLocation')}
                   </Button>
                 </div>
               </div>
@@ -259,9 +261,9 @@ const FamilyDashboardHome = () => {
                 <CheckCircle className="h-6 w-6 text-green-600" />
               </div>
               <div>
-                <h3 className="font-semibold text-foreground">All Safe</h3>
+                <h3 className="font-semibold text-foreground">{t('familyDashboard.allSafe')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  No active emergency alerts. Family network is connected and monitoring.
+                  {t('familyDashboard.noActiveAlerts')}
                 </p>
               </div>
             </div>
@@ -276,38 +278,38 @@ const FamilyDashboardHome = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <Users className="h-5 w-5 text-primary" />
-              Connection Details
+              {t('familyDashboard.connectionDetails')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-center justify-between p-2.5 rounded-lg border">
-              <span className="text-sm">Connected to</span>
+              <span className="text-sm">{t('familyDashboard.connectedToLabel')}</span>
               <span className="text-sm font-medium">
-                {ownerProfile ? `${ownerProfile.first_name} ${ownerProfile.last_name}` : 'Loading...'}
+                {ownerProfile ? `${ownerProfile.first_name} ${ownerProfile.last_name}` : t('familyDashboard.loading')}
               </span>
             </div>
             <div className="flex items-center justify-between p-2.5 rounded-lg border">
-              <span className="text-sm">Your Role</span>
+              <span className="text-sm">{t('familyDashboard.yourRole')}</span>
               <Badge variant="outline" className="text-xs">
-                {familyRole?.role === 'owner' ? 'Owner' : 'Family Member'}
+                {familyRole?.role === 'owner' ? t('familyDashboard.owner') : t('familyDashboard.familyMember')}
               </Badge>
             </div>
             <div className="flex items-center justify-between p-2.5 rounded-lg border">
-              <span className="text-sm">Emergency Alerts</span>
+              <span className="text-sm">{t('familyDashboard.emergencyAlerts')}</span>
               <div className="flex items-center gap-1.5">
                 <CheckCircle className="h-3.5 w-3.5 text-green-600" />
-                <span className="text-sm font-medium text-green-600">Enabled</span>
+                <span className="text-sm font-medium text-green-600">{t('familyDashboard.enabled')}</span>
               </div>
             </div>
             <div className="flex items-center justify-between p-2.5 rounded-lg border">
-              <span className="text-sm">Access Level</span>
+              <span className="text-sm">{t('familyDashboard.accessLevel')}</span>
               <Badge variant="secondary" className="text-xs">
-                {familyRole?.role === 'owner' ? 'Full Control' : 'Emergency Monitor'}
+                {familyRole?.role === 'owner' ? t('familyDashboard.fullControl') : t('familyDashboard.emergencyMonitor')}
               </Badge>
             </div>
             {familyMembership && (
               <div className="flex items-center justify-between p-2.5 rounded-lg border">
-                <span className="text-sm">Connected Since</span>
+                <span className="text-sm">{t('familyDashboard.connectedSince')}</span>
                 <span className="text-xs text-muted-foreground">
                   {new Date(familyMembership.created_at).toLocaleDateString()}
                 </span>
@@ -319,7 +321,7 @@ const FamilyDashboardHome = () => {
         {/* Quick Access */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Quick Access</CardTitle>
+            <CardTitle className="text-base">{t('familyDashboard.quickAccess')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <Button
@@ -332,8 +334,8 @@ const FamilyDashboardHome = () => {
                   <Map className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <div className="text-left">
-                  <div className="font-medium text-sm">Live Family Map</div>
-                  <div className="text-xs text-muted-foreground">View real-time locations</div>
+                  <div className="font-medium text-sm">{t('familyDashboard.liveFamilyMap')}</div>
+                  <div className="text-xs text-muted-foreground">{t('familyDashboard.viewRealTimeLocations')}</div>
                 </div>
               </div>
               <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -349,8 +351,8 @@ const FamilyDashboardHome = () => {
                   <Shield className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <div className="text-left">
-                  <div className="font-medium text-sm">Emergency Center</div>
-                  <div className="text-xs text-muted-foreground">Emergency protocols & contacts</div>
+                  <div className="font-medium text-sm">{t('familyDashboard.emergencyCenter')}</div>
+                  <div className="text-xs text-muted-foreground">{t('familyDashboard.emergencyProtocols')}</div>
                 </div>
               </div>
               <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -366,8 +368,8 @@ const FamilyDashboardHome = () => {
                   <Bell className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <div className="text-left">
-                  <div className="font-medium text-sm">Notifications</div>
-                  <div className="text-xs text-muted-foreground">View alerts and updates</div>
+                  <div className="font-medium text-sm">{t('familyDashboard.notifications')}</div>
+                  <div className="text-xs text-muted-foreground">{t('familyDashboard.viewAlertsUpdates')}</div>
                 </div>
               </div>
               <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />

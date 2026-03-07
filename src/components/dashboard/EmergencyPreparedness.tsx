@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useConnections } from '@/hooks/useConnections';
+import { useTranslation } from 'react-i18next';
 
 interface EmergencyPreparednessProps {
   profile: any;
@@ -22,6 +23,7 @@ interface EmergencyPreparednessProps {
 
 export const EmergencyPreparedness = ({ profile, subscription }: EmergencyPreparednessProps) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { data: familyConnections = [] } = useConnections('family_circle');
   const { data: trustedConnections = [] } = useConnections('trusted_contact');
 
@@ -46,39 +48,39 @@ export const EmergencyPreparedness = ({ profile, subscription }: EmergencyPrepar
 
   const preparednessItems = [
     {
-      title: 'Active Protection',
+      title: t('preparedness.activeProtection'),
       status: subscription?.subscribed,
       icon: Shield,
       action: () => navigate('/member-dashboard/subscription'),
-      description: subscription?.subscribed ? 'Emergency services active' : 'Activate emergency monitoring'
+      description: subscription?.subscribed ? t('preparedness.servicesActive') : t('preparedness.activateMonitoring')
     },
     {
-      title: 'Emergency Contacts',
+      title: t('preparedness.emergencyContacts'),
       status: activeTrusted.length >= 3,
       icon: Phone,
       action: () => navigate('/member-dashboard/connections'),
-      description: `${activeTrusted.length}/3+ emergency contacts configured`
+      description: `${activeTrusted.length}/3+ ${t('preparedness.emergencyContacts').toLowerCase()}`
     },
     {
-      title: 'Family Network',
+      title: t('preparedness.familyNetwork'),
       status: activeFamily.length >= 2,
       icon: Users,
       action: () => navigate('/member-dashboard/connections'),
-      description: `${activeFamily.length}/2+ family members connected`
+      description: `${activeFamily.length}/2+ ${t('preparedness.familyNetwork').toLowerCase()}`
     },
     {
-      title: 'Medical Information',
+      title: t('preparedness.medicalInfo'),
       status: profile?.medical_conditions?.length > 0,
       icon: Heart,
       action: () => navigate('/member-dashboard/profile'),
-      description: profile?.medical_conditions?.length > 0 ? 'Medical info configured' : 'Add medical information'
+      description: profile?.medical_conditions?.length > 0 ? t('preparedness.medicalConfigured') : t('preparedness.addMedicalInfo')
     },
     {
-      title: 'Location Sharing',
+      title: t('preparedness.locationSharing'),
       status: profile?.location_sharing_enabled,
       icon: MapPin,
       action: () => navigate('/member-dashboard/settings'),
-      description: profile?.location_sharing_enabled ? 'Location sharing enabled' : 'Enable location sharing'
+      description: profile?.location_sharing_enabled ? t('preparedness.locationEnabled') : t('preparedness.enableLocation')
     }
   ];
 
@@ -90,10 +92,10 @@ export const EmergencyPreparedness = ({ profile, subscription }: EmergencyPrepar
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-primary" />
-            Emergency Preparedness
+            {t('preparedness.title')}
           </CardTitle>
           <Badge variant={preparednessScore >= 80 ? "default" : preparednessScore >= 60 ? "secondary" : "outline"}>
-            {completedCount}/{preparednessItems.length} Complete
+            {completedCount}/{preparednessItems.length}
           </Badge>
         </div>
       </CardHeader>
@@ -102,7 +104,7 @@ export const EmergencyPreparedness = ({ profile, subscription }: EmergencyPrepar
         <div className="flex items-center gap-4">
           <div>
             <p className="text-3xl font-bold text-foreground">{preparednessScore}%</p>
-            <p className="text-xs text-muted-foreground">Emergency Ready</p>
+            <p className="text-xs text-muted-foreground">{t('preparedness.emergencyReady')}</p>
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
@@ -112,7 +114,7 @@ export const EmergencyPreparedness = ({ profile, subscription }: EmergencyPrepar
                 <AlertTriangle className="h-4 w-4 text-amber-500" />
               )}
               <span className="text-sm font-medium text-foreground">
-                {preparednessScore >= 80 ? 'Fully Ready' : preparednessScore >= 60 ? 'Almost Ready' : 'Setup Needed'}
+                {preparednessScore >= 80 ? t('preparedness.fullyReady') : preparednessScore >= 60 ? t('preparedness.almostReady') : t('preparedness.setupNeeded')}
               </span>
             </div>
             <Progress value={preparednessScore} className="h-2" />
@@ -137,7 +139,7 @@ export const EmergencyPreparedness = ({ profile, subscription }: EmergencyPrepar
                   {item.status ? (
                     <CheckCircle className="h-3.5 w-3.5 text-green-600" />
                   ) : (
-                    <span className="text-xs text-amber-600 font-medium">Action needed</span>
+                    <span className="text-xs text-amber-600 font-medium">{t('preparedness.actionNeeded')}</span>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground">{item.description}</p>
@@ -156,7 +158,7 @@ export const EmergencyPreparedness = ({ profile, subscription }: EmergencyPrepar
             size="sm"
             variant="outline"
           >
-            Complete Emergency Setup
+            {t('preparedness.completeSetup')}
           </Button>
         )}
       </CardContent>

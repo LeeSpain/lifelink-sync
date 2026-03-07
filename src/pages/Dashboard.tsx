@@ -317,9 +317,7 @@ const Dashboard = () => {
               
               {/* Live Map Routes */}
               <Route path="live-map" element={
-                <div className="min-h-[calc(100vh-64px)]">
-                  <MapScreen />
-                </div>
+                <MapScreen />
               } />
                <Route path="circles" element={
                  <div className="p-3 sm:p-6">

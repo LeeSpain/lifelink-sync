@@ -327,7 +327,7 @@ const EnhancedMyProductsPage = () => {
 
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
@@ -335,7 +335,7 @@ const EnhancedMyProductsPage = () => {
                     <p className="text-sm text-muted-foreground">Premium Protection</p>
                     <p className="text-lg font-semibold">{hasPremiumActive ? 'Active' : 'Inactive'}</p>
                   </div>
-                  <Shield className={`h-8 w-8 ${hasPremiumActive ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <Shield className={`h-5 w-5 ${hasPremiumActive ? 'text-primary' : 'text-muted-foreground'}`} />
                 </div>
               </CardContent>
             </Card>
@@ -347,7 +347,7 @@ const EnhancedMyProductsPage = () => {
                     <p className="text-sm text-muted-foreground">Flic Devices</p>
                     <p className="text-lg font-semibold">{flicButtons.length}</p>
                   </div>
-                  <Bluetooth className={`h-8 w-8 ${flicButtons.length > 0 ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <Bluetooth className={`h-5 w-5 ${flicButtons.length > 0 ? 'text-primary' : 'text-muted-foreground'}`} />
                 </div>
               </CardContent>
             </Card>
@@ -359,7 +359,7 @@ const EnhancedMyProductsPage = () => {
                     <p className="text-sm text-muted-foreground">Products Owned</p>
                     <p className="text-lg font-semibold">{userProducts.length}</p>
                   </div>
-                  <Package className={`h-8 w-8 ${userProducts.length > 0 ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <Package className={`h-5 w-5 ${userProducts.length > 0 ? 'text-primary' : 'text-muted-foreground'}`} />
                 </div>
               </CardContent>
             </Card>
@@ -371,7 +371,7 @@ const EnhancedMyProductsPage = () => {
                     <p className="text-sm text-muted-foreground">Regional Services</p>
                     <p className="text-lg font-semibold">{profile?.has_spain_call_center ? 'Active' : 'None'}</p>
                   </div>
-                  <Smartphone className={`h-8 w-8 ${profile?.has_spain_call_center ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <Smartphone className={`h-5 w-5 ${profile?.has_spain_call_center ? 'text-primary' : 'text-muted-foreground'}`} />
                 </div>
               </CardContent>
             </Card>
@@ -384,24 +384,27 @@ const EnhancedMyProductsPage = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="justify-start"
                   onClick={() => window.dispatchEvent(new Event('open-device-settings'))}
                 >
                   <Bluetooth className="mr-2 h-4 w-4" />
                   Connect Flic Device
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="justify-start"
                   onClick={() => navigate('/member-dashboard/subscription')}
                 >
                   <CreditCard className="mr-2 h-4 w-4" />
                   Manage Subscription
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="justify-start"
                   asChild
                 >
@@ -510,18 +513,20 @@ const EnhancedMyProductsPage = () => {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {userProducts.map((product) => (
-                    <div key={product.id} className="p-4 border rounded-lg">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h4 className="font-medium">{product.name}</h4>
-                          <p className="text-sm text-muted-foreground">{product.description}</p>
-                          <p className="text-xs text-muted-foreground mt-2">
-                            Purchased: {new Date(product.purchase_date).toLocaleDateString()}
-                          </p>
+                    <Card key={product.id}>
+                      <CardContent className="p-3">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <h4 className="font-medium text-sm">{product.name}</h4>
+                            <p className="text-xs text-muted-foreground">{product.description}</p>
+                            <p className="text-xs text-muted-foreground mt-2">
+                              Purchased: {new Date(product.purchase_date).toLocaleDateString()}
+                            </p>
+                          </div>
+                          {getStatusBadge(product.status)}
                         </div>
-                        {getStatusBadge(product.status)}
-                      </div>
-                    </div>
+                      </CardContent>
+                    </Card>
                   ))}
                 </div>
               </CardContent>
@@ -574,20 +579,22 @@ const EnhancedMyProductsPage = () => {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {availableProducts.map((product) => (
-                  <div key={product.id} className="p-4 border rounded-lg">
-                    <h4 className="font-medium mb-2">{product.name}</h4>
-                    <p className="text-sm text-muted-foreground mb-3">{product.description}</p>
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold">€{product.price}</span>
-                      <Button 
-                        size="sm"
-                        onClick={() => handlePurchaseProduct(product)}
-                        disabled={purchaseLoading === product.id}
-                      >
-                        {purchaseLoading === product.id ? 'Processing...' : 'Purchase'}
-                      </Button>
-                    </div>
-                  </div>
+                  <Card key={product.id}>
+                    <CardContent className="p-3">
+                      <h4 className="font-medium text-sm mb-2">{product.name}</h4>
+                      <p className="text-xs text-muted-foreground mb-3">{product.description}</p>
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-sm">€{product.price}</span>
+                        <Button
+                          size="sm"
+                          onClick={() => handlePurchaseProduct(product)}
+                          disabled={purchaseLoading === product.id}
+                        >
+                          {purchaseLoading === product.id ? 'Processing...' : 'Purchase'}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
             </CardContent>

@@ -14,9 +14,11 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useConnections } from '@/hooks/useConnections';
+import { useTranslation } from 'react-i18next';
 
 export const FamilyCircleOverview = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { data: familyConnections = [] } = useConnections('family_circle');
   const { data: trustedConnections = [] } = useConnections('trusted_contact');
 
@@ -44,16 +46,16 @@ export const FamilyCircleOverview = () => {
           <div>
             <CardTitle className="flex items-center gap-2 text-lg">
               <Users className="h-5 w-5 text-primary" />
-              Family Circle
+              {t('connections.familyCircle')}
             </CardTitle>
             <p className="text-xs text-muted-foreground mt-1">
-              Your emergency network and protection readiness
+              {t('circles.emergencyNetwork')}
             </p>
           </div>
           <Badge
             variant={circleHealth >= 80 ? "default" : circleHealth >= 60 ? "secondary" : "outline"}
           >
-            {circleHealth >= 80 ? 'Excellent' : circleHealth >= 60 ? 'Good' : 'Setup Needed'}
+            {circleHealth >= 80 ? t('circles.excellent') : circleHealth >= 60 ? t('circles.good') : t('circles.setupNeeded')}
           </Badge>
         </div>
       </CardHeader>
@@ -62,20 +64,20 @@ export const FamilyCircleOverview = () => {
         <div className="flex items-center gap-6">
           <div>
             <p className="text-3xl font-bold text-foreground">{circleHealth}%</p>
-            <p className="text-xs text-muted-foreground">Circle Health</p>
+            <p className="text-xs text-muted-foreground">{t('circles.circleHealth')}</p>
           </div>
           <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-center">
             <div className="p-2 rounded-lg bg-muted/50">
               <div className="text-lg font-semibold text-foreground">{totalActive}</div>
-              <div className="text-xs text-muted-foreground">Active</div>
+              <div className="text-xs text-muted-foreground">{t('circles.active')}</div>
             </div>
             <div className="p-2 rounded-lg bg-muted/50">
               <div className="text-lg font-semibold text-foreground">{totalPending}</div>
-              <div className="text-xs text-muted-foreground">Pending</div>
+              <div className="text-xs text-muted-foreground">{t('circles.pending')}</div>
             </div>
             <div className="p-2 rounded-lg bg-muted/50">
               <div className="text-lg font-semibold text-foreground">{activeFamily.length}</div>
-              <div className="text-xs text-muted-foreground">Family</div>
+              <div className="text-xs text-muted-foreground">{t('circles.family')}</div>
             </div>
           </div>
         </div>
@@ -87,9 +89,9 @@ export const FamilyCircleOverview = () => {
           <div className="flex items-center gap-2.5 p-3 rounded-lg border">
             <Crown className="h-4 w-4 text-primary" />
             <div className="flex-1 min-w-0">
-              <div className="font-medium text-sm">Family Circle</div>
+              <div className="font-medium text-sm">{t('connections.familyCircle')}</div>
               <div className="text-xs text-muted-foreground">
-                {activeFamily.length} member{activeFamily.length !== 1 ? 's' : ''}
+                {activeFamily.length} {activeFamily.length !== 1 ? 'members' : 'member'}
               </div>
             </div>
           </div>
@@ -97,9 +99,9 @@ export const FamilyCircleOverview = () => {
           <div className="flex items-center gap-2.5 p-3 rounded-lg border">
             <Shield className="h-4 w-4 text-muted-foreground" />
             <div className="flex-1 min-w-0">
-              <div className="font-medium text-sm">Trusted Contacts</div>
+              <div className="font-medium text-sm">{t('circles.trustedContacts')}</div>
               <div className="text-xs text-muted-foreground">
-                {activeTrusted.length} contact{activeTrusted.length !== 1 ? 's' : ''}
+                {activeTrusted.length} {activeTrusted.length !== 1 ? 'contacts' : 'contact'}
               </div>
             </div>
           </div>
@@ -112,7 +114,7 @@ export const FamilyCircleOverview = () => {
             size="sm"
           >
             <UserPlus className="h-3.5 w-3.5 mr-1.5" />
-            Add Connection
+            {t('circles.addConnection')}
           </Button>
           <Button
             onClick={() => navigate('/member-dashboard/live-map')}
@@ -120,7 +122,7 @@ export const FamilyCircleOverview = () => {
             size="sm"
           >
             <Map className="h-3.5 w-3.5 mr-1.5" />
-            Live Map
+            {t('circles.liveMap')}
           </Button>
         </div>
 
@@ -130,11 +132,11 @@ export const FamilyCircleOverview = () => {
             <div className="flex items-start gap-2">
               <AlertTriangle className="h-3.5 w-3.5 text-amber-500 mt-0.5 flex-shrink-0" />
               <div className="text-xs">
-                <p className="font-medium mb-1">Strengthen your circle</p>
+                <p className="font-medium mb-1">{t('circles.strengthenCircle')}</p>
                 <ul className="space-y-0.5 text-muted-foreground">
-                  {activeFamily.length < 2 && <li>Add 2+ family members for full coverage</li>}
-                  {activeTrusted.length < 1 && <li>Add trusted contacts for backup</li>}
-                  {totalPending > 0 && <li>Follow up on {totalPending} pending invite{totalPending !== 1 ? 's' : ''}</li>}
+                  {activeFamily.length < 2 && <li>{t('circles.add2FamilyMembers')}</li>}
+                  {activeTrusted.length < 1 && <li>{t('circles.addTrustedForBackupShort')}</li>}
+                  {totalPending > 0 && <li>{t('circles.followUpPending', { count: totalPending })}</li>}
                 </ul>
               </div>
             </div>
@@ -145,13 +147,13 @@ export const FamilyCircleOverview = () => {
         {totalActive === 0 && totalPending === 0 && (
           <div className="text-center py-4 border-t">
             <Users className="h-8 w-8 text-muted-foreground/50 mx-auto mb-2" />
-            <h4 className="font-medium text-sm mb-1">Build your emergency network</h4>
+            <h4 className="font-medium text-sm mb-1">{t('circles.buildNetwork')}</h4>
             <p className="text-xs text-muted-foreground mb-3">
-              Add family members and trusted contacts for emergency alerts
+              {t('circles.addForAlerts')}
             </p>
             <Button onClick={() => navigate('/member-dashboard/connections')} size="sm">
               <Plus className="h-3.5 w-3.5 mr-1.5" />
-              Get Started
+              {t('circles.getStarted')}
             </Button>
           </div>
         )}

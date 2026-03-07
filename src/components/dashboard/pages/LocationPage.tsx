@@ -123,7 +123,7 @@ export function LocationPage() {
   };
 
   return (
-    <div className="p-6">
+    <div>
       <div className="space-y-6">
         {/* Header */}
         <div>

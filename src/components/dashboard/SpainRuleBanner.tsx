@@ -2,6 +2,7 @@ import React from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, Crown, Shield } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface SpainRuleBannerProps {
   spainRule?: {
@@ -13,6 +14,7 @@ interface SpainRuleBannerProps {
 }
 
 export const SpainRuleBanner: React.FC<SpainRuleBannerProps> = ({ spainRule }) => {
+  const { t } = useTranslation();
   if (!spainRule || !spainRule.isSpain || spainRule.canProceed) {
     return null;
   }
@@ -28,10 +30,9 @@ export const SpainRuleBanner: React.FC<SpainRuleBannerProps> = ({ spainRule }) =
       <AlertDescription className="text-amber-800">
         <div className="flex justify-between items-start">
           <div>
-            <p className="font-semibold mb-1">Spain Compliance Requirement</p>
+            <p className="font-semibold mb-1">{t('spainRule.complianceTitle')}</p>
             <p className="text-sm">
-              To complete onboarding and activate emergency services, you must have at least one active connection 
-              OR subscribe to Regional Support. You currently have {spainRule.activeConnections} active connections.
+              {t('spainRule.complianceDescription', { count: spainRule.activeConnections })}
             </p>
           </div>
           <Button
@@ -40,7 +41,7 @@ export const SpainRuleBanner: React.FC<SpainRuleBannerProps> = ({ spainRule }) =
             onClick={handleSubscribeRegional}
             className="ml-4 border-amber-300 text-amber-700 hover:bg-amber-100"
           >
-            Subscribe to Regional
+            {t('spainRule.subscribeRegional')}
           </Button>
         </div>
       </AlertDescription>

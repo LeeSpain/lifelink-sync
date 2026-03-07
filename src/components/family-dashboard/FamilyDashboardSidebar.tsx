@@ -3,12 +3,12 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
-import { 
-  Home, 
-  MapPin, 
-  Bell, 
-  User, 
-  Shield, 
+import {
+  Home,
+  MapPin,
+  Bell,
+  User,
+  Shield,
   Phone,
   Heart,
   LogOut,
@@ -16,42 +16,44 @@ import {
 } from 'lucide-react';
 import { useOptimizedAuth } from '@/hooks/useOptimizedAuth';
 import { useFamilyRole } from '@/hooks/useFamilyRole';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 
 const FamilyDashboardSidebar = () => {
   const location = useLocation();
   const { signOut } = useOptimizedAuth();
   const { data: familyRole } = useFamilyRole();
+  const { t } = useTranslation();
 
   const navigation = [
     {
-      name: 'Home',
+      name: t('familyDashboard.home'),
       href: '/family-dashboard',
       icon: Home,
       current: location.pathname === '/family-dashboard'
     },
     {
-      name: 'Emergency Map',
+      name: t('familyDashboard.emergencyMap'),
       href: '/family-dashboard/emergency-map',
       icon: MapPin,
       current: location.pathname === '/family-dashboard/emergency-map',
-      badge: 'Live'
+      badge: t('familyDashboard.live')
     },
     {
-      name: 'Live Tracking',
+      name: t('familyDashboard.liveTracking'),
       href: '/family-dashboard/live-map',
       icon: Activity,
       current: location.pathname === '/family-dashboard/live-map',
-      badge: 'New'
+      badge: t('familyDashboard.new')
     },
     {
-      name: 'Notifications',
+      name: t('familyDashboard.notifications'),
       href: '/family-dashboard/notifications',
       icon: Bell,
       current: location.pathname === '/family-dashboard/notifications'
     },
     {
-      name: 'Emergency Information',
+      name: t('familyDashboard.emergencyInfo'),
       href: '/family-dashboard/profile',
       icon: User,
       current: location.pathname === '/family-dashboard/profile'
@@ -68,8 +70,8 @@ const FamilyDashboardSidebar = () => {
               <Shield className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h1 className="font-semibold text-sm">Family Emergency</h1>
-              <p className="text-xs text-muted-foreground">Safety Network</p>
+              <h1 className="font-semibold text-sm">{t('familyDashboard.sidebarTitle')}</h1>
+              <p className="text-xs text-muted-foreground">{t('familyDashboard.sidebarSubtitle')}</p>
             </div>
           </div>
         </div>
@@ -92,8 +94,8 @@ const FamilyDashboardSidebar = () => {
                 <Icon className="h-5 w-5" />
                 <span className="flex-1">{item.name}</span>
                 {item.badge && (
-                  <Badge 
-                    variant={item.current ? "secondary" : "outline"} 
+                  <Badge
+                    variant={item.current ? "secondary" : "outline"}
                     className="text-xs"
                   >
                     {item.badge}
@@ -113,22 +115,22 @@ const FamilyDashboardSidebar = () => {
               </div>
               <div>
                 <p className="font-medium text-sm">
-                  {familyRole?.role === 'owner' ? 'Account Owner' : 'Family Member'}
+                  {familyRole?.role === 'owner' ? t('familyDashboard.accountOwner') : t('familyDashboard.familyMember')}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {familyRole?.role === 'owner' ? 'Emergency System Manager' : 'Protected & Connected'}
+                  {familyRole?.role === 'owner' ? t('familyDashboard.systemManager') : t('familyDashboard.protectedConnected')}
                 </p>
               </div>
             </div>
             <div className="space-y-2 text-xs text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Shield className="h-3 w-3" />
-                <span>Emergency alerts enabled</span>
+                <span>{t('familyDashboard.alertsEnabled')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="h-3 w-3" />
                 <span>
-                  {familyRole?.role === 'owner' ? 'Full SOS control' : 'Quick SOS response'}
+                  {familyRole?.role === 'owner' ? t('familyDashboard.fullSosControl') : t('familyDashboard.quickSosResponse')}
                 </span>
               </div>
             </div>
@@ -144,7 +146,7 @@ const FamilyDashboardSidebar = () => {
             className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
           >
             <LogOut className="h-4 w-4" />
-            Sign Out
+            {t('familyDashboard.signOut')}
           </Button>
         </div>
       </div>

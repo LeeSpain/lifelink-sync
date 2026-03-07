@@ -17,12 +17,14 @@ import {
 import { useConnections, useConnectionActions, Connection } from '@/hooks/useConnections';
 import { ConnectionInviteModal } from './ConnectionInviteModal';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 
 export const ConnectionsManager: React.FC = () => {
   const { data: familyConnections = [] } = useConnections('family_circle');
   const { data: trustedConnections = [] } = useConnections('trusted_contact');
   const { promoteConnection, demoteConnection, revokeConnection } = useConnectionActions();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [inviteType, setInviteType] = useState<'family_circle' | 'trusted_contact'>('family_circle');
@@ -35,13 +37,13 @@ export const ConnectionsManager: React.FC = () => {
   const getStatusBadge = (connection: Connection) => {
     switch (connection.status) {
       case 'active':
-        return <Badge variant="default" className="gap-1"><CheckCircle className="h-3 w-3" />Active</Badge>;
+        return <Badge variant="default" className="gap-1"><CheckCircle className="h-3 w-3" />{t('connections.active')}</Badge>;
       case 'pending':
-        return <Badge variant="secondary" className="gap-1"><Clock className="h-3 w-3" />Pending</Badge>;
+        return <Badge variant="secondary" className="gap-1"><Clock className="h-3 w-3" />{t('connections.pending')}</Badge>;
       case 'revoked':
-        return <Badge variant="destructive" className="gap-1"><XCircle className="h-3 w-3" />Revoked</Badge>;
+        return <Badge variant="destructive" className="gap-1"><XCircle className="h-3 w-3" />{t('connections.revoked')}</Badge>;
       default:
-        return <Badge variant="outline">Unknown</Badge>;
+        return <Badge variant="outline">{t('connections.unknown')}</Badge>;
     }
   };
 
@@ -54,8 +56,8 @@ export const ConnectionsManager: React.FC = () => {
     const url = getInviteUrl(connection);
     navigator.clipboard.writeText(url);
     toast({
-      title: "Invite link copied",
-      description: "The invitation link has been copied to your clipboard.",
+      title: t('connections.inviteLinkCopied'),
+      description: t('connections.inviteLinkCopiedDesc'),
     });
   };
 
@@ -76,7 +78,7 @@ export const ConnectionsManager: React.FC = () => {
   };
 
   const handleRevoke = async (connectionId: string) => {
-    if (window.confirm('Are you sure you want to revoke this connection? This action cannot be undone.')) {
+    if (window.confirm(t('connections.revokeConfirm'))) {
       try {
         await revokeConnection.mutateAsync(connectionId);
       } catch (error) {
@@ -103,19 +105,19 @@ export const ConnectionsManager: React.FC = () => {
                 <h4 className="font-medium">{connection.invite_email}</h4>
                 {getStatusBadge(connection)}
                 <Badge variant="outline" className="text-xs">
-                  Priority {connection.escalation_priority}
+                  {t('connections.priority')} {connection.escalation_priority}
                 </Badge>
               </div>
               {connection.relationship && (
                 <p className="text-sm text-muted-foreground">{connection.relationship}</p>
               )}
               <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
-                <span>Channels: {connection.notify_channels.join(', ')}</span>
-                <span>Language: {connection.preferred_language}</span>
+                <span>{t('connections.channels')}: {connection.notify_channels.join(', ')}</span>
+                <span>{t('connections.language')}: {connection.preferred_language}</span>
               </div>
               {connection.status === 'pending' && connection.invited_at && (
                 <p className="text-xs text-muted-foreground mt-1">
-                  Invited: {new Date(connection.invited_at).toLocaleDateString()}
+                  {t('connections.invited')}: {new Date(connection.invited_at).toLocaleDateString()}
                 </p>
               )}
             </div>
@@ -132,7 +134,7 @@ export const ConnectionsManager: React.FC = () => {
                 <>
                   <DropdownMenuItem onClick={() => copyInviteUrl(connection)}>
                     <Mail className="h-4 w-4 mr-2" />
-                    Copy Invite Link
+                    {t('connections.copyInviteLink')}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                 </>
@@ -141,14 +143,14 @@ export const ConnectionsManager: React.FC = () => {
               {connection.type === 'trusted_contact' && connection.status === 'active' && (
                 <DropdownMenuItem onClick={() => handlePromote(connection.id)}>
                   <UserPlus className="h-4 w-4 mr-2" />
-                  Promote to Family
+                  {t('connections.promoteToFamilyShort')}
                 </DropdownMenuItem>
               )}
               
               {connection.type === 'family_circle' && connection.status === 'active' && (
                 <DropdownMenuItem onClick={() => handleDemote(connection.id)}>
                   <UserMinus className="h-4 w-4 mr-2" />
-                  Demote to Trusted
+                  {t('connections.demoteToTrustedShort')}
                 </DropdownMenuItem>
               )}
               
@@ -158,7 +160,7 @@ export const ConnectionsManager: React.FC = () => {
                 className="text-destructive"
               >
                 <Trash2 className="h-4 w-4 mr-2" />
-                Revoke Connection
+                {t('connections.revokeConnection')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -171,9 +173,9 @@ export const ConnectionsManager: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Manage Connections</h2>
+          <h2 className="text-2xl font-bold">{t('connections.manageConnections')}</h2>
           <p className="text-muted-foreground">
-            Control your emergency network and family circle access
+            {t('connections.controlNetwork')}
           </p>
         </div>
       </div>
@@ -182,11 +184,11 @@ export const ConnectionsManager: React.FC = () => {
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="family" className="flex items-center gap-2">
             <Crown className="h-4 w-4" />
-            Family Circle ({familyConnections.length})
+            {t('connections.familyCircle')} ({familyConnections.length})
           </TabsTrigger>
           <TabsTrigger value="trusted" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
-            Trusted Contacts ({trustedConnections.length})
+            {t('connections.trustedContacts')} ({trustedConnections.length})
           </TabsTrigger>
         </TabsList>
 
@@ -197,15 +199,15 @@ export const ConnectionsManager: React.FC = () => {
                 <div>
                   <CardTitle className="flex items-center gap-2">
                     <Crown className="h-5 w-5 text-primary" />
-                    Family Circle
+                    {t('connections.familyCircle')}
                   </CardTitle>
                   <CardDescription>
-                    Family members have full access to your emergency dashboard and history
+                    {t('connections.familyDesc')}
                   </CardDescription>
                 </div>
                 <Button onClick={() => openInviteModal('family_circle')}>
                   <Plus className="h-4 w-4 mr-2" />
-                  Invite Family Member
+                  {t('connections.inviteFamilyMember')}
                 </Button>
               </div>
             </CardHeader>
@@ -213,13 +215,13 @@ export const ConnectionsManager: React.FC = () => {
               {familyConnections.length === 0 ? (
                 <div className="text-center py-8">
                   <Crown className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-                  <h3 className="font-medium mb-2">No family members yet</h3>
+                  <h3 className="font-medium mb-2">{t('connections.noFamilyYet')}</h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Add family members to give them full access to your emergency information
+                    {t('connections.addFamilyInfo')}
                   </p>
                   <Button onClick={() => openInviteModal('family_circle')}>
                     <Plus className="h-4 w-4 mr-2" />
-                    Invite First Family Member
+                    {t('connections.inviteFirstFamily')}
                   </Button>
                 </div>
               ) : (
@@ -240,15 +242,15 @@ export const ConnectionsManager: React.FC = () => {
                 <div>
                   <CardTitle className="flex items-center gap-2">
                     <Shield className="h-5 w-5 text-secondary" />
-                    Trusted Contacts
+                    {t('connections.trustedContacts')}
                   </CardTitle>
                   <CardDescription>
-                    Trusted contacts receive notifications only during active emergencies
+                    {t('connections.trustedDesc')}
                   </CardDescription>
                 </div>
                 <Button onClick={() => openInviteModal('trusted_contact')}>
                   <Plus className="h-4 w-4 mr-2" />
-                  Add Trusted Contact
+                  {t('connections.addTrustedContact')}
                 </Button>
               </div>
             </CardHeader>
@@ -256,13 +258,13 @@ export const ConnectionsManager: React.FC = () => {
               {trustedConnections.length === 0 ? (
                 <div className="text-center py-8">
                   <Shield className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-                  <h3 className="font-medium mb-2">No trusted contacts yet</h3>
+                  <h3 className="font-medium mb-2">{t('connections.noTrustedYet')}</h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Add trusted contacts who should be notified during emergencies
+                    {t('connections.addTrustedInfo')}
                   </p>
                   <Button onClick={() => openInviteModal('trusted_contact')}>
                     <Plus className="h-4 w-4 mr-2" />
-                    Add First Trusted Contact
+                    {t('connections.addFirstTrusted')}
                   </Button>
                 </div>
               ) : (

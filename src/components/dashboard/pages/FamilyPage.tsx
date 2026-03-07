@@ -112,7 +112,7 @@ export function FamilyPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "active":
-        return <Badge className="bg-green-100 text-green-800">Active</Badge>;
+        return <Badge variant="secondary">Active</Badge>;
       case "offline":
         return <Badge variant="secondary">Offline</Badge>;
       case "pending":
@@ -123,7 +123,7 @@ export function FamilyPage() {
   };
 
   return (
-    <div className="p-6">
+    <div>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -178,8 +178,8 @@ export function FamilyPage() {
                 />
               </div>
               <div className="flex gap-2">
-                <Button onClick={handleInvite}>Send Invitation</Button>
-                <Button variant="outline" onClick={() => setShowInviteForm(false)}>Cancel</Button>
+                <Button onClick={handleInvite} size="sm">Send Invitation</Button>
+                <Button variant="outline" size="sm" onClick={() => setShowInviteForm(false)}>Cancel</Button>
               </div>
             </CardContent>
           </Card>
@@ -203,9 +203,9 @@ export function FamilyPage() {
                 <div className="space-y-4">
                   <h4 className="font-medium text-base">Connected Family Members</h4>
                   {familyMembers.map((member) => (
-                    <div key={member.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center gap-4">
-                        <Avatar className="h-12 w-12">
+                    <div key={member.id} className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-8 w-8">
                           <AvatarFallback>
                             {member.invitee_name.split(' ').map((n: string) => n[0]).join('')}
                           </AvatarFallback>
@@ -220,7 +220,7 @@ export function FamilyPage() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <Badge className="bg-green-100 text-green-800">Connected</Badge>
+                        <Badge variant="secondary">Connected</Badge>
                         <p className="text-xs text-muted-foreground mt-1">
                           Joined: {new Date(member.accepted_at).toLocaleDateString()}
                         </p>
@@ -235,9 +235,9 @@ export function FamilyPage() {
                 <div className="space-y-4">
                   <h4 className="font-medium text-base">Pending Invitations</h4>
                   {pendingInvites.map((invite) => (
-                    <div key={invite.id} className="flex items-center justify-between p-4 border rounded-lg bg-yellow-50">
-                      <div className="flex items-center gap-4">
-                        <Avatar className="h-12 w-12">
+                    <div key={invite.id} className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-8 w-8">
                           <AvatarFallback>
                             {invite.invitee_name.split(' ').map((n: string) => n[0]).join('')}
                           </AvatarFallback>
@@ -252,7 +252,7 @@ export function FamilyPage() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <Badge variant="outline" className="bg-yellow-100 text-yellow-800">Pending</Badge>
+                        <Badge variant="outline">Pending</Badge>
                         <p className="text-xs text-muted-foreground mt-1">
                           Sent: {new Date(invite.created_at).toLocaleDateString()}
                         </p>
@@ -265,7 +265,7 @@ export function FamilyPage() {
               {/* Empty State */}
               {familyMembers.length === 0 && pendingInvites.length === 0 && !isLoading && (
                 <div className="text-center py-8">
-                  <Users className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+                  <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                   <h3 className="text-lg font-semibold mb-2">No family members yet</h3>
                   <p className="text-muted-foreground mb-4">
                     Start building your safety network by inviting family members

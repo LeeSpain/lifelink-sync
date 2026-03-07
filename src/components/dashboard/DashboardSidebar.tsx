@@ -68,7 +68,7 @@ const useDashboardItems = () => {
 
   const familyCircleItems = [
     {
-      title: "Family Connections",
+      title: t('dashboard.familyConnections'),
       url: "/member-dashboard/connections",
       icon: UserPlus
     },
@@ -227,7 +227,7 @@ export function DashboardSidebar() {
         {/* Family Circle Navigation */}
         <SidebarGroup className="px-3 py-4">
           <SidebarGroupLabel className="text-sidebar-muted-foreground font-semibold text-xs uppercase tracking-wider mb-3">
-            Family Circle
+            {t('dashboard.familyCircleLabel')}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1">
@@ -327,7 +327,7 @@ export function DashboardSidebar() {
                     </div>
                     {!collapsed && (
                       <span className="text-sm font-medium text-sidebar-foreground group-hover:text-sidebar-accent-foreground">
-                        Home
+                        {t('dashboard.home')}
                       </span>
                     )}
                   </NavLink>
@@ -344,7 +344,7 @@ export function DashboardSidebar() {
                     </div>
                     {!collapsed && (
                       <span className="text-sm font-medium text-sidebar-foreground group-hover:text-red-600">
-                        Sign Out
+                        {t('dashboard.signOut')}
                       </span>
                     )}
                   </button>

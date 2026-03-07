@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useEmergencyContacts } from "@/hooks/useEmergencyContacts";
+import { useTranslation } from 'react-i18next';
 import {
   Shield,
   Phone,
@@ -26,6 +27,7 @@ interface EmergencyActionsWidgetProps {
 
 const EmergencyActionsWidget = ({ profile, subscription }: EmergencyActionsWidgetProps) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [testingSystem, setTestingSystem] = useState(false);
   const [testResults, setTestResults] = useState<string | null>(null);
   const [isConnected] = useState(true);
@@ -42,8 +44,8 @@ const EmergencyActionsWidget = ({ profile, subscription }: EmergencyActionsWidge
 
     try {
       toast({
-        title: "Testing Emergency Systems",
-        description: "Running comprehensive system check...",
+        title: t('emergencyActions.testingTitle'),
+        description: t('emergencyActions.testingDesc'),
         duration: 3000
       });
 
@@ -51,21 +53,21 @@ const EmergencyActionsWidget = ({ profile, subscription }: EmergencyActionsWidge
 
       const allSystemsGood = protectionActive && emergencyContactsCount > 0 && profileComplete;
 
-      setTestResults(allSystemsGood ? "All systems operational" : "Some issues detected");
+      setTestResults(allSystemsGood ? t('emergencyActions.allOperational') : t('emergencyActions.issuesDetected'));
 
       toast({
-        title: allSystemsGood ? "Systems Healthy" : "Issues Found",
+        title: allSystemsGood ? t('emergencyActions.systemsHealthy') : t('emergencyActions.issuesFound'),
         description: allSystemsGood
-          ? "All emergency systems are functioning properly"
-          : "Please review your profile and emergency contacts",
+          ? t('emergencyActions.systemsOk')
+          : t('emergencyActions.reviewProfile'),
         variant: allSystemsGood ? "default" : "destructive",
         duration: 5000
       });
     } catch (error) {
-      setTestResults("Test failed");
+      setTestResults(t('emergencyActions.testFailed'));
       toast({
-        title: "Test Failed",
-        description: "Unable to complete system test. Please try again.",
+        title: t('emergencyActions.testFailedTitle'),
+        description: t('emergencyActions.testFailedDesc'),
         variant: "destructive"
       });
     } finally {
@@ -76,8 +78,8 @@ const EmergencyActionsWidget = ({ profile, subscription }: EmergencyActionsWidge
   const handleQuickCall = () => {
     if (emergencyContactsCount === 0) {
       toast({
-        title: "No Emergency Contacts",
-        description: "Please add emergency contacts to use quick call",
+        title: t('emergencyActions.noEmergencyContacts'),
+        description: t('emergencyActions.addContactsFirst'),
         variant: "destructive"
       });
       return;
@@ -85,8 +87,8 @@ const EmergencyActionsWidget = ({ profile, subscription }: EmergencyActionsWidge
 
     if (contacts && contacts[0]?.phone) {
       toast({
-        title: "Calling Emergency Contact",
-        description: `Calling ${contacts[0].name}...`,
+        title: t('emergencyActions.callingContact'),
+        description: `${contacts[0].name}...`,
         duration: 3000
       });
       window.open(`tel:${contacts[0].phone}`, '_self');
@@ -109,16 +111,16 @@ const EmergencyActionsWidget = ({ profile, subscription }: EmergencyActionsWidge
           } else {
             navigator.clipboard.writeText(mapsUrl);
             toast({
-              title: "Location Copied",
-              description: "Location link copied to clipboard",
+              title: t('emergencyActions.locationCopied'),
+              description: t('emergencyActions.locationCopiedDesc'),
               duration: 3000
             });
           }
         },
         () => {
           toast({
-            title: "Location Access Denied",
-            description: "Please enable location access to share your location",
+            title: t('emergencyActions.locationDenied'),
+            description: t('emergencyActions.enableLocationAccess'),
             variant: "destructive"
           });
         }
@@ -128,25 +130,25 @@ const EmergencyActionsWidget = ({ profile, subscription }: EmergencyActionsWidge
 
   const emergencyActions = [
     {
-      title: "System Check",
-      description: testResults || (testingSystem ? "Testing systems..." : "Test all emergency systems"),
+      title: t('emergencyActions.systemCheck'),
+      description: testResults || (testingSystem ? t('emergencyActions.testingSystems') : t('emergencyActions.testAllSystems')),
       icon: testingSystem ? Loader2 : Shield,
       action: handleEmergencyTest,
       disabled: testingSystem,
-      status: testResults ? (testResults.includes("operational") ? "success" : "warning") : null
+      status: testResults ? (testResults.includes(t('emergencyActions.allOperational')) ? "success" : "warning") : null
     },
     {
-      title: "Quick Call",
+      title: t('emergencyActions.quickCall'),
       description: emergencyContactsCount > 0
-        ? `Call ${contacts?.[0]?.name || 'primary contact'}`
-        : "No contacts available",
+        ? `${contacts?.[0]?.name || t('liveStatus.familyMember')}`
+        : t('emergencyActions.noContactsAvailable'),
       icon: Phone,
       action: handleQuickCall,
       disabled: emergencyContactsCount === 0
     },
     {
-      title: "Share Location",
-      description: "Send current location",
+      title: t('emergencyActions.shareLocation'),
+      description: t('emergencyActions.sendLocation'),
       icon: MapPin,
       action: handleShareLocation
     }
@@ -156,8 +158,8 @@ const EmergencyActionsWidget = ({ profile, subscription }: EmergencyActionsWidge
 
   if (!protectionActive) {
     nextSteps.push({
-      title: "Activate Protection",
-      description: "Subscribe to emergency services",
+      title: t('emergencyActions.activateProtection'),
+      description: t('emergencyActions.subscribeServices'),
       icon: Shield,
       action: () => navigate('/member-dashboard/subscription'),
       priority: "high"
@@ -166,8 +168,8 @@ const EmergencyActionsWidget = ({ profile, subscription }: EmergencyActionsWidge
 
   if (emergencyContactsCount < 3) {
     nextSteps.push({
-      title: "Add Emergency Contacts",
-      description: `Add ${3 - emergencyContactsCount} more contacts`,
+      title: t('emergencyActions.addEmergencyContacts'),
+      description: `${3 - emergencyContactsCount} more`,
       icon: Phone,
       action: () => navigate('/member-dashboard/connections'),
       priority: "medium"
@@ -176,8 +178,8 @@ const EmergencyActionsWidget = ({ profile, subscription }: EmergencyActionsWidge
 
   if (!profileComplete) {
     nextSteps.push({
-      title: "Complete Profile",
-      description: "Fill in remaining details",
+      title: t('emergencyActions.completeProfile'),
+      description: t('emergencyActions.fillDetails'),
       icon: CheckCircle,
       action: () => navigate('/member-dashboard/profile'),
       priority: "low"
@@ -191,7 +193,7 @@ const EmergencyActionsWidget = ({ profile, subscription }: EmergencyActionsWidge
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
             <Shield className="h-4 w-4 text-primary" />
-            Emergency Actions
+            {t('emergencyActions.title')}
             <div className="ml-auto flex items-center gap-1.5">
               {isConnected ? (
                 <Wifi className="h-3 w-3 text-green-500" />
@@ -242,7 +244,7 @@ const EmergencyActionsWidget = ({ profile, subscription }: EmergencyActionsWidge
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <Clock className="h-4 w-4" />
-              Next Steps
+              {t('emergencyActions.nextSteps')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -270,23 +272,23 @@ const EmergencyActionsWidget = ({ profile, subscription }: EmergencyActionsWidge
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
             <Bell className="h-4 w-4" />
-            System Status
+            {t('emergencyActions.systemStatus')}
             {testResults && (
-              <Badge variant={testResults.includes("operational") ? "default" : "destructive"} className="ml-auto text-xs">
-                {testResults.includes("operational") ? "OK" : "Attention"}
+              <Badge variant={testResults.includes(t('emergencyActions.allOperational')) ? "default" : "destructive"} className="ml-auto text-xs">
+                {testResults.includes(t('emergencyActions.allOperational')) ? t('emergencyActions.ok') : t('emergencyActions.attention')}
               </Badge>
             )}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm">Protection</span>
+            <span className="text-sm">{t('emergencyActions.protection')}</span>
             <Badge variant={protectionActive ? "default" : "outline"} className="text-xs">
-              {protectionActive ? "Active" : "Inactive"}
+              {protectionActive ? t('emergencyActions.activeStatus') : t('emergencyActions.inactiveStatus')}
             </Badge>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm">Contacts</span>
+            <span className="text-sm">{t('emergencyActions.contacts')}</span>
             <div className="flex items-center gap-1.5">
               {emergencyContactsCount >= 3 ? (
                 <CheckCircle className="h-3 w-3 text-green-600" />
@@ -297,7 +299,7 @@ const EmergencyActionsWidget = ({ profile, subscription }: EmergencyActionsWidge
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm">Profile</span>
+            <span className="text-sm">{t('emergencyActions.profile')}</span>
             <div className="flex items-center gap-1.5">
               {profileComplete ? (
                 <CheckCircle className="h-3 w-3 text-green-600" />
@@ -308,7 +310,7 @@ const EmergencyActionsWidget = ({ profile, subscription }: EmergencyActionsWidge
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm">Connection</span>
+            <span className="text-sm">{t('emergencyActions.connectionLabel')}</span>
             <div className="flex items-center gap-1.5">
               {isConnected ? (
                 <CheckCircle className="h-3 w-3 text-green-600" />
@@ -316,7 +318,7 @@ const EmergencyActionsWidget = ({ profile, subscription }: EmergencyActionsWidge
                 <AlertTriangle className="h-3 w-3 text-destructive" />
               )}
               <span className="text-xs text-muted-foreground">
-                {isConnected ? "Online" : "Offline"}
+                {isConnected ? t('emergencyActions.online') : t('emergencyActions.offline')}
               </span>
             </div>
           </div>

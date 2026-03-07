@@ -13,9 +13,11 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useConnections } from '@/hooks/useConnections';
+import { useTranslation } from 'react-i18next';
 
 export const LiveFamilyStatus = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { data: familyConnections = [] } = useConnections('family_circle');
 
   const activeFamily = familyConnections.filter(c => c.status === 'active').slice(0, 4);
@@ -66,7 +68,7 @@ export const LiveFamilyStatus = () => {
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-sm font-semibold">
             <Navigation className="h-4 w-4 text-green-600" />
-            Live Family Status
+            {t('liveStatus.title')}
           </CardTitle>
           <Button
             onClick={() => navigate('/member-dashboard/live-map')}
@@ -75,7 +77,7 @@ export const LiveFamilyStatus = () => {
             className="h-7 text-xs"
           >
             <MapPin className="h-3 w-3 mr-1.5" />
-            Map
+            {t('liveStatus.map')}
           </Button>
         </div>
       </CardHeader>
@@ -101,7 +103,7 @@ export const LiveFamilyStatus = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <p className="font-medium text-sm truncate">
-                          {connection.relationship || 'Family Member'}
+                          {connection.relationship || t('liveStatus.familyMember')}
                         </p>
                         <Badge
                           variant={mockStatus.status === 'online' ? 'default' : 'secondary'}
@@ -113,7 +115,7 @@ export const LiveFamilyStatus = () => {
                       <div className="flex items-center gap-3 text-xs text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
-                          {mockStatus.status === 'online' ? 'Now' : formatLastSeen(mockStatus.lastSeen)}
+                          {mockStatus.status === 'online' ? t('liveStatus.now') : formatLastSeen(mockStatus.lastSeen)}
                         </div>
                         {mockStatus.battery && (
                           <div className="flex items-center gap-1">
@@ -140,19 +142,19 @@ export const LiveFamilyStatus = () => {
                 <div className="text-lg font-semibold text-green-600">
                   {activeFamily.filter((_, i) => getMockStatus(i).status === 'online').length}
                 </div>
-                <div className="text-xs text-muted-foreground">Live</div>
+                <div className="text-xs text-muted-foreground">{t('liveStatus.live')}</div>
               </div>
               <div className="text-center">
                 <div className="text-lg font-semibold text-foreground">
                   {activeFamily.filter((_, i) => getMockStatus(i).status !== 'offline').length}
                 </div>
-                <div className="text-xs text-muted-foreground">Active</div>
+                <div className="text-xs text-muted-foreground">{t('liveStatus.active')}</div>
               </div>
               <div className="text-center">
                 <div className="text-lg font-semibold text-muted-foreground">
                   {activeFamily.filter((_, i) => getMockStatus(i).status === 'offline').length}
                 </div>
-                <div className="text-xs text-muted-foreground">Offline</div>
+                <div className="text-xs text-muted-foreground">{t('liveStatus.offline')}</div>
               </div>
             </div>
 
@@ -162,21 +164,21 @@ export const LiveFamilyStatus = () => {
               size="sm"
             >
               <Eye className="h-4 w-4 mr-2" />
-              View Live Locations
+              {t('liveStatus.viewLiveLocations')}
             </Button>
           </>
         ) : (
           <div className="text-center py-6">
             <Navigation className="h-8 w-8 text-muted-foreground/50 mx-auto mb-2" />
-            <h4 className="font-medium text-sm mb-1">No family members yet</h4>
+            <h4 className="font-medium text-sm mb-1">{t('liveStatus.noFamilyMembers')}</h4>
             <p className="text-xs text-muted-foreground mb-3">
-              Add family members to see their live status
+              {t('liveStatus.addFamilyToSee')}
             </p>
             <Button
               onClick={() => navigate('/member-dashboard/connections')}
               size="sm"
             >
-              Add Family Members
+              {t('liveStatus.addFamilyMembers')}
             </Button>
           </div>
         )}

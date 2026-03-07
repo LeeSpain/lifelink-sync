@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +28,7 @@ export default function MyCirclesPage() {
   const { promoteConnection, demoteConnection, revokeConnection } = useConnectionActions();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [inviteType, setInviteType] = useState<'family_circle' | 'trusted_contact'>('family_circle');
@@ -52,8 +54,8 @@ export default function MyCirclesPage() {
     const url = getInviteUrl(connection);
     navigator.clipboard.writeText(url);
     toast({
-      title: "Invite link copied",
-      description: "The invitation link has been copied to your clipboard.",
+      title: t('connections.inviteLinkCopied'),
+      description: t('connections.inviteLinkCopiedDesc'),
     });
   };
 
@@ -74,7 +76,7 @@ export default function MyCirclesPage() {
   };
 
   const handleRevoke = async (connectionId: string) => {
-    if (window.confirm('Are you sure you want to revoke this connection? This action cannot be undone.')) {
+    if (window.confirm(t('connections.revokeConfirm'))) {
       try {
         await revokeConnection.mutateAsync(connectionId);
       } catch (error) {
@@ -86,13 +88,13 @@ export default function MyCirclesPage() {
   const getStatusBadge = (connection: Connection) => {
     switch (connection.status) {
       case 'active':
-        return <Badge variant="default" className="gap-1"><CheckCircle className="h-3 w-3" />Active</Badge>;
+        return <Badge variant="default" className="gap-1"><CheckCircle className="h-3 w-3" />{t('connections.active')}</Badge>;
       case 'pending':
-        return <Badge variant="secondary" className="gap-1"><Clock className="h-3 w-3" />Pending</Badge>;
+        return <Badge variant="secondary" className="gap-1"><Clock className="h-3 w-3" />{t('connections.pending')}</Badge>;
       case 'revoked':
-        return <Badge variant="destructive" className="gap-1"><XCircle className="h-3 w-3" />Revoked</Badge>;
+        return <Badge variant="destructive" className="gap-1"><XCircle className="h-3 w-3" />{t('connections.revoked')}</Badge>;
       default:
-        return <Badge variant="outline">Unknown</Badge>;
+        return <Badge variant="outline">{t('connections.unknown')}</Badge>;
     }
   };
 
@@ -128,7 +130,7 @@ export default function MyCirclesPage() {
                 <h4 className="font-medium text-foreground">{connection.invite_email}</h4>
                 {getStatusBadge(connection)}
                 <Badge variant="outline" className="text-xs">
-                  Priority {connection.escalation_priority}
+                  {t('connections.priority')} {connection.escalation_priority}
                 </Badge>
               </div>
 
@@ -137,13 +139,13 @@ export default function MyCirclesPage() {
               )}
 
               <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                <span>Channels: {connection.notify_channels.join(', ')}</span>
-                <span>Language: {connection.preferred_language}</span>
+                <span>{t('connections.channels')}: {connection.notify_channels.join(', ')}</span>
+                <span>{t('connections.language')}: {connection.preferred_language}</span>
               </div>
 
               {connection.status === 'pending' && connection.invited_at && (
                 <p className="text-xs text-muted-foreground mt-1">
-                  Invited {new Date(connection.invited_at).toLocaleDateString()}
+                  {t('connections.invited')} {new Date(connection.invited_at).toLocaleDateString()}
                 </p>
               )}
             </div>
@@ -160,7 +162,7 @@ export default function MyCirclesPage() {
                 <>
                   <DropdownMenuItem onClick={() => copyInviteUrl(connection)}>
                     <Copy className="h-4 w-4 mr-2" />
-                    Copy Invite Link
+                    {t('connections.copyInviteLink')}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                 </>
@@ -169,14 +171,14 @@ export default function MyCirclesPage() {
               {connection.type === 'trusted_contact' && connection.status === 'active' && (
                 <DropdownMenuItem onClick={() => handlePromote(connection.id)}>
                   <UserPlus className="h-4 w-4 mr-2" />
-                  Promote to Family Circle
+                  {t('connections.promoteToFamily')}
                 </DropdownMenuItem>
               )}
 
               {connection.type === 'family_circle' && connection.status === 'active' && (
                 <DropdownMenuItem onClick={() => handleDemote(connection.id)}>
                   <UserMinus className="h-4 w-4 mr-2" />
-                  Demote to Trusted Contact
+                  {t('connections.demoteToTrusted')}
                 </DropdownMenuItem>
               )}
 
@@ -186,7 +188,7 @@ export default function MyCirclesPage() {
                 className="text-destructive"
               >
                 <Trash2 className="h-4 w-4 mr-2" />
-                Revoke Connection
+                {t('connections.revokeConnection')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -213,8 +215,8 @@ export default function MyCirclesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">My Family Circles</h1>
-          <p className="text-muted-foreground">Manage your family network and emergency connections</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t('circles.title')}</h1>
+          <p className="text-muted-foreground">{t('circles.subtitle')}</p>
         </div>
         <div className="flex gap-2">
           <Button
@@ -223,14 +225,14 @@ export default function MyCirclesPage() {
             className="flex items-center gap-2"
           >
             <Map className="w-4 h-4" />
-            Live Map
+            {t('circles.liveMap')}
           </Button>
           <Button
             onClick={() => openInviteModal('family_circle')}
             className="flex items-center gap-2"
           >
             <UserPlus className="w-4 h-4" />
-            Add Member
+            {t('circles.addMember')}
           </Button>
         </div>
       </div>
@@ -242,26 +244,26 @@ export default function MyCirclesPage() {
             <div className="flex items-center gap-4">
               <div>
                 <p className="text-2xl font-bold">{circleHealth}%</p>
-                <p className="text-xs text-muted-foreground">Circle Health</p>
+                <p className="text-xs text-muted-foreground">{t('circles.circleHealth')}</p>
               </div>
               <Separator orientation="vertical" className="h-10" />
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-center">
                 <div>
                   <div className="text-lg font-bold text-primary">{activeFamily.length}</div>
-                  <div className="text-xs text-muted-foreground">Family</div>
+                  <div className="text-xs text-muted-foreground">{t('circles.family')}</div>
                 </div>
                 <div>
                   <div className="text-lg font-bold text-secondary-foreground">{activeTrusted.length}</div>
-                  <div className="text-xs text-muted-foreground">Trusted</div>
+                  <div className="text-xs text-muted-foreground">{t('circles.trusted')}</div>
                 </div>
                 <div>
                   <div className="text-lg font-bold text-orange-500">{pendingFamily.length + pendingTrusted.length}</div>
-                  <div className="text-xs text-muted-foreground">Pending</div>
+                  <div className="text-xs text-muted-foreground">{t('circles.pending')}</div>
                 </div>
               </div>
             </div>
             <Badge variant={circleHealth >= 80 ? "default" : circleHealth >= 50 ? "secondary" : "destructive"}>
-              {circleHealth >= 80 ? 'Excellent' : circleHealth >= 50 ? 'Good' : 'Needs Setup'}
+              {circleHealth >= 80 ? t('circles.excellent') : circleHealth >= 50 ? t('circles.good') : t('circles.needsSetup')}
             </Badge>
           </div>
 
@@ -269,11 +271,11 @@ export default function MyCirclesPage() {
             <div className="mt-4 flex items-start gap-2 p-3 rounded-lg bg-background/60">
               <AlertTriangle className="h-4 w-4 text-orange-500 mt-0.5 flex-shrink-0" />
               <div className="text-xs">
-                <p className="font-medium mb-1">Strengthen your circle:</p>
+                <p className="font-medium mb-1">{t('circles.strengthenCircle')}</p>
                 <ul className="space-y-0.5 text-muted-foreground">
-                  {activeFamily.length < 2 && <li>Add at least 2 family members for full coverage</li>}
-                  {activeTrusted.length < 1 && <li>Add a trusted contact for backup notifications</li>}
-                  {(pendingFamily.length + pendingTrusted.length) > 0 && <li>Follow up on {pendingFamily.length + pendingTrusted.length} pending invitations</li>}
+                  {activeFamily.length < 2 && <li>{t('circles.addFamilyForCoverage')}</li>}
+                  {activeTrusted.length < 1 && <li>{t('circles.addTrustedForBackup')}</li>}
+                  {(pendingFamily.length + pendingTrusted.length) > 0 && <li>{t('circles.followUpPending', { count: pendingFamily.length + pendingTrusted.length })}</li>}
                 </ul>
               </div>
             </div>
@@ -286,11 +288,11 @@ export default function MyCirclesPage() {
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="family" className="flex items-center gap-2">
             <Crown className="h-4 w-4" />
-            Family Circle ({familyConnections.filter(c => c.status !== 'revoked').length})
+            {`${t('circles.familyCircle')} (${familyConnections.filter(c => c.status !== 'revoked').length})`}
           </TabsTrigger>
           <TabsTrigger value="trusted" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
-            Trusted Contacts ({trustedConnections.filter(c => c.status !== 'revoked').length})
+            {`${t('circles.trustedContacts')} (${trustedConnections.filter(c => c.status !== 'revoked').length})`}
           </TabsTrigger>
         </TabsList>
 
@@ -302,15 +304,15 @@ export default function MyCirclesPage() {
                 <div>
                   <CardTitle className="flex items-center gap-2">
                     <Crown className="h-5 w-5 text-primary" />
-                    Family Circle Members
+                    {t('circles.familyCircleMembers')}
                   </CardTitle>
                   <CardDescription>
-                    Family members have full access to your emergency dashboard, live map, and SOS alerts
+                    {t('circles.familyCircleDesc')}
                   </CardDescription>
                 </div>
                 <Button onClick={() => openInviteModal('family_circle')} size="sm">
                   <Plus className="h-4 w-4 mr-2" />
-                  Invite Family
+                  {t('circles.inviteFamily')}
                 </Button>
               </div>
             </CardHeader>
@@ -318,13 +320,13 @@ export default function MyCirclesPage() {
               {familyConnections.filter(c => c.status !== 'revoked').length === 0 ? (
                 <div className="text-center py-8">
                   <Crown className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-                  <h3 className="font-medium mb-2">No family members yet</h3>
+                  <h3 className="font-medium mb-2">{t('circles.noFamilyMembers')}</h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Add family members to give them full access to your emergency dashboard and SOS alerts.
+                    {t('circles.addFamilyDesc')}
                   </p>
                   <Button onClick={() => openInviteModal('family_circle')}>
                     <Plus className="h-4 w-4 mr-2" />
-                    Invite Your First Family Member
+                    {t('circles.inviteFirstFamily')}
                   </Button>
                 </div>
               ) : (
@@ -346,15 +348,15 @@ export default function MyCirclesPage() {
                 <div>
                   <CardTitle className="flex items-center gap-2">
                     <Shield className="h-5 w-5 text-secondary" />
-                    Trusted Contacts
+                    {t('circles.trustedContacts')}
                   </CardTitle>
                   <CardDescription>
-                    Trusted contacts receive notifications and live updates only during active emergencies
+                    {t('circles.trustedContactsDesc')}
                   </CardDescription>
                 </div>
                 <Button onClick={() => openInviteModal('trusted_contact')} size="sm">
                   <Plus className="h-4 w-4 mr-2" />
-                  Add Contact
+                  {t('circles.addContact')}
                 </Button>
               </div>
             </CardHeader>
@@ -362,13 +364,13 @@ export default function MyCirclesPage() {
               {trustedConnections.filter(c => c.status !== 'revoked').length === 0 ? (
                 <div className="text-center py-8">
                   <Shield className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-                  <h3 className="font-medium mb-2">No trusted contacts yet</h3>
+                  <h3 className="font-medium mb-2">{t('circles.noTrustedContacts')}</h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Add trusted contacts who should be notified during emergencies.
+                    {t('circles.addTrustedDesc')}
                   </p>
                   <Button onClick={() => openInviteModal('trusted_contact')}>
                     <Plus className="h-4 w-4 mr-2" />
-                    Add First Trusted Contact
+                    {t('circles.addFirstTrusted')}
                   </Button>
                 </div>
               ) : (
