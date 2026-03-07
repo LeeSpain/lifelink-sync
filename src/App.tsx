@@ -57,6 +57,7 @@ import RegistrationSuccess from "./pages/RegistrationSuccess";
 import WelcomeQuestionnaire from "./components/WelcomeQuestionnaire";
 import OnboardingPage from "./pages/OnboardingPage";
 import CheckoutPage from "./pages/CheckoutPage";
+import TrialSignupPage from "./pages/TrialSignupPage";
 import CheckoutSuccessPage from "./pages/CheckoutSuccessPage";
 import CheckoutCancelPage from "./pages/CheckoutCancelPage";
 
@@ -104,6 +105,11 @@ function AppWithTracking() {
                 <Route path="/ai-register" element={
                   <OptimizedSuspense skeletonType="card">
                     <AIRegister />
+                  </OptimizedSuspense>
+                } />
+                <Route path="/trial-signup" element={
+                  <OptimizedSuspense skeletonType="card">
+                    <TrialSignupPage />
                   </OptimizedSuspense>
                 } />
                 {import.meta.env.DEV && TestRegistration && (

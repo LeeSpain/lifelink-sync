@@ -48,7 +48,8 @@ import {
   ChevronRight,
   LogOut,
   User,
-  Home
+  Home,
+  Clock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -144,6 +145,8 @@ const useAdminMenuItems = () => {
         { title: t('admin.products'), url: "/admin-dashboard/products", icon: Package },
         { title: t('admin.regionalServices'), url: "/admin-dashboard/regional-services", icon: MapPin },
         { title: t('admin.subscriptionPlans'), url: "/admin-dashboard/protection-plans", icon: Shield },
+        { title: 'Add-On Management', url: "/admin-dashboard/addon-management", icon: Package },
+        { title: 'Trial Management', url: "/admin-dashboard/trial-management", icon: Clock },
         { title: t('admin.flickControl'), url: "/admin-dashboard/flic-control", icon: Bluetooth },
       ]
     },

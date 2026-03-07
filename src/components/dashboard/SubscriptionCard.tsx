@@ -143,6 +143,16 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
   };
 
   const getSubscriptionStatus = () => {
+    if (subscription?.is_trialing) {
+      const trialEnd = subscription.trial_end ? new Date(subscription.trial_end) : null;
+      const daysLeft = trialEnd ? Math.max(0, Math.ceil((trialEnd.getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : 0;
+      return {
+        status: `Trial (${daysLeft}d left)`,
+        color: "bg-blue-100 text-blue-800",
+        icon: <CheckCircle className="h-4 w-4" />,
+        description: "Your free trial is active"
+      };
+    }
     if (subscription?.subscribed) {
       return {
         status: "Active",
@@ -212,6 +222,47 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
 
             {subscription?.subscribed ? (
               <div className="space-y-6">
+                {/* Trial Banner */}
+                {subscription?.is_trialing && (
+                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-semibold text-blue-800">Free Trial Active</h4>
+                        <p className="text-sm text-blue-600">
+                          Ends {subscription.trial_end
+                            ? new Date(subscription.trial_end).toLocaleDateString()
+                            : 'soon'}
+                        </p>
+                      </div>
+                      <Button
+                        size="sm"
+                        onClick={() => window.location.href = '/pricing'}
+                      >
+                        Subscribe Now
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Active Add-ons */}
+                {subscription?.active_addons && subscription.active_addons.length > 0 && (
+                  <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                    <h4 className="font-semibold text-purple-800 mb-2">Active Add-Ons</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {subscription.active_addons.map((slug: string) => (
+                        <Badge key={slug} variant="secondary" className="capitalize">
+                          {slug.replace('_', ' ')}
+                        </Badge>
+                      ))}
+                      {subscription.clara_complete_unlocked && (
+                        <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                          CLARA Complete
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {/* Payment Overview */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="p-4 bg-green-50 rounded-lg border border-green-200">

@@ -1,104 +1,87 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Check, Shield } from "lucide-react";
+import { Check, Shield, Users, Heart, Pill, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 
-interface PlanProps {
+interface AddOnProps {
   name: string;
   price: string;
   description: string;
   features: string[];
-  highlighted?: boolean;
+  icon: React.ReactNode;
   badge?: string;
 }
 
-const PlanCard: React.FC<PlanProps> = ({ name, price, description, features, highlighted, badge }) => (
-  <div className={`rounded-2xl p-8 border transition-shadow duration-300 ${
-    highlighted
-      ? 'bg-[hsl(215,28%,17%)] text-white border-primary shadow-xl scale-[1.02]'
-      : 'bg-white text-[hsl(215,25%,27%)] border-[#E5E7EB] shadow-sm hover:shadow-lg'
-  }`}>
-    {badge && (
-      <Badge className="bg-primary text-white text-xs font-medium mb-4">
-        {badge}
-      </Badge>
-    )}
-    <h3 className={`text-2xl font-bold font-poppins mb-2 ${highlighted ? 'text-white' : ''}`}>
-      {name}
-    </h3>
-    <div className="flex items-baseline gap-1 mb-4">
-      <span className={`text-4xl font-bold font-poppins ${highlighted ? 'text-primary' : 'text-primary'}`}>
-        {price}
-      </span>
-      <span className={`text-sm ${highlighted ? 'text-gray-400' : 'text-gray-500'}`}>/mo</span>
+const AddOnCard: React.FC<AddOnProps> = ({ name, price, description, features, icon, badge }) => (
+  <div className="rounded-xl p-6 border border-[#E5E7EB] bg-white shadow-sm hover:shadow-lg transition-shadow duration-300">
+    <div className="flex items-center gap-2 mb-3">
+      <div className="text-primary">{icon}</div>
+      <h4 className="text-lg font-bold font-poppins text-[hsl(215,25%,27%)]">{name}</h4>
+      {badge && (
+        <Badge className="bg-green-100 text-green-800 text-xs">{badge}</Badge>
+      )}
     </div>
-    <p className={`text-sm mb-6 ${highlighted ? 'text-gray-300' : 'text-gray-500'}`}>
-      {description}
-    </p>
-    <div className="space-y-3 mb-8">
+    <div className="flex items-baseline gap-1 mb-3">
+      <span className="text-2xl font-bold font-poppins text-primary">{price}</span>
+      <span className="text-sm text-gray-500">/mo</span>
+    </div>
+    <p className="text-sm text-gray-500 mb-4">{description}</p>
+    <div className="space-y-2">
       {features.map((feature, i) => (
-        <div key={i} className="flex items-start gap-2.5">
-          <Check className={`h-4 w-4 mt-0.5 flex-shrink-0 ${highlighted ? 'text-primary' : 'text-wellness'}`} />
-          <span className={`text-sm ${highlighted ? 'text-gray-200' : 'text-gray-600'}`}>{feature}</span>
+        <div key={i} className="flex items-start gap-2">
+          <Check className="h-3.5 w-3.5 mt-0.5 flex-shrink-0 text-wellness" />
+          <span className="text-xs text-gray-600">{feature}</span>
         </div>
       ))}
     </div>
-    <Button
-      asChild
-      className={`w-full font-semibold py-6 ${
-        highlighted
-          ? 'bg-primary text-white hover:bg-primary/90'
-          : 'bg-primary text-white hover:bg-primary/90'
-      }`}
-    >
-      <Link to="/ai-register">
-        <Shield className="h-4 w-4 mr-2" />
-        Start Free Trial
-      </Link>
-    </Button>
   </div>
 );
 
 const Pricing: React.FC = () => {
-  const plans: PlanProps[] = [
+  const basePlanFeatures = [
+    'SOS activation (app)',
+    'Clara AI 24/7',
+    'Live location sharing',
+    '1 emergency contact',
+    'Incident log',
+    '1 free Family Link',
+  ];
+
+  const addOns: AddOnProps[] = [
     {
-      name: 'Individual',
-      price: '\u20AC9.99',
-      description: 'Essential protection for one person.',
+      name: 'Family Link',
+      price: '\u20AC2.99',
+      description: 'Add family members to your protection circle.',
       features: [
-        'SOS activation (app)',
-        'Clara AI 24/7',
-        'Live location sharing',
-        '1 emergency contact',
-        'Incident log',
+        'Live SOS alerts',
+        'Shared map',
+        'Received & On It acknowledgment',
       ],
+      icon: <Users className="h-5 w-5" />,
+      badge: '1st FREE',
     },
     {
-      name: 'Family',
-      price: '\u20AC19.99',
-      description: 'Complete protection for the whole family.',
+      name: 'Daily Wellbeing',
+      price: '\u20AC2.99',
+      description: 'Daily wellness check-ins powered by CLARA AI.',
       features: [
-        'Everything in Individual',
-        'Up to 10 family contacts',
-        'Family coordination dashboard',
-        'Bluetooth pendant support',
-        'Conference bridge alerts',
+        'Daily check-in prompts',
+        'Mood tracking',
+        'Wellness reports',
       ],
-      highlighted: true,
-      badge: 'Most Popular',
+      icon: <Heart className="h-5 w-5" />,
     },
     {
-      name: 'Professional',
-      price: '\u20AC39.99',
-      description: 'For organisations and care providers.',
+      name: 'Medication Reminder',
+      price: '\u20AC2.99',
+      description: 'Smart medication reminders with tracking.',
       features: [
-        'Everything in Family',
-        'Admin operations dashboard',
-        'Multi-user management',
-        'Advanced incident reporting',
-        'Priority support',
+        'Custom schedules',
+        'Missed dose alerts',
+        'Compliance reports',
       ],
+      icon: <Pill className="h-5 w-5" />,
     },
   ];
 
@@ -110,14 +93,68 @@ const Pricing: React.FC = () => {
             Protection for every budget.
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto font-inter">
-            14-day free trial on all plans. No card required to start.
+            7-day free trial. No card required to start.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto mb-8">
-          {plans.map((plan, i) => (
-            <PlanCard key={i} {...plan} />
-          ))}
+        {/* Base Plan */}
+        <div className="max-w-lg mx-auto mb-12">
+          <div className="rounded-2xl p-8 bg-[hsl(215,28%,17%)] text-white border-primary shadow-xl">
+            <Badge className="bg-primary text-white text-xs font-medium mb-4">
+              Base Plan
+            </Badge>
+            <h3 className="text-2xl font-bold font-poppins mb-2 text-white">Individual</h3>
+            <div className="flex items-baseline gap-1 mb-4">
+              <span className="text-4xl font-bold font-poppins text-primary">&euro;9.99</span>
+              <span className="text-sm text-gray-400">/mo</span>
+            </div>
+            <p className="text-sm text-gray-300 mb-6">
+              Essential protection for one person. Everything you need to stay safe.
+            </p>
+            <div className="space-y-3 mb-8">
+              {basePlanFeatures.map((feature, i) => (
+                <div key={i} className="flex items-start gap-2.5">
+                  <Check className="h-4 w-4 mt-0.5 flex-shrink-0 text-primary" />
+                  <span className="text-sm text-gray-200">{feature}</span>
+                </div>
+              ))}
+            </div>
+            <Button asChild className="w-full font-semibold py-6 bg-primary text-white hover:bg-primary/90">
+              <Link to="/trial-signup">
+                <Shield className="h-4 w-4 mr-2" />
+                Start 7-Day Free Trial
+              </Link>
+            </Button>
+          </div>
+        </div>
+
+        {/* Add-ons Section */}
+        <div className="max-w-4xl mx-auto mb-8">
+          <h3 className="text-2xl font-bold font-poppins text-center mb-2 text-[hsl(215,25%,27%)]">
+            Customise with Add-Ons
+          </h3>
+          <p className="text-center text-gray-500 mb-8">
+            Enhance your protection with modular add-ons. Add or remove anytime.
+          </p>
+
+          <div className="grid md:grid-cols-3 gap-6 mb-8">
+            {addOns.map((addon, i) => (
+              <AddOnCard key={i} {...addon} />
+            ))}
+          </div>
+
+          {/* CLARA Complete Banner */}
+          <div className="rounded-xl p-6 bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 text-center">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Sparkles className="h-5 w-5 text-purple-600" />
+              <h4 className="text-lg font-bold font-poppins text-purple-900">CLARA Complete</h4>
+              <Badge className="bg-green-100 text-green-800">FREE</Badge>
+            </div>
+            <p className="text-sm text-purple-700 max-w-lg mx-auto">
+              Automatically unlocked when you activate both <strong>Daily Wellbeing</strong> and{' '}
+              <strong>Medication Reminder</strong>. Full CLARA AI experience at no extra cost.
+            </p>
+          </div>
         </div>
 
         <p className="text-center text-sm text-gray-500 max-w-2xl mx-auto">

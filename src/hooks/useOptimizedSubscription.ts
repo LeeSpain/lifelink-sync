@@ -9,6 +9,10 @@ interface SubscriptionData {
   subscribed: boolean;
   subscription_tier: string | null;
   subscription_end: string | null;
+  is_trialing: boolean;
+  trial_end: string | null;
+  active_addons: string[];
+  clara_complete_unlocked: boolean;
 }
 
 export function useOptimizedSubscription() {
@@ -22,6 +26,10 @@ export function useOptimizedSubscription() {
           subscribed: false,
           subscription_tier: null,
           subscription_end: null,
+          is_trialing: false,
+          trial_end: null,
+          active_addons: [],
+          clara_complete_unlocked: false,
         };
       }
 

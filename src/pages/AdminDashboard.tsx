@@ -51,6 +51,8 @@ import MobileAppLaunchPage from '@/components/admin/pages/MobileAppLaunchPage';
 import HealthCheckPage from '@/components/admin/pages/HealthCheckPage';
 import GoLivePreparationPage from '@/components/admin/pages/GoLivePreparationPage';
 import TransferToCare from '@/pages/admin/TransferToCare';
+import AddonManagementPage from '@/components/admin/pages/AddonManagementPage';
+import TrialManagementPage from '@/components/admin/pages/TrialManagementPage';
 
 const AdminDashboard: React.FC = () => {
   useScrollToTop();
@@ -110,6 +112,8 @@ const AdminDashboard: React.FC = () => {
         <Route path="mobile-launch" element={<MobileAppLaunchPage />} />
         <Route path="go-live" element={<GoLivePreparationPage />} />
         <Route path="transfer-to-care" element={<TransferToCare />} />
+        <Route path="addon-management" element={<AddonManagementPage />} />
+        <Route path="trial-management" element={<TrialManagementPage />} />
         <Route path="*" element={<Navigate to="/admin-dashboard" replace />} />
       </Route>
     </Routes>

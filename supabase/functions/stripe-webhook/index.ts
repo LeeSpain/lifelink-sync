@@ -306,7 +306,116 @@ serve(async (req) => {
       }
     }
 
-    return new Response(JSON.stringify({ 
+    // Handle add-on checkout completion
+    if (event.type === "checkout.session.completed") {
+      const session = event?.data?.object;
+      const addonSlugs = session?.metadata?.addon_slugs;
+      const checkoutUserId = session?.metadata?.user_id;
+      const stripeSubscriptionId = session?.subscription;
+
+      if (addonSlugs && checkoutUserId) {
+        console.log("📦 Processing add-on checkout:", { addonSlugs, checkoutUserId });
+
+        const slugs = addonSlugs.split(",").filter(Boolean);
+
+        // Store stripe_subscription_id on subscriber
+        if (stripeSubscriptionId) {
+          await supabase
+            .from("subscribers")
+            .update({
+              stripe_subscription_id: String(stripeSubscriptionId),
+              updated_at: new Date().toISOString()
+            })
+            .eq("user_id", checkoutUserId);
+        }
+
+        for (const slug of slugs) {
+          const { data: addon } = await supabase
+            .from("addon_catalog")
+            .select("id, slug, name")
+            .eq("slug", slug)
+            .maybeSingle();
+
+          if (addon) {
+            const isFamily = slug === "family_link";
+            await supabase
+              .from("member_addons")
+              .upsert({
+                user_id: checkoutUserId,
+                addon_id: addon.id,
+                status: "active",
+                quantity: 1,
+                free_units: isFamily ? 1 : 0,
+                activated_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              }, { onConflict: "user_id,addon_id" });
+
+            console.log(`✅ Add-on '${slug}' activated for user ${checkoutUserId}`);
+          }
+        }
+
+        // Check CLARA Complete unlock
+        const { data: activeAddons } = await supabase
+          .from("member_addons")
+          .select("addon_catalog(slug)")
+          .eq("user_id", checkoutUserId)
+          .eq("status", "active");
+
+        const activeSlugs = (activeAddons || []).map((a: any) => a.addon_catalog?.slug).filter(Boolean);
+        const claraUnlocked = activeSlugs.includes("daily_wellbeing") && activeSlugs.includes("medication_reminder");
+
+        await supabase
+          .from("subscribers")
+          .update({
+            active_addons: activeSlugs,
+            clara_complete_unlocked: claraUnlocked,
+            updated_at: new Date().toISOString()
+          })
+          .eq("user_id", checkoutUserId);
+
+        if (claraUnlocked) {
+          await supabase.from("clara_unlock_log").insert({
+            user_id: checkoutUserId,
+            event_type: "unlocked",
+            reason: "Both daily_wellbeing and medication_reminder activated via checkout",
+            daily_wellbeing_active: true,
+            medication_reminder_active: true
+          });
+          console.log("🎉 CLARA Complete unlocked for user", checkoutUserId);
+        }
+
+        // If user was trialing, mark as converted
+        const { data: trial } = await supabase
+          .from("trial_tracking")
+          .select("id, status")
+          .eq("user_id", checkoutUserId)
+          .eq("status", "active")
+          .maybeSingle();
+
+        if (trial) {
+          await supabase
+            .from("trial_tracking")
+            .update({
+              status: "converted",
+              converted_at: new Date().toISOString(),
+              plan_after_trial: "Individual"
+            })
+            .eq("id", trial.id);
+
+          await supabase
+            .from("subscribers")
+            .update({
+              is_trialing: false,
+              updated_at: new Date().toISOString()
+            })
+            .eq("user_id", checkoutUserId);
+
+          console.log("✅ Trial converted to paid for user", checkoutUserId);
+        }
+      }
+    }
+
+    return new Response(JSON.stringify({
       received: true,
       processed: true,
       event_type: event.type,

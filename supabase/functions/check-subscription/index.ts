@@ -49,17 +49,56 @@ serve(async (req) => {
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     
     if (customers.data.length === 0) {
-      logStep("No customer found, updating unsubscribed state");
+      logStep("No Stripe customer found, checking for trial");
+
+      // Check if user has an active trial
+      const { data: trialData } = await supabaseClient
+        .from('trial_tracking')
+        .select('status, trial_end')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      const isTrialing = trialData?.status === 'active';
+      const trialEnd = trialData?.trial_end || null;
+
+      // Fetch active add-ons even without Stripe
+      const { data: memberAddons } = await supabaseClient
+        .from('member_addons')
+        .select('addon_catalog(slug)')
+        .eq('user_id', user.id)
+        .eq('status', 'active');
+
+      const activeAddons = (memberAddons || [])
+        .map((a: any) => a.addon_catalog?.slug)
+        .filter(Boolean);
+
+      const { data: subscriberData } = await supabaseClient
+        .from('subscribers')
+        .select('clara_complete_unlocked')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
       await supabaseClient.from("subscribers").upsert({
         email: user.email,
         user_id: user.id,
         stripe_customer_id: null,
-        subscribed: false,
-        subscription_tier: null,
+        subscribed: isTrialing,
+        is_trialing: isTrialing,
+        trial_end: trialEnd,
+        subscription_tier: isTrialing ? 'Individual' : null,
         subscription_end: null,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'email' });
-      return new Response(JSON.stringify({ subscribed: false }), {
+
+      return new Response(JSON.stringify({
+        subscribed: isTrialing,
+        subscription_tier: isTrialing ? 'Individual' : null,
+        subscription_end: null,
+        is_trialing: isTrialing,
+        trial_end: trialEnd,
+        active_addons: activeAddons,
+        clara_complete_unlocked: subscriberData?.clara_complete_unlocked || false
+      }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
       });
@@ -98,6 +137,9 @@ serve(async (req) => {
       logStep("No active subscription found");
     }
 
+    // Store stripe_subscription_id if available
+    const stripeSubscriptionId = hasActiveSub ? subscriptions.data[0].id : null;
+
     await supabaseClient.from("subscribers").upsert({
       email: user.email,
       user_id: user.id,
@@ -105,14 +147,72 @@ serve(async (req) => {
       subscribed: hasActiveSub,
       subscription_tier: subscriptionTier,
       subscription_end: subscriptionEnd,
+      stripe_subscription_id: stripeSubscriptionId,
       updated_at: new Date().toISOString(),
     }, { onConflict: 'email' });
 
     logStep("Updated database with subscription info", { subscribed: hasActiveSub, subscriptionTier });
+
+    // Fetch trial status
+    const { data: trialData } = await supabaseClient
+      .from('trial_tracking')
+      .select('status, trial_end')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    const isTrialing = trialData?.status === 'active';
+    const trialEnd = trialData?.trial_end || null;
+
+    // If user is trialing and has no active Stripe sub, still consider them subscribed
+    let effectiveSubscribed = hasActiveSub;
+    if (!hasActiveSub && isTrialing) {
+      effectiveSubscribed = true;
+      await supabaseClient.from("subscribers").upsert({
+        email: user.email,
+        user_id: user.id,
+        subscribed: true,
+        is_trialing: true,
+        trial_end: trialEnd,
+        subscription_tier: 'Individual',
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'email' });
+    }
+
+    // Fetch active add-ons
+    const { data: memberAddons } = await supabaseClient
+      .from('member_addons')
+      .select('addon_catalog(slug)')
+      .eq('user_id', user.id)
+      .eq('status', 'active');
+
+    const activeAddons = (memberAddons || [])
+      .map((a: any) => a.addon_catalog?.slug)
+      .filter(Boolean);
+
+    // Fetch CLARA Complete status
+    const { data: subscriberData } = await supabaseClient
+      .from('subscribers')
+      .select('clara_complete_unlocked')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    const claraCompleteUnlocked = subscriberData?.clara_complete_unlocked || false;
+
+    logStep("Full subscription check complete", {
+      subscribed: effectiveSubscribed,
+      is_trialing: isTrialing,
+      active_addons: activeAddons,
+      clara_complete_unlocked: claraCompleteUnlocked
+    });
+
     return new Response(JSON.stringify({
-      subscribed: hasActiveSub,
-      subscription_tier: subscriptionTier,
-      subscription_end: subscriptionEnd
+      subscribed: effectiveSubscribed,
+      subscription_tier: effectiveSubscribed ? (subscriptionTier || 'Individual') : null,
+      subscription_end: subscriptionEnd,
+      is_trialing: isTrialing,
+      trial_end: trialEnd,
+      active_addons: activeAddons,
+      clara_complete_unlocked: claraCompleteUnlocked
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,

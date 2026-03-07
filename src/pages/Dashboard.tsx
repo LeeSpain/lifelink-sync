@@ -26,6 +26,7 @@ import MyCirclesPage from "@/pages/MyCirclesPage";
 import PlacesManager from "@/pages/PlacesManager";
 import LocationHistoryPage from "@/pages/LocationHistoryPage";
 import { ConnectionsPage } from "@/components/dashboard/ConnectionsPage";
+import AddOnMarketplace from "@/components/dashboard/AddOnMarketplace";
 import { MobileDashboard } from "@/components/mobile/MobileDashboard";
 import { useTranslation } from 'react-i18next';
 import { useRealTimeUpdates } from '@/hooks/useRealTimeUpdates';
@@ -255,6 +256,7 @@ const Dashboard = () => {
                      <p className="text-muted-foreground">Manage your plan, payments, and invoices</p>
                    </div>
                    <SubscriptionCard subscription={subscription} />
+                   <AddOnMarketplace />
                  </div>
                } />
 
