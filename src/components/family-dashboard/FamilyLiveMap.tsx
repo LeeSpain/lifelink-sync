@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useCanvasMap } from '@/hooks/useCanvasMap';
 import { useLocationServices } from '@/hooks/useLocationServices';
 import { useLiveLocation } from '@/hooks/useLiveLocation';
+import MapLibreMap from '@/components/maplibre/MapLibreMap';
+import { MapMemberLayer } from '@/components/maplibre/layers/MapMemberLayer';
+import { MapEntity, getStatusFromPresence } from '@/types/map';
 
 interface FamilyLiveMapProps {
   className?: string;
@@ -9,14 +11,12 @@ interface FamilyLiveMapProps {
 }
 
 const FamilyLiveMap: React.FC<FamilyLiveMapProps> = ({ className, familyGroupId }) => {
-  const { MapView } = useCanvasMap();
   const { getCurrentLocationData, requestLocationPermission, permissionState, isGettingLocation } = useLocationServices();
   const { locations } = useLiveLocation(familyGroupId);
 
   const [center, setCenter] = useState<{ lat: number; lng: number } | null>(null);
   const [zoom, setZoom] = useState(15);
 
-  // Get user's current location on mount
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -33,25 +33,17 @@ const FamilyLiveMap: React.FC<FamilyLiveMapProps> = ({ className, familyGroupId 
     return () => { mounted = false; };
   }, [getCurrentLocationData]);
 
-  const markers = useMemo(() => {
-    const m: { id: string; lat: number; lng: number; render: () => React.ReactNode }[] = [];
-
-    // Family members markers (if any)
-    for (const l of locations || []) {
-      m.push({
-        id: `member-${l.user_id}`,
-        lat: l.latitude,
-        lng: l.longitude,
-        render: () => (
-          <div className="rounded-full bg-primary text-primary-foreground border-2 border-background px-2 py-1 text-[10px] shadow">
-            {l.status === 'online' ? '●' : '○'}
-          </div>
-        )
-      });
-    }
-
-    return m;
-  }, [locations]);
+  const memberEntities: MapEntity[] = useMemo(() =>
+    (locations || []).map(l => ({
+      id: `member-${l.user_id}`,
+      type: 'member' as const,
+      lat: l.latitude,
+      lng: l.longitude,
+      label: l.user_id.slice(0, 8),
+      status: getStatusFromPresence(undefined, false),
+      battery: l.battery_level,
+    })),
+  [locations]);
 
   const handleUseMyLocation = async () => {
     const ok = await requestLocationPermission();
@@ -63,14 +55,13 @@ const FamilyLiveMap: React.FC<FamilyLiveMapProps> = ({ className, familyGroupId 
     }
   };
 
-  // Don't render the map until we know where to start to avoid jumping to SF
   const isReady = !!center;
 
   return (
     <div className={`min-h-[600px] ${className || ''}`}>
       {!isReady && (
         <div className="flex flex-col items-center justify-center gap-3 py-10">
-          <p className="text-sm opacity-80">Waiting for your location…</p>
+          <p className="text-sm opacity-80">Waiting for your location...</p>
           <button
             onClick={handleUseMyLocation}
             disabled={isGettingLocation}
@@ -82,14 +73,9 @@ const FamilyLiveMap: React.FC<FamilyLiveMapProps> = ({ className, familyGroupId 
       )}
 
       {isReady && (
-        <MapView
-          className="h-full min-h-[600px] w-full"
-          markers={markers}
-          center={center || undefined}
-          zoom={zoom}
-          showControls={true}
-          interactive={true}
-        />
+        <MapLibreMap className="h-full min-h-[600px] w-full" center={center!} zoom={zoom} interactive={true}>
+          <MapMemberLayer members={memberEntities} />
+        </MapLibreMap>
       )}
     </div>
   );

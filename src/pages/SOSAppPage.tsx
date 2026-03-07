@@ -9,36 +9,23 @@ import { getFamilyGroupId } from '@/utils/familyGroupUtils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Progress } from '@/components/ui/progress';
-import { 
-  Shield, 
-  Phone, 
-  MapPin, 
-  Settings, 
-  Users, 
-  Battery, 
-  Clock, 
-  AlertTriangle, 
-  CheckCircle2, 
-  Wifi, 
-  Signal,
-  Camera,
-  Mic,
-  PhoneCall,
-  MessageSquare,
-  History,
-  Navigation,
-  RefreshCw
+import {
+  Shield, Phone, MapPin, Settings, Users, Battery, Clock, AlertTriangle,
+  CheckCircle2, Wifi, Signal, Camera, Mic, PhoneCall, MessageSquare,
+  History, Navigation, RefreshCw
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import SEO from '@/components/SEO';
-import { useCanvasMap } from '@/hooks/useCanvasMap';
+import MapLibreMap from '@/components/maplibre/MapLibreMap';
+import { MapMemberLayer } from '@/components/maplibre/layers/MapMemberLayer';
+import { MapIncidentLayer } from '@/components/maplibre/layers/MapIncidentLayer';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import EmergencyCommandCenter from '@/components/sos-app/EmergencyCommandCenter';
 import EmergencyButton from '@/components/sos-app/EmergencyButton';
 import { EmergencyDisclaimerModal } from '@/components/emergency/EmergencyDisclaimerModal';
+import { MapEntity, getStatusFromPresence } from '@/types/map';
 
 interface EmergencyStatus {
   overall: 'ready' | 'warning' | 'error';
@@ -63,24 +50,13 @@ const SOSAppPage = () => {
   const { permissionState } = useLocationServices();
   const { triggerEmergencySOS, isTriggering } = useEmergencySOS();
   const [familyGroupId, setFamilyGroupId] = useState<string | null>(null);
-  
-  const { 
-    locations: liveLocations,
-    locationState,
-    metrics,
-    startTracking,
-    stopTracking,
-    refreshLocation,
-    error: locationError,
-    getCurrentLocationData
+
+  const {
+    locations: liveLocations, locationState, metrics,
+    startTracking, stopTracking, refreshLocation,
+    error: locationError, getCurrentLocationData
   } = useLiveLocation(familyGroupId || undefined);
-  const { 
-    showDisclaimer, 
-    requestDisclaimerAcceptance, 
-    acceptDisclaimer, 
-    cancelDisclaimer 
-  } = useEmergencyDisclaimer();
-  const { MapView } = useCanvasMap();
+  const { showDisclaimer, requestDisclaimerAcceptance, acceptDisclaimer, cancelDisclaimer } = useEmergencyDisclaimer();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -91,31 +67,23 @@ const SOSAppPage = () => {
     location: permissionState?.granted || false,
     contacts: contacts.length,
     network: navigator.onLine,
-    battery: 85 // Mock battery level
+    battery: 85
   });
   const [activeIncident, setActiveIncident] = useState<ActiveIncident | null>(null);
 
-  // Update emergency status
   useEffect(() => {
     const newStatus: EmergencyStatus = {
       location: permissionState?.granted || false,
       contacts: contacts.length,
       network: navigator.onLine,
-      battery: 85, // Mock - in real app would get from device
+      battery: 85,
       overall: 'ready'
     };
-
-    // Determine overall status
-    if (!newStatus.location || newStatus.contacts === 0) {
-      newStatus.overall = 'warning';
-    } else if (!newStatus.network || newStatus.battery < 20) {
-      newStatus.overall = 'error';
-    }
-
+    if (!newStatus.location || newStatus.contacts === 0) newStatus.overall = 'warning';
+    else if (!newStatus.network || newStatus.battery < 20) newStatus.overall = 'error';
     setEmergencyStatus(newStatus);
   }, [permissionState, contacts]);
 
-  // Initialize family group ID
   useEffect(() => {
     const initializeFamilyGroup = async () => {
       if (user && !familyGroupId) {
@@ -123,27 +91,20 @@ const SOSAppPage = () => {
         setFamilyGroupId(groupId);
       }
     };
-    
     initializeFamilyGroup();
   }, [user, familyGroupId]);
 
-  // Initialize location tracking once for emergency purposes
   const trackingInitialized = useRef(false);
-  
   useEffect(() => {
     if (familyGroupId && !trackingInitialized.current) {
       trackingInitialized.current = true;
-      startTracking({ highAccuracy: true, updateInterval: 10000 }); // 10s updates for emergency
+      startTracking({ highAccuracy: true, updateInterval: 10000 });
     }
   }, [familyGroupId]);
 
   const handleEmergencyTrigger = async () => {
-    if (!requestDisclaimerAcceptance()) {
-      return;
-    }
-
+    if (!requestDisclaimerAcceptance()) return;
     try {
-      // Create mock active incident
       const incident: ActiveIncident = {
         id: `incident-${Date.now()}`,
         status: 'active',
@@ -153,13 +114,8 @@ const SOSAppPage = () => {
         familyAlerted: true
       };
       setActiveIncident(incident);
-
       await triggerEmergencySOS();
-      
-      toast({
-        title: "Emergency SOS Activated",
-        description: "Emergency contacts and family have been notified",
-      });
+      toast({ title: "Emergency SOS Activated", description: "Emergency contacts and family have been notified" });
     } catch (error) {
       console.error('Emergency SOS failed:', error);
     }
@@ -190,107 +146,67 @@ const SOSAppPage = () => {
 
   const handleTabNavigation = (tabId: string) => {
     setSelectedTab(tabId);
-    
     switch (tabId) {
-      case 'status':
-        // Stay on current tab
-        break;
-      case 'family':
-        // Stay on current tab to show family list
-        break;
-      case 'contacts':
-        navigate('/member-dashboard/emergency-contacts');
-        break;
-      case 'settings':
-        navigate('/member-dashboard/settings');
-        break;
+      case 'contacts': navigate('/member-dashboard/emergency-contacts'); break;
+      case 'settings': navigate('/member-dashboard/settings'); break;
     }
   };
 
-  // Get current location from live tracking
   const currentLocation = getCurrentLocationData();
 
-  // Stable map markers to prevent re-rendering loops
-  const mapMarkers = React.useMemo(() => {
-    const markers = [];
-    
-    // Add current user location marker (normal user avatar, not emergency)
+  // Build MapLibre entities from live data
+  const mapEntities: MapEntity[] = React.useMemo(() => {
+    const entities: MapEntity[] = [];
+
     if (currentLocation?.latitude && currentLocation?.longitude) {
-      const marker = {
+      entities.push({
         id: 'current-user-location',
-        lat: Number(currentLocation.latitude.toFixed(6)),
-        lng: Number(currentLocation.longitude.toFixed(6)),
-        name: user?.user_metadata?.full_name || 'You',
-        avatar: user?.user_metadata?.avatar_url,
-        isEmergency: false, // Changed to false - only emergency during actual SOS
-        status: 'online' as const,
+        type: 'member',
+        lat: currentLocation.latitude,
+        lng: currentLocation.longitude,
+        label: user?.user_metadata?.full_name || 'You',
+        avatar_url: user?.user_metadata?.avatar_url,
+        status: 'live',
         accuracy: currentLocation.accuracy,
-        batteryLevel: emergencyStatus.battery,
-        render: () => null
-      };
-      markers.push(marker);
+        battery: emergencyStatus.battery,
+      });
     }
-    
-    // Add live family member locations (show only selected member or all if none selected)
+
     liveLocations.forEach(location => {
       if (location.user_id !== user?.id) {
-        // If a specific family member is selected, only show that one
-        if (selectedFamilyMember && location.user_id !== selectedFamilyMember) {
-          return;
-        }
-        
-        markers.push({
+        if (selectedFamilyMember && location.user_id !== selectedFamilyMember) return;
+        entities.push({
           id: `live-${location.user_id}`,
-          lat: Number(location.latitude.toFixed(6)),
-          lng: Number(location.longitude.toFixed(6)),
-          name: `Family Member`,
-          status: location.status,
+          type: 'member',
+          lat: location.latitude,
+          lng: location.longitude,
+          label: 'Family Member',
+          status: getStatusFromPresence(undefined, false),
           accuracy: location.accuracy,
           speed: location.speed,
           heading: location.heading,
-          batteryLevel: location.battery_level,
-          render: () => null
+          battery: location.battery_level,
         });
       }
     });
 
-    // Add emergency contacts as markers only if no family member is selected
-    if (!selectedFamilyMember && currentLocation?.latitude && currentLocation?.longitude && contacts.length > 0) {
-      contacts.slice(0, 3).forEach((contact, index) => {
-        // Simulate emergency contacts being nearby (in a real app, they'd have actual GPS coordinates)
-        const offsetLat = (Math.random() - 0.5) * 0.01; // Random offset within ~1km
-        const offsetLng = (Math.random() - 0.5) * 0.01;
-        
-        markers.push({
-          id: `contact-${contact.id || index}`,
-          lat: currentLocation.latitude + offsetLat,
-          lng: currentLocation.longitude + offsetLng,
-          name: contact.name,
-          status: 'idle' as const, // Emergency contacts shown as idle
-          isEmergency: false,
-          render: () => null
-        });
-      });
+    return entities;
+  }, [currentLocation?.latitude, currentLocation?.longitude, liveLocations, selectedFamilyMember, user?.id]);
+
+  const mapCenter = React.useMemo(() => {
+    if (selectedFamilyMember) {
+      const familyLocation = liveLocations.find(l => l.user_id === selectedFamilyMember);
+      if (familyLocation) return { lat: familyLocation.latitude, lng: familyLocation.longitude };
     }
-    
-    return markers;
-  }, [
-    currentLocation?.latitude?.toFixed(6),
-    currentLocation?.longitude?.toFixed(6),
-    liveLocations,
-    contacts,
-    selectedFamilyMember,
-    user?.id,
-    user?.user_metadata?.full_name,
-    user?.user_metadata?.avatar_url
-  ]);
+    // TODO: The fallback to Spain (37.3881024, -2.1417503) should be replaced with user's actual location or a configurable default
+    return currentLocation
+      ? { lat: currentLocation.latitude, lng: currentLocation.longitude }
+      : { lat: 37.3881024, lng: -2.1417503 };
+  }, [currentLocation, selectedFamilyMember, liveLocations]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-950 via-red-900 to-orange-900">
-      <SEO 
-        title="Emergency SOS Command Center"
-        description="Advanced emergency response system with real-time monitoring and one-touch SOS activation"
-      />
+      <SEO title="Emergency SOS Command Center" description="Advanced emergency response system with real-time monitoring and one-touch SOS activation" />
 
       {/* Header */}
       <div className="relative z-10 px-4 pt-6 pb-4">
@@ -299,10 +215,7 @@ const SOSAppPage = () => {
             <div className="flex items-center gap-3">
               <div className="relative">
                 <Shield className="h-8 w-8" />
-                <div className={cn(
-                  "absolute -top-1 -right-1 w-3 h-3 rounded-full",
-                  getStatusColor(emergencyStatus.overall)
-                )}></div>
+                <div className={cn("absolute -top-1 -right-1 w-3 h-3 rounded-full", getStatusColor(emergencyStatus.overall))}></div>
               </div>
               <div>
                 <h1 className="text-xl font-bold">Emergency SOS</h1>
@@ -313,9 +226,9 @@ const SOSAppPage = () => {
               <Signal className="h-4 w-4" />
               <Battery className="h-4 w-4" />
               <span className="text-sm">{emergencyStatus.battery}%</span>
-               {locationState.isTracking && (
-                 <div className="flex items-center gap-1 text-emerald-400">
-                   <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+              {locationState.isTracking && (
+                <div className="flex items-center gap-1 text-emerald-400">
+                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
                   <span className="text-xs">Live</span>
                 </div>
               )}
@@ -328,52 +241,30 @@ const SOSAppPage = () => {
               <span className="text-white font-medium">System Status</span>
               <div className="flex items-center gap-2">
                 {getStatusIcon(emergencyStatus.overall)}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={refreshLocation}
-                  className="text-white/70 hover:text-white h-8 w-8 p-0"
-                >
+                <Button variant="ghost" size="sm" onClick={refreshLocation} className="text-white/70 hover:text-white h-8 w-8 p-0">
                   <RefreshCw className="h-4 w-4" />
                 </Button>
               </div>
             </div>
-            
             <div className="grid grid-cols-2 gap-3 text-sm">
-            <div className="flex items-center gap-2 text-white/80">
-              <MapPin className="h-4 w-4" />
-              <span>Location: {emergencyStatus.location ? 'Active' : 'Disabled'}</span>
-              {locationState.isTracking && (
-                <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse ml-1"></div>
-              )}
-            </div>
-            <div className="flex items-center gap-2 text-white/80">
-              <Users className="h-4 w-4" />
-              <span>Contacts: {emergencyStatus.contacts}</span>
-            </div>
-            <div className="flex items-center gap-2 text-white/80">
-              <Wifi className="h-4 w-4" />
-              <span>Network: {emergencyStatus.network ? 'Connected' : 'Offline'}</span>
-            </div>
-            <div className="flex items-center gap-2 text-white/80">
-              <Battery className="h-4 w-4" />
-              <span>Battery: {emergencyStatus.battery}%</span>
-            </div>
-            </div>
-            
-            {locationError && (
-              <div className="mt-3 p-2 bg-yellow-500/20 border border-yellow-500/30 rounded text-yellow-200 text-xs">
-                {locationError}
+              <div className="flex items-center gap-2 text-white/80">
+                <MapPin className="h-4 w-4" />
+                <span>Location: {emergencyStatus.location ? 'Active' : 'Disabled'}</span>
+                {locationState.isTracking && <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse ml-1"></div>}
               </div>
+              <div className="flex items-center gap-2 text-white/80"><Users className="h-4 w-4" /><span>Contacts: {emergencyStatus.contacts}</span></div>
+              <div className="flex items-center gap-2 text-white/80"><Wifi className="h-4 w-4" /><span>Network: {emergencyStatus.network ? 'Connected' : 'Offline'}</span></div>
+              <div className="flex items-center gap-2 text-white/80"><Battery className="h-4 w-4" /><span>Battery: {emergencyStatus.battery}%</span></div>
+            </div>
+            {locationError && (
+              <div className="mt-3 p-2 bg-yellow-500/20 border border-yellow-500/30 rounded text-yellow-200 text-xs">{locationError}</div>
             )}
-            
-            {/* Live tracking metrics */}
             {locationState.isTracking && metrics.totalUpdates > 0 && (
               <div className="mt-3 text-xs text-white/60">
                 <div className="flex justify-between">
                   <span>Updates: {metrics.totalUpdates}</span>
                   <span>Success: {metrics.successRate}%</span>
-                  <span>Avg Accuracy: ±{metrics.averageAccuracy}m</span>
+                  <span>Avg Accuracy: &plusmn;{metrics.averageAccuracy}m</span>
                 </div>
               </div>
             )}
@@ -389,9 +280,7 @@ const SOSAppPage = () => {
               <div className="flex items-center gap-3 text-white mb-3">
                 <AlertTriangle className="h-5 w-5" />
                 <span className="font-bold">ACTIVE EMERGENCY</span>
-                <Badge variant="destructive" className="bg-red-800">
-                  {activeIncident.status.toUpperCase()}
-                </Badge>
+                <Badge variant="destructive" className="bg-red-800">{activeIncident.status.toUpperCase()}</Badge>
               </div>
               <div className="grid grid-cols-2 gap-2 text-sm text-white/90">
                 <div>Started: {activeIncident.startTime.toLocaleTimeString()}</div>
@@ -404,159 +293,87 @@ const SOSAppPage = () => {
         </div>
       )}
 
-      {/* Main Content Based on Selected Tab */}
+      {/* Main Content */}
       <div className="relative z-10 px-4 pb-24">
         <div className="max-w-md mx-auto">
-          
           {selectedTab === 'status' && (
             <div className="space-y-6">
-              {/* Emergency Button */}
-              <div className="flex justify-center mb-8">
-                <EmergencyButton />
-              </div>
+              <div className="flex justify-center mb-8"><EmergencyButton /></div>
 
-              {/* Quick Actions */}
               <div className="grid grid-cols-2 gap-4 mb-6">
-                <Button 
-                  className="h-16 bg-blue-600/20 border border-blue-500/30 text-white hover:bg-blue-600/30"
-                  onClick={() => {
-                    toast({
-                      title: "Photo Capture",
-                      description: "Emergency photo capture feature activated",
-                    });
-                  }}
-                >
-                  <div className="flex flex-col items-center gap-2">
-                    <Camera className="h-6 w-6" />
-                    <span className="text-sm">Photo</span>
-                  </div>
+                <Button className="h-16 bg-blue-600/20 border border-blue-500/30 text-white hover:bg-blue-600/30" onClick={() => toast({ title: "Photo Capture", description: "Emergency photo capture feature activated" })}>
+                  <div className="flex flex-col items-center gap-2"><Camera className="h-6 w-6" /><span className="text-sm">Photo</span></div>
                 </Button>
-                <Button 
-                  className="h-16 bg-purple-600/20 border border-purple-500/30 text-white hover:bg-purple-600/30"
-                  onClick={() => {
-                    toast({
-                      title: "Voice Memo",
-                      description: "Emergency voice recording started",
-                    });
-                  }}
-                >
-                  <div className="flex flex-col items-center gap-2">
-                    <Mic className="h-6 w-6" />
-                    <span className="text-sm">Voice</span>
-                  </div>
+                <Button className="h-16 bg-purple-600/20 border border-purple-500/30 text-white hover:bg-purple-600/30" onClick={() => toast({ title: "Voice Memo", description: "Emergency voice recording started" })}>
+                  <div className="flex flex-col items-center gap-2"><Mic className="h-6 w-6" /><span className="text-sm">Voice</span></div>
                 </Button>
               </div>
 
-              {/* Live Location Map - Always show with fallback */}
+              {/* Live Location Map - MapLibre */}
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                 <div className="flex items-center gap-2 mb-3 text-white">
                   <Navigation className="h-5 w-5" />
                   <span className="font-medium">Live Location</span>
                   <div className="flex items-center gap-1 ml-auto">
                     {locationState.isTracking ? (
-                      <>
-                        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                        <span className="text-xs">Live ({locationState.updateInterval/1000}s)</span>
-                      </>
-                     ) : (
-                      <>
-                        <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
-                        <span className="text-xs">Offline</span>
-                      </>
+                      <><div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div><span className="text-xs">Live ({locationState.updateInterval / 1000}s)</span></>
+                    ) : (
+                      <><div className="w-2 h-2 bg-gray-500 rounded-full"></div><span className="text-xs">Offline</span></>
                     )}
                   </div>
                 </div>
                 <div className="h-48 rounded-lg overflow-hidden">
-                  <MapView
+                  <MapLibreMap
                     className="w-full h-full"
-                    markers={mapMarkers}
-                    center={(() => {
-                      // If a family member is selected, center on them
-                      if (selectedFamilyMember) {
-                        const familyLocation = liveLocations.find(l => l.user_id === selectedFamilyMember);
-                        if (familyLocation) {
-                          return { lat: familyLocation.latitude, lng: familyLocation.longitude };
-                        }
-                      }
-                      // Otherwise center on current user location
-                      return currentLocation ? { lat: currentLocation.latitude, lng: currentLocation.longitude } : { lat: 37.3881024, lng: -2.1417503 };
-                    })()}
+                    center={mapCenter}
                     zoom={selectedFamilyMember ? 15 : (currentLocation ? 16 : 10)}
-                    showControls={true}
                     interactive={true}
-                  />
+                  >
+                    <MapMemberLayer members={mapEntities} />
+                  </MapLibreMap>
                 </div>
                 <div className="mt-3 text-sm text-white/70 flex justify-between">
-                  <span>
-                    {currentLocation 
-                      ? `Accuracy: ±${currentLocation.accuracy || 5}m` 
-                      : `${locationError || 'Getting location...'}`
-                    }
-                  </span>
-                  <span>
-                    {currentLocation?.last_seen 
-                      ? `Updated: ${new Date(currentLocation.last_seen).toLocaleTimeString()}` 
-                      : 'Waiting for GPS...'
-                    }
-                  </span>
+                  <span>{currentLocation ? `Accuracy: \u00b1${currentLocation.accuracy || 5}m` : `${locationError || 'Getting location...'}`}</span>
+                  <span>{currentLocation?.last_seen ? `Updated: ${new Date(currentLocation.last_seen).toLocaleTimeString()}` : 'Waiting for GPS...'}</span>
                 </div>
-                
-                {/* Family Connection Status */}
                 <div className="mt-3 p-2 bg-black/20 rounded-lg">
                   <div className="flex items-center justify-between text-xs text-white/80">
                     <span>Family Connected:</span>
                     <div className="flex items-center gap-1">
                       <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></div>
-                      <span>
-                        {Math.max(1, Array.from(new Set(liveLocations.filter(l => l.status === 'online').map(l => l.user_id))).length)} members online
-                      </span>
+                      <span>{Math.max(1, Array.from(new Set(liveLocations.filter(l => l.status === 'online').map(l => l.user_id))).length)} members online</span>
                     </div>
                   </div>
                   {locationState.isTracking && (
-                    <div className="mt-1 text-xs text-white/60">
-                      High-precision mode • {locationState.highAccuracyMode ? 'GPS' : 'Network'} tracking
-                    </div>
+                    <div className="mt-1 text-xs text-white/60">High-precision mode &bull; {locationState.highAccuracyMode ? 'GPS' : 'Network'} tracking</div>
                   )}
                 </div>
               </div>
 
-              {/* Emergency Contacts Summary */}
               {contacts.length > 0 && (
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                   <div className="flex items-center justify-between mb-3 text-white">
                     <span className="font-medium">Emergency Contacts</span>
-                    <Badge variant="secondary" className="bg-white/20 text-white">
-                      {contacts.length} active
-                    </Badge>
+                    <Badge variant="secondary" className="bg-white/20 text-white">{contacts.length} active</Badge>
                   </div>
                   <div className="space-y-3">
                     {contacts.slice(0, 3).map((contact, index) => (
                       <div key={contact.id || index} className="flex items-center gap-3">
                         <Avatar className="h-10 w-10">
-                          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm">
-                            {contact.name.charAt(0).toUpperCase()}
-                          </AvatarFallback>
+                          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm">{contact.name.charAt(0).toUpperCase()}</AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
                           <div className="text-white font-medium text-sm">{contact.name}</div>
                           <div className="text-white/60 text-xs">{contact.relationship}</div>
                         </div>
                         <div className="flex gap-2">
-                          <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-white hover:bg-white/20">
-                            <PhoneCall className="h-4 w-4" />
-                          </Button>
-                          <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-white hover:bg-white/20">
-                            <MessageSquare className="h-4 w-4" />
-                          </Button>
+                          <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-white hover:bg-white/20"><PhoneCall className="h-4 w-4" /></Button>
+                          <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-white hover:bg-white/20"><MessageSquare className="h-4 w-4" /></Button>
                         </div>
                       </div>
                     ))}
                     {contacts.length > 3 && (
-                      <div className="text-center">
-                        <Button variant="ghost" className="text-white/70 hover:text-white text-sm">
-                          +{contacts.length - 3} more contacts
-                        </Button>
-                      </div>
+                      <div className="text-center"><Button variant="ghost" className="text-white/70 hover:text-white text-sm">+{contacts.length - 3} more contacts</Button></div>
                     )}
                   </div>
                 </div>
@@ -569,43 +386,27 @@ const SOSAppPage = () => {
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                 <div className="flex items-center justify-between mb-4 text-white">
                   <span className="font-medium">Family Members</span>
-                  <Badge variant="secondary" className="bg-white/20 text-white">
-                    {liveLocations.filter(l => l.user_id !== user?.id).length} online
-                  </Badge>
+                  <Badge variant="secondary" className="bg-white/20 text-white">{liveLocations.filter(l => l.user_id !== user?.id).length} online</Badge>
                 </div>
                 <div className="space-y-3">
                   {liveLocations.filter(l => l.user_id !== user?.id).map((location, index) => (
                     <div key={location.user_id} className="flex items-center gap-3">
                       <Avatar className="h-10 w-10">
-                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm">
-                          {`M${index + 1}`}
-                        </AvatarFallback>
+                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm">{`M${index + 1}`}</AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
                         <div className="text-white font-medium text-sm">Family Member {index + 1}</div>
                         <div className="text-white/60 text-xs">{location.status}</div>
                       </div>
-                      <Button 
-                        size="sm" 
-                        onClick={() => {
-                          setSelectedFamilyMember(selectedFamilyMember === location.user_id ? null : location.user_id);
-                          setSelectedTab('status'); // Go back to map view
-                        }}
-                        className={cn(
-                          "h-8 px-3 text-xs",
-                          selectedFamilyMember === location.user_id 
-                            ? "bg-blue-600 text-white" 
-                            : "bg-white/20 text-white hover:bg-white/30"
-                        )}
+                      <Button size="sm" onClick={() => { setSelectedFamilyMember(selectedFamilyMember === location.user_id ? null : location.user_id); setSelectedTab('status'); }}
+                        className={cn("h-8 px-3 text-xs", selectedFamilyMember === location.user_id ? "bg-blue-600 text-white" : "bg-white/20 text-white hover:bg-white/30")}
                       >
                         {selectedFamilyMember === location.user_id ? 'Hide' : 'Show on Map'}
                       </Button>
                     </div>
                   ))}
                   {liveLocations.filter(l => l.user_id !== user?.id).length === 0 && (
-                    <div className="text-center text-white/60 py-4">
-                      No family members online
-                    </div>
+                    <div className="text-center text-white/60 py-4">No family members online</div>
                   )}
                 </div>
               </div>
@@ -623,31 +424,16 @@ const SOSAppPage = () => {
             { id: 'contacts', icon: Phone, label: 'Contacts' },
             { id: 'settings', icon: Settings, label: 'Settings' },
           ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => handleTabNavigation(tab.id)}
-              className={cn(
-                "flex flex-col items-center py-2 px-3 rounded-lg transition-colors min-w-0",
-                selectedTab === tab.id 
-                  ? "text-white bg-white/20" 
-                  : "text-white/60 hover:text-white/80"
-              )}
+            <button key={tab.id} onClick={() => handleTabNavigation(tab.id)}
+              className={cn("flex flex-col items-center py-2 px-3 rounded-lg transition-colors min-w-0", selectedTab === tab.id ? "text-white bg-white/20" : "text-white/60 hover:text-white/80")}
             >
-              <tab.icon className="h-5 w-5 mb-1" />
-              <span className="text-xs">{tab.label}</span>
+              <tab.icon className="h-5 w-5 mb-1" /><span className="text-xs">{tab.label}</span>
             </button>
           ))}
         </div>
       </div>
 
-
-      {/* Emergency Disclaimer Modal */}
-      <EmergencyDisclaimerModal
-        isOpen={showDisclaimer}
-        onAccept={handleDisclaimerAccept}
-        onCancel={cancelDisclaimer}
-        subscriptionTier="basic"
-      />
+      <EmergencyDisclaimerModal isOpen={showDisclaimer} onAccept={handleDisclaimerAccept} onCancel={cancelDisclaimer} subscriptionTier="basic" />
     </div>
   );
 };

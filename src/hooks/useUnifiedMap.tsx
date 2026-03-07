@@ -2,6 +2,12 @@ import { useMemo } from 'react';
 import { useCanvasMap } from './useCanvasMap';
 import { PLATFORM_MAP_CONFIG } from '@/config/mapConfig';
 
+/**
+ * @deprecated Use MapLibreMap directly instead of useUnifiedMap.
+ * This hook is maintained for backward compatibility during the MapLibre migration.
+ * All new code should import MapLibreMap and map layer components directly.
+ */
+
 interface MapMarker {
   id: string;
   lat: number;
@@ -17,13 +23,12 @@ interface UnifiedMapViewProps {
   onMapReady?: () => void;
   showControls?: boolean;
   interactive?: boolean;
-  preferCanvas?: boolean; // Kept for compatibility but always uses Canvas
+  preferCanvas?: boolean;
 }
 
 export const useUnifiedMap = () => {
   const { MapView: CanvasMapView, isLoading, error } = useCanvasMap();
 
-  // Memoize the MapView component to prevent unnecessary re-renders
   const MapView = useMemo(() => {
     return ({ className, markers = [], center, zoom = PLATFORM_MAP_CONFIG.defaultZoom, onMapReady, showControls = true, interactive = true }: UnifiedMapViewProps) => {
       return (
@@ -40,14 +45,13 @@ export const useUnifiedMap = () => {
     };
   }, [CanvasMapView]);
 
-  // Return a simplified interface that always uses Canvas
   return {
     MapView,
     isLoading,
     error,
-    hasMapboxToken: false, // Always false since we removed Mapbox
-    currentBackend: 'canvas' as const,
-    switchToCanvas: () => CanvasMapView, // No-op, already using Canvas
-    switchToMapbox: () => CanvasMapView, // No-op, fallback to Canvas
+    hasMapboxToken: false,
+    currentBackend: 'maplibre' as const,
+    switchToCanvas: () => CanvasMapView,
+    switchToMapbox: () => CanvasMapView,
   };
 };
