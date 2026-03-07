@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Shield, Menu, X } from "lucide-react";
+import { Shield, Menu, X, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 import LanguageCurrencySelector from '@/components/LanguageCurrencySelector';
 import { usePreferences } from '@/contexts/PreferencesContext';
 import { useInteractionTracking } from '@/hooks/useInteractionTracking';
+import { useClaraChat } from '@/contexts/ClaraChatContext';
 
 interface NavigationProps {
   onJoinNowClick?: () => void;
@@ -16,6 +17,7 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
   const { t } = useTranslation();
   const { language } = usePreferences();
   const { trackButtonClick, trackLinkClick } = useInteractionTracking();
+  const { openClaraChat } = useClaraChat();
 
   const handleSignInClick = () => {
     trackButtonClick('navigation', 'Sign In', { location: 'header' });
@@ -65,6 +67,18 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
               <LanguageCurrencySelector compact />
             </div>
             <div className="flex items-center space-x-3">
+              <Button
+                variant="outline"
+                size="sm"
+                className="font-medium hover:bg-primary/5 hover:border-primary/30 transition-all duration-200 gap-1.5"
+                onClick={() => {
+                  trackButtonClick('navigation', 'Clara AI', { location: 'header' });
+                  openClaraChat();
+                }}
+              >
+                <MessageCircle className="h-4 w-4 text-primary" />
+                Clara AI
+              </Button>
               <Button asChild variant="outline" size="sm" className="font-medium hover:bg-primary/5 hover:border-primary/30 transition-all duration-200" onClick={handleSignInClick}>
                 <Link to="/auth">{t('nav.signIn', 'Sign In')}</Link>
               </Button>
@@ -108,6 +122,18 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
                 Pricing
               </a>
               <div className="flex flex-col space-y-3 pt-6 mt-4 border-t border-border mx-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="font-medium hover:bg-primary/5 hover:border-primary/30 transition-all duration-200 gap-1.5 justify-center"
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    openClaraChat();
+                  }}
+                >
+                  <MessageCircle className="h-4 w-4 text-primary" />
+                  Chat with Clara AI
+                </Button>
                 <Button asChild variant="outline" size="sm" className="font-medium hover:bg-primary/5 hover:border-primary/30 transition-all duration-200">
                   <Link to="/auth" onClick={() => setIsMenuOpen(false)}>{t('nav.signIn', 'Sign In')}</Link>
                 </Button>
