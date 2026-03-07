@@ -1,14 +1,99 @@
 import { Button } from "@/components/ui/button";
-import { Shield, Check } from "lucide-react";
+import { Shield, Check, MapPin, Users, Activity, Wifi } from "lucide-react";
 import { Link } from "react-router-dom";
-import OptimizedImage from "@/components/ui/optimized-image";
-import { getImageSizes, generateBlurPlaceholder } from "@/utils/imageOptimization";
-
-const heroImage = '/lovable-uploads/141f77cc-c074-48dc-95f1-f886baacd2da.png?v=1';
 
 interface HeroProps {
   onClaraClick?: () => void;
 }
+
+const HeroPhoneMockup = () => {
+  return (
+    <div className="mx-auto w-full max-w-xs">
+      <div className="relative mx-auto w-full rounded-[2.5rem] border-[6px] border-gray-900 bg-white shadow-2xl overflow-hidden">
+        {/* Notch */}
+        <div className="absolute left-1/2 top-0 z-20 h-6 w-28 -translate-x-1/2 rounded-b-2xl bg-gray-900" />
+
+        {/* Status bar */}
+        <div className="relative bg-gray-900 px-6 pt-8 pb-3 flex items-center justify-between text-white text-[10px]">
+          <span>9:41</span>
+          <div className="flex items-center gap-1">
+            <Wifi className="h-3 w-3" />
+            <span>100%</span>
+          </div>
+        </div>
+
+        {/* Screen content */}
+        <div className="px-5 pb-6">
+          {/* App header */}
+          <div className="text-center pt-4 pb-3">
+            <div className="inline-flex items-center gap-1.5 mb-1">
+              <div className="w-5 h-5 bg-primary rounded-md flex items-center justify-center">
+                <span className="text-white text-[8px] font-bold">LS</span>
+              </div>
+              <span className="text-sm font-bold text-gray-900">LifeLink <span className="text-primary">Sync</span></span>
+            </div>
+            <p className="text-[10px] text-gray-400">Always There. Always Ready.</p>
+          </div>
+
+          {/* SOS Button */}
+          <div className="flex flex-col items-center py-5">
+            <div className="relative flex h-24 w-24 items-center justify-center">
+              <span
+                className="absolute inset-0 rounded-full opacity-30 blur-md animate-pulse"
+                style={{ background: 'radial-gradient(circle, hsl(var(--primary)) 0%, transparent 60%)' }}
+              />
+              <div className="relative h-20 w-20 rounded-full bg-primary shadow-lg flex items-center justify-center">
+                <span className="text-white text-sm font-bold">SOS</span>
+              </div>
+            </div>
+            <p className="text-[10px] text-gray-400 mt-2">Press & hold for emergency</p>
+          </div>
+
+          {/* Status cards */}
+          <div className="space-y-2.5">
+            <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50 p-3">
+              <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
+                <Activity className="h-4 w-4 text-green-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-xs font-medium text-gray-900">Clara AI</div>
+                <div className="text-[10px] text-gray-400">Listening & ready</div>
+              </div>
+              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            </div>
+
+            <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50 p-3">
+              <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                <MapPin className="h-4 w-4 text-blue-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-xs font-medium text-gray-900">GPS Location</div>
+                <div className="text-[10px] text-gray-400">Live tracking active</div>
+              </div>
+              <div className="w-2 h-2 rounded-full bg-blue-500" />
+            </div>
+
+            <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50 p-3">
+              <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
+                <Users className="h-4 w-4 text-purple-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-xs font-medium text-gray-900">Family Circle</div>
+                <div className="text-[10px] text-gray-400">3 members connected</div>
+              </div>
+              <div className="w-2 h-2 rounded-full bg-purple-500" />
+            </div>
+          </div>
+        </div>
+
+        {/* Home indicator */}
+        <div className="flex justify-center pb-2">
+          <div className="w-24 h-1 rounded-full bg-gray-300" />
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const Hero = ({ onClaraClick }: HeroProps) => {
   return (
@@ -76,17 +161,10 @@ const Hero = ({ onClaraClick }: HeroProps) => {
             </div>
           </div>
 
-          {/* Hero Image — app card mockup */}
+          {/* Hero Phone Mockup */}
           <div className="relative">
             <div className="relative z-10">
-              <OptimizedImage
-                src={heroImage}
-                alt="LifeLink Sync app showing SOS button, Clara AI status, and GPS alert"
-                className="w-full max-w-lg mx-auto rounded-3xl shadow-2xl"
-                priority={true}
-                sizes={getImageSizes('hero')}
-                blurDataURL={generateBlurPlaceholder(400, 600)}
-              />
+              <HeroPhoneMockup />
             </div>
           </div>
         </div>
