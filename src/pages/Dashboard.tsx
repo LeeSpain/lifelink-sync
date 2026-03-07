@@ -150,9 +150,10 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-hero">
-        <div className="container mx-auto px-4 py-page-top">
-          <div className="text-center text-white">Loading dashboard...</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-sm text-muted-foreground">Loading your dashboard...</p>
         </div>
       </div>
     );
@@ -183,29 +184,28 @@ const Dashboard = () => {
                   <div className="p-6">
                     <div className="max-w-none">
                       {/* Welcome Header */}
-                      <div className="mb-6">
-                        <h1 className="text-2xl font-bold tracking-tight">
-                          Welcome back, {profile?.first_name || 'Member'}!
-                        </h1>
-                        <p className="text-muted-foreground">
-                          Here's your protection status at a glance
-                        </p>
+                      <div className="mb-8 flex items-center justify-between">
+                        <div>
+                          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+                            Welcome back, {profile?.first_name || 'Member'}
+                          </h1>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Your protection overview and emergency readiness
+                          </p>
+                        </div>
                       </div>
 
                       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                        {/* Main Content - Family Circle Focus */}
+                        {/* Main Content */}
                         <div className="xl:col-span-2 space-y-6">
-                          {/* Family Circle Overview - Prominent */}
                           <FamilyCircleOverview />
-                          
-                          {/* Emergency Preparedness */}
-                          <EmergencyPreparedness 
-                            profile={profile} 
+                          <EmergencyPreparedness
+                            profile={profile}
                             subscription={subscription}
                           />
                         </div>
-                        
-                        {/* Sidebar - Live Status & Actions */}
+
+                        {/* Sidebar */}
                         <div className="space-y-6">
                           <LiveFamilyStatus />
                           <EmergencyActionsWidget profile={profile} subscription={subscription} />

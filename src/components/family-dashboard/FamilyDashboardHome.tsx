@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Shield, AlertTriangle, CheckCircle, MapPin, Clock } from 'lucide-react';
+import { Users, Shield, AlertTriangle, CheckCircle, MapPin, Clock, Map, Bell, ArrowRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useOptimizedAuth } from '@/hooks/useOptimizedAuth';
 import { useFamilyRole } from '@/hooks/useFamilyRole';
@@ -15,7 +15,7 @@ const FamilyDashboardHome = () => {
   const { user } = useOptimizedAuth();
   const { data: familyRole } = useFamilyRole();
   const { toast } = useToast();
-  
+
   const [activeSOSEvents, setActiveSOSEvents] = useState<any[]>([]);
   const [ownerProfile, setOwnerProfile] = useState<any>(null);
   const [familyGroup, setFamilyGroup] = useState<any>(null);
@@ -26,10 +26,8 @@ const FamilyDashboardHome = () => {
     if (familyRole?.familyGroupId) {
       loadDashboardData();
     } else if (familyRole && familyRole.role === 'none') {
-      // User is authenticated but has no family role - show empty state
       setIsLoading(false);
     } else if (familyRole && !familyRole.familyGroupId) {
-      // Handle cases where family role exists but no group ID
       setIsLoading(false);
     }
   }, [familyRole]);
@@ -38,7 +36,6 @@ const FamilyDashboardHome = () => {
     if (!familyRole?.familyGroupId) return;
 
     try {
-      // Load family group data
       const { data: groupData, error: groupError } = await supabase
         .from('family_groups')
         .select('*')
@@ -52,8 +49,7 @@ const FamilyDashboardHome = () => {
 
       if (groupData) {
         setFamilyGroup(groupData);
-        
-        // Load owner profile separately
+
         if (groupData.owner_user_id) {
           const { data: ownerData, error: ownerError } = await supabase
             .from('profiles')
@@ -61,15 +57,12 @@ const FamilyDashboardHome = () => {
             .eq('user_id', groupData.owner_user_id)
             .single();
 
-          if (ownerError) {
-            console.error('Error loading owner profile:', ownerError);
-          } else {
+          if (!ownerError) {
             setOwnerProfile(ownerData);
           }
         }
       }
 
-      // Load active SOS events for the family group
       const { data: sosEvents } = await supabase
         .from('sos_events')
         .select('*')
@@ -79,7 +72,6 @@ const FamilyDashboardHome = () => {
 
       setActiveSOSEvents(sosEvents || []);
 
-      // Load family membership details
       if (user) {
         const { data: membership } = await supabase
           .from('family_memberships')
@@ -134,13 +126,15 @@ const FamilyDashboardHome = () => {
     return (
       <div className="p-6">
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <div className="text-center space-y-3">
+            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+            <p className="text-sm text-muted-foreground">Loading dashboard...</p>
+          </div>
         </div>
       </div>
     );
   }
 
-  // Show empty state if user has no family role or access
   if (familyRole && (familyRole.role === 'none' || !familyRole.familyGroupId)) {
     return (
       <div className="p-6">
@@ -153,9 +147,9 @@ const FamilyDashboardHome = () => {
             <p className="text-muted-foreground mb-4">
               You don't have access to any family emergency systems yet. Contact the emergency plan owner to get invited.
             </p>
-            <Button 
-              variant="outline" 
-              onClick={() => navigate('/dashboard')}
+            <Button
+              variant="outline"
+              onClick={() => navigate('/member-dashboard')}
             >
               Go to Main Dashboard
             </Button>
@@ -165,40 +159,51 @@ const FamilyDashboardHome = () => {
     );
   }
 
-
   return (
     <div className="p-6 space-y-6">
-      {/* Connection Status */}
+      {/* Welcome Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            Family Emergency Dashboard
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Monitor and respond to family emergencies
+          </p>
+        </div>
+        <Badge variant="outline" className="h-7">
+          {familyRole?.role === 'owner' ? 'Owner' : 'Family Member'}
+        </Badge>
+      </div>
+
+      {/* Connection Card */}
       <Card>
         <CardContent className="pt-6">
           <div className="flex items-center gap-4">
             <Avatar className="w-12 h-12">
               <AvatarImage src={ownerProfile?.avatar_url} />
-              <AvatarFallback>
+              <AvatarFallback className="bg-primary/10 text-primary font-semibold">
                 {ownerProfile?.first_name?.[0]}{ownerProfile?.last_name?.[0]}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <h1 className="text-xl font-semibold">
+              <h2 className="text-lg font-semibold text-foreground">
                 Connected to {ownerProfile?.first_name || 'Family Owner'}
-              </h1>
-              <p className="text-muted-foreground">
-                {familyRole?.role === 'owner' 
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                {familyRole?.role === 'owner'
                   ? 'You manage this family emergency system'
-                  : `Family emergency monitoring access`
+                  : 'Family emergency monitoring access'
                 }
               </p>
             </div>
-            <Badge variant="outline">
-              {familyRole?.role === 'owner' ? 'Owner' : 'Family Member'}
-            </Badge>
           </div>
         </CardContent>
       </Card>
 
       {/* Active Emergency Alert */}
       {activeSOSEvents.length > 0 && (
-        <Card className="border-destructive">
+        <Card className="border-destructive bg-destructive/5">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-destructive">
               <AlertTriangle className="h-5 w-5" />
@@ -224,16 +229,16 @@ const FamilyDashboardHome = () => {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Button 
+                  <Button
                     onClick={() => handleSOSAcknowledge(event.id)}
                     variant="destructive"
                   >
                     <CheckCircle className="h-4 w-4 mr-2" />
                     Acknowledge & Respond
                   </Button>
-                  <Button 
+                  <Button
                     variant="outline"
-                    onClick={() => window.open(`/family-dashboard/live-map?event=${event.id}`, '_blank')}
+                    onClick={() => navigate(`/family-dashboard/live-map?event=${event.id}`)}
                   >
                     <MapPin className="h-4 w-4 mr-2" />
                     View Location
@@ -245,98 +250,131 @@ const FamilyDashboardHome = () => {
         </Card>
       )}
 
-      {/* Safe Status */}
+      {/* All Safe Status */}
       {activeSOSEvents.length === 0 && (
-        <Card>
+        <Card className="border-green-200 dark:border-green-900">
           <CardContent className="pt-6">
-            <div className="text-center">
-              <CheckCircle className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
-              <h3 className="font-medium mb-1">All Safe</h3>
-              <p className="text-sm text-muted-foreground">
-                No active emergency alerts • Family network connected
-              </p>
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-green-50 dark:bg-green-950/30 flex items-center justify-center flex-shrink-0">
+                <CheckCircle className="h-6 w-6 text-green-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground">All Safe</h3>
+                <p className="text-sm text-muted-foreground">
+                  No active emergency alerts. Family network is connected and monitoring.
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Family Connection Status */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5" />
-            Family Connection Status
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Connected to:</span>
-              <Badge variant="default">
+      {/* Connection Details & Quick Access */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Connection Status */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Users className="h-5 w-5 text-primary" />
+              Connection Details
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center justify-between p-2.5 rounded-lg border">
+              <span className="text-sm">Connected to</span>
+              <span className="text-sm font-medium">
                 {ownerProfile ? `${ownerProfile.first_name} ${ownerProfile.last_name}` : 'Loading...'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between p-2.5 rounded-lg border">
+              <span className="text-sm">Your Role</span>
+              <Badge variant="outline" className="text-xs">
+                {familyRole?.role === 'owner' ? 'Owner' : 'Family Member'}
               </Badge>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Your Role:</span>
-              <Badge variant="outline">
-                {familyMembership?.relationship || familyRole?.role === 'owner' ? 'Owner' : 'Family Member'}
-              </Badge>
+            <div className="flex items-center justify-between p-2.5 rounded-lg border">
+              <span className="text-sm">Emergency Alerts</span>
+              <div className="flex items-center gap-1.5">
+                <CheckCircle className="h-3.5 w-3.5 text-green-600" />
+                <span className="text-sm font-medium text-green-600">Enabled</span>
+              </div>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Emergency Alerts:</span>
-              <Badge variant="outline" className="text-primary">
-                Enabled
-              </Badge>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Access Level:</span>
-              <Badge variant="outline" className="text-primary">
+            <div className="flex items-center justify-between p-2.5 rounded-lg border">
+              <span className="text-sm">Access Level</span>
+              <Badge variant="secondary" className="text-xs">
                 {familyRole?.role === 'owner' ? 'Full Control' : 'Emergency Monitor'}
               </Badge>
             </div>
             {familyMembership && (
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Connected Since:</span>
+              <div className="flex items-center justify-between p-2.5 rounded-lg border">
+                <span className="text-sm">Connected Since</span>
                 <span className="text-xs text-muted-foreground">
                   {new Date(familyMembership.created_at).toLocaleDateString()}
                 </span>
               </div>
             )}
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      {/* Quick Access */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Access</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <Button 
-              variant="outline" 
-              className="justify-start h-auto p-4"
+        {/* Quick Access */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Quick Access</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button
+              variant="outline"
+              className="w-full justify-between h-auto p-4 group"
               onClick={() => navigate('/family-dashboard/live-map')}
             >
-              <div className="text-left">
-                <div className="font-medium">Live Family Map</div>
-                <div className="text-sm text-muted-foreground">View real-time locations</div>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-muted">
+                  <Map className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <div className="text-left">
+                  <div className="font-medium text-sm">Live Family Map</div>
+                  <div className="text-xs text-muted-foreground">View real-time locations</div>
+                </div>
               </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
             </Button>
-            
-            <Button 
-              variant="outline" 
-              className="justify-start h-auto p-4"
+
+            <Button
+              variant="outline"
+              className="w-full justify-between h-auto p-4 group"
               onClick={() => navigate('/family-dashboard/emergency-map')}
             >
-              <div className="text-left">
-                <div className="font-medium">Emergency Center</div>
-                <div className="text-sm text-muted-foreground">Emergency protocols & contacts</div>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-muted">
+                  <Shield className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <div className="text-left">
+                  <div className="font-medium text-sm">Emergency Center</div>
+                  <div className="text-xs text-muted-foreground">Emergency protocols & contacts</div>
+                </div>
               </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
             </Button>
-          </div>
-        </CardContent>
-      </Card>
+
+            <Button
+              variant="outline"
+              className="w-full justify-between h-auto p-4 group"
+              onClick={() => navigate('/family-dashboard/notifications')}
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-muted">
+                  <Bell className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <div className="text-left">
+                  <div className="font-medium text-sm">Notifications</div>
+                  <div className="text-xs text-muted-foreground">View alerts and updates</div>
+                </div>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
