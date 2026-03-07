@@ -253,7 +253,7 @@ const AuthPage = () => {
 
               {!user && (
                 <p className="text-[10px] text-orange-500 text-center mb-4 font-medium">
-                  Log in above first — protected links only work when signed in.
+                  Log in above first — links require authentication.
                 </p>
               )}
 
@@ -261,7 +261,7 @@ const AuthPage = () => {
                 <div className="mb-4">
                   <Alert>
                     <AlertDescription className="text-xs">
-                      Signed in as <strong>{user.email}</strong> — all links below are now active.
+                      Signed in as <strong>{user.email}</strong> — all links are active.
                     </AlertDescription>
                   </Alert>
                 </div>
@@ -273,13 +273,19 @@ const AuthPage = () => {
                   <p className="text-xs font-semibold text-foreground mb-2">Dashboards</p>
                   <div className="flex flex-wrap gap-1.5">
                     {[
-                      { label: 'Dashboard', to: '/dashboard' },
-                      { label: 'Member', to: '/member-dashboard' },
-                      { label: 'Family', to: '/family-dashboard' },
-                      { label: 'Admin', to: '/admin-dashboard' },
+                      { label: 'Member Dashboard', to: '/member-dashboard' },
+                      { label: 'Family Dashboard', to: '/family-dashboard' },
+                      { label: 'Admin Dashboard', to: '/admin-dashboard' },
                     ].map(link => (
-                      <Button key={link.to} asChild variant={user ? "default" : "outline"} size="sm" className="h-7 text-xs">
-                        <Link to={link.to}>{link.label}</Link>
+                      <Button
+                        key={link.to}
+                        variant={user ? "default" : "outline"}
+                        size="sm"
+                        className="h-7 text-xs"
+                        disabled={!user}
+                        onClick={() => navigate(link.to)}
+                      >
+                        {link.label}
                       </Button>
                     ))}
                   </div>
@@ -293,61 +299,38 @@ const AuthPage = () => {
                       { label: 'SOS App', to: '/sos-app' },
                       { label: 'Family App', to: '/family-app' },
                       { label: 'Mobile App', to: '/mobile-app' },
-                      { label: 'Smart Redirect', to: '/app' },
                     ].map(link => (
-                      <Button key={link.to} asChild variant={user ? "default" : "outline"} size="sm" className="h-7 text-xs">
-                        <Link to={link.to}>{link.label}</Link>
+                      <Button
+                        key={link.to}
+                        variant={user ? "default" : "outline"}
+                        size="sm"
+                        className="h-7 text-xs"
+                        disabled={!user}
+                        onClick={() => navigate(link.to)}
+                      >
+                        {link.label}
                       </Button>
                     ))}
                   </div>
                 </div>
 
-                {/* Key Pages (Protected) */}
-                <div>
-                  <p className="text-xs font-semibold text-foreground mb-2">Key Pages</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {[
-                      { label: 'Map', to: '/map' },
-                      { label: 'Circles', to: '/circles' },
-                      { label: 'Places', to: '/places' },
-                      { label: 'History', to: '/history' },
-                      { label: 'Onboarding', to: '/dashboard/onboarding' },
-                      { label: 'Questionnaire', to: '/welcome-questionnaire' },
-                      { label: 'Family Setup', to: '/family-access-setup' },
-                    ].map(link => (
-                      <Button key={link.to} asChild variant={user ? "default" : "outline"} size="sm" className="h-7 text-xs">
-                        <Link to={link.to}>{link.label}</Link>
-                      </Button>
-                    ))}
+                {/* Sign out helper */}
+                {user && (
+                  <div className="pt-2 border-t">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 text-xs text-muted-foreground w-full"
+                      onClick={async () => {
+                        await supabase.auth.signOut();
+                        setSuccess('');
+                        setError('');
+                      }}
+                    >
+                      Sign Out
+                    </Button>
                   </div>
-                </div>
-
-                {/* Public Pages */}
-                <div>
-                  <p className="text-xs font-semibold text-foreground mb-2">Public Pages</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {[
-                      { label: 'Home', to: '/' },
-                      { label: 'AI Register', to: '/ai-register' },
-                      { label: 'Family Carer', to: '/family-carer-access' },
-                      { label: 'Checkout', to: '/checkout' },
-                      { label: 'Blog', to: '/blog' },
-                      { label: 'Videos', to: '/videos' },
-                      { label: 'Contact', to: '/contact' },
-                      { label: 'Support', to: '/support' },
-                      { label: 'Privacy', to: '/privacy' },
-                      { label: 'Terms', to: '/terms' },
-                      { label: 'Pendant', to: '/devices/lifelink-sync-pendant' },
-                      { label: 'Spain Centre', to: '/regional-center/spain' },
-                      { label: 'Map Demo', to: '/map-demo' },
-                      { label: 'Test Page', to: '/test' },
-                    ].map(link => (
-                      <Button key={link.to} asChild variant="outline" size="sm" className="h-7 text-xs">
-                        <Link to={link.to}>{link.label}</Link>
-                      </Button>
-                    ))}
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           </CardContent>
