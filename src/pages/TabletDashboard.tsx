@@ -4,7 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useWakeLock } from '@/hooks/useWakeLock';
 import { useEmergencyContacts } from '@/hooks/useEmergencyContacts';
 import { Button } from '@/components/ui/button';
-import { Phone, AlertTriangle, X } from 'lucide-react';
+import { Phone, AlertTriangle, X, Download, Tablet } from 'lucide-react';
+import { usePWAFeatures } from '@/hooks/usePWAFeatures';
 import { TabletStatusBar } from '@/components/tablet/TabletStatusBar';
 import { ReminderCard, type Reminder } from '@/components/tablet/ReminderCard';
 import { QuickInfoCards } from '@/components/tablet/QuickInfoCards';
@@ -23,6 +24,7 @@ const TabletDashboard = () => {
   const { isActive: wakeLockActive } = useWakeLock(true);
   const { contacts } = useEmergencyContacts();
   const { toast } = useToast();
+  const { isInstalled, isInstallable, installApp } = usePWAFeatures();
 
   const [greeting, setGreeting] = useState(getGreeting());
   const [reminders, setReminders] = useState<Reminder[]>([]);
@@ -31,6 +33,16 @@ const TabletDashboard = () => {
   const [showContacts, setShowContacts] = useState(false);
   const [sosTriggered, setSosTriggered] = useState(false);
   const [familyOnline] = useState(0); // TODO: wire to live_presence
+  const [installDismissed, setInstallDismissed] = useState(
+    () => localStorage.getItem('tablet-install-dismissed') === '1'
+  );
+
+  const showInstallOverlay = !isInstalled && !installDismissed;
+
+  const dismissInstallOverlay = () => {
+    localStorage.setItem('tablet-install-dismissed', '1');
+    setInstallDismissed(true);
+  };
 
   const firstName = user?.user_metadata?.first_name || 'there';
 
@@ -151,6 +163,47 @@ const TabletDashboard = () => {
 
   return (
     <div className="h-screen flex flex-col bg-slate-950 text-white overflow-hidden select-none">
+      {/* Install Overlay — shown first time on a browser (not yet installed) */}
+      {showInstallOverlay && (
+        <div className="fixed inset-0 z-[100] bg-slate-950/95 flex items-center justify-center p-8">
+          <div className="text-center max-w-lg">
+            <Tablet className="h-16 w-16 text-primary mx-auto mb-6" />
+            <h2 className="text-3xl font-semibold mb-3">Install LifeLink Sync</h2>
+            <p className="text-lg text-slate-300 mb-8">
+              Install this app on your tablet for the best always-on experience. It will launch full-screen and keep your screen awake.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              {isInstallable ? (
+                <Button
+                  size="lg"
+                  className="min-h-[56px] px-10 text-lg"
+                  onClick={async () => {
+                    await installApp();
+                    dismissInstallOverlay();
+                  }}
+                >
+                  <Download className="h-5 w-5 mr-2" />
+                  Install Now
+                </Button>
+              ) : (
+                <div className="bg-slate-800 rounded-xl p-4 text-left text-sm text-slate-300 max-w-sm mx-auto">
+                  <p className="font-medium text-white mb-2">To install:</p>
+                  <p>Open your browser menu and tap "Add to Home Screen" or "Install App"</p>
+                </div>
+              )}
+              <Button
+                size="lg"
+                variant="outline"
+                className="min-h-[56px] px-10 text-lg border-slate-600 text-slate-300"
+                onClick={dismissInstallOverlay}
+              >
+                Continue in Browser
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Status Bar */}
       <TabletStatusBar wakeLockActive={wakeLockActive} />
 

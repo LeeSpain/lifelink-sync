@@ -12,11 +12,17 @@ import {
   Bell,
   Zap,
   QrCode,
+  Copy,
+  Mail,
+  MessageSquare,
+  Tablet,
+  ExternalLink,
 } from "lucide-react";
 import { useEffect, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import QRCode from "qrcode";
 import { usePWAFeatures } from "@/hooks/usePWAFeatures";
+import { useToast } from "@/hooks/use-toast";
 
 type Platform = "ios" | "android" | "desktop";
 
@@ -27,9 +33,13 @@ function detectPlatform(): Platform {
   return "desktop";
 }
 
+const TABLET_URL = "https://www.lifelink-sync.com/tablet-dashboard";
+
 const MobileAppCard = () => {
   const { t } = useTranslation();
+  const { toast } = useToast();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const tabletQrRef = useRef<HTMLCanvasElement>(null);
   const { isInstalled, isInstallable, installApp } = usePWAFeatures();
   const platform = useMemo(() => detectPlatform(), []);
 
@@ -43,7 +53,54 @@ const MobileAppCard = () => {
         color: { dark: "#000000", light: "#FFFFFF" },
       }).catch(console.error);
     }
+    if (tabletQrRef.current) {
+      QRCode.toCanvas(tabletQrRef.current, TABLET_URL, {
+        width: 160,
+        margin: 2,
+        color: { dark: "#000000", light: "#FFFFFF" },
+      }).catch(console.error);
+    }
   }, [WEB_APP_URL]);
+
+  const copyTabletLink = async () => {
+    try {
+      await navigator.clipboard.writeText(TABLET_URL);
+      toast({ title: "Link copied", description: "Tablet dashboard link copied to clipboard" });
+    } catch {
+      toast({ title: "Copy failed", description: TABLET_URL, variant: "destructive" });
+    }
+  };
+
+  const shareTabletLink = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "LifeLink Sync Tablet Dashboard",
+          text: "Open this link on your tablet to set up the always-on care dashboard",
+          url: TABLET_URL,
+        });
+      } catch {
+        // User cancelled share
+      }
+    } else {
+      copyTabletLink();
+    }
+  };
+
+  const emailTabletLink = () => {
+    const subject = encodeURIComponent("LifeLink Sync - Set up your Tablet Dashboard");
+    const body = encodeURIComponent(
+      `Open this link on your tablet to install the LifeLink Sync care dashboard:\n\n${TABLET_URL}\n\nOnce opened, tap "Install" to add it as an always-on app.`
+    );
+    window.open(`mailto:?subject=${subject}&body=${body}`);
+  };
+
+  const smsTabletLink = () => {
+    const body = encodeURIComponent(
+      `Set up your LifeLink Sync tablet dashboard: ${TABLET_URL}`
+    );
+    window.open(`sms:?body=${body}`);
+  };
 
   return (
     <Card className="bg-white/95 backdrop-blur-sm">
@@ -230,19 +287,65 @@ const MobileAppCard = () => {
               ))}
             </div>
           </div>
-          {/* Tablet Dashboard Section */}
-          <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
-            <h4 className="font-medium text-purple-900 mb-1">
-              {t("mobileApp.tabletTitle", "Tablet Home Dashboard")}
-            </h4>
-            <p className="text-sm text-purple-700 mb-3">
-              {t("mobileApp.tabletDesc", "Set up a tablet as an always-on display — perfect for elderly care. Shows time, reminders from family, SOS button, and more.")}
+          {/* Tablet Dashboard Setup Section */}
+          <div className="border-t pt-6">
+            <div className="flex items-center gap-2 mb-2">
+              <Tablet className="h-5 w-5 text-purple-600" />
+              <h4 className="font-semibold text-lg">
+                {t("mobileApp.tabletTitle", "Set Up Tablet Dashboard")}
+              </h4>
+            </div>
+            <p className="text-sm text-muted-foreground mb-4">
+              {t("mobileApp.tabletDesc", "Get the always-on care dashboard on your tablet. Shows time, reminders from family, SOS button, and more. Perfect for elderly care.")}
             </p>
-            <Button asChild variant="outline" size="sm" className="border-purple-300 text-purple-700 hover:bg-purple-100">
-              <a href="/tablet-dashboard">
-                {t("mobileApp.tabletOpen", "Open Tablet Dashboard")}
-              </a>
-            </Button>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* QR Code */}
+              <div className="text-center p-4 bg-purple-50 border border-purple-200 rounded-lg">
+                <p className="text-xs font-medium text-purple-700 mb-2">
+                  {t("mobileApp.tabletScanQr", "Scan on your tablet")}
+                </p>
+                <div className="w-40 h-40 mx-auto mb-2 bg-white rounded-lg flex items-center justify-center border p-2">
+                  <canvas ref={tabletQrRef} className="max-w-full max-h-full" />
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  {t("mobileApp.tabletQrHint", "Point your tablet camera at this code")}
+                </p>
+              </div>
+
+              {/* Share Options */}
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-muted-foreground mb-1">
+                  {t("mobileApp.tabletShareOptions", "Or send the link to your tablet")}
+                </p>
+                <Button variant="outline" size="sm" className="w-full justify-start gap-2 min-h-[40px]" onClick={copyTabletLink}>
+                  <Copy className="h-4 w-4" />
+                  {t("mobileApp.tabletCopyLink", "Copy Link")}
+                </Button>
+                <Button variant="outline" size="sm" className="w-full justify-start gap-2 min-h-[40px]" onClick={shareTabletLink}>
+                  <Share className="h-4 w-4" />
+                  {t("mobileApp.tabletShare", "Share")}
+                </Button>
+                <Button variant="outline" size="sm" className="w-full justify-start gap-2 min-h-[40px]" onClick={emailTabletLink}>
+                  <Mail className="h-4 w-4" />
+                  {t("mobileApp.tabletEmail", "Send via Email")}
+                </Button>
+                <Button variant="outline" size="sm" className="w-full justify-start gap-2 min-h-[40px]" onClick={smsTabletLink}>
+                  <MessageSquare className="h-4 w-4" />
+                  {t("mobileApp.tabletSMS", "Send via Text")}
+                </Button>
+                <Button asChild variant="outline" size="sm" className="w-full justify-start gap-2 min-h-[40px]">
+                  <a href="/tablet-dashboard" target="_blank" rel="noopener">
+                    <ExternalLink className="h-4 w-4" />
+                    {t("mobileApp.tabletOpen", "Open Tablet Dashboard")}
+                  </a>
+                </Button>
+              </div>
+            </div>
+
+            <p className="text-xs text-muted-foreground mt-3 text-center">
+              {t("mobileApp.tabletInstallHint", "Once opened on your tablet, you'll be prompted to install it as an always-on app.")}
+            </p>
           </div>
         </div>
       </CardContent>
