@@ -13,44 +13,105 @@ const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-// Currency conversion rates (simplified for demo)
-const CURRENCY_RATES = {
+// Fallback currency rates (used only if DB table is empty)
+const FALLBACK_CURRENCY_RATES: Record<string, number> = {
   EUR: 1,
   USD: 1.09,
   GBP: 0.85,
   AUD: 1.63,
 };
 
-const convertPrice = (amount: number, fromCurrency: string, toCurrency: string): number => {
-  if (fromCurrency === toCurrency) return amount;
-  const amountInEUR = amount / (CURRENCY_RATES[fromCurrency as keyof typeof CURRENCY_RATES] || 1);
-  return amountInEUR * (CURRENCY_RATES[toCurrency as keyof typeof CURRENCY_RATES] || 1);
-};
+// Fallback restricted patterns (used only if DB table is empty)
+const FALLBACK_RESTRICTED_PATTERNS = [
+  { pattern: '\\badmin\\b', replacement_message: null },
+  { pattern: 'backend', replacement_message: null },
+  { pattern: 'database', replacement_message: null },
+  { pattern: 'server key', replacement_message: null },
+  { pattern: 'service role', replacement_message: null },
+  { pattern: 'supabase service', replacement_message: null },
+  { pattern: 'jwt', replacement_message: null },
+  { pattern: 'edge function secret', replacement_message: null },
+  { pattern: 'api key', replacement_message: null },
+  { pattern: 'infrastructure', replacement_message: null },
+];
 
-const formatCurrency = (amount: number, currency: string, language: string): string => {
+const DEFAULT_SAFETY_MESSAGE = "I'm here to help with customer information. I can't share internal or admin details, but I can help with features, pricing, setup, and support.";
+
+/**
+ * Load currency rates from DB, falling back to hardcoded defaults
+ */
+async function loadCurrencyRates(): Promise<Record<string, number>> {
+  const { data } = await supabase
+    .from('clara_currency_config')
+    .select('currency_code, rate_to_eur')
+    .eq('is_active', true);
+
+  if (data && data.length > 0) {
+    return data.reduce((acc: Record<string, number>, row: any) => {
+      acc[row.currency_code] = Number(row.rate_to_eur);
+      return acc;
+    }, {});
+  }
+  return FALLBACK_CURRENCY_RATES;
+}
+
+/**
+ * Load restricted patterns from DB, falling back to hardcoded defaults
+ */
+async function loadRestrictedPatterns(): Promise<Array<{ regex: RegExp; message: string }>> {
+  const { data } = await supabase
+    .from('clara_restricted_patterns')
+    .select('pattern, replacement_message')
+    .eq('is_active', true);
+
+  const patterns = (data && data.length > 0) ? data : FALLBACK_RESTRICTED_PATTERNS;
+
+  return patterns.map((row: any) => ({
+    regex: new RegExp(row.pattern, 'i'),
+    message: row.replacement_message || DEFAULT_SAFETY_MESSAGE,
+  }));
+}
+
+/**
+ * Build knowledge base from DB, falling back to hardcoded content
+ */
+async function buildKnowledgeBase(
+  language: string,
+  currency: string,
+  currencyRates: Record<string, number>
+): Promise<string> {
+  const { data: kbSections } = await supabase
+    .from('clara_knowledge_base')
+    .select('section, content')
+    .eq('language', language)
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true });
+
+  // Format pricing for substitution
+  const memberPrice = convertPrice(9.99, 'EUR', currency, currencyRates);
+  const familyPrice = convertPrice(2.99, 'EUR', currency, currencyRates);
   const locale = language === 'es' ? 'es-ES' : language === 'nl' ? 'nl-NL' : 'en-US';
-  return new Intl.NumberFormat(locale, { 
-    style: 'currency', 
-    currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  }).format(Math.round(amount));
-};
+  const formattedMember = formatCurrency(memberPrice, currency, locale);
+  const formattedFamily = formatCurrency(familyPrice, currency, locale);
 
-const getKnowledgeBase = (language: string = 'en', currency: string = 'EUR') => {
-  // Updated customer-facing pricing
-  const memberPrice = convertPrice(9.99, 'EUR', currency);
-  const familyPrice = convertPrice(2.99, 'EUR', currency);
-  const formattedMember = formatCurrency(memberPrice, currency, language);
-  const formattedFamily = formatCurrency(familyPrice, currency, language);
+  if (kbSections && kbSections.length > 0) {
+    // Build from DB sections, replacing price placeholders
+    return kbSections
+      .map((s: any) =>
+        s.content
+          .replace(/\{currency\}/g, currency)
+          .replace(/\{memberPrice\}/g, formattedMember)
+          .replace(/\{familyPrice\}/g, formattedFamily)
+      )
+      .join('\n\n');
+  }
 
-  const knowledgeBases = {
-    en: `
-You are Clara, the friendly customer-facing AI assistant for LifeLink Sync.
+  // Fallback: return hardcoded English if DB is empty
+  return `You are Clara, the friendly customer-facing AI assistant for LifeLink Sync.
 
 STRICT SAFETY AND PRIVACY GUARDRAILS (must always follow):
-- Never disclose or discuss anything internal, admin-only, backend, infrastructure, or company-confidential (e.g., admin dashboard, databases, APIs/keys, architecture, internal processes).
-- If asked for internal info, politely refuse: "I'm here to help with customer information. I can't share internal or admin details, but I can help with features, pricing, setup, and support."
+- Never disclose or discuss anything internal, admin-only, backend, infrastructure, or company-confidential.
+- If asked for internal info, politely refuse: "${DEFAULT_SAFETY_MESSAGE}"
 - Focus only on public, customer-friendly information.
 
 What LifeLink Sync is:
@@ -72,68 +133,22 @@ Key Features:
 Style:
 - Warm, clear, empathetic, and concise
 - Ask clarifying questions when needed and offer next steps
-- Always end with an offer to help further (e.g., "Would you like help getting started?")`,
+- Always end with an offer to help further`;
+}
 
-    es: `
-Eres Clara, la asistente de IA para clientes de LifeLink Sync.
+const convertPrice = (amount: number, fromCurrency: string, toCurrency: string, rates: Record<string, number>): number => {
+  if (fromCurrency === toCurrency) return amount;
+  const amountInEUR = amount / (rates[fromCurrency] || 1);
+  return amountInEUR * (rates[toCurrency] || 1);
+};
 
-REGLAS ESTRICTAS DE SEGURIDAD Y PRIVACIDAD:
-- Nunca compartas información interna, solo para administradores, backend, infraestructura o confidencial de la empresa (p.ej., panel de admin, bases de datos, APIs/keys, arquitectura).
-- Si te piden datos internos, rechaza amablemente: "Puedo ayudarte con información para clientes. No puedo compartir detalles internos o de administración, pero sí con funciones, precios, configuración y soporte."
-- Enfócate únicamente en información pública para clientes.
-
-Qué es LifeLink Sync:
-- Protección personal de emergencias con diseño de privacidad primero
-- Monitoreo de emergencias 24/7 y notificaciones a familiares
-- Funciona con nuestra app móvil, colgante Bluetooth y relojes inteligentes compatibles
-
-Precios (en ${currency}):
-- Plan Miembro: ${formattedMember}/mes — funciones completas, soporte de dispositivos, GPS, monitoreo 24/7, soporte prioritario
-- Acceso Familiar: ${formattedFamily}/mes — para que familiares reciban alertas y estén conectados
-
-Funciones Clave:
-- Alertas SOS por SMS, email y llamadas automáticas
-- Compartir ubicación por GPS en emergencias
-- Notificaciones familiares y check-ins (controlados por privacidad)
-- Colgante Bluetooth: resistente al agua, batería hasta 6 meses, botón SOS
-- Soporte multilenguaje (inglés, español, neerlandés, etc.)
-
-Estilo:
-- Cálido, claro, empático y conciso
-- Haz preguntas aclaratorias y ofrece próximos pasos
-- Termina ofreciendo más ayuda (p.ej., "¿Quieres que te ayude a empezar?")`,
-
-    nl: `
-Je bent Clara, de klantgerichte AI-assistent voor LifeLink Sync.
-
-STRIKTE VEILIGHEIDS- EN PRIVACYREGELS:
-- Deel nooit interne, alleen-voor-admin, backend-, infrastructuur- of bedrijfsgevoelige info (zoals admin dashboard, databases, API's/keys, architectuur).
-- Als iemand daarnaar vraagt, weiger vriendelijk: "Ik help met klantinformatie. Interne of admin-details kan ik niet delen, maar ik help graag met functies, prijzen, setup en support."
-- Focus uitsluitend op publieke, klantvriendelijke informatie.
-
-Wat LifeLink Sync is:
-- Persoonlijke noodbescherming met privacy-first ontwerp
-- 24/7 noodbewaking en meldingen naar familiecontacten
-- Werkt met onze mobiele app, Bluetooth-hanger en compatibele smartwatches
-
-Prijzen (in ${currency}):
-- Lidmaatschap: ${formattedMember}/maand — volledige noodfuncties, apparaatondersteuning, GPS, 24/7 monitoring, priority support
-- Familie Toegang: ${formattedFamily}/maand — voor familieleden om meldingen te ontvangen en verbonden te blijven
-
-Belangrijkste functies:
-- SOS-noodmeldingen via SMS, e-mail en automatische oproepen
-- GPS-locatie delen tijdens noodgevallen
-- Familieberichten en check-ins (privacygestuurd)
-- Bluetooth-hanger: waterdicht, tot 6 maanden batterij, éénknops SOS
-- Meertalige ondersteuning (EN, ES, NL, enz.)
-
-Stijl:
-- Warm, duidelijk, empathisch en bondig
-- Stel verduidelijkende vragen en bied vervolgstappen aan
-- Eindig altijd met een hulpaanbod (bijv. "Wil je dat ik je op weg help?")`,
-  };
-
-  return knowledgeBases[language as keyof typeof knowledgeBases] || knowledgeBases.en;
+const formatCurrency = (amount: number, currency: string, locale: string): string => {
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(Math.round(amount));
 };
 
 interface ChatRequest {
@@ -142,8 +157,8 @@ interface ChatRequest {
   userId?: string;
   context?: string;
   conversation_history?: any[];
-  language?: 'en' | 'es' | 'nl';
-  currency?: 'EUR' | 'USD' | 'GBP' | 'AUD';
+  language?: string;
+  currency?: string;
 }
 
 serve(async (req) => {
@@ -158,8 +173,60 @@ serve(async (req) => {
       throw new Error('Message is required');
     }
 
-    // Generate session ID if not provided
     const currentSessionId = sessionId || crypto.randomUUID();
+
+    // Load all configuration from DB in parallel
+    const [currencyRates, restrictedPatterns, aiSettingsData] = await Promise.all([
+      loadCurrencyRates(),
+      loadRestrictedPatterns(),
+      supabase.from('ai_model_settings').select('setting_key, setting_value'),
+    ]);
+
+    // Parse AI settings with defaults
+    const settings = aiSettingsData.data?.reduce((acc: any, setting: any) => {
+      acc[setting.setting_key] = setting.setting_value;
+      return acc;
+    }, {} as any) || {};
+
+    const temperature = Number(settings.temperature) || 0.7;
+    const maxTokens = Number(settings.max_tokens) || 500;
+    const model = settings.model || 'gpt-4o-mini';
+    const frequencyPenalty = Number(settings.frequency_penalty) || 0;
+    const presencePenalty = Number(settings.presence_penalty) || 0;
+    const enableLogging = settings.enable_logging !== 'false';
+    const rateLimitPerMinute = Number(settings.rate_limit_per_minute) || 60;
+    const dailyRequestLimit = Number(settings.daily_request_limit) || 10000;
+    const systemPromptMode = settings.system_prompt_mode || 'append';
+
+    // Rate limiting check
+    const oneMinuteAgo = new Date(Date.now() - 60000).toISOString();
+    const { count: recentCount } = await supabase
+      .from('conversations')
+      .select('id', { count: 'exact', head: true })
+      .eq('message_type', 'user')
+      .gte('created_at', oneMinuteAgo);
+
+    if (recentCount && recentCount >= rateLimitPerMinute) {
+      return new Response(
+        JSON.stringify({ error: 'Rate limit exceeded. Please try again shortly.' }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const { count: dailyCount } = await supabase
+      .from('conversations')
+      .select('id', { count: 'exact', head: true })
+      .eq('message_type', 'user')
+      .gte('created_at', todayStart.toISOString());
+
+    if (dailyCount && dailyCount >= dailyRequestLimit) {
+      return new Response(
+        JSON.stringify({ error: 'Daily request limit reached. Please try again tomorrow.' }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     // Get conversation history for context
     const { data: conversationHistory } = await supabase
@@ -169,24 +236,26 @@ serve(async (req) => {
       .order('created_at', { ascending: true })
       .limit(20);
 
-    // Store user message with enhanced metadata
-    await supabase
-      .from('conversations')
-      .insert({
-        user_id: userId || null,
-        session_id: currentSessionId,
-        message_type: 'user',
-        content: message,
-        metadata: {
-          context: context || 'general',
-          timestamp: new Date().toISOString(),
-          user_agent: req.headers.get('user-agent') || null,
-          language,
-          currency,
-          source_page: context?.includes('homepage') ? 'homepage' : 
-                      context?.includes('registration') ? 'registration' : 'general'
-        }
-      });
+    // Store user message with enhanced metadata (if logging enabled)
+    if (enableLogging) {
+      await supabase
+        .from('conversations')
+        .insert({
+          user_id: userId || null,
+          session_id: currentSessionId,
+          message_type: 'user',
+          content: message,
+          metadata: {
+            context: context || 'general',
+            timestamp: new Date().toISOString(),
+            user_agent: req.headers.get('user-agent') || null,
+            language,
+            currency,
+            source_page: context?.includes('homepage') ? 'homepage' :
+                        context?.includes('registration') ? 'registration' : 'general'
+          }
+        });
+    }
 
     // Get active customer-facing training data for enhanced knowledge
     const { data: trainingData } = await supabase
@@ -197,18 +266,28 @@ serve(async (req) => {
       .order('confidence_score', { ascending: false })
       .limit(50);
 
-    // Get language and currency-specific knowledge base
-    const knowledgeBase = getKnowledgeBase(language, currency);
+    // Build knowledge base from DB
+    const knowledgeBase = await buildKnowledgeBase(language, currency, currencyRates);
 
-    // Build enhanced knowledge base
+    // Build enhanced knowledge base with training data
     let enhancedKnowledge = knowledgeBase;
-    
+
     if (trainingData && trainingData.length > 0) {
-      const trainingContent = trainingData.map(item => 
+      const trainingContent = trainingData.map(item =>
         `Q: ${item.question}\nA: ${item.answer}`
       ).join('\n\n');
-      
+
       enhancedKnowledge += `\n\nADDITIONAL TRAINING DATA:\n${trainingContent}\n\nUse this training data to provide more accurate and detailed responses when relevant.`;
+    }
+
+    // Handle custom system prompt (append vs override)
+    if (settings.system_prompt && typeof settings.system_prompt === 'string' && settings.system_prompt.trim()) {
+      if (systemPromptMode === 'override') {
+        enhancedKnowledge = settings.system_prompt;
+      } else {
+        // Append mode (default) - guardrails are preserved
+        enhancedKnowledge += `\n\nADDITIONAL INSTRUCTIONS:\n${settings.system_prompt}`;
+      }
     }
 
     // Build conversation context
@@ -219,38 +298,12 @@ serve(async (req) => {
 
     // Prepare messages for OpenAI
     const messages = [
-      {
-        role: 'system',
-        content: enhancedKnowledge
-      },
+      { role: 'system', content: enhancedKnowledge },
       ...conversationContext,
-      {
-        role: 'user',
-        content: message
-      }
+      { role: 'user', content: message }
     ];
 
-    // Get Clara's AI settings from database
-    const { data: aiSettings } = await supabase
-      .from('ai_model_settings')
-      .select('setting_key, setting_value');
-    
-    // Parse settings with defaults
-    const settings = aiSettings?.reduce((acc, setting) => {
-      acc[setting.setting_key] = setting.setting_value;
-      return acc;
-    }, {} as any) || {};
-    
-    const temperature = Number(settings.temperature) || 0.7;
-    const maxTokens = Number(settings.max_tokens) || 500;
-    const model = settings.model || 'gpt-4o-mini';
-    
-    // If custom system prompt exists, replace the enhanced knowledge with it
-    if (settings.system_prompt && typeof settings.system_prompt === 'string') {
-      messages[0].content = settings.system_prompt;
-    }
-
-    // Call OpenAI with dynamic settings
+    // Call OpenAI with all settings wired
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -262,6 +315,8 @@ serve(async (req) => {
         messages,
         temperature,
         max_tokens: maxTokens,
+        frequency_penalty: frequencyPenalty,
+        presence_penalty: presencePenalty,
       }),
     });
 
@@ -272,38 +327,30 @@ serve(async (req) => {
     const data = await response.json();
     const aiResponse = data.choices[0].message.content as string;
 
-    // Post-filter to prevent internal/admin leakage
-    const forbiddenPatterns = [
-      /\badmin\b/i,
-      /backend/i,
-      /database/i,
-      /server key/i,
-      /service role/i,
-      /supabase service/i,
-      /jwt/i,
-      /edge function secret/i,
-      /api key/i,
-      /infrastructure/i
-    ];
+    // Post-filter using DB-driven restricted patterns
+    let sanitized = aiResponse;
+    for (const { regex, message: replacementMsg } of restrictedPatterns) {
+      if (regex.test(sanitized)) {
+        sanitized = replacementMsg;
+        break;
+      }
+    }
 
-    const sanitized = forbiddenPatterns.some((re) => re.test(aiResponse))
-      ? "I'm here to help with customer information. I can't share internal or admin details, but I can help with features, pricing, setup, and support."
-      : aiResponse;
-
-    // Store AI response
-    await supabase
-      .from('conversations')
-      .insert({
-        user_id: userId || null,
-        session_id: currentSessionId,
-        message_type: 'ai',
-        content: sanitized
-      });
+    // Store AI response (if logging enabled)
+    if (enableLogging) {
+      await supabase
+        .from('conversations')
+        .insert({
+          user_id: userId || null,
+          session_id: currentSessionId,
+          message_type: 'ai',
+          content: sanitized
+        });
+    }
 
     // Update usage statistics for training data that might have been used
     if (trainingData && trainingData.length > 0) {
-      // Simple keyword matching to identify which training data was likely used
-      const usedTrainingItems = trainingData.filter(item => 
+      const usedTrainingItems = trainingData.filter(item =>
         aiResponse.toLowerCase().includes(item.answer.toLowerCase().slice(0, 20)) ||
         message.toLowerCase().includes(item.question.toLowerCase().slice(0, 20))
       );
@@ -323,9 +370,8 @@ serve(async (req) => {
     // Analyze conversation for lead scoring
     const isShowingInterest = /\b(interested|price|cost|sign up|subscribe|family|emergency|elderly|relative|parent|protection|safety)\b/i.test(message);
     const isAskingQuestions = message.includes('?');
-    
+
     if (isShowingInterest || isAskingQuestions) {
-      // Update or create lead
       const { data: existingLead } = await supabase
         .from('leads')
         .select('*')
@@ -333,7 +379,6 @@ serve(async (req) => {
         .single();
 
       if (existingLead) {
-        // Update existing lead
         await supabase
           .from('leads')
           .update({
@@ -342,7 +387,6 @@ serve(async (req) => {
           })
           .eq('session_id', currentSessionId);
       } else {
-        // Create new lead
         await supabase
           .from('leads')
           .insert({
@@ -354,11 +398,17 @@ serve(async (req) => {
       }
     }
 
+    // Apply response delay if configured
+    const responseDelay = Number(settings.response_delay) || 0;
+    if (responseDelay > 0) {
+      await new Promise(resolve => setTimeout(resolve, responseDelay * 1000));
+    }
+
     return new Response(
-      JSON.stringify({ 
-        response: sanitized, 
-        sessionId: currentSessionId 
-      }), 
+      JSON.stringify({
+        response: sanitized,
+        sessionId: currentSessionId
+      }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }

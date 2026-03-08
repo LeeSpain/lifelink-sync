@@ -3,17 +3,16 @@ import EnhancedChatWidget from "@/components/ai-chat/EnhancedChatWidget";
 import { useTranslation } from 'react-i18next';
 import { useClaraChat } from '@/contexts/ClaraChatContext';
 import { useLocation } from 'react-router-dom';
+import { useClaraVisibility } from '@/hooks/useClaraVisibility';
 
 const GlobalClaraChat: React.FC = () => {
   const { t } = useTranslation();
   const { isClaraOpen, closeClaraChat } = useClaraChat();
   const location = useLocation();
+  const { isVisibleOnRoute } = useClaraVisibility();
 
-  // Don't show Clara on admin dashboard, member dashboard, family-app page, or SOS app page
-  if (location.pathname.startsWith('/admin-dashboard') ||
-      location.pathname.startsWith('/member-dashboard') ||
-      location.pathname === '/family-app' ||
-      location.pathname === '/sos-app') {
+  // Dynamic visibility based on admin-configured rules
+  if (!isVisibleOnRoute(location.pathname)) {
     return null;
   }
 

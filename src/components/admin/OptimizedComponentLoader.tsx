@@ -17,7 +17,7 @@ import ProfessionalSocialHub from './enhanced/ProfessionalSocialHub';
 import AdvancedCampaignMonitor from './enhanced/AdvancedCampaignMonitor';
 
 // AI & Configuration Components - Direct imports
-import AIModelSettingsPage from './pages/AIModelSettingsPage';
+import AIAgentPage from './pages/AIAgentPage';
 import AITrainingPage from './pages/AITrainingPage';
 import RivenConfigurationPage from './pages/RivenConfigurationPage';
 import WorkflowPipeline from './workflow/WorkflowPipeline';
@@ -76,7 +76,7 @@ export default function OptimizedComponentLoader({ type, props, enhanced = true 
           <CampaignMonitor {...props} />
         );
       case 'ai-settings':
-        return <AIModelSettingsPage {...props} />;
+        return <AIAgentPage {...props} />;
       case 'training-data':
         return <AITrainingPage {...props} />;
       case 'riven-config':

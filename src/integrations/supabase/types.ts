@@ -59,6 +59,120 @@ export type Database = {
         }
         Relationships: []
       }
+      clara_knowledge_base: {
+        Row: {
+          id: string
+          language: string
+          section: string
+          content: string
+          sort_order: number
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          language?: string
+          section: string
+          content: string
+          sort_order?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          language?: string
+          section?: string
+          content?: string
+          sort_order?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      clara_restricted_patterns: {
+        Row: {
+          id: string
+          pattern: string
+          replacement_message: string | null
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          pattern: string
+          replacement_message?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          pattern?: string
+          replacement_message?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      clara_visibility_rules: {
+        Row: {
+          id: string
+          route_pattern: string
+          is_visible: boolean
+          description: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          route_pattern: string
+          is_visible?: boolean
+          description?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          route_pattern?: string
+          is_visible?: boolean
+          description?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      clara_currency_config: {
+        Row: {
+          id: string
+          currency_code: string
+          rate_to_eur: number
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          currency_code: string
+          rate_to_eur: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          currency_code?: string
+          rate_to_eur?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ai_model_settings: {
         Row: {
           created_at: string
