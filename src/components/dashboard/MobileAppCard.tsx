@@ -299,10 +299,44 @@ const MobileAppCard = () => {
               {t("mobileApp.tabletDesc", "Get the always-on care dashboard on your tablet. Shows time, reminders from family, SOS button, and more. Perfect for elderly care.")}
             </p>
 
+            {/* Direct Download — install on this device now */}
+            <div className="text-center p-5 bg-purple-50 border border-purple-200 rounded-lg mb-4">
+              <Tablet className="h-8 w-8 text-purple-600 mx-auto mb-2" />
+              <h5 className="font-semibold mb-1">
+                {t("mobileApp.tabletDownloadTitle", "Download Tablet Dashboard")}
+              </h5>
+              <p className="text-sm text-muted-foreground mb-3">
+                {t("mobileApp.tabletDownloadDesc", "Install the tablet dashboard as an app on this device right now.")}
+              </p>
+              <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                {isInstallable ? (
+                  <Button size="lg" className="min-h-[48px] px-8 bg-purple-600 hover:bg-purple-700" onClick={installApp}>
+                    <Download className="h-4 w-4 mr-2" />
+                    {t("mobileApp.tabletInstallNow", "Install Tablet App")}
+                  </Button>
+                ) : (
+                  <Button asChild size="lg" className="min-h-[48px] px-8 bg-purple-600 hover:bg-purple-700">
+                    <a href="/tablet-dashboard" target="_blank" rel="noopener">
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      {t("mobileApp.tabletLaunch", "Launch Tablet Dashboard")}
+                    </a>
+                  </Button>
+                )}
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-2">
+                {t("mobileApp.tabletInstallNote", "Opens full-screen with always-on display. No app store needed.")}
+              </p>
+            </div>
+
+            {/* Send to another device */}
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+              {t("mobileApp.tabletSendToDevice", "Or send to another device")}
+            </p>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* QR Code */}
-              <div className="text-center p-4 bg-purple-50 border border-purple-200 rounded-lg">
-                <p className="text-xs font-medium text-purple-700 mb-2">
+              <div className="text-center p-4 bg-muted/50 rounded-lg">
+                <p className="text-xs font-medium text-muted-foreground mb-2">
                   {t("mobileApp.tabletScanQr", "Scan on your tablet")}
                 </p>
                 <div className="w-40 h-40 mx-auto mb-2 bg-white rounded-lg flex items-center justify-center border p-2">
@@ -316,7 +350,7 @@ const MobileAppCard = () => {
               {/* Share Options */}
               <div className="space-y-2">
                 <p className="text-xs font-medium text-muted-foreground mb-1">
-                  {t("mobileApp.tabletShareOptions", "Or send the link to your tablet")}
+                  {t("mobileApp.tabletShareOptions", "Send the link")}
                 </p>
                 <Button variant="outline" size="sm" className="w-full justify-start gap-2 min-h-[40px]" onClick={copyTabletLink}>
                   <Copy className="h-4 w-4" />
@@ -334,18 +368,8 @@ const MobileAppCard = () => {
                   <MessageSquare className="h-4 w-4" />
                   {t("mobileApp.tabletSMS", "Send via Text")}
                 </Button>
-                <Button asChild variant="outline" size="sm" className="w-full justify-start gap-2 min-h-[40px]">
-                  <a href="/tablet-dashboard" target="_blank" rel="noopener">
-                    <ExternalLink className="h-4 w-4" />
-                    {t("mobileApp.tabletOpen", "Open Tablet Dashboard")}
-                  </a>
-                </Button>
               </div>
             </div>
-
-            <p className="text-xs text-muted-foreground mt-3 text-center">
-              {t("mobileApp.tabletInstallHint", "Once opened on your tablet, you'll be prompted to install it as an always-on app.")}
-            </p>
           </div>
         </div>
       </CardContent>

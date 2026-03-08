@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePreferences } from '@/contexts/PreferencesContext';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Globe } from 'lucide-react';
@@ -17,13 +18,15 @@ const CURRENCIES = [
 ] as const;
 
 export const LanguageCurrencySelector: React.FC<{ compact?: boolean }> = ({ compact }) => {
+  const { t } = useTranslation();
   const { language, setLanguage, currency, setCurrency } = usePreferences();
+  const [open, setOpen] = useState(false);
 
   const currentLang = LANGUAGES.find(l => l.value === language) || LANGUAGES[0];
   const currentCurrency = CURRENCIES.find(c => c.value === currency) || CURRENCIES[0];
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button
           className={`flex items-center gap-1.5 rounded-full border border-border/60 bg-white/80 hover:bg-white hover:border-primary/30 transition-all duration-200 ${
@@ -41,13 +44,16 @@ export const LanguageCurrencySelector: React.FC<{ compact?: boolean }> = ({ comp
         {/* Language Section */}
         <div className="p-3 border-b border-border/50">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-            Language
+            {t('selector.language')}
           </p>
           <div className="space-y-0.5">
             {LANGUAGES.map(lang => (
               <button
                 key={lang.value}
-                onClick={() => setLanguage(lang.value as any)}
+                onClick={() => {
+                  setLanguage(lang.value as any);
+                  setOpen(false);
+                }}
                 className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm transition-colors ${
                   language === lang.value
                     ? 'bg-primary/10 text-primary font-medium'
@@ -64,13 +70,16 @@ export const LanguageCurrencySelector: React.FC<{ compact?: boolean }> = ({ comp
         {/* Currency Section */}
         <div className="p-3">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-            Currency
+            {t('selector.currency')}
           </p>
           <div className="space-y-0.5">
             {CURRENCIES.map(curr => (
               <button
                 key={curr.value}
-                onClick={() => setCurrency(curr.value as any)}
+                onClick={() => {
+                  setCurrency(curr.value as any);
+                  setOpen(false);
+                }}
                 className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm transition-colors ${
                   currency === curr.value
                     ? 'bg-primary/10 text-primary font-medium'

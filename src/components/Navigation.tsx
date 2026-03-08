@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Shield, Menu, X } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 import LanguageCurrencySelector from '@/components/LanguageCurrencySelector';
 import { usePreferences } from '@/contexts/PreferencesContext';
@@ -19,6 +19,7 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
   const { trackButtonClick, trackLinkClick } = useInteractionTracking();
   const { openClaraChat } = useClaraChat();
   const location = useLocation();
+  const navigate = useNavigate();
   const isHomepage = location.pathname === '/';
 
   const handleSignInClick = () => {
@@ -32,6 +33,31 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
   const handleLogoClick = () => {
     trackLinkClick('navigation', '/', 'Logo');
   };
+
+  const handleHashNavigation = useCallback((hash: string) => {
+    setIsMenuOpen(false);
+    if (isHomepage) {
+      const el = document.getElementById(hash);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      navigate('/');
+      setTimeout(() => {
+        const el = document.getElementById(hash);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 300);
+    }
+  }, [isHomepage, navigate]);
+
+  const navLinks = [
+    { hash: 'how-it-works', label: t('nav.howItWorks', 'How It Works') },
+    { hash: 'features', label: t('nav.features', 'Features') },
+    { hash: 'family', label: t('nav.family', 'Family') },
+    { hash: 'pricing', label: t('nav.pricing', 'Pricing') },
+  ];
 
   return (
     <>
@@ -53,21 +79,15 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
-            {isHomepage ? (
-              <>
-                <a href="#how-it-works" className="text-sm font-medium text-foreground hover:text-primary transition-colors">How It Works</a>
-                <a href="#features" className="text-sm font-medium text-foreground hover:text-primary transition-colors">Features</a>
-                <a href="#family" className="text-sm font-medium text-foreground hover:text-primary transition-colors">Family</a>
-                <a href="#pricing" className="text-sm font-medium text-foreground hover:text-primary transition-colors">Pricing</a>
-              </>
-            ) : (
-              <>
-                <Link to="/#how-it-works" className="text-sm font-medium text-foreground hover:text-primary transition-colors">How It Works</Link>
-                <Link to="/#features" className="text-sm font-medium text-foreground hover:text-primary transition-colors">Features</Link>
-                <Link to="/#family" className="text-sm font-medium text-foreground hover:text-primary transition-colors">Family</Link>
-                <Link to="/#pricing" className="text-sm font-medium text-foreground hover:text-primary transition-colors">Pricing</Link>
-              </>
-            )}
+            {navLinks.map(({ hash, label }) => (
+              <button
+                key={hash}
+                onClick={() => handleHashNavigation(hash)}
+                className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+              >
+                {label}
+              </button>
+            ))}
             <div className="border-l border-border/30 pl-6 ml-2">
               <LanguageCurrencySelector compact />
             </div>
@@ -89,8 +109,8 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
                   <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white" />
                 </div>
                 <div className="text-left">
-                  <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">Clara</span>
-                  <span className="text-[10px] text-muted-foreground block leading-none">AI Assistant</span>
+                  <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">{t('nav.clara', 'Clara')}</span>
+                  <span className="text-[10px] text-muted-foreground block leading-none">{t('nav.claraSubtitle', 'AI Assistant')}</span>
                 </div>
               </button>
 
@@ -102,7 +122,7 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
                 className="bg-primary text-white hover:bg-primary/90 font-medium transition-all duration-200 hover:scale-105 shadow-lg"
                 onClick={handleGetProtectedClick}
               >
-                <Link to="/register">Get Protected</Link>
+                <Link to="/register">{t('nav.getProtected', 'Get Protected')}</Link>
               </Button>
             </div>
           </div>
@@ -142,21 +162,15 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
               <div className="mb-4 px-4">
                 <LanguageCurrencySelector />
               </div>
-              {isHomepage ? (
-                <>
-                  <a href="#how-it-works" className="text-sm font-medium text-foreground hover:text-primary px-4 py-2" onClick={() => setIsMenuOpen(false)}>How It Works</a>
-                  <a href="#features" className="text-sm font-medium text-foreground hover:text-primary px-4 py-2" onClick={() => setIsMenuOpen(false)}>Features</a>
-                  <a href="#family" className="text-sm font-medium text-foreground hover:text-primary px-4 py-2" onClick={() => setIsMenuOpen(false)}>Family</a>
-                  <a href="#pricing" className="text-sm font-medium text-foreground hover:text-primary px-4 py-2" onClick={() => setIsMenuOpen(false)}>Pricing</a>
-                </>
-              ) : (
-                <>
-                  <Link to="/#how-it-works" className="text-sm font-medium text-foreground hover:text-primary px-4 py-2" onClick={() => setIsMenuOpen(false)}>How It Works</Link>
-                  <Link to="/#features" className="text-sm font-medium text-foreground hover:text-primary px-4 py-2" onClick={() => setIsMenuOpen(false)}>Features</Link>
-                  <Link to="/#family" className="text-sm font-medium text-foreground hover:text-primary px-4 py-2" onClick={() => setIsMenuOpen(false)}>Family</Link>
-                  <Link to="/#pricing" className="text-sm font-medium text-foreground hover:text-primary px-4 py-2" onClick={() => setIsMenuOpen(false)}>Pricing</Link>
-                </>
-              )}
+              {navLinks.map(({ hash, label }) => (
+                <button
+                  key={hash}
+                  onClick={() => handleHashNavigation(hash)}
+                  className="text-sm font-medium text-foreground hover:text-primary px-4 py-2 text-left"
+                >
+                  {label}
+                </button>
+              ))}
               <div className="flex flex-col space-y-3 pt-6 mt-4 border-t border-border mx-4">
                 {/* Mobile Clara Chat Button */}
                 <button
@@ -175,8 +189,8 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
                     <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
                   </div>
                   <div className="text-left">
-                    <span className="text-sm font-semibold text-foreground">Chat with Clara AI</span>
-                    <span className="text-xs text-muted-foreground block">Available 24/7 to help</span>
+                    <span className="text-sm font-semibold text-foreground">{t('nav.chatWithClara', 'Chat with Clara AI')}</span>
+                    <span className="text-xs text-muted-foreground block">{t('nav.available247', 'Available 24/7 to help')}</span>
                   </div>
                 </button>
 
@@ -188,7 +202,7 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
                   className="bg-primary text-white hover:bg-primary/90 font-medium transition-all duration-200 shadow-lg"
                 >
                   <Link to="/register" onClick={() => setIsMenuOpen(false)}>
-                    Get Protected
+                    {t('nav.getProtected', 'Get Protected')}
                   </Link>
                 </Button>
               </div>

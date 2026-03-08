@@ -57,7 +57,7 @@ const Pricing: React.FC = () => {
   const addOns: AddOnProps[] = [
     {
       name: t('pricing.addOns.familyLink.name'),
-      price: '\u20AC2.99',
+      price: t('pricing.addOns.price', '€2.99'),
       description: t('pricing.addOns.familyLink.description'),
       features: [
         t('pricing.addOns.familyLink.feature1'),
@@ -69,7 +69,7 @@ const Pricing: React.FC = () => {
     },
     {
       name: t('pricing.addOns.dailyWellbeing.name'),
-      price: '\u20AC2.99',
+      price: t('pricing.addOns.price', '€2.99'),
       description: t('pricing.addOns.dailyWellbeing.description'),
       features: [
         t('pricing.addOns.dailyWellbeing.feature1'),
@@ -80,7 +80,7 @@ const Pricing: React.FC = () => {
     },
     {
       name: t('pricing.addOns.medicationReminder.name'),
-      price: '\u20AC2.99',
+      price: t('pricing.addOns.price', '€2.99'),
       description: t('pricing.addOns.medicationReminder.description'),
       features: [
         t('pricing.addOns.medicationReminder.feature1'),
@@ -111,7 +111,7 @@ const Pricing: React.FC = () => {
             </Badge>
             <h3 className="text-2xl font-bold font-poppins mb-2 text-white">{t('pricing.basePlan.name')}</h3>
             <div className="flex items-baseline gap-1 mb-4">
-              <span className="text-4xl font-bold font-poppins text-primary">&euro;9.99</span>
+              <span className="text-4xl font-bold font-poppins text-primary">{t('pricing.basePlan.price')}</span>
               <span className="text-sm text-gray-400">{t('pricing.perMonth')}</span>
             </div>
             <p className="text-sm text-gray-300 mb-6">

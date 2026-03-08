@@ -20,7 +20,7 @@ const PendantPromo: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
           {/* Image */}
-          <div className="flex justify-center lg:justify-end order-1 lg:order-1">
+          <div className="flex justify-center lg:justify-end">
             <div className="relative w-64 h-64 sm:w-80 sm:h-80">
               <OptimizedImage
                 src="/lovable-uploads/acfcc77a-7e34-44f5-8487-4069c2acb56b.png"
@@ -31,7 +31,7 @@ const PendantPromo: React.FC = () => {
           </div>
 
           {/* Content */}
-          <div className="order-2 lg:order-2 text-center lg:text-left">
+          <div className="text-center lg:text-left">
             <Badge className="bg-primary/20 text-primary border-primary/30 mb-4">
               {t('pendantPromo.badge')}
             </Badge>

@@ -8,7 +8,18 @@
     "subscribeNow": "Subscribe Now",
     "joinNow": "Join Now",
     "regionalCenter": "Contact Regional Center",
-    "introVideo": "Intro Video"
+    "introVideo": "Intro Video",
+    "howItWorks": "How It Works",
+    "family": "Family",
+    "getProtected": "Get Protected",
+    "clara": "Clara",
+    "claraSubtitle": "AI Assistant",
+    "chatWithClara": "Chat with Clara AI",
+    "available247": "Available 24/7 to help"
+  },
+  "selector": {
+    "language": "Language",
+    "currency": "Currency"
   },
   "footer": {
     "companyDescription": "Emergency response and family safety platform providing peace of mind through advanced protection services.",
@@ -83,9 +94,11 @@
       "feature3": "Live location sharing",
       "feature4": "1 emergency contact",
       "feature5": "Incident log",
-      "feature6": "1 free Family Link"
+      "feature6": "1 free Family Link",
+      "price": "€9.99"
     },
     "addOns": {
+      "price": "€2.99",
       "familyLink": {
         "name": "Family Link",
         "description": "Add family members to your protection circle.",

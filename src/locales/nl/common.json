@@ -7,7 +7,18 @@
     "signIn": "Inloggen",
     "subscribeNow": "Abonneer Nu",
     "joinNow": "Meld je aan",
-    "regionalCenter": "Regionaal centrum contacteren"
+    "regionalCenter": "Regionaal centrum contacteren",
+    "howItWorks": "Hoe Het Werkt",
+    "family": "Familie",
+    "getProtected": "Word Beschermd",
+    "clara": "Clara",
+    "claraSubtitle": "AI Assistent",
+    "chatWithClara": "Chat met Clara AI",
+    "available247": "24/7 beschikbaar om te helpen"
+  },
+  "selector": {
+    "language": "Taal",
+    "currency": "Valuta"
   },
   "footer": {
     "quickLinks": "Snelle links",
@@ -75,9 +86,11 @@
       "feature3": "Live locatie delen",
       "feature4": "1 noodcontact",
       "feature5": "Incidentenlogboek",
-      "feature6": "1 gratis familielink"
+      "feature6": "1 gratis familielink",
+      "price": "€9,99"
     },
     "addOns": {
+      "price": "€2,99",
       "familyLink": {
         "name": "Familielink",
         "description": "Voeg familieleden toe aan je beschermingskring.",

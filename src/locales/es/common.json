@@ -7,7 +7,18 @@
     "signIn": "Iniciar sesión",
     "subscribeNow": "Suscríbete",
     "joinNow": "Únete ahora",
-    "regionalCenter": "Contactar Centro Regional"
+    "regionalCenter": "Contactar Centro Regional",
+    "howItWorks": "Cómo Funciona",
+    "family": "Familia",
+    "getProtected": "Protégete",
+    "clara": "Clara",
+    "claraSubtitle": "Asistente IA",
+    "chatWithClara": "Chatea con Clara IA",
+    "available247": "Disponible 24/7 para ayudarte"
+  },
+  "selector": {
+    "language": "Idioma",
+    "currency": "Moneda"
   },
   "footer": {
     "quickLinks": "Enlaces rápidos",
@@ -75,9 +86,11 @@
       "feature3": "Compartir ubicación en vivo",
       "feature4": "1 contacto de emergencia",
       "feature5": "Registro de incidentes",
-      "feature6": "1 enlace familiar gratuito"
+      "feature6": "1 enlace familiar gratuito",
+      "price": "€9,99"
     },
     "addOns": {
+      "price": "€2,99",
       "familyLink": {
         "name": "Enlace familiar",
         "description": "Añade miembros de la familia a tu círculo de protección.",
