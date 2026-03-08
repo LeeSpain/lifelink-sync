@@ -281,13 +281,13 @@ const LiveSOSFamily = () => {
 
   if (!activeEvent) {
     return (
-      <Card className="bg-green-50 border-green-200">
+      <Card className="bg-muted/50">
         <CardContent className="pt-6">
-          <div className="flex items-center gap-2 text-green-700">
+          <div className="flex items-center gap-2 text-foreground">
             <CheckCircle className="h-5 w-5" />
             <span className="font-medium">No active emergencies</span>
           </div>
-          <p className="text-sm text-green-600 mt-2">
+          <p className="text-sm text-muted-foreground mt-2">
             You'll receive real-time alerts here if a family member triggers an SOS.
           </p>
         </CardContent>
@@ -298,9 +298,9 @@ const LiveSOSFamily = () => {
   return (
     <div className="space-y-4">
       {/* Emergency Banner */}
-      <Alert className="border-red-500 bg-red-50">
-        <AlertTriangle className="h-4 w-4 text-red-500" />
-        <AlertDescription className="text-red-800">
+      <Alert className="border-destructive/20 bg-destructive/5">
+        <AlertTriangle className="h-4 w-4 text-destructive" />
+        <AlertDescription className="text-foreground">
           <strong>🚨 EMERGENCY ACTIVE</strong> - Family member needs help at {activeEvent.address}
         </AlertDescription>
       </Alert>
@@ -309,7 +309,7 @@ const LiveSOSFamily = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <MapPin className="h-5 w-5 text-red-500" />
+            <MapPin className="h-5 w-5 text-primary" />
             Live Location
             <Badge variant="destructive">ACTIVE</Badge>
           </CardTitle>
@@ -334,17 +334,16 @@ const LiveSOSFamily = () => {
         <Button
           onClick={handleAcknowledge}
           disabled={hasAcknowledged || isLoading}
-          className="bg-green-600 hover:bg-green-700 text-white"
-          size="lg"
+          size="sm"
         >
           {hasAcknowledged ? (
             <>
-              <CheckCircle className="h-5 w-5 mr-2" />
+              <CheckCircle className="h-4 w-4 mr-2" />
               Acknowledged
             </>
           ) : (
             <>
-              <Users className="h-5 w-5 mr-2" />
+              <Users className="h-4 w-4 mr-2" />
               {isLoading ? "Sending..." : "Received & On It"}
             </>
           )}
@@ -353,19 +352,19 @@ const LiveSOSFamily = () => {
         <Button
           onClick={callMember}
           variant="outline"
-          size="lg"
+          size="sm"
           disabled={!activeEvent?.metadata?.user_phone}
         >
-          <Phone className="h-5 w-5 mr-2" />
+          <Phone className="h-4 w-4 mr-2" />
           Call Member
         </Button>
 
         <Button
           onClick={callEmergencyServices}
           variant="destructive"
-          size="lg"
+          size="sm"
         >
-          <Phone className="h-5 w-5 mr-2" />
+          <Phone className="h-4 w-4 mr-2" />
           Call 112
         </Button>
       </div>
@@ -382,8 +381,8 @@ const LiveSOSFamily = () => {
           <CardContent>
             <div className="space-y-2">
               {acknowledgements.map((ack) => (
-                <div key={ack.id} className="flex items-center gap-2 p-2 bg-green-50 rounded border-green-200 border">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
+                <div key={ack.id} className="flex items-center gap-2 p-2 bg-muted/50 rounded border">
+                  <CheckCircle className="h-4 w-4 text-primary" />
                   <span className="text-sm">
                     Family member responded at {new Date(ack.acknowledged_at).toLocaleTimeString()}
                   </span>

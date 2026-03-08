@@ -157,10 +157,10 @@ export function SupportPage() {
   ];
 
   const priorities = [
-    { value: "low", label: "Low", color: "text-green-600" },
-    { value: "medium", label: "Medium", color: "text-yellow-600" },
-    { value: "high", label: "High", color: "text-orange-600" },
-    { value: "urgent", label: "Urgent", color: "text-red-600" }
+    { value: "low", label: "Low", color: "text-muted-foreground" },
+    { value: "medium", label: "Medium", color: "text-foreground" },
+    { value: "high", label: "High", color: "text-foreground" },
+    { value: "urgent", label: "Urgent", color: "text-destructive" }
   ];
 
   // No support tickets - this will be replaced with real data from database in the future
@@ -222,21 +222,21 @@ export function SupportPage() {
       description: "What happens during an emergency activation",
       category: "Emergency",
       readTime: "8 min",
-      icon: <AlertCircle className="h-5 w-5 text-emergency" />
+      icon: <AlertCircle className="h-5 w-5 text-primary" />
     },
     {
       title: "Device Troubleshooting",
       description: "Common issues and solutions for all devices",
       category: "Technical",
       readTime: "10 min",
-      icon: <HelpCircle className="h-5 w-5 text-accent" />
+      icon: <HelpCircle className="h-5 w-5 text-muted-foreground" />
     },
     {
       title: "Privacy and Security Settings",
       description: "Managing your data and privacy preferences",
       category: "Privacy",
       readTime: "6 min",
-      icon: <CheckCircle className="h-5 w-5 text-secondary-foreground" />
+      icon: <CheckCircle className="h-5 w-5 text-muted-foreground" />
     },
     {
       title: "Family Plan Management",
@@ -250,16 +250,16 @@ export function SupportPage() {
       description: "Common billing questions and account management",
       category: "Billing",
       readTime: "4 min",
-      icon: <Clock className="h-5 w-5 text-accent" />
+      icon: <Clock className="h-5 w-5 text-muted-foreground" />
     }
   ];
 
   const getStatusBadge = (status: string) => {
     switch (status.toLowerCase()) {
       case "in progress":
-        return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">In Progress</Badge>;
+        return <Badge variant="secondary">In Progress</Badge>;
       case "resolved":
-        return <Badge className="bg-green-100 text-green-800 border-green-200">Resolved</Badge>;
+        return <Badge variant="secondary">Resolved</Badge>;
       case "pending":
         return <Badge variant="secondary">Pending</Badge>;
       default:
@@ -284,10 +284,10 @@ export function SupportPage() {
       </div>
 
       {/* Clara AI Assistant - Embedded Chat */}
-      <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-emergency/5">
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Bot className="h-6 w-6 text-primary" />
+            <Bot className="h-5 w-5 text-primary" />
             Chat with Clara AI Assistant
           </CardTitle>
           <CardDescription>
@@ -345,7 +345,7 @@ export function SupportPage() {
                   onClick={sendMessage}
                   disabled={!inputMessage.trim() || isChatLoading}
                   size="sm"
-                  className="px-3 bg-primary hover:bg-primary/90"
+                  className="px-3"
                 >
                   <Send className="h-4 w-4" />
                 </Button>
@@ -432,7 +432,7 @@ export function SupportPage() {
           <Button 
             onClick={handleSubmitTicket} 
             disabled={isSubmitting}
-            className="flex items-center gap-2 bg-primary hover:bg-primary/90"
+            size="sm"
           >
             {isSubmitting ? (
               <>
@@ -461,7 +461,7 @@ export function SupportPage() {
           <CardContent>
             <div className="space-y-4">
               {supportTickets.map((ticket) => (
-                <div key={ticket.id} className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-accent/50 transition-colors">
+                <div key={ticket.id} className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors">
                   <div>
                     <h3 className="text-sm font-semibold">{ticket.subject}</h3>
                     <p className="text-xs text-muted-foreground">Ticket {ticket.id}</p>
@@ -526,7 +526,7 @@ export function SupportPage() {
 
           {filteredFAQ.length === 0 && (
           <div className="text-center py-8">
-            <Search className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+            <Search className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-sm font-semibold mb-2">No results found</h3>
             <p className="text-xs text-muted-foreground">
               Try adjusting your search terms or browse all questions above
@@ -552,7 +552,7 @@ export function SupportPage() {
             {knowledgeBaseArticles.map((article, index) => (
               <div 
                 key={index}
-                className="border border-border rounded-lg p-4 hover:bg-accent/50 transition-colors cursor-pointer group"
+                className="p-3 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer group"
               >
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 group-hover:scale-110 transition-transform">
@@ -585,21 +585,17 @@ export function SupportPage() {
 
           {/* Emergency Contacts */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="flex items-center gap-3 p-4 border border-emergency/20 rounded-lg bg-emergency/5">
-              <div className="w-12 h-12 bg-emergency/10 rounded-full flex items-center justify-center">
-                <Phone className="h-6 w-6 text-emergency" />
-              </div>
+            <div className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
+              <Phone className="h-5 w-5 text-primary" />
               <div>
-                <h3 className="text-sm font-semibold text-emergency">Emergency Line</h3>
+                <h3 className="text-sm font-semibold">Emergency Line</h3>
                 <p className="text-xs text-muted-foreground">1-800-LIFELINK</p>
                 <p className="text-xs text-muted-foreground">Available 24/7 for emergencies</p>
               </div>
             </div>
             
-            <div className="flex items-center gap-3 p-4 border border-border rounded-lg hover:bg-accent/50 transition-colors">
-              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                <Mail className="h-6 w-6 text-primary" />
-              </div>
+            <div className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
+              <Mail className="h-5 w-5 text-primary" />
               <div>
                 <h3 className="text-sm font-semibold">Email Support</h3>
                 <p className="text-xs text-muted-foreground">support@icesurvival.com</p>

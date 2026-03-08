@@ -92,7 +92,7 @@ export function SettingsPage() {
         <Button 
           onClick={saveSettings} 
           disabled={isSaving}
-          className="bg-primary hover:bg-primary/90"
+          size="sm"
         >
           {isSaving ? (
             <>
@@ -279,7 +279,7 @@ export function SettingsPage() {
                   Download a copy of all your data in JSON format
                 </p>
               </div>
-              <Button variant="outline" onClick={handleExportData}>
+              <Button variant="outline" size="sm" onClick={handleExportData}>
                 <Download className="h-4 w-4 mr-2" />
                 Export
               </Button>
@@ -294,7 +294,7 @@ export function SettingsPage() {
                   Clear temporary files to free up storage space
                 </p>
               </div>
-              <Button variant="outline" onClick={handleClearCache}>
+              <Button variant="outline" size="sm" onClick={handleClearCache}>
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Clear Cache
               </Button>
@@ -302,15 +302,15 @@ export function SettingsPage() {
 
             <Separator />
 
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="bg-destructive/5 border border-destructive/20 rounded-lg p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-sm font-medium text-red-800">Delete Account</h3>
-                  <p className="text-xs text-red-600">
+                  <h3 className="text-sm font-medium text-foreground">Delete Account</h3>
+                  <p className="text-xs text-muted-foreground">
                     Permanently delete your account and all associated data
                   </p>
                 </div>
-                <Button variant="destructive" onClick={handleDeleteAccount}>
+                <Button variant="destructive" size="sm" onClick={handleDeleteAccount}>
                   <Trash2 className="h-4 w-4 mr-2" />
                   Delete
                 </Button>
