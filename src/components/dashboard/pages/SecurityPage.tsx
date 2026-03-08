@@ -97,10 +97,10 @@ export function SecurityPage() {
           <h1 className="text-2xl font-bold tracking-tight">Security</h1>
           <p className="text-muted-foreground">Manage your account security and privacy settings</p>
         </div>
-        <Button 
-          onClick={saveSecuritySettings} 
+        <Button
+          onClick={saveSecuritySettings}
           disabled={isSaving}
-          className="bg-primary hover:bg-primary/90"
+          size="sm"
         >
           {isSaving ? (
             <>
@@ -133,8 +133,8 @@ export function SecurityPage() {
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="h-2 bg-muted rounded-full flex-1">
-                    <div 
-                      className={`h-full rounded-full ${securityScore >= 80 ? 'bg-green-500' : securityScore >= 60 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                    <div
+                      className={`h-full rounded-full ${securityScore >= 80 ? 'bg-primary' : securityScore >= 60 ? 'bg-muted-foreground' : 'bg-destructive'}`}
                       style={{ width: `${securityScore}%` }}
                     ></div>
                   </div>
@@ -224,12 +224,12 @@ export function SecurityPage() {
               </div>
               
               {!twoFactorEnabled && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div className="bg-muted/50 border rounded-lg p-3">
                   <div className="flex items-center gap-2">
-                    <AlertTriangle className="h-5 w-5 text-yellow-600" />
-                    <span className="text-sm font-medium text-yellow-800">Recommended</span>
+                    <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-medium text-foreground">Recommended</span>
                   </div>
-                  <p className="text-xs text-yellow-700 mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     Enable two-factor authentication to significantly improve your account security.
                   </p>
                 </div>
@@ -268,11 +268,9 @@ export function SecurityPage() {
           <CardContent>
             <div className="space-y-4">
               {loginSessions.map((session) => (
-                <div key={session.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div key={session.id} className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                      <Smartphone className="h-5 w-5 text-primary" />
-                    </div>
+                    <Smartphone className="h-5 w-5 text-primary" />
                     <div>
                       <h3 className="text-sm font-semibold flex items-center gap-2">
                         {session.device}

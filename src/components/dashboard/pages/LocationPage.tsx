@@ -134,7 +134,7 @@ export function LocationPage() {
         {/* Location Settings */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-xl">
+            <CardTitle className="flex items-center gap-2">
               <Shield className="h-5 w-5" />
               Privacy & Sharing Settings
             </CardTitle>
@@ -174,7 +174,7 @@ export function LocationPage() {
         {/* Current Location */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-xl">
+            <CardTitle className="flex items-center gap-2">
               <MapPin className="h-5 w-5" />
               Current Location
             </CardTitle>
@@ -182,8 +182,8 @@ export function LocationPage() {
           <CardContent>
             {currentLocation ? (
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                  <Navigation className="h-6 w-6 text-primary" />
+                <div className="p-1.5 rounded-lg bg-muted">
+                  <Navigation className="h-5 w-5 text-primary" />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-base">{currentLocation.address}</h3>
@@ -197,7 +197,7 @@ export function LocationPage() {
                     </span>
                   </div>
                 </div>
-                <Badge className="bg-green-100 text-green-800">
+                <Badge variant="secondary">
                   Active
                 </Badge>
               </div>
@@ -208,10 +208,10 @@ export function LocationPage() {
                 <p className="text-sm text-muted-foreground mb-4">
                   Get your current location to enable location services
                 </p>
-                <Button 
+                <Button
                   onClick={getCurrentLocation}
                   disabled={isLoadingLocation}
-                  className="bg-primary hover:bg-primary/90"
+                  size="sm"
                 >
                   {isLoadingLocation ? (
                     <>
@@ -235,7 +235,7 @@ export function LocationPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="flex items-center gap-2 text-xl">
+                <CardTitle className="flex items-center gap-2">
                   <Home className="h-5 w-5" />
                   Safe Zones
                 </CardTitle>
@@ -256,7 +256,7 @@ export function LocationPage() {
               <p className="text-sm text-muted-foreground mb-4">
                 Create safe zones to get notifications when family members arrive or leave
               </p>
-              <Button variant="outline" className="bg-primary text-primary-foreground hover:bg-primary/90">
+              <Button size="sm">
                 <Plus className="h-4 w-4 mr-2" />
                 Create Your First Safe Zone
               </Button>
@@ -267,7 +267,7 @@ export function LocationPage() {
         {/* Location History */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-xl">
+            <CardTitle className="flex items-center gap-2">
               <Clock className="h-5 w-5" />
               Recent Location History
             </CardTitle>

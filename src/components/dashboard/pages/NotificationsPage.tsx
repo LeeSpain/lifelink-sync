@@ -154,10 +154,10 @@ export function NotificationsPage() {
           <h1 className="text-2xl font-bold tracking-tight">Notifications</h1>
           <p className="text-muted-foreground">Customize how and when you receive notifications</p>
         </div>
-        <Button 
-          onClick={savePreferences} 
+        <Button
+          onClick={savePreferences}
           disabled={isSaving || isLoading}
-          className="bg-primary hover:bg-primary/90"
+          size="sm"
         >
           {isSaving ? (
             <>
@@ -186,9 +186,7 @@ export function NotificationsPage() {
               <div key={type.id} className="space-y-3 pb-6 border-b last:border-0">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-lg bg-muted flex items-center justify-center ${type.color}`}>
-                      <type.icon className="h-5 w-5" />
-                    </div>
+                    <type.icon className={`h-5 w-5 ${type.color}`} />
                     <div>
                       <h3 className="text-sm font-semibold">{type.title}</h3>
                       <p className="text-sm text-muted-foreground">{type.description}</p>
@@ -207,7 +205,7 @@ export function NotificationsPage() {
                       value={settings[type.methodSetting as keyof typeof settings] as string}
                       onValueChange={(value) => updateSetting(type.methodSetting, value)}
                     >
-                      <SelectTrigger className="w-64 mt-1">
+                      <SelectTrigger className="w-full max-w-xs mt-1">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -310,33 +308,27 @@ export function NotificationsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="flex items-center gap-3 p-4 border border-border rounded-lg bg-card hover:bg-accent/50 transition-colors">
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Smartphone className="h-6 w-6 text-primary" />
-                </div>
+              <div className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
+                <Smartphone className="h-5 w-5 text-primary" />
                 <div>
                   <h3 className="text-sm font-semibold">Push Notifications</h3>
-                  <p className="text-sm text-muted-foreground">Mobile app alerts</p>
+                  <p className="text-xs text-muted-foreground">Mobile app alerts</p>
                 </div>
               </div>
-              
-              <div className="flex items-center gap-3 p-4 border border-border rounded-lg bg-card hover:bg-accent/50 transition-colors">
-                <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center">
-                  <Mail className="h-6 w-6 text-accent" />
-                </div>
+
+              <div className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
+                <Mail className="h-5 w-5 text-muted-foreground" />
                 <div>
                   <h3 className="text-sm font-semibold">Email</h3>
-                  <p className="text-sm text-muted-foreground">Email notifications</p>
+                  <p className="text-xs text-muted-foreground">Email notifications</p>
                 </div>
               </div>
-              
-              <div className="flex items-center gap-3 p-4 border border-border rounded-lg bg-card hover:bg-accent/50 transition-colors">
-                <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center">
-                  <MessageSquare className="h-6 w-6 text-secondary-foreground" />
-                </div>
+
+              <div className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
+                <MessageSquare className="h-5 w-5 text-muted-foreground" />
                 <div>
                   <h3 className="text-sm font-semibold">SMS</h3>
-                  <p className="text-sm text-muted-foreground">Text messages</p>
+                  <p className="text-xs text-muted-foreground">Text messages</p>
                 </div>
               </div>
             </div>
