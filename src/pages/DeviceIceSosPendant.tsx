@@ -115,7 +115,7 @@ const DeviceIceSosPendant = () => {
                     size="xl" 
                     className="bg-wellness text-black hover:bg-wellness/90 shadow-glow hover:shadow-xl transform hover:scale-105 transition-all duration-300 font-semibold text-lg px-8 py-4 rounded-xl border-2 border-wellness/20"
                   >
-                    <Link to="/ai-register">Join Now</Link>
+                    <Link to="/register">Join Now</Link>
                   </Button>
                 )}
                 <IntroVideoModal 
@@ -448,7 +448,7 @@ const DeviceIceSosPendant = () => {
                       size="lg" 
                       className="w-full bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 font-semibold text-lg px-8 py-4 rounded-xl"
                     >
-                      <Link to="/ai-register">Join Now - Get Protected Today</Link>
+                      <Link to="/register">Join Now - Get Protected Today</Link>
                     </Button>
                   )}
                 </div>
@@ -698,7 +698,7 @@ const DeviceIceSosPendant = () => {
             ) : (
               <>
                 <Button size="lg" className="px-8 py-3 font-semibold bg-emergency hover:bg-emergency/90" asChild>
-                  <Link to="/ai-register">Order Now - €59.99 + €4.99 shipping</Link>
+                  <Link to="/register">Order Now - €59.99 + €4.99 shipping</Link>
                 </Button>
                 <div className="text-sm text-muted-foreground">
                   <Check className="h-4 w-4 inline mr-1 text-green-600" />

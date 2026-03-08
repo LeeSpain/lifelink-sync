@@ -18,7 +18,7 @@ const TrialSignupPage: React.FC = () => {
 
   const handleActivateTrial = async () => {
     if (!user) {
-      navigate('/ai-register');
+      navigate('/register');
       return;
     }
 
@@ -128,7 +128,7 @@ const TrialSignupPage: React.FC = () => {
 
             {!user && (
               <p className="text-center text-sm text-muted-foreground">
-                <Button variant="link" className="p-0" onClick={() => navigate('/ai-register')}>
+                <Button variant="link" className="p-0" onClick={() => navigate('/register')}>
                   Create an account
                 </Button>
                 {' '}first to start your trial.

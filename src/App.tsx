@@ -47,6 +47,9 @@ import FamilyCarerAccessPage from "./pages/FamilyCarerAccess";
 // Interactive and Mobile Pages
 import FamilyAccessSetup from "./pages/FamilyAccessSetup";
 import AIRegister from "./pages/AIRegister";
+import RegisterPage from "./pages/RegisterPage";
+import FamilyInviteAccept from "./pages/FamilyInviteAccept";
+import { ConnectionAcceptPage } from "./pages/ConnectionAcceptPage";
 const TestRegistration = import.meta.env.DEV ? React.lazy(() => import("./pages/TestRegistration")) : null;
 
 // Payment Pages
@@ -102,14 +105,27 @@ function AppWithTracking() {
                     <AuthPage />
                   </OptimizedSuspense>
                 } />
-                <Route path="/ai-register" element={
+                <Route path="/register" element={
                   <OptimizedSuspense skeletonType="card">
-                    <AIRegister />
+                    <RegisterPage />
                   </OptimizedSuspense>
                 } />
+                <Route path="/ai-register" element={<Navigate to="/register" replace />} />
                 <Route path="/trial-signup" element={
                   <OptimizedSuspense skeletonType="card">
                     <TrialSignupPage />
+                  </OptimizedSuspense>
+                } />
+
+                {/* Invitation Accept Routes */}
+                <Route path="/family-invite/:token" element={
+                  <OptimizedSuspense skeletonType="card">
+                    <FamilyInviteAccept />
+                  </OptimizedSuspense>
+                } />
+                <Route path="/invite/connections/:token" element={
+                  <OptimizedSuspense skeletonType="card">
+                    <ConnectionAcceptPage />
                   </OptimizedSuspense>
                 } />
                 {import.meta.env.DEV && TestRegistration && (

@@ -61,22 +61,6 @@ const AuthPage = () => {
 
       if (error) {
         recordAttempt();
-        // If invalid credentials, try to create the account automatically
-        const msg = (error.message || '').toLowerCase();
-        const code = (error as any).code || '';
-        if (msg.includes('invalid login') || code === 'invalid_credentials') {
-          const redirectUrl = `${window.location.origin}/`;
-          const { error: signUpError } = await supabase.auth.signUp({
-            email: emailTrimmed,
-            password,
-            options: { emailRedirectTo: redirectUrl }
-          });
-          if (!signUpError) {
-            setSuccess('Account created. Please check your email to confirm and then sign in.');
-            resetRateLimit();
-            return;
-          }
-        }
 
         // Log failed sign in attempt
         setTimeout(() => {
@@ -108,20 +92,17 @@ const AuthPage = () => {
         const nextUrl = searchParams.get('next');
         const planParam = searchParams.get('plan');
 
+        let redirectTo = '/dashboard';
         if (nextUrl) {
-          // If there's a specific redirect target, go there
-          let redirectTo = nextUrl;
+          redirectTo = nextUrl;
           if (planParam) {
             redirectTo += `${nextUrl.includes('?') ? '&' : '?'}plan=${planParam}`;
           }
-          setTimeout(() => {
-            navigate(redirectTo);
-          }, 500);
-          setSuccess('Sign in successful! Redirecting...');
-        } else {
-          // Stay on auth page so dev quick links are usable
-          setSuccess(`Signed in as ${data.user.email}. Use the quick links below or go to your dashboard.`);
         }
+        setSuccess('Sign in successful! Redirecting...');
+        setTimeout(() => {
+          navigate(redirectTo);
+        }, 500);
       }
     } catch (error: any) {
       console.error('Sign in error:', error);
@@ -152,11 +133,8 @@ const AuthPage = () => {
     );
   }
 
-  // Only redirect logged-in users if they're not explicitly on the auth page
-  const isExplicitAuthVisit = window.location.pathname === '/auth';
-  
-  // Don't redirect if user explicitly navigated to /auth (let them see they're logged in)
-  if (user && !isExplicitAuthVisit) {
+  // Redirect logged-in users to dashboard
+  if (user) {
     return <Navigate to="/dashboard" replace />;
   }
 
@@ -247,7 +225,7 @@ const AuthPage = () => {
               <p className="text-sm text-muted-foreground">
                 Don't have an account?{" "}
                 <Button asChild variant="link" className="p-0 h-auto font-medium">
-                  <Link to="/ai-register">Register here</Link>
+                  <Link to="/register">Register here</Link>
                 </Button>
               </p>
             </div>

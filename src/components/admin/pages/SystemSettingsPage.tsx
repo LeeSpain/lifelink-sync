@@ -6,7 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
-import { Settings, Database, Shield, Mail, Zap, Check, X } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Settings, Database, Shield, Mail, Zap, Check, X, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSiteContent } from '@/hooks/useSiteContent';
 import { useAuth } from '@/contexts/AuthContext';
@@ -25,6 +26,12 @@ export default function SystemSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [healthChecks, setHealthChecks] = useState<HealthCheck[]>([]);
   const [healthLoading, setHealthLoading] = useState(false);
+
+  // Security settings stored in site_content
+  const { value: securityConfig, save: saveSecurityConfig, isLoading: securityConfigLoading } = useSiteContent('security_settings', {
+    requireEmailVerification: false,
+    verificationGracePeriodDays: 7,
+  });
 
   // AI Providers configuration stored in site_content for flexibility
   const { value: aiProvidersConfig, save: saveAiProvidersConfig, isLoading: aiConfigLoading } = useSiteContent('ai_providers_config', {
@@ -222,6 +229,75 @@ export default function SystemSettingsPage() {
                 </Badge>
               </div>
             ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Security Settings */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Lock className="h-5 w-5" />
+            Security Settings
+          </CardTitle>
+          <CardDescription>Configure authentication and access control settings</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Email Verification Toggle */}
+          <div className="flex items-center justify-between p-4 border rounded-lg">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <Mail className="h-4 w-4 text-muted-foreground" />
+                <p className="font-medium">Require Email Verification</p>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                When enabled, users must verify their email address before accessing the dashboard.
+                Existing unverified users will have a grace period to verify.
+              </p>
+            </div>
+            <Switch
+              checked={!!securityConfig?.requireEmailVerification}
+              onCheckedChange={async (val) => {
+                const next = { ...securityConfig!, requireEmailVerification: val };
+                await saveSecurityConfig(next);
+                toast.success(`Email verification ${val ? 'enabled' : 'disabled'}`);
+              }}
+              disabled={securityConfigLoading}
+            />
+          </div>
+
+          {/* Grace Period */}
+          {securityConfig?.requireEmailVerification && (
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="space-y-1">
+                <p className="font-medium">Grace Period (days)</p>
+                <p className="text-sm text-muted-foreground">
+                  Number of days existing users have to verify their email before being locked out.
+                </p>
+              </div>
+              <div className="w-24">
+                <Input
+                  type="number"
+                  min={1}
+                  max={90}
+                  value={securityConfig?.verificationGracePeriodDays || 7}
+                  onChange={async (e) => {
+                    const days = parseInt(e.target.value) || 7;
+                    const next = { ...securityConfig!, verificationGracePeriodDays: Math.min(90, Math.max(1, days)) };
+                    await saveSecurityConfig(next);
+                  }}
+                  disabled={securityConfigLoading}
+                />
+              </div>
+            </div>
+          )}
+
+          <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
+            <Shield className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            <p className="text-xs text-muted-foreground">
+              Email verification is currently <strong>{securityConfig?.requireEmailVerification ? 'enforced' : 'not enforced'}</strong>.
+              Users will {securityConfig?.requireEmailVerification ? '' : 'not '}be required to confirm their email before accessing the dashboard.
+            </p>
           </div>
         </CardContent>
       </Card>

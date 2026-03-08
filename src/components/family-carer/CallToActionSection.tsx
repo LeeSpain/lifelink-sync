@@ -37,7 +37,7 @@ export const CallToActionSection = () => {
                 size="xl" 
                 className="bg-wellness text-black hover:bg-wellness/90 shadow-glow font-bold text-2xl px-16 py-8 rounded-2xl hover-scale"
               >
-                <Link to="/ai-register">
+                <Link to="/register">
                   <UserPlus className="mr-4 h-8 w-8" />
                   Start Protecting Your Family
                   <ArrowRight className="ml-4 h-8 w-8" />

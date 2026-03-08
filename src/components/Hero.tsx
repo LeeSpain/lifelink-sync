@@ -126,7 +126,7 @@ const Hero = ({ onClaraClick }: HeroProps) => {
                 size="lg"
                 className="bg-primary text-white hover:bg-primary/90 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 font-semibold text-lg px-8 py-6 rounded-xl"
               >
-                <Link to="/ai-register">
+                <Link to="/register">
                   <Shield className="h-5 w-5 mr-2" />
                   Start Free Trial
                 </Link>

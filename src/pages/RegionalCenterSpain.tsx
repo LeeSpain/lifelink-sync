@@ -73,7 +73,7 @@ const RegionalCenterSpain: React.FC = () => {
                     size="xl" 
                     className="bg-wellness text-white hover:bg-wellness/90 shadow-glow hover:shadow-xl transform hover:scale-105 transition-all duration-300 font-semibold text-lg px-8 py-4 rounded-xl border-2 border-wellness/20"
                   >
-                    <Link to="/ai-register">Join Now</Link>
+                    <Link to="/register">Join Now</Link>
                   </Button>
                 </div>
               </div>
@@ -354,7 +354,7 @@ const RegionalCenterSpain: React.FC = () => {
                 <p className="text-lg text-muted-foreground mb-8">Get professional bilingual emergency support specifically designed for expats in Spain.</p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button asChild size="xl" className="bg-primary hover:bg-primary/90 text-white">
-                    <Link to="/ai-register">Join Now</Link>
+                    <Link to="/register">Join Now</Link>
                   </Button>
                   <Button asChild variant="outline" size="xl">
                     <Link to="/support">Learn More</Link>

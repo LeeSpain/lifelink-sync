@@ -72,7 +72,7 @@ const Footer = () => {
                   <Link to="/auth" className="block text-sm text-gray-400 hover:text-primary transition-colors" onClick={() => handleFooterLinkClick('auth', '/auth', 'Sign In')}>
                     {t('footer.signIn', 'Sign In')}
                   </Link>
-                  <Link to="/ai-register" className="block text-sm text-gray-400 hover:text-primary transition-colors" onClick={() => handleFooterLinkClick('auth', '/ai-register', 'Get Protected')}>
+                  <Link to="/register" className="block text-sm text-gray-400 hover:text-primary transition-colors" onClick={() => handleFooterLinkClick('auth', '/register', 'Get Protected')}>
                     Get Protected
                   </Link>
                 </>
