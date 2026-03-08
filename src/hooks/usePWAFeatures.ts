@@ -13,10 +13,11 @@ export function usePWAFeatures() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check if app is already installed
+    // Check if app is already installed (standalone or fullscreen mode)
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    const isFullscreen = window.matchMedia('(display-mode: fullscreen)').matches;
     const isInWebAppiOS = (window.navigator as any).standalone === true;
-    setIsInstalled(isStandalone || isInWebAppiOS);
+    setIsInstalled(isStandalone || isFullscreen || isInWebAppiOS);
 
     // Listen for install prompt
     const handleBeforeInstallPrompt = (e: Event) => {
@@ -97,10 +98,18 @@ export function usePWAFeatures() {
     return false;
   };
 
+  // Reset the deferred prompt (used after manifest swap so a fresh
+  // beforeinstallprompt can be captured for the new manifest)
+  const resetPrompt = () => {
+    setDeferredPrompt(null);
+    setIsInstallable(false);
+  };
+
   return {
     isInstallable,
     isInstalled,
     installApp,
+    resetPrompt,
     requestNotificationPermission,
     enableBackgroundSync
   };

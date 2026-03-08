@@ -1,6 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Smartphone,
   Download,
@@ -33,6 +32,11 @@ function detectPlatform(): Platform {
   return "desktop";
 }
 
+function isInAppBrowser(): boolean {
+  const ua = navigator.userAgent || navigator.vendor || '';
+  return /FBAN|FBAV|Instagram|Twitter|Line\/|Snapchat|WeChat|MicroMessenger/i.test(ua);
+}
+
 const TABLET_URL = "https://www.lifelink-sync.com/tablet-dashboard";
 
 const MobileAppCard = () => {
@@ -42,6 +46,7 @@ const MobileAppCard = () => {
   const tabletQrRef = useRef<HTMLCanvasElement>(null);
   const { isInstalled, isInstallable, installApp } = usePWAFeatures();
   const platform = useMemo(() => detectPlatform(), []);
+  const inAppBrowser = useMemo(() => isInAppBrowser(), []);
 
   const WEB_APP_URL = window.location.origin;
 
@@ -150,8 +155,36 @@ const MobileAppCard = () => {
             </div>
           )}
 
+          {/* In-app browser warning */}
+          {!isInstalled && inAppBrowser && (
+            <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+              <p className="font-medium text-amber-900 mb-1">
+                {t("mobileApp.inAppBrowserTitle", "Open in your browser to install")}
+              </p>
+              <p className="text-sm text-amber-700 mb-3">
+                {t("mobileApp.inAppBrowserDesc", "You're viewing this inside an app. To install LifeLink Sync, open this page in Safari or Chrome.")}
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-amber-300 text-amber-900 hover:bg-amber-100"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(WEB_APP_URL);
+                    toast({ title: t("mobileApp.linkCopied", "Link copied"), description: t("mobileApp.linkCopiedDesc", "Paste it in Safari or Chrome to install") });
+                  } catch {
+                    toast({ title: "URL", description: WEB_APP_URL });
+                  }
+                }}
+              >
+                <Copy className="h-3.5 w-3.5 mr-1.5" />
+                {t("mobileApp.copyLink", "Copy Link")}
+              </Button>
+            </div>
+          )}
+
           {/* Section B: Platform-Specific Instructions */}
-          {!isInstalled && (
+          {!isInstalled && !inAppBrowser && (
             <div className="space-y-3">
               <h4 className="font-medium">
                 {t("mobileApp.howToInstall", "How to install")}
@@ -299,29 +332,22 @@ const MobileAppCard = () => {
               {t("mobileApp.tabletDesc", "Get the always-on care dashboard on your tablet. Shows time, reminders from family, SOS button, and more. Perfect for elderly care.")}
             </p>
 
-            {/* Direct Download — install on this device now */}
+            {/* Launch Tablet Dashboard — must open on the tablet for correct manifest install */}
             <div className="text-center p-5 bg-purple-50 border border-purple-200 rounded-lg mb-4">
               <Tablet className="h-8 w-8 text-purple-600 mx-auto mb-2" />
               <h5 className="font-semibold mb-1">
                 {t("mobileApp.tabletDownloadTitle", "Download Tablet Dashboard")}
               </h5>
               <p className="text-sm text-muted-foreground mb-3">
-                {t("mobileApp.tabletDownloadDesc", "Install the tablet dashboard as an app on this device right now.")}
+                {t("mobileApp.tabletDownloadDesc2", "Open the link on your tablet, then tap Install to add it to your home screen as a full-screen app.")}
               </p>
               <div className="flex flex-col sm:flex-row gap-2 justify-center">
-                {isInstallable ? (
-                  <Button size="lg" className="min-h-[48px] px-8 bg-purple-600 hover:bg-purple-700" onClick={installApp}>
-                    <Download className="h-4 w-4 mr-2" />
-                    {t("mobileApp.tabletInstallNow", "Install Tablet App")}
-                  </Button>
-                ) : (
-                  <Button asChild size="lg" className="min-h-[48px] px-8 bg-purple-600 hover:bg-purple-700">
-                    <a href="/tablet-dashboard" target="_blank" rel="noopener">
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      {t("mobileApp.tabletLaunch", "Launch Tablet Dashboard")}
-                    </a>
-                  </Button>
-                )}
+                <Button asChild size="lg" className="min-h-[48px] px-8 bg-purple-600 hover:bg-purple-700">
+                  <a href="/tablet-dashboard" target="_blank" rel="noopener">
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    {t("mobileApp.tabletLaunch", "Launch Tablet Dashboard")}
+                  </a>
+                </Button>
               </div>
               <p className="text-[11px] text-muted-foreground mt-2">
                 {t("mobileApp.tabletInstallNote", "Opens full-screen with always-on display. No app store needed.")}

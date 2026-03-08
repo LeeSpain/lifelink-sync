@@ -39,16 +39,35 @@ export default defineConfig(({ mode }) => ({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
       manifest: {
-        name: 'LifeLink Sync',
-        short_name: 'LifeLink',
+        id: '/',
+        name: 'LifeLink Sync - Emergency Protection & AI Safety Assistant',
+        short_name: 'LifeLink Sync',
+        description: 'AI-powered emergency protection with 24/7 monitoring, GPS tracking, and instant SOS alerts for families worldwide',
         start_url: '/',
         display: 'standalone',
         background_color: '#0b0b0f',
         theme_color: '#ef4444',
+        orientation: 'portrait' as any,
+        lang: 'en',
+        categories: ['health', 'safety', 'emergency', 'family'] as any,
         icons: [
-          { src: '/lovable-uploads/lifelink-sync-icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/lovable-uploads/lifelink-sync-icon-512.png', sizes: '512x512', type: 'image/png' }
+          { src: '/lovable-uploads/lifelink-sync-icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' as any },
+          { src: '/lovable-uploads/lifelink-sync-icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' as any }
         ],
+        shortcuts: [
+          {
+            name: 'Emergency SOS',
+            short_name: 'SOS',
+            url: '/sos-app',
+            icons: [{ src: '/lovable-uploads/lifelink-sync-icon-192.png', sizes: '192x192' }]
+          },
+          {
+            name: 'Register',
+            short_name: 'Register',
+            url: '/ai-register',
+            icons: [{ src: '/lovable-uploads/lifelink-sync-icon-192.png', sizes: '192x192' }]
+          }
+        ] as any,
       },
       workbox: {
         clientsClaim: true,
