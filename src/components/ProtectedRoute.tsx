@@ -9,7 +9,10 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, loading } = useAuth();
 
-  if (loading) {
+  // Allow access in development mode or with dev bypass
+  const isDevMode = import.meta.env.DEV || localStorage.getItem('dev_bypass') === '1';
+
+  if (loading && !isDevMode) {
     return (
       <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
         <div className="text-white text-center">
@@ -20,7 +23,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
-  if (!user) {
+  if (!user && !isDevMode) {
     return <Navigate to="/auth" replace />;
   }
 

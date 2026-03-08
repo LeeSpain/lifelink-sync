@@ -272,6 +272,28 @@ const AuthPage = () => {
               </div>
             </div>
             )}
+
+            {/* Dev Bypass Toggle - only show if not already in dev mode */}
+            {!import.meta.env.DEV && localStorage.getItem('dev_bypass') !== '1' && (
+            <div className="mt-8 border-t pt-6">
+              <div className="text-center">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    localStorage.setItem('dev_bypass', '1');
+                    window.location.reload(); // Reload to show dev links
+                  }}
+                  className="text-xs"
+                >
+                  🔧 Enable Development Mode
+                </Button>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Enable to access development testing links
+                </p>
+              </div>
+            </div>
+            )}
           </CardContent>
         </Card>
       </div>

@@ -9,7 +9,10 @@ interface ProtectedSOSRouteProps {
 const ProtectedSOSRoute = ({ children }: ProtectedSOSRouteProps) => {
   const { user, loading } = useOptimizedAuth();
 
-  if (loading) {
+  // Allow access in development mode or with dev bypass
+  const isDevMode = import.meta.env.DEV || localStorage.getItem('dev_bypass') === '1';
+
+  if (loading && !isDevMode) {
     return (
       <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
         <div className="text-white text-center">
@@ -20,7 +23,7 @@ const ProtectedSOSRoute = ({ children }: ProtectedSOSRouteProps) => {
     );
   }
 
-  if (!user) {
+  if (!user && !isDevMode) {
     return <Navigate to="/auth" replace />;
   }
 

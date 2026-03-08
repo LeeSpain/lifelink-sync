@@ -9,8 +9,11 @@ interface AdminProtectedRouteProps {
 const AdminProtectedRoute = ({ children }: AdminProtectedRouteProps) => {
   const { user, loading, isAdmin, role } = useOptimizedAuth();
 
+  // Allow access in development mode or with dev bypass
+  const isDevMode = import.meta.env.DEV || localStorage.getItem('dev_bypass') === '1';
+
   // Show loading while checking authentication and role
-  if (loading) {
+  if (loading && !isDevMode) {
     return (
       <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
         <div className="text-white text-center">
@@ -22,14 +25,14 @@ const AdminProtectedRoute = ({ children }: AdminProtectedRouteProps) => {
   }
 
   // Redirect to auth if not logged in
-  if (!user) {
+  if (!user && !isDevMode) {
     return <Navigate to="/auth" replace />;
   }
 
   // Server-side role verification via Supabase RLS
   const isDefinitelyAdmin = role === 'admin' || isAdmin;
 
-  if (!isDefinitelyAdmin) {
+  if (!isDefinitelyAdmin && !isDevMode) {
     return <Navigate to="/member-dashboard" replace />;
   }
 
