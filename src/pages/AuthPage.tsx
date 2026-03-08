@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Settings } from 'lucide-react';
 
 import useRateLimit from '@/hooks/useRateLimit';
 import { PageSEO } from '@/components/PageSEO';
@@ -22,6 +23,7 @@ const AuthPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [devBypassEnabled, setDevBypassEnabled] = useState(() => localStorage.getItem('dev_bypass') === '1');
   
   // Rate limiting for auth attempts
   const {
@@ -114,6 +116,19 @@ const AuthPage = () => {
     }
   }, [email, password, isRateLimited, getRemainingTime, recordAttempt, resetRateLimit]);
 
+  // Toggle dev bypass mode
+  const toggleDevBypass = useCallback(() => {
+    const newState = !devBypassEnabled;
+    setDevBypassEnabled(newState);
+    if (newState) {
+      localStorage.setItem('dev_bypass', '1');
+    } else {
+      localStorage.removeItem('dev_bypass');
+    }
+    // Reload to apply changes
+    window.location.reload();
+  }, [devBypassEnabled]);
+
   console.log('🔐 AuthPage render:', { 
     hasUser: !!user, 
     userEmail: user?.email,
@@ -163,7 +178,18 @@ const AuthPage = () => {
       <PageSEO pageType="auth" />
       <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-3 sm:p-4">
         <Card className="w-full max-w-md">
-          <CardHeader className="text-center px-4 sm:px-6">
+          <CardHeader className="text-center px-4 sm:px-6 relative">
+            <div className="absolute top-2 right-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleDevBypass}
+                className={`h-8 w-8 p-0 ${devBypassEnabled ? 'text-primary' : 'text-muted-foreground'} hover:text-foreground`}
+                title={devBypassEnabled ? 'Disable Development Mode' : 'Enable Development Mode'}
+              >
+                <Settings className="h-4 w-4" />
+              </Button>
+            </div>
             <div className="mb-2">
               <Button asChild variant="ghost" size="sm" className="min-h-[44px] text-muted-foreground hover:text-foreground">
                 <Link to="/">&larr; {t('auth.backToHomepage')}</Link>
@@ -233,7 +259,7 @@ const AuthPage = () => {
             </div>
 
             {/* Dev Quick Links — only visible in development or when dev bypass is active */}
-            {(import.meta.env.DEV || localStorage.getItem('dev_bypass') === '1') && (
+            {(import.meta.env.DEV || devBypassEnabled) && (
             <div className="mt-8 border-t pt-6">
               <h3 className="text-sm font-semibold text-muted-foreground mb-4 text-center uppercase tracking-wide">{t('auth.quickLinksDev')}</h3>
 
@@ -269,28 +295,6 @@ const AuthPage = () => {
                     ))}
                   </div>
                 </div>
-              </div>
-            </div>
-            )}
-
-            {/* Dev Bypass Toggle - only show if not already in dev mode */}
-            {!import.meta.env.DEV && localStorage.getItem('dev_bypass') !== '1' && (
-            <div className="mt-8 border-t pt-6">
-              <div className="text-center">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    localStorage.setItem('dev_bypass', '1');
-                    window.location.reload(); // Reload to show dev links
-                  }}
-                  className="text-xs"
-                >
-                  🔧 Enable Development Mode
-                </Button>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Enable to access development testing links
-                </p>
               </div>
             </div>
             )}
