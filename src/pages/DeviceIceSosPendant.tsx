@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -7,16 +7,16 @@ import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { Check, Bluetooth, Battery, Droplets, MapPin, Shield, PhoneCall, CheckCircle2, Smartphone, Zap, Clock, Heart, Star, Users, Globe, Phone, Play } from "lucide-react";
+import { Check, Bluetooth, Battery, Droplets, MapPin, Shield, CheckCircle2, Smartphone, Zap, Heart, Star, Users, MessageCircle } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import { supabase } from "@/integrations/supabase/client";
 import OptimizedImage from "@/components/ui/optimized-image";
 import { getImageSizes, generateBlurPlaceholder } from "@/utils/imageOptimization";
-import { IntroVideoModal } from "@/components/IntroVideoModal";
+import { useClaraChat } from "@/contexts/ClaraChatContext";
 
 const DeviceIceSosPendant = () => {
-  console.log('[DeviceIceSosPendant] Component rendering started');
   const { t } = useTranslation();
+  const { openClaraChat } = useClaraChat();
   const [comingSoon, setComingSoon] = useState(false);
   const title = t('devices.icePendant.seoTitle', { defaultValue: 'LifeLink Sync Bluetooth Pendant – LifeLink Sync' });
   const description = t('devices.icePendant.metaDescription', { defaultValue: 'Hands-free emergency pendant with Bluetooth, waterproof design, and 7-day battery. Works with LifeLink Sync app.' });
@@ -25,11 +25,8 @@ const DeviceIceSosPendant = () => {
   const productJsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
-    name: "LifeLink Sync Bluetooth Pendant (LifeLink Sync)",
-    brand: {
-      "@type": "Brand",
-      name: "LifeLink Sync"
-    },
+    name: "LifeLink Sync Bluetooth Pendant",
+    brand: { "@type": "Brand", name: "LifeLink Sync" },
     description,
     image: typeof window !== "undefined" ? `${window.location.origin}/lovable-uploads/acfcc77a-7e34-44f5-8487-4069c2acb56b.png` : "",
     offers: {
@@ -43,7 +40,6 @@ const DeviceIceSosPendant = () => {
   };
 
   React.useEffect(() => {
-    console.log('[DeviceIceSosPendant] useEffect running - fetching product status');
     const fetchStatus = async () => {
       try {
         const { data } = await supabase
@@ -51,666 +47,517 @@ const DeviceIceSosPendant = () => {
           .select('status')
           .eq('name', 'LifeLink Sync Bluetooth Pendant')
           .maybeSingle();
-        console.log('[DeviceIceSosPendant] Product status data:', data);
         if (data?.status === 'coming_soon') setComingSoon(true);
       } catch (error) {
-        console.error('[DeviceIceSosPendant] Error fetching product status:', error);
+        // Silently fail - default to available
       }
     };
     fetchStatus();
   }, []);
 
   const features = [
-    { icon: Bluetooth, text: "Bluetooth 5.0 Low Energy – instant pairing" },
-    { icon: Droplets, text: "IP67 waterproof for daily wear" },
-    { icon: Battery, text: "More than 7 days battery life" },
-    { icon: MapPin, text: "100m range from smartphone" }
+    { icon: Bluetooth, title: "Bluetooth 5.0", description: "Low energy instant pairing with your smartphone" },
+    { icon: Droplets, title: "IP67 Waterproof", description: "Shower, swim, and wear in any weather" },
+    { icon: Battery, title: "7+ Day Battery", description: "Long-lasting with magnetic USB charging" },
+    { icon: MapPin, title: "100m Range", description: "Professional Bluetooth range from your phone" },
   ];
 
-  console.log('[DeviceIceSosPendant] Rendering with comingSoon:', comingSoon);
+  const steps = [
+    { num: "1", title: "Download App", desc: "Install LifeLink Sync on iOS or Android" },
+    { num: "2", title: "Pair Device", desc: "Secure Bluetooth 5.0 encrypted connection" },
+    { num: "3", title: "Connect Home", desc: "Link Alexa, Google Home, or smart devices" },
+    { num: "4", title: "You're Protected", desc: "One button press alerts all your contacts" },
+  ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-white">
       <Navigation />
       <main className="pt-16 md:pt-20">
-      <Helmet>
-        <title>{title}</title>
-        <meta name="description" content={description} />
-        <link rel="canonical" href={canonical} />
-        <meta property="og:type" content="product" />
-        <meta property="og:title" content={title} />
-        <meta property="og:description" content={description} />
-        <meta property="og:url" content={canonical} />
-        <meta property="og:image" content={typeof window !== "undefined" ? `${window.location.origin}/lovable-uploads/acfcc77a-7e34-44f5-8487-4069c2acb56b.png` : ""} />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={title} />
-        <meta name="twitter:description" content={description} />
-        <script type="application/ld+json">{JSON.stringify(productJsonLd)}</script>
-      </Helmet>
+        <Helmet>
+          <title>{title}</title>
+          <meta name="description" content={description} />
+          <link rel="canonical" href={canonical} />
+          <meta property="og:type" content="product" />
+          <meta property="og:title" content={title} />
+          <meta property="og:description" content={description} />
+          <meta property="og:url" content={canonical} />
+          <meta property="og:image" content={typeof window !== "undefined" ? `${window.location.origin}/lovable-uploads/acfcc77a-7e34-44f5-8487-4069c2acb56b.png` : ""} />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content={title} />
+          <meta name="twitter:description" content={description} />
+          <script type="application/ld+json">{JSON.stringify(productJsonLd)}</script>
+        </Helmet>
 
-      {/* Hero Section */}
-      <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden bg-gradient-hero shadow-2xl mb-4">
-        <div className="container mx-auto px-4 py-16 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="text-center lg:text-left text-white">
-              <div className="inline-flex items-center space-x-2 bg-emergency/20 backdrop-blur-sm rounded-full px-4 py-2 mb-6 shadow-lg border border-emergency/30">
-                <Shield className="h-4 w-4 text-emergency-glow" />
-                <span className="text-sm font-medium text-white">24/7 Professional Response</span>
-              </div>
-              
-              <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight text-white drop-shadow-lg">
-                LifeLink Sync Emergency <span className="text-wellness drop-shadow-md">Bluetooth Pendant</span>
-              </h1>
-              
-              <p className="text-xl md:text-2xl mb-8 text-white leading-relaxed font-medium drop-shadow-sm">
-                Hands-free emergency protection with smart home integration. One button calls ALL your emergency contacts instantly.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start">
-                {comingSoon ? (
-                  <Badge className="px-6 py-3 text-lg font-semibold bg-secondary text-white">Coming Soon</Badge>
-                ) : (
-                  <Button 
-                    asChild 
-                    size="xl" 
-                    className="bg-wellness text-black hover:bg-wellness/90 shadow-glow hover:shadow-xl transform hover:scale-105 transition-all duration-300 font-semibold text-lg px-8 py-4 rounded-xl border-2 border-wellness/20"
-                  >
-                    <Link to="/register">Join Now</Link>
-                  </Button>
-                )}
-                <IntroVideoModal 
-                  defaultVideoId="ice-pendant-demo"
-                  trigger={
-                    <Button 
-                      size="xl" 
-                      className="bg-wellness text-black hover:bg-wellness/90 shadow-glow hover:shadow-xl transform hover:scale-105 transition-all duration-300 font-semibold text-lg px-8 py-4 rounded-xl border-2 border-wellness/20"
-                    >
-                      <Play className="h-5 w-5 mr-2" />
-                      Watch Video
-                    </Button>
-                  }
-                />
-              </div>
-            </div>
-            
-            <div className="relative">
-              <div className="relative z-10">
-                <OptimizedImage 
-                  src="/lovable-uploads/a5d9b9a3-71f8-4e05-b21b-2f2bc801fbc8.png" 
-                  alt="LifeLink Sync Smart SOS Button - Bluetooth pendant with keychain and card"
-                  className="w-full max-w-lg mx-auto rounded-3xl shadow-2xl"
-                  priority={true}
-                  sizes={getImageSizes('hero')}
-                  blurDataURL={generateBlurPlaceholder(400, 600)}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+        {/* ============================================================ */}
+        {/* 1. Hero */}
+        {/* ============================================================ */}
+        <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-[#FAFAF9]">
+          <div className="absolute inset-0 opacity-[0.03]" style={{
+            backgroundImage: 'radial-gradient(#DC2626 1px, transparent 1px)',
+            backgroundSize: '24px 24px'
+          }} />
+          <div className="absolute top-20 right-0 w-72 h-72 lg:w-96 lg:h-96 bg-primary/5 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-60 h-60 lg:w-80 lg:h-80 bg-primary/3 rounded-full blur-3xl" />
 
-      {/* Smart Home Integration Section */}
-      <section className="py-section bg-gradient-to-br from-primary/5 via-background to-guardian/5">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t('devices.smartHomeIntegration.title')}</h2>
-            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-              {t('devices.smartHomeIntegration.description')}
-            </p>
-          </div>
+          <div className="container mx-auto px-4 py-16 relative z-10">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div className="text-center lg:text-left">
+                <div className="inline-flex items-center gap-2 bg-primary/10 rounded-full px-4 py-2 mb-6">
+                  <Shield className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium text-primary">Optional Add-On Device</span>
+                </div>
 
-          {/* Integration Cards */}
-          <div className="grid lg:grid-cols-3 gap-8 mb-16">
-            <Card className="p-8 text-center hover-scale border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-xl bg-gradient-to-br from-card to-card/80">
-              <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center shadow-lg">
-                <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
-                  <span className="text-2xl font-bold text-white">A</span>
-                </div>
-              </div>
-              <h3 className="text-2xl font-bold mb-4">Amazon Alexa</h3>
-              <p className="text-muted-foreground mb-6 leading-relaxed">
-                Voice-activated emergency system with household-wide alerts and instant response coordination.
-              </p>
-              <div className="space-y-3 text-sm">
-                <div className="flex items-center justify-center space-x-2">
-                  <CheckCircle2 className="h-4 w-4 text-wellness" />
-                  <span>Compatible with all Alexa devices</span>
-                </div>
-                <div className="flex items-center justify-center space-x-2">
-                  <CheckCircle2 className="h-4 w-4 text-wellness" />
-                  <span>Multi-room emergency broadcasting</span>
-                </div>
-                <div className="flex items-center justify-center space-x-2">
-                  <CheckCircle2 className="h-4 w-4 text-wellness" />
-                  <span>Voice command: "Alexa, help help help"</span>
-                </div>
-                <div className="flex items-center justify-center space-x-2">
-                  <CheckCircle2 className="h-4 w-4 text-wellness" />
-                  <span>Professional monitoring integration</span>
-                </div>
-              </div>
-            </Card>
+                <h1 className="text-4xl md:text-6xl font-bold font-poppins mb-6 leading-tight text-[hsl(215,25%,27%)]">
+                  LifeLink Sync{' '}
+                  <span className="text-primary">Bluetooth Pendant</span>
+                </h1>
 
-            <Card className="p-8 text-center hover-scale border-guardian/20 hover:border-guardian/40 transition-all duration-300 hover:shadow-xl bg-gradient-to-br from-card to-card/80">
-              <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-guardian/20 to-guardian/10 rounded-2xl flex items-center justify-center shadow-lg">
-                <div className="w-12 h-12 bg-guardian rounded-xl flex items-center justify-center">
-                  <span className="text-2xl font-bold text-white">G</span>
-                </div>
-              </div>
-              <h3 className="text-2xl font-bold mb-4">Google Home</h3>
-              <p className="text-muted-foreground mb-6 leading-relaxed">
-                Advanced AI-powered emergency response with intelligent location sharing and contact prioritization.
-              </p>
-              <div className="space-y-3 text-sm">
-                <div className="flex items-center justify-center space-x-2">
-                  <CheckCircle2 className="h-4 w-4 text-wellness" />
-                  <span>Google Nest ecosystem support</span>
-                </div>
-                <div className="flex items-center justify-center space-x-2">
-                  <CheckCircle2 className="h-4 w-4 text-wellness" />
-                  <span>Intelligent emergency routing</span>
-                </div>
-                <div className="flex items-center justify-center space-x-2">
-                  <CheckCircle2 className="h-4 w-4 text-wellness" />
-                  <span>Voice command: "Hey Google, emergency"</span>
-                </div>
-                <div className="flex items-center justify-center space-x-2">
-                  <CheckCircle2 className="h-4 w-4 text-wellness" />
-                  <span>Real-time location broadcast</span>
-                </div>
-              </div>
-            </Card>
+                <p className="text-xl md:text-2xl mb-8 text-gray-600 leading-relaxed font-inter">
+                  Hands-free emergency protection. One button press alerts all your emergency contacts instantly with your exact location.
+                </p>
 
-            <Card className="p-8 text-center hover-scale border-emergency/20 hover:border-emergency/40 transition-all duration-300 hover:shadow-xl bg-gradient-to-br from-card to-card/80">
-              <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-emergency/20 to-emergency/10 rounded-2xl flex items-center justify-center shadow-lg">
-                <div className="w-12 h-12 bg-emergency rounded-xl flex items-center justify-center">
-                  <Smartphone className="h-6 w-6 text-white" />
-                </div>
-              </div>
-              <h3 className="text-2xl font-bold mb-4">Universal Mobile</h3>
-              <p className="text-muted-foreground mb-6 leading-relaxed">
-                Cross-platform compatibility with enterprise-grade security and 24/7 background protection monitoring.
-              </p>
-              <div className="space-y-3 text-sm">
-                <div className="flex items-center justify-center space-x-2">
-                  <CheckCircle2 className="h-4 w-4 text-wellness" />
-                  <span>iOS & Android certified</span>
-                </div>
-                <div className="flex items-center justify-center space-x-2">
-                  <CheckCircle2 className="h-4 w-4 text-wellness" />
-                  <span>Bluetooth 5.0 Low Energy</span>
-                </div>
-                <div className="flex items-center justify-center space-x-2">
-                  <CheckCircle2 className="h-4 w-4 text-wellness" />
-                  <span>Background service protection</span>
-                </div>
-                <div className="flex items-center justify-center space-x-2">
-                  <CheckCircle2 className="h-4 w-4 text-wellness" />
-                  <span>100m professional range</span>
-                </div>
-              </div>
-            </Card>
-          </div>
-
-          {/* Professional Setup Process */}
-          <div className="bg-gradient-to-br from-card via-card/95 to-card/90 rounded-3xl p-10 shadow-2xl border border-primary/10">
-            <div className="text-center mb-10">
-              <h3 className="text-3xl font-bold mb-4">Professional Installation Process</h3>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Enterprise-grade setup with professional support and comprehensive testing protocols
-              </p>
-            </div>
-            
-            <div className="grid md:grid-cols-4 gap-8">
-              <div className="text-center group">
-                <div className="relative mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary-glow rounded-2xl flex items-center justify-center text-white font-bold mx-auto shadow-lg group-hover:shadow-xl transition-all duration-300">
-                    <span className="text-xl">1</span>
-                  </div>
-                  <div className="absolute -inset-2 bg-primary/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl"></div>
-                </div>
-                <h4 className="font-bold text-lg mb-2">Download & Setup</h4>
-                <p className="text-sm text-muted-foreground">Professional app installation with guided configuration</p>
-              </div>
-              
-              <div className="text-center group">
-                <div className="relative mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-guardian to-guardian-glow rounded-2xl flex items-center justify-center text-white font-bold mx-auto shadow-lg group-hover:shadow-xl transition-all duration-300">
-                    <span className="text-xl">2</span>
-                  </div>
-                  <div className="absolute -inset-2 bg-guardian/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl"></div>
-                </div>
-                <h4 className="font-bold text-lg mb-2">Device Pairing</h4>
-                <p className="text-sm text-muted-foreground">Secure Bluetooth 5.0 connection with encryption</p>
-              </div>
-              
-              <div className="text-center group">
-                <div className="relative mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-emergency to-emergency-glow rounded-2xl flex items-center justify-center text-white font-bold mx-auto shadow-lg group-hover:shadow-xl transition-all duration-300">
-                    <span className="text-xl">3</span>
-                  </div>
-                  <div className="absolute -inset-2 bg-emergency/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl"></div>
-                </div>
-                <h4 className="font-bold text-lg mb-2">Smart Home Sync</h4>
-                <p className="text-sm text-muted-foreground">Automated discovery and integration setup</p>
-              </div>
-              
-              <div className="text-center group">
-                <div className="relative mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-wellness to-wellness-glow rounded-2xl flex items-center justify-center text-white font-bold mx-auto shadow-lg group-hover:shadow-xl transition-all duration-300">
-                    <span className="text-xl">4</span>
-                  </div>
-                  <div className="absolute -inset-2 bg-wellness/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl"></div>
-                </div>
-                <h4 className="font-bold text-lg mb-2">System Testing</h4>
-                <p className="text-sm text-muted-foreground">Comprehensive testing with professional verification</p>
-              </div>
-            </div>
-
-            {/* Technical Specifications */}
-            <div className="mt-12 grid md:grid-cols-2 gap-8">
-              <div className="bg-background/50 rounded-2xl p-6 border border-primary/10">
-                <h4 className="font-bold text-lg mb-4 flex items-center">
-                  <Shield className="h-5 w-5 text-primary mr-2" />
-                  Security & Compliance
-                </h4>
-                <div className="space-y-2 text-sm text-muted-foreground">
-                  <p>✓ End-to-end encryption</p>
-                  <p>✓ GDPR compliant data handling</p>
-                  <p>✓ ISO 27001 security standards</p>
-                  <p>✓ Professional monitoring protocols</p>
-                </div>
-              </div>
-              
-              <div className="bg-background/50 rounded-2xl p-6 border border-guardian/10">
-                <h4 className="font-bold text-lg mb-4 flex items-center">
-                  <Zap className="h-5 w-5 text-guardian mr-2" />
-                  Technical Specifications
-                </h4>
-                <div className="space-y-2 text-sm text-muted-foreground">
-                  <p>✓ Bluetooth 5.0 Low Energy</p>
-                  <p>✓ 100-meter professional range</p>
-                  <p>✓ 7+ day battery life</p>
-                  <p>✓ IP67 waterproof rating</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Key Features Section */}
-      <section className="py-section bg-gradient-to-br from-background via-muted/20 to-background">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Emergency Protection Features</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Professional-grade safety technology in a compact, wearable design
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-4 gap-6 mb-12">
-            {features.map((feature, index) => (
-              <Card key={index} className="text-center p-6 hover-scale border-primary/20 hover:border-primary/40 transition-colors">
-                <feature.icon className="h-10 w-10 text-primary mx-auto mb-4" />
-                <p className="text-sm font-medium">{feature.text}</p>
-              </Card>
-            ))}
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="relative rounded-2xl overflow-hidden shadow-lg hover-scale">
-              <img
-                src="/lovable-uploads/5c1a45e0-5a70-4691-bc64-550668fe6e0f.png"
-                alt="LifeLink Sync Pendant on lanyard for comfortable daily wear"
-                className="w-full h-64 object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
-                <div className="p-6 text-white">
-                  <h3 className="font-semibold mb-2">Comfortable Lanyard</h3>
-                  <p className="text-sm opacity-90">Daily protection with adjustable lanyard</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="relative rounded-2xl overflow-hidden shadow-lg hover-scale">
-              <img
-                src="/lovable-uploads/51174548-f504-43a6-b947-a681fdfb6552.png"
-                alt="LifeLink Sync Pendant with secure carabiner clip attachment"
-                className="w-full h-64 object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
-                <div className="p-6 text-white">
-                  <h3 className="font-semibold mb-2">Secure Clip</h3>
-                  <p className="text-sm opacity-90">Carabiner attachment for bags & belts</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="relative rounded-2xl overflow-hidden shadow-lg hover-scale">
-              <img
-                src="/lovable-uploads/a9a98b5b-436a-488c-b4f0-4a9c3ba75614.png"
-                alt="LifeLink Sync Pendant with comfortable wristbands in white and black"
-                className="w-full h-64 object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
-                <div className="p-6 text-white">
-                  <h3 className="font-semibold mb-2">Sport Wristbands</h3>
-                  <p className="text-sm opacity-90">Active wear with white & black options</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Pricing and Description Section */}
-          <div className="mt-16 bg-gradient-to-br from-card via-card/95 to-card/90 rounded-3xl p-10 shadow-2xl border border-primary/10">
-            <div className="text-center max-w-4xl mx-auto">
-              <h3 className="text-3xl font-bold mb-6">Complete Protection Package</h3>
-              
-              <div className="grid md:grid-cols-2 gap-8 items-center mb-8">
-                <div className="text-left">
-                  <p className="text-lg text-muted-foreground leading-relaxed mb-6">
-                    The LifeLink Sync Bluetooth Pendant is a professional-grade emergency response device that provides instant protection with one-button activation. Featuring IP67 waterproof design, 7+ day battery life, and 100-meter Bluetooth range, this pendant ensures you're always connected to help when you need it most.
-                  </p>
-                  
-                  <p className="text-lg text-muted-foreground leading-relaxed">
-                    Complete with three wearing options - comfortable lanyard, secure carabiner clip, and sport wristbands - this comprehensive safety solution integrates seamlessly with your smartphone and smart home devices for 24/7 peace of mind.
-                  </p>
-                </div>
-                
-                <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-8 text-center">
-                  <div className="mb-6">
-                    <div className="text-4xl font-bold text-primary mb-2">€59.99</div>
-                    <div className="text-lg text-muted-foreground">+ €4.99 shipping</div>
-                    <div className="text-sm text-muted-foreground mt-2">One-time purchase • No monthly fees</div>
-                  </div>
-                  
-                  <div className="space-y-3 mb-6">
-                    <div className="flex items-center justify-center space-x-2">
-                      <CheckCircle2 className="h-4 w-4 text-wellness" />
-                      <span className="text-sm">Complete package with all accessories</span>
-                    </div>
-                    <div className="flex items-center justify-center space-x-2">
-                      <CheckCircle2 className="h-4 w-4 text-wellness" />
-                      <span className="text-sm">2-year warranty included</span>
-                    </div>
-                    <div className="flex items-center justify-center space-x-2">
-                      <CheckCircle2 className="h-4 w-4 text-wellness" />
-                      <span className="text-sm">Free professional setup support</span>
-                    </div>
-                  </div>
-                  
+                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8">
                   {comingSoon ? (
                     <Badge className="px-6 py-3 text-lg font-semibold bg-secondary text-white">Coming Soon</Badge>
                   ) : (
-                    <Button 
-                      asChild 
-                      size="lg" 
-                      className="w-full bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 font-semibold text-lg px-8 py-4 rounded-xl"
+                    <Button
+                      asChild
+                      size="lg"
+                      className="bg-primary text-white hover:bg-primary/90 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 font-semibold text-lg px-8 py-6 rounded-xl"
                     >
-                      <Link to="/register">Join Now - Get Protected Today</Link>
+                      <Link to="/register">
+                        <Shield className="h-5 w-5 mr-2" />
+                        Get Protected
+                      </Link>
                     </Button>
                   )}
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="border-primary text-primary hover:bg-primary/5 font-semibold text-lg px-8 py-6 rounded-xl transition-all duration-300"
+                    onClick={openClaraChat}
+                  >
+                    <MessageCircle className="h-5 w-5 mr-2" />
+                    Ask Clara
+                  </Button>
+                </div>
+
+                <div className="flex flex-wrap gap-6 justify-center lg:justify-start text-sm text-gray-500">
+                  <div className="flex items-center gap-1.5">
+                    <Check className="h-4 w-4 text-wellness" />
+                    <span>No monthly fees</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Check className="h-4 w-4 text-wellness" />
+                    <span>2-year warranty</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Check className="h-4 w-4 text-wellness" />
+                    <span>Free setup support</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="relative">
+                <div className="relative z-10">
+                  <OptimizedImage
+                    src="/lovable-uploads/a5d9b9a3-71f8-4e05-b21b-2f2bc801fbc8.png"
+                    alt="LifeLink Sync Bluetooth Pendant with accessories"
+                    className="w-full max-w-lg mx-auto rounded-3xl shadow-2xl"
+                    priority={true}
+                    sizes={getImageSizes('hero')}
+                    blurDataURL={generateBlurPlaceholder(400, 600)}
+                  />
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Professional Customer Stories Section */}
-      <section className="py-section bg-gradient-to-br from-primary/10 via-background to-guardian/10">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">{t('devices.professionalSuccessStories.title')}</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-12">
-              {t('devices.professionalSuccessStories.subtitle')}
-            </p>
-          </div>
+        {/* ============================================================ */}
+        {/* 2. Key Features */}
+        {/* ============================================================ */}
+        <section className="py-section bg-[#F3F4F6]">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-5xl font-bold font-poppins mb-4 text-[hsl(215,25%,27%)]">
+                Built for <span className="text-primary">Real Protection</span>
+              </h2>
+              <p className="text-lg text-gray-600 font-inter max-w-2xl mx-auto">
+                Professional-grade safety technology in a compact, wearable design
+              </p>
+            </div>
 
-          {/* Enhanced Customer Stories Grid */}
-          <div className="grid lg:grid-cols-3 gap-8">
-            <Card className="p-8 hover-scale border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-xl bg-gradient-to-br from-card to-card/90 relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-primary-glow"></div>
-              <div className="flex items-center mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center mr-4">
-                  <Heart className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <div className="flex text-amber-400 mb-1">
-                    {Array.from({length: 5}).map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-current" />
-                    ))}
+            <div className="grid md:grid-cols-4 gap-6">
+              {features.map((feature, i) => (
+                <Card key={i} className="bg-white border-[#E5E7EB] rounded-2xl hover:shadow-lg transition-shadow duration-300 text-center p-6">
+                  <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <feature.icon className="h-7 w-7 text-primary" />
                   </div>
-                  <div className="text-xs text-muted-foreground font-medium">Medical Emergency</div>
-                </div>
-              </div>
-              <blockquote className="text-muted-foreground mb-6 leading-relaxed italic">
-                "LifeLink Sync saved my father's life when he collapsed during his morning walk. Within seconds, all emergency contacts received his exact GPS location and medical profile. The ambulance arrived in under 8 minutes."
-              </blockquote>
-              <div className="flex items-center">
-                <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary-glow rounded-full flex items-center justify-center text-white font-bold mr-3">
-                  M
-                </div>
-                <div>
-                  <div className="font-semibold text-sm">Maria S.</div>
-                  <div className="text-xs text-muted-foreground">Barcelona, Spain • Verified Customer</div>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="p-8 hover-scale border-guardian/20 hover:border-guardian/40 transition-all duration-300 hover:shadow-xl bg-gradient-to-br from-card to-card/90 relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-guardian to-guardian-glow"></div>
-              <div className="flex items-center mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-guardian/20 to-guardian/10 rounded-full flex items-center justify-center mr-4">
-                  <Shield className="h-6 w-6 text-guardian" />
-                </div>
-                <div>
-                  <div className="flex text-amber-400 mb-1">
-                    {Array.from({length: 5}).map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-current" />
-                    ))}
-                  </div>
-                  <div className="text-xs text-muted-foreground font-medium">Home Emergency</div>
-                </div>
-              </div>
-              <blockquote className="text-muted-foreground mb-6 leading-relaxed italic">
-                "Living alone at 78, I had a severe reaction to medication. One button press instantly alerted my daughter and neighbors with my complete medical information and exact location. Professional response saved my life."
-              </blockquote>
-              <div className="flex items-center">
-                <div className="w-10 h-10 bg-gradient-to-br from-guardian to-guardian-glow rounded-full flex items-center justify-center text-white font-bold mr-3">
-                  J
-                </div>
-                <div>
-                  <div className="font-semibold text-sm">James K.</div>
-                  <div className="text-xs text-muted-foreground">London, UK • Verified Customer</div>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="p-8 hover-scale border-emergency/20 hover:border-emergency/40 transition-all duration-300 hover:shadow-xl bg-gradient-to-br from-card to-card/90 relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emergency to-emergency-glow"></div>
-              <div className="flex items-center mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-emergency/20 to-emergency/10 rounded-full flex items-center justify-center mr-4">
-                  <Users className="h-6 w-6 text-emergency" />
-                </div>
-                <div>
-                  <div className="flex text-amber-400 mb-1">
-                    {Array.from({length: 5}).map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-current" />
-                    ))}
-                  </div>
-                  <div className="text-xs text-muted-foreground font-medium">Family Security</div>
-                </div>
-              </div>
-              <blockquote className="text-muted-foreground mb-6 leading-relaxed italic">
-                "My mother accidentally pressed the pendant while gardening. Every family member received immediate alerts with her location. The system works flawlessly - exactly when we need it most. Peace of mind achieved."
-              </blockquote>
-              <div className="flex items-center">
-                <div className="w-10 h-10 bg-gradient-to-br from-emergency to-emergency-glow rounded-full flex items-center justify-center text-white font-bold mr-3">
-                  A
-                </div>
-                <div>
-                  <div className="font-semibold text-sm">Anna P.</div>
-                  <div className="text-xs text-muted-foreground">Madrid, Spain • Verified Customer</div>
-                </div>
-              </div>
-            </Card>
-          </div>
-
-          {/* Trust Indicators */}
-          <div className="mt-16 text-center">
-            <div className="inline-flex items-center space-x-8 bg-card/50 backdrop-blur-sm rounded-2xl px-8 py-4 border border-primary/10">
-              <div className="flex items-center space-x-2">
-                <CheckCircle2 className="h-5 w-5 text-wellness" />
-                <span className="text-sm font-medium">ISO 27001 Certified</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Shield className="h-5 w-5 text-primary" />
-                <span className="text-sm font-medium">GDPR Compliant</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Heart className="h-5 w-5 text-emergency" />
-                <span className="text-sm font-medium">Medical Grade Security</span>
-              </div>
+                  <h3 className="font-bold font-poppins text-lg mb-2 text-[hsl(215,25%,27%)]">{feature.title}</h3>
+                  <p className="text-sm text-gray-500 font-inter">{feature.description}</p>
+                </Card>
+              ))}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
+        {/* ============================================================ */}
+        {/* 3. Product Gallery — Wearing Options */}
+        {/* ============================================================ */}
+        <section className="py-section bg-[#FAFAF9]">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-5xl font-bold font-poppins mb-4 text-[hsl(215,25%,27%)]">
+                Three Ways to <span className="text-primary">Wear It</span>
+              </h2>
+              <p className="text-lg text-gray-600 font-inter max-w-2xl mx-auto">
+                Every pendant comes with a complete accessory kit for any lifestyle
+              </p>
+            </div>
 
-      {/* FAQ Section */}
-      <section className="py-section bg-gradient-to-br from-guardian/5 via-background to-wellness/5">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-black">Frequently Asked Questions</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Comprehensive answers to technical, operational, and business questions about your LifeLink Sync Bluetooth Pendant
-            </p>
+            <div className="grid md:grid-cols-3 gap-8">
+              {[
+                { src: "/lovable-uploads/5c1a45e0-5a70-4691-bc64-550668fe6e0f.png", alt: "Pendant with comfortable lanyard", title: "Comfortable Lanyard", desc: "Adjustable lanyard for daily wear" },
+                { src: "/lovable-uploads/51174548-f504-43a6-b947-a681fdfb6552.png", alt: "Pendant with secure carabiner clip", title: "Secure Clip", desc: "Carabiner attachment for bags & belts" },
+                { src: "/lovable-uploads/a9a98b5b-436a-488c-b4f0-4a9c3ba75614.png", alt: "Pendant with sport wristbands", title: "Sport Wristbands", desc: "Active wear in white & black options" },
+              ].map((item, i) => (
+                <div key={i} className="relative rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 group">
+                  <OptimizedImage
+                    src={item.src}
+                    alt={item.alt}
+                    className="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-500"
+                    sizes={getImageSizes('card')}
+                    blurDataURL={generateBlurPlaceholder(400, 300)}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end">
+                    <div className="p-6 text-white">
+                      <h3 className="font-bold font-poppins text-lg mb-1">{item.title}</h3>
+                      <p className="text-sm text-white/80 font-inter">{item.desc}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
+        </section>
 
-          <Accordion type="single" collapsible className="space-y-4">
-            <AccordionItem value="item-1" className="border border-border rounded-lg bg-card/50 backdrop-blur-sm">
-              <AccordionTrigger className="px-6 py-4 text-left font-medium text-sm text-black hover:no-underline hover:bg-muted/50 transition-colors">
-                How does the emergency system work?
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-4 text-muted-foreground leading-relaxed text-sm">
-                One button press instantly alerts ALL emergency contacts with your exact GPS location. The system uses Bluetooth 5.0 for secure smartphone connection and professional-grade emergency protocols with 24/7 monitoring capabilities.
-              </AccordionContent>
-            </AccordionItem>
+        {/* ============================================================ */}
+        {/* 4. Smart Home Integration */}
+        {/* ============================================================ */}
+        <section className="py-section bg-white">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-5xl font-bold font-poppins mb-4 text-[hsl(215,25%,27%)]">
+                Works With Your <span className="text-primary">Smart Home</span>
+              </h2>
+              <p className="text-lg text-gray-600 font-inter max-w-3xl mx-auto">
+                Seamless integration with your favourite voice assistants and smart home platforms
+              </p>
+            </div>
 
-            <AccordionItem value="item-2" className="border border-border rounded-lg bg-card/50 backdrop-blur-sm">
-              <AccordionTrigger className="px-6 py-4 text-left font-medium text-sm text-black hover:no-underline hover:bg-muted/50 transition-colors">
-                What's the battery life and charging process?
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-4 text-muted-foreground leading-relaxed text-sm">
-                7+ days typical use with intelligent power management. Magnetic USB charging takes 2 hours for full charge. Low battery alerts ensure you're never caught unprepared. Enterprise-grade lithium battery with 2-year warranty.
-              </AccordionContent>
-            </AccordionItem>
+            <div className="grid lg:grid-cols-3 gap-8">
+              {[
+                {
+                  letter: "A", label: "Amazon Alexa", color: "primary",
+                  desc: "Voice-activated emergency alerts across all Alexa devices in your home.",
+                  items: ["All Alexa devices", "Multi-room alerts", '"Alexa, help help help"', "Professional monitoring"]
+                },
+                {
+                  letter: "G", label: "Google Home", color: "guardian",
+                  desc: "AI-powered emergency response with intelligent location sharing.",
+                  items: ["Google Nest support", "Intelligent routing", '"Hey Google, emergency"', "Real-time location"]
+                },
+                {
+                  icon: Smartphone, label: "Universal Mobile", color: "primary",
+                  desc: "Cross-platform compatibility with enterprise-grade security.",
+                  items: ["iOS & Android", "Bluetooth 5.0 LE", "Background protection", "100m range"]
+                },
+              ].map((card, i) => (
+                <Card key={i} className="bg-white border-[#E5E7EB] rounded-2xl hover:shadow-lg transition-shadow duration-300 p-8 text-center">
+                  <div className={`w-16 h-16 mx-auto mb-6 bg-${card.color}/10 rounded-2xl flex items-center justify-center`}>
+                    {card.icon ? (
+                      <card.icon className={`h-8 w-8 text-${card.color}`} />
+                    ) : (
+                      <span className={`text-2xl font-bold text-${card.color}`}>{card.letter}</span>
+                    )}
+                  </div>
+                  <h3 className="text-xl font-bold font-poppins mb-3 text-[hsl(215,25%,27%)]">{card.label}</h3>
+                  <p className="text-gray-500 font-inter mb-6 text-sm">{card.desc}</p>
+                  <div className="space-y-2.5 text-sm">
+                    {card.items.map((item, j) => (
+                      <div key={j} className="flex items-center justify-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-wellness flex-shrink-0" />
+                        <span className="text-gray-600">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
 
-            <AccordionItem value="item-3" className="border border-border rounded-lg bg-card/50 backdrop-blur-sm">
-              <AccordionTrigger className="px-6 py-4 text-left font-medium text-sm text-black hover:no-underline hover:bg-muted/50 transition-colors">
-                Is the device waterproof for all activities?
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-4 text-muted-foreground leading-relaxed text-sm">
-                IP67 certified waterproof rating for swimming, showering, and extreme weather. Professional testing ensures reliability in all conditions. Saltwater resistant for beach activities with full functionality maintained underwater up to 1 meter.
-              </AccordionContent>
-            </AccordionItem>
+        {/* ============================================================ */}
+        {/* 5. How It Works */}
+        {/* ============================================================ */}
+        <section className="py-section bg-[#FAFAF9]">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-5xl font-bold font-poppins mb-4 text-[hsl(215,25%,27%)]">
+                Setup in <span className="text-primary">Minutes</span>
+              </h2>
+              <p className="text-lg text-gray-600 font-inter max-w-2xl mx-auto">
+                Professional-grade protection with a simple setup process
+              </p>
+            </div>
 
-            <AccordionItem value="item-4" className="border border-border rounded-lg bg-card/50 backdrop-blur-sm">
-              <AccordionTrigger className="px-6 py-4 text-left font-medium text-sm text-black hover:no-underline hover:bg-muted/50 transition-colors">
-                What wearing options are included?
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-4 text-muted-foreground leading-relaxed text-sm">
-                Complete package includes: adjustable lanyard for daily wear, secure carabiner clip for bags/belts, and comfortable sport wristbands (white & black). All attachments are professionally tested for security and comfort.
-              </AccordionContent>
-            </AccordionItem>
+            <div className="grid md:grid-cols-4 gap-8">
+              {steps.map((step, i) => (
+                <div key={i} className="text-center">
+                  <div className="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-5 text-xl font-bold font-poppins shadow-lg">
+                    {step.num}
+                  </div>
+                  <h3 className="font-bold font-poppins text-lg mb-2 text-[hsl(215,25%,27%)]">{step.title}</h3>
+                  <p className="text-sm text-gray-500 font-inter">{step.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
 
-            <AccordionItem value="item-5" className="border border-border rounded-lg bg-card/50 backdrop-blur-sm">
-              <AccordionTrigger className="px-6 py-4 text-left font-medium text-sm text-black hover:no-underline hover:bg-muted/50 transition-colors">
-                Which smartphones and smart homes are compatible?
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-4 text-muted-foreground leading-relaxed text-sm">
-                Universal compatibility: iOS 12+ and Android 8+. Seamless integration with Amazon Alexa, Google Home, and all major smart home platforms. Professional setup ensures optimal performance across all systems.
-              </AccordionContent>
-            </AccordionItem>
+        {/* ============================================================ */}
+        {/* 6. Pricing Card */}
+        {/* ============================================================ */}
+        <section className="py-section bg-white">
+          <div className="container mx-auto px-4">
+            <div className="max-w-lg mx-auto">
+              <Card className="bg-white border-[#E5E7EB] rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+                <div className="bg-primary/5 px-8 pt-8 pb-6 text-center">
+                  <h2 className="text-2xl font-bold font-poppins text-[hsl(215,25%,27%)] mb-1">Complete Protection Package</h2>
+                  <p className="text-gray-500 font-inter text-sm">Everything included — no hidden costs</p>
+                </div>
+                <CardContent className="p-8">
+                  <div className="text-center mb-6">
+                    <div className="text-5xl font-bold font-poppins text-primary mb-1">€59.99</div>
+                    <div className="text-gray-500 font-inter">+ €4.99 shipping</div>
+                    <div className="text-xs text-gray-400 mt-1">One-time purchase</div>
+                  </div>
 
-            <AccordionItem value="item-6" className="border border-border rounded-lg bg-card/50 backdrop-blur-sm">
-              <AccordionTrigger className="px-6 py-4 text-left font-medium text-sm text-black hover:no-underline hover:bg-muted/50 transition-colors">
-                What's the range and connection reliability?
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-4 text-muted-foreground leading-relaxed text-sm">
-                100-meter professional range in open areas, 30-50m through walls. Advanced signal processing ensures reliable connection. Automatic reconnection when back in range with missed alert notifications for complete peace of mind.
-              </AccordionContent>
-            </AccordionItem>
+                  <div className="space-y-3 mb-8">
+                    {[
+                      "Pendant device with all accessories",
+                      "Lanyard, clip & wristbands included",
+                      "2-year warranty",
+                      "Free professional setup support",
+                      "24/7 technical support",
+                      "Works with iOS & Android",
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-center gap-2.5">
+                        <CheckCircle2 className="h-4 w-4 text-wellness flex-shrink-0" />
+                        <span className="text-sm text-gray-600 font-inter">{item}</span>
+                      </div>
+                    ))}
+                  </div>
 
-            <AccordionItem value="item-7" className="border border-border rounded-lg bg-card/50 backdrop-blur-sm">
-              <AccordionTrigger className="px-6 py-4 text-left font-medium text-sm text-black hover:no-underline hover:bg-muted/50 transition-colors">
-                How much does the service cost?
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-4 text-muted-foreground leading-relaxed text-sm">
-                Device: €59.99 + €4.99 shipping. No monthly fees for basic emergency contacts. Optional professional monitoring services available. All major payment methods accepted with secure checkout and immediate activation.
-              </AccordionContent>
-            </AccordionItem>
+                  {comingSoon ? (
+                    <Badge className="w-full justify-center px-6 py-3 text-lg font-semibold bg-secondary text-white">Coming Soon</Badge>
+                  ) : (
+                    <Button
+                      asChild
+                      size="lg"
+                      className="w-full bg-primary text-white hover:bg-primary/90 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 font-semibold text-lg py-6 rounded-xl"
+                    >
+                      <Link to="/register">Get Protected Today</Link>
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
 
-            <AccordionItem value="item-8" className="border border-border rounded-lg bg-card/50 backdrop-blur-sm">
-              <AccordionTrigger className="px-6 py-4 text-left font-medium text-sm text-black hover:no-underline hover:bg-muted/50 transition-colors">
-                What privacy and security measures are in place?
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-4 text-muted-foreground leading-relaxed text-sm">
-                End-to-end encryption for all data. GDPR compliant with zero data sharing. Your location and medical information are stored securely with military-grade encryption. Full control over who receives alerts and when.
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="item-9" className="border border-border rounded-lg bg-card/50 backdrop-blur-sm">
-              <AccordionTrigger className="px-6 py-4 text-left font-medium text-sm text-black hover:no-underline hover:bg-muted/50 transition-colors">
-                Is international travel supported?
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-4 text-muted-foreground leading-relaxed text-sm">
-                Global coverage with local emergency service integration in 50+ countries. Automatic regional compliance and language support. Professional partnerships ensure consistent service quality worldwide with local emergency protocols.
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="item-10" className="border border-border rounded-lg bg-card/50 backdrop-blur-sm">
-              <AccordionTrigger className="px-6 py-4 text-left font-medium text-sm text-black hover:no-underline hover:bg-muted/50 transition-colors">
-                What warranty and support is provided?
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-4 text-muted-foreground leading-relaxed text-sm">
-                2-year full warranty covering device, battery, and accessories. 24/7 technical support in 25+ languages. Free replacement for any manufacturing defects. Professional setup assistance and ongoing technical consultation included.
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </div>
-      </section>
-
-      {/* Final CTA Section */}
-      <section className="py-section bg-gradient-to-br from-primary/10 to-emergency/10">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Ready for Complete Protection?
-          </h2>
-          <p className="text-lg text-muted-foreground mb-8">
-            Join thousands who trust LifeLink Sync for emergency protection
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            {comingSoon ? (
-              <Badge className="px-6 py-3 text-lg font-semibold bg-secondary text-white">Coming Soon</Badge>
-            ) : (
-              <>
-                <Button size="lg" className="px-8 py-3 font-semibold bg-emergency hover:bg-emergency/90" asChild>
-                  <Link to="/register">Order Now - €59.99 + €4.99 shipping</Link>
+        {/* ============================================================ */}
+        {/* 7. Clara CTA */}
+        {/* ============================================================ */}
+        <section className="py-section bg-primary/5">
+          <div className="container mx-auto px-4">
+            <div className="max-w-3xl mx-auto flex flex-col md:flex-row items-center gap-8">
+              <div className="flex-shrink-0">
+                <div className="relative">
+                  <img
+                    src="/clara-avatar.png"
+                    alt="Clara AI Assistant"
+                    className="w-24 h-24 rounded-full object-cover ring-4 ring-primary/20 shadow-lg"
+                  />
+                  <span className="absolute bottom-1 right-1 w-5 h-5 bg-green-500 rounded-full border-3 border-white" />
+                </div>
+              </div>
+              <div className="text-center md:text-left">
+                <h2 className="text-2xl md:text-3xl font-bold font-poppins mb-3 text-[hsl(215,25%,27%)]">
+                  Have questions about the pendant?
+                </h2>
+                <p className="text-gray-600 font-inter mb-5">
+                  Clara, our AI assistant, knows everything about the LifeLink Sync Bluetooth Pendant. Ask about features, compatibility, setup, or anything else.
+                </p>
+                <Button
+                  size="lg"
+                  className="bg-primary text-white hover:bg-primary/90 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 font-semibold text-lg px-8 py-6 rounded-xl"
+                  onClick={openClaraChat}
+                >
+                  <MessageCircle className="h-5 w-5 mr-2" />
+                  Chat with Clara
                 </Button>
-                <div className="text-sm text-muted-foreground">
-                  <Check className="h-4 w-4 inline mr-1 text-green-600" />
-                  30-day guarantee • 24/7 support
-                </div>
-              </>
-            )}
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
+        {/* ============================================================ */}
+        {/* 8. Testimonials */}
+        {/* ============================================================ */}
+        <section className="py-section bg-[#F3F4F6]">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-5xl font-bold font-poppins mb-4 text-[hsl(215,25%,27%)]">
+                Real Stories, <span className="text-primary">Real Protection</span>
+              </h2>
+              <p className="text-lg text-gray-600 font-inter max-w-2xl mx-auto">
+                Hear from families who trust LifeLink Sync every day
+              </p>
+            </div>
 
+            <div className="grid lg:grid-cols-3 gap-8">
+              {[
+                {
+                  icon: Heart, color: "primary", category: "Medical Emergency", initial: "M", name: "Maria S.", location: "Barcelona, Spain",
+                  quote: "LifeLink Sync saved my father's life when he collapsed during his morning walk. Within seconds, all emergency contacts received his exact GPS location and medical profile. The ambulance arrived in under 8 minutes."
+                },
+                {
+                  icon: Shield, color: "guardian", category: "Home Emergency", initial: "J", name: "James K.", location: "London, UK",
+                  quote: "Living alone at 78, I had a severe reaction to medication. One button press instantly alerted my daughter and neighbors with my complete medical information and exact location. Professional response saved my life."
+                },
+                {
+                  icon: Users, color: "primary", category: "Family Security", initial: "A", name: "Anna P.", location: "Madrid, Spain",
+                  quote: "My mother accidentally pressed the pendant while gardening. Every family member received immediate alerts with her location. The system works flawlessly — exactly when we need it most. Peace of mind achieved."
+                },
+              ].map((story, i) => (
+                <Card key={i} className="bg-white border-[#E5E7EB] rounded-2xl hover:shadow-lg transition-shadow duration-300 p-8">
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className={`w-10 h-10 bg-${story.color}/10 rounded-full flex items-center justify-center`}>
+                      <story.icon className={`h-5 w-5 text-${story.color}`} />
+                    </div>
+                    <div>
+                      <div className="flex text-amber-400 mb-0.5">
+                        {Array.from({ length: 5 }).map((_, j) => (
+                          <Star key={j} className="h-3.5 w-3.5 fill-current" />
+                        ))}
+                      </div>
+                      <div className="text-xs text-gray-400 font-medium">{story.category}</div>
+                    </div>
+                  </div>
+
+                  <blockquote className="text-gray-500 font-inter text-sm leading-relaxed italic mb-6">
+                    "{story.quote}"
+                  </blockquote>
+
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 bg-primary rounded-full flex items-center justify-center text-white font-bold text-sm">
+                      {story.initial}
+                    </div>
+                    <div>
+                      <div className="text-sm font-semibold text-[hsl(215,25%,27%)]">{story.name}</div>
+                      <div className="text-xs text-gray-400">{story.location}</div>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ============================================================ */}
+        {/* 9. FAQ */}
+        {/* ============================================================ */}
+        <section className="py-section bg-[#FAFAF9]">
+          <div className="max-w-3xl mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-5xl font-bold font-poppins mb-4 text-[hsl(215,25%,27%)]">
+                Frequently Asked <span className="text-primary">Questions</span>
+              </h2>
+              <p className="text-lg text-gray-600 font-inter max-w-2xl mx-auto">
+                Everything you need to know about the LifeLink Sync Bluetooth Pendant
+              </p>
+            </div>
+
+            <Accordion type="single" collapsible className="space-y-3">
+              {[
+                { q: "How does the emergency system work?", a: "One button press instantly alerts ALL emergency contacts with your exact GPS location. The system uses Bluetooth 5.0 for secure smartphone connection and professional-grade emergency protocols with 24/7 monitoring capabilities." },
+                { q: "What's the battery life and charging process?", a: "7+ days typical use with intelligent power management. Magnetic USB charging takes 2 hours for full charge. Low battery alerts ensure you're never caught unprepared." },
+                { q: "Is the device waterproof for all activities?", a: "IP67 certified waterproof rating for swimming, showering, and extreme weather. Saltwater resistant for beach activities with full functionality maintained underwater up to 1 metre." },
+                { q: "What wearing options are included?", a: "Complete package includes: adjustable lanyard for daily wear, secure carabiner clip for bags & belts, and comfortable sport wristbands in white and black. All attachments are tested for security and comfort." },
+                { q: "Which smartphones and smart homes are compatible?", a: "Universal compatibility: iOS 12+ and Android 8+. Seamless integration with Amazon Alexa, Google Home, and all major smart home platforms." },
+                { q: "What's the range and connection reliability?", a: "100-metre professional range in open areas, 30–50m through walls. Automatic reconnection when back in range with missed alert notifications." },
+                { q: "How much does the pendant cost?", a: "Device: €59.99 + €4.99 shipping. No monthly fees for basic emergency contacts. Optional professional monitoring services available." },
+                { q: "What privacy and security measures are in place?", a: "End-to-end encryption for all data. GDPR compliant with zero data sharing. Full control over who receives alerts and when." },
+                { q: "Is international travel supported?", a: "Global coverage with local emergency service integration in 50+ countries. Automatic regional compliance and language support." },
+                { q: "What warranty and support is provided?", a: "2-year full warranty covering device, battery, and accessories. 24/7 technical support. Free replacement for manufacturing defects." },
+              ].map((faq, i) => (
+                <AccordionItem key={i} value={`item-${i}`} className="bg-white border border-[#E5E7EB] rounded-xl overflow-hidden">
+                  <AccordionTrigger className="px-6 py-4 text-left font-medium text-sm text-[hsl(215,25%,27%)] hover:no-underline hover:bg-gray-50 transition-colors font-inter">
+                    {faq.q}
+                  </AccordionTrigger>
+                  <AccordionContent className="px-6 pb-4 text-gray-500 leading-relaxed text-sm font-inter">
+                    {faq.a}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+        </section>
+
+        {/* ============================================================ */}
+        {/* 10. Final CTA */}
+        {/* ============================================================ */}
+        <section className="py-20 bg-gradient-to-r from-[#991B1B] via-[#DC2626] to-[#EF4444]">
+          <div className="container mx-auto px-4">
+            <div className="text-center max-w-3xl mx-auto">
+              <h2 className="text-3xl md:text-5xl font-bold font-poppins mb-6 text-white">
+                Ready for Complete Protection?
+              </h2>
+              <p className="text-lg text-white/90 mb-10 font-inter leading-relaxed">
+                Join thousands who trust LifeLink Sync for emergency protection. One device, total peace of mind.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                {comingSoon ? (
+                  <Badge className="px-6 py-3 text-lg font-semibold bg-white/20 text-white border border-white/30">Coming Soon</Badge>
+                ) : (
+                  <>
+                    <Button
+                      asChild
+                      size="lg"
+                      className="bg-white text-primary hover:bg-white/90 font-semibold text-lg px-10 py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                    >
+                      <Link to="/register">
+                        <Shield className="h-5 w-5 mr-2" />
+                        Order Now — €59.99
+                      </Link>
+                    </Button>
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="border-2 border-white text-white hover:bg-white/10 font-semibold text-lg px-10 py-6 rounded-xl transition-all duration-300"
+                      onClick={openClaraChat}
+                    >
+                      <MessageCircle className="h-5 w-5 mr-2" />
+                      Ask Clara
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
       <Footer />
     </div>

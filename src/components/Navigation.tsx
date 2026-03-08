@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Shield, Menu, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 import LanguageCurrencySelector from '@/components/LanguageCurrencySelector';
 import { usePreferences } from '@/contexts/PreferencesContext';
@@ -18,6 +18,8 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
   const { language } = usePreferences();
   const { trackButtonClick, trackLinkClick } = useInteractionTracking();
   const { openClaraChat } = useClaraChat();
+  const location = useLocation();
+  const isHomepage = location.pathname === '/';
 
   const handleSignInClick = () => {
     trackButtonClick('navigation', 'Sign In', { location: 'header' });
@@ -51,18 +53,21 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
-            <a href="#how-it-works" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-              How It Works
-            </a>
-            <a href="#features" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-              Features
-            </a>
-            <a href="#family" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-              Family
-            </a>
-            <a href="#pricing" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-              Pricing
-            </a>
+            {isHomepage ? (
+              <>
+                <a href="#how-it-works" className="text-sm font-medium text-foreground hover:text-primary transition-colors">How It Works</a>
+                <a href="#features" className="text-sm font-medium text-foreground hover:text-primary transition-colors">Features</a>
+                <a href="#family" className="text-sm font-medium text-foreground hover:text-primary transition-colors">Family</a>
+                <a href="#pricing" className="text-sm font-medium text-foreground hover:text-primary transition-colors">Pricing</a>
+              </>
+            ) : (
+              <>
+                <Link to="/#how-it-works" className="text-sm font-medium text-foreground hover:text-primary transition-colors">How It Works</Link>
+                <Link to="/#features" className="text-sm font-medium text-foreground hover:text-primary transition-colors">Features</Link>
+                <Link to="/#family" className="text-sm font-medium text-foreground hover:text-primary transition-colors">Family</Link>
+                <Link to="/#pricing" className="text-sm font-medium text-foreground hover:text-primary transition-colors">Pricing</Link>
+              </>
+            )}
             <div className="border-l border-border/30 pl-6 ml-2">
               <LanguageCurrencySelector compact />
             </div>
@@ -137,18 +142,21 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
               <div className="mb-4 px-4">
                 <LanguageCurrencySelector />
               </div>
-              <a href="#how-it-works" className="text-sm font-medium text-foreground hover:text-primary px-4 py-2" onClick={() => setIsMenuOpen(false)}>
-                How It Works
-              </a>
-              <a href="#features" className="text-sm font-medium text-foreground hover:text-primary px-4 py-2" onClick={() => setIsMenuOpen(false)}>
-                Features
-              </a>
-              <a href="#family" className="text-sm font-medium text-foreground hover:text-primary px-4 py-2" onClick={() => setIsMenuOpen(false)}>
-                Family
-              </a>
-              <a href="#pricing" className="text-sm font-medium text-foreground hover:text-primary px-4 py-2" onClick={() => setIsMenuOpen(false)}>
-                Pricing
-              </a>
+              {isHomepage ? (
+                <>
+                  <a href="#how-it-works" className="text-sm font-medium text-foreground hover:text-primary px-4 py-2" onClick={() => setIsMenuOpen(false)}>How It Works</a>
+                  <a href="#features" className="text-sm font-medium text-foreground hover:text-primary px-4 py-2" onClick={() => setIsMenuOpen(false)}>Features</a>
+                  <a href="#family" className="text-sm font-medium text-foreground hover:text-primary px-4 py-2" onClick={() => setIsMenuOpen(false)}>Family</a>
+                  <a href="#pricing" className="text-sm font-medium text-foreground hover:text-primary px-4 py-2" onClick={() => setIsMenuOpen(false)}>Pricing</a>
+                </>
+              ) : (
+                <>
+                  <Link to="/#how-it-works" className="text-sm font-medium text-foreground hover:text-primary px-4 py-2" onClick={() => setIsMenuOpen(false)}>How It Works</Link>
+                  <Link to="/#features" className="text-sm font-medium text-foreground hover:text-primary px-4 py-2" onClick={() => setIsMenuOpen(false)}>Features</Link>
+                  <Link to="/#family" className="text-sm font-medium text-foreground hover:text-primary px-4 py-2" onClick={() => setIsMenuOpen(false)}>Family</Link>
+                  <Link to="/#pricing" className="text-sm font-medium text-foreground hover:text-primary px-4 py-2" onClick={() => setIsMenuOpen(false)}>Pricing</Link>
+                </>
+              )}
               <div className="flex flex-col space-y-3 pt-6 mt-4 border-t border-border mx-4">
                 {/* Mobile Clara Chat Button */}
                 <button

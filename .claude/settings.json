@@ -80,7 +80,10 @@
       "Bash(grep -l \"ai_model_settings\\\\|training_data\" /Users/leewakeman/lifelink-sync/lifelink-sync/supabase/migrations/*.sql)",
       "Bash(ls -la /Users/leewakeman/lifelink-sync/lifelink-sync/public/manifest.* /Users/leewakeman/lifelink-sync/lifelink-sync/dist/manifest.*)",
       "Bash(grep -E \"\\\\.\\(tsx|ts\\)$\")",
-      "Bash(git add src/components/admin/TrainingManager.tsx src/components/admin/pages/AIAgentPage.tsx src/integrations/supabase/types.ts supabase/functions/ai-chat/index.ts supabase/functions/generate-embeddings/index.ts supabase/migrations/20260308100002_clara_rag_memory.sql src/components/Pricing.tsx src/components/PendantPromo.tsx src/components/dashboard/MobileAppCard.tsx src/hooks/usePWAFeatures.ts src/locales/en/common.json src/locales/es/common.json src/locales/nl/common.json src/pages/Index.tsx .claude/settings.json)"
+      "Bash(git add src/components/admin/TrainingManager.tsx src/components/admin/pages/AIAgentPage.tsx src/integrations/supabase/types.ts supabase/functions/ai-chat/index.ts supabase/functions/generate-embeddings/index.ts supabase/migrations/20260308100002_clara_rag_memory.sql src/components/Pricing.tsx src/components/PendantPromo.tsx src/components/dashboard/MobileAppCard.tsx src/hooks/usePWAFeatures.ts src/locales/en/common.json src/locales/es/common.json src/locales/nl/common.json src/pages/Index.tsx .claude/settings.json)",
+      "Bash(git add src/App.tsx src/components/LanguageCurrencySelector.tsx src/pages/AuthPage.tsx src/pages/Index.tsx src/components/family-dashboard/SendReminderDialog.tsx src/components/tablet/ src/pages/TabletDashboard.tsx)",
+      "Bash(git add src/components/dashboard/MobileAppCard.tsx)",
+      "Bash(git add src/components/dashboard/MobileAppCard.tsx src/pages/TabletDashboard.tsx)"
     ],
     "additionalDirectories": [
       "/Users/leewakeman/lifelink-sync/lifelink-sync/.claude",
