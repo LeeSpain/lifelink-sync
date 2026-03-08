@@ -44,8 +44,6 @@ import {
   BookOpen,
   Target,
   Send,
-  ChevronDown,
-  ChevronRight,
   LogOut,
   User,
   Home,
@@ -73,7 +71,7 @@ const useAdminMenuItems = () => {
   
   return [
     {
-      title: t('admin.overview'),
+      title: t('admin.sidebarOverview', 'Overview'),
       items: [
         { title: t('admin.dashboard'), url: "/admin-dashboard", icon: BarChart3 },
         { title: t('admin.analytics'), url: "/admin-dashboard/analytics", icon: BarChart3 },
@@ -83,7 +81,7 @@ const useAdminMenuItems = () => {
       ]
     },
     {
-      title: t('admin.aiMarketing'), 
+      title: t('admin.sidebarAI', 'AI'),
       items: [
         { title: t('admin.claraAiAgent'), url: "/admin-dashboard/ai-agent", icon: Bot },
         { title: t('admin.rivenMarketingAi'), url: "/admin-dashboard/riven-marketing", icon: Brain },
@@ -91,7 +89,7 @@ const useAdminMenuItems = () => {
       ]
     },
     {
-      title: t('admin.customerManagement'), 
+      title: t('admin.sidebarCustomers', 'Customers'),
       items: [
         { title: t('admin.allCustomers'), url: "/admin-dashboard/customers", icon: Users },
         { title: t('admin.subscriptions'), url: "/admin-dashboard/subscriptions", icon: Database },
@@ -99,7 +97,7 @@ const useAdminMenuItems = () => {
       ]
     },
     {
-      title: t('admin.aiChatLeads'),
+      title: t('admin.sidebarLeads', 'Leads'),
       items: [
         { title: t('admin.leadManagement'), url: "/admin-dashboard/leads", icon: MessageSquare },
         { title: t('admin.leadIntelligence'), url: "/admin-dashboard/lead-intelligence", icon: Target },
@@ -107,14 +105,14 @@ const useAdminMenuItems = () => {
       ]
     },
     {
-      title: t('admin.communicationMarketing'),
+      title: t('admin.sidebarComms', 'Communications'),
       items: [
         { title: t('admin.contactSubmissions'), url: "/admin-dashboard/contact-submissions", icon: Mail },
         { title: t('admin.communicationCenter'), url: "/admin-dashboard/communication", icon: MessageSquare },
       ]
     },
     {
-      title: t('admin.liveMapManagement'),
+      title: t('admin.sidebarMap', 'Map'),
       items: [
         { title: t('admin.liveMapMonitor'), url: "/admin-dashboard/live-map-monitor", icon: Map },
         { title: t('admin.circleAnalytics'), url: "/admin-dashboard/circle-analytics", icon: Users },
@@ -123,14 +121,14 @@ const useAdminMenuItems = () => {
       ]
     },
     {
-      title: t('admin.emergencySafety'),
+      title: t('admin.sidebarEmergency', 'Emergency'),
       items: [
         { title: t('admin.emergencyIncidents'), url: "/admin-dashboard/emergencies", icon: AlertTriangle },
         { title: t('admin.safetyMonitoring'), url: "/admin-dashboard/safety", icon: Shield },
       ]
     },
     {
-      title: t('admin.regionalManagement'),
+      title: t('admin.sidebarRegional', 'Regional'),
       items: [
         { title: t('admin.regionalHub'), url: "/admin-dashboard/regional-hub", icon: MapPin },
         { title: t('admin.regionalOrganizations'), url: "/admin-dashboard/regional-organizations", icon: Building },
@@ -140,7 +138,7 @@ const useAdminMenuItems = () => {
       ]
     },
     {
-      title: t('admin.productServices'),
+      title: t('admin.sidebarProducts', 'Products'),
       items: [
         { title: t('admin.products'), url: "/admin-dashboard/products", icon: Package },
         { title: t('admin.regionalServices'), url: "/admin-dashboard/regional-services", icon: MapPin },
@@ -151,7 +149,7 @@ const useAdminMenuItems = () => {
       ]
     },
     {
-      title: t('admin.system'),
+      title: t('admin.sidebarSystem', 'System'),
       items: [
         { title: t('admin.userActivity'), url: "/admin-dashboard/activity", icon: Activity },
         { title: t('admin.systemSettings'), url: "/admin-dashboard/settings", icon: Settings },
@@ -181,9 +179,6 @@ function AdminSidebar() {
   });
 
   const isActive = (path: string) => currentPath === path;
-  const isGroupActive = (items: typeof adminMenuItems[0]['items']) =>
-    items.some(item => isActive(item.url));
-
   const toggleSection = (title: string) => {
     setExpandedSections(prev => {
       const newSet = new Set(prev);
@@ -209,42 +204,22 @@ function AdminSidebar() {
                 <h2 className="font-bold text-lg text-sidebar-foreground">
                   {t('dashboard.iceAdmin')}
                 </h2>
-                <p className="text-xs text-sidebar-foreground/60">{t('dashboard.managementDashboard')}</p>
+                <p className="text-sm text-sidebar-muted-foreground font-medium">{t('dashboard.managementDashboard')}</p>
               </div>
             )}
           </div>
         </div>
 
-        {adminMenuItems.map((group, groupIndex) => {
+        {adminMenuItems.map((group) => {
           const isExpanded = expandedSections.has(group.title);
-          const hasActiveItem = isGroupActive(group.items);
 
           return (
             <SidebarGroup key={group.title} className="px-3 py-2">
               <SidebarGroupLabel
-                className={`${state === "collapsed" ? 'hidden' : 'block'} text-xs font-semibold px-2 py-2 flex items-center gap-2 cursor-pointer hover:bg-sidebar-accent/50 rounded-md transition-colors ${
-                  hasActiveItem ? 'text-sidebar-primary' : 'text-sidebar-foreground/70'
-                }`}
+                className={`${state === "collapsed" ? 'hidden' : 'block'} text-sm font-medium px-2 py-2 mb-3 cursor-pointer hover:bg-sidebar-accent/50 rounded-md transition-colors text-sidebar-muted-foreground`}
                 onClick={() => toggleSection(group.title)}
               >
-                <div className={`w-2 h-2 rounded-full ${
-                  groupIndex === 0 ? 'bg-blue-500' :
-                  groupIndex === 1 ? 'bg-purple-500' :
-                  groupIndex === 2 ? 'bg-green-500' :
-                  groupIndex === 3 ? 'bg-orange-500' :
-                  groupIndex === 4 ? 'bg-red-500' :
-                  groupIndex === 5 ? 'bg-cyan-500' :
-                  groupIndex === 6 ? 'bg-amber-500' :
-                  groupIndex === 7 ? 'bg-pink-500' :
-                  groupIndex === 8 ? 'bg-indigo-500' :
-                  'bg-gray-500'
-                }`} />
-                <span className="flex-1">{group.title}</span>
-                {isExpanded ? (
-                  <ChevronDown className="h-4 w-4 transition-transform" />
-                ) : (
-                  <ChevronRight className="h-4 w-4 transition-transform" />
-                )}
+                {group.title}
               </SidebarGroupLabel>
 
               {isExpanded && (
@@ -258,7 +233,7 @@ function AdminSidebar() {
                             className={({ isActive }) =>
                               `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
                                 isActive
-                                  ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-lg scale-[1.02]'
+                                  ? 'bg-sidebar-primary text-sidebar-primary shadow-lg scale-[1.02]'
                                   : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:scale-[1.01]'
                               }`
                             }

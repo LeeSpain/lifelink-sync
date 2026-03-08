@@ -1,7 +1,23 @@
 import { useState, useEffect } from 'react';
-import { Wifi, WifiOff, Battery, BatteryLow, Shield } from 'lucide-react';
+import { Wifi, WifiOff, Shield } from 'lucide-react';
+import { ClaraPresenceIndicator } from '@/components/tablet/ClaraPresenceIndicator';
 
-export const TabletStatusBar = ({ wakeLockActive }: { wakeLockActive: boolean }) => {
+interface ClaraState {
+  isListening: boolean;
+  isSpeaking: boolean;
+  isMuted: boolean;
+  hasPermission: boolean | null;
+  transcript: string;
+  onToggleMute: () => void;
+  onToggleListening: () => void;
+}
+
+interface TabletStatusBarProps {
+  wakeLockActive: boolean;
+  claraState?: ClaraState;
+}
+
+export const TabletStatusBar = ({ wakeLockActive, claraState }: TabletStatusBarProps) => {
   const [now, setNow] = useState(new Date());
   const [online, setOnline] = useState(navigator.onLine);
 
@@ -36,6 +52,7 @@ export const TabletStatusBar = ({ wakeLockActive }: { wakeLockActive: boolean })
       </div>
 
       <div className="flex items-center gap-4">
+        {claraState && <ClaraPresenceIndicator {...claraState} />}
         <span className="text-2xl font-semibold tabular-nums">{timeStr}</span>
         <div className="flex items-center gap-2">
           {online ? (

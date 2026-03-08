@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { Check, Bluetooth, Battery, Droplets, MapPin, Shield, CheckCircle2, Smartphone, Zap, Heart, Star, Users, MessageCircle } from "lucide-react";
+import { Check, Bluetooth, Battery, Droplets, MapPin, Shield, CheckCircle2, Smartphone, Heart, Star, Users, MessageCircle } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import { supabase } from "@/integrations/supabase/client";
 import OptimizedImage from "@/components/ui/optimized-image";
@@ -97,7 +97,7 @@ const DeviceIceSosPendant = () => {
             backgroundSize: '24px 24px'
           }} />
           <div className="absolute top-20 right-0 w-72 h-72 lg:w-96 lg:h-96 bg-primary/5 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-60 h-60 lg:w-80 lg:h-80 bg-primary/3 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-60 h-60 lg:w-80 lg:h-80 bg-primary/5 rounded-full blur-3xl" />
 
           <div className="container mx-auto px-4 py-16 relative z-10">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -259,27 +259,30 @@ const DeviceIceSosPendant = () => {
             <div className="grid lg:grid-cols-3 gap-8">
               {[
                 {
-                  letter: "A", label: "Amazon Alexa", color: "primary",
+                  letter: "A", label: "Amazon Alexa",
+                  iconBg: "bg-primary/10", iconText: "text-primary",
                   desc: "Voice-activated emergency alerts across all Alexa devices in your home.",
                   items: ["All Alexa devices", "Multi-room alerts", '"Alexa, help help help"', "Professional monitoring"]
                 },
                 {
-                  letter: "G", label: "Google Home", color: "guardian",
+                  letter: "G", label: "Google Home",
+                  iconBg: "bg-guardian/10", iconText: "text-guardian",
                   desc: "AI-powered emergency response with intelligent location sharing.",
                   items: ["Google Nest support", "Intelligent routing", '"Hey Google, emergency"', "Real-time location"]
                 },
                 {
-                  icon: Smartphone, label: "Universal Mobile", color: "primary",
+                  icon: Smartphone, label: "Universal Mobile",
+                  iconBg: "bg-primary/10", iconText: "text-primary",
                   desc: "Cross-platform compatibility with enterprise-grade security.",
                   items: ["iOS & Android", "Bluetooth 5.0 LE", "Background protection", "100m range"]
                 },
               ].map((card, i) => (
                 <Card key={i} className="bg-white border-[#E5E7EB] rounded-2xl hover:shadow-lg transition-shadow duration-300 p-8 text-center">
-                  <div className={`w-16 h-16 mx-auto mb-6 bg-${card.color}/10 rounded-2xl flex items-center justify-center`}>
+                  <div className={`w-16 h-16 mx-auto mb-6 rounded-2xl flex items-center justify-center ${card.iconBg}`}>
                     {card.icon ? (
-                      <card.icon className={`h-8 w-8 text-${card.color}`} />
+                      <card.icon className={`h-8 w-8 ${card.iconText}`} />
                     ) : (
-                      <span className={`text-2xl font-bold text-${card.color}`}>{card.letter}</span>
+                      <span className={`text-2xl font-bold ${card.iconText}`}>{card.letter}</span>
                     )}
                   </div>
                   <h3 className="text-xl font-bold font-poppins mb-3 text-[hsl(215,25%,27%)]">{card.label}</h3>
@@ -430,22 +433,22 @@ const DeviceIceSosPendant = () => {
             <div className="grid lg:grid-cols-3 gap-8">
               {[
                 {
-                  icon: Heart, color: "primary", category: "Medical Emergency", initial: "M", name: "Maria S.", location: "Barcelona, Spain",
+                  icon: Heart, iconBg: "bg-primary/10", iconText: "text-primary", category: "Medical Emergency", initial: "M", name: "Maria S.", location: "Barcelona, Spain",
                   quote: "LifeLink Sync saved my father's life when he collapsed during his morning walk. Within seconds, all emergency contacts received his exact GPS location and medical profile. The ambulance arrived in under 8 minutes."
                 },
                 {
-                  icon: Shield, color: "guardian", category: "Home Emergency", initial: "J", name: "James K.", location: "London, UK",
+                  icon: Shield, iconBg: "bg-guardian/10", iconText: "text-guardian", category: "Home Emergency", initial: "J", name: "James K.", location: "London, UK",
                   quote: "Living alone at 78, I had a severe reaction to medication. One button press instantly alerted my daughter and neighbors with my complete medical information and exact location. Professional response saved my life."
                 },
                 {
-                  icon: Users, color: "primary", category: "Family Security", initial: "A", name: "Anna P.", location: "Madrid, Spain",
+                  icon: Users, iconBg: "bg-primary/10", iconText: "text-primary", category: "Family Security", initial: "A", name: "Anna P.", location: "Madrid, Spain",
                   quote: "My mother accidentally pressed the pendant while gardening. Every family member received immediate alerts with her location. The system works flawlessly — exactly when we need it most. Peace of mind achieved."
                 },
               ].map((story, i) => (
                 <Card key={i} className="bg-white border-[#E5E7EB] rounded-2xl hover:shadow-lg transition-shadow duration-300 p-8">
                   <div className="flex items-center gap-3 mb-5">
-                    <div className={`w-10 h-10 bg-${story.color}/10 rounded-full flex items-center justify-center`}>
-                      <story.icon className={`h-5 w-5 text-${story.color}`} />
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${story.iconBg}`}>
+                      <story.icon className={`h-5 w-5 ${story.iconText}`} />
                     </div>
                     <div>
                       <div className="flex text-amber-400 mb-0.5">

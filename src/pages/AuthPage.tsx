@@ -24,7 +24,8 @@ const AuthPage = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [devBypassEnabled, setDevBypassEnabled] = useState(() => localStorage.getItem('dev_bypass') === '1');
-  
+  const [showDevPopup, setShowDevPopup] = useState(false);
+
   // Rate limiting for auth attempts
   const {
     isRateLimited,
@@ -124,8 +125,6 @@ const AuthPage = () => {
     path: window.location.pathname,
     href: window.location.href
   });
-
-  const [showDevPopup, setShowDevPopup] = useState(false);
 
   // NOW do conditional returns AFTER all hooks
   if (loading) {

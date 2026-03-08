@@ -7,7 +7,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+const openAIApiKey = Deno.env.get('OPENAI_API_KEY')!;
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
@@ -59,12 +59,19 @@ async function processBatch(
     try {
       const embedding = await generateEmbedding(item.text);
 
+      const updateData: Record<string, string> = {
+        embedding: JSON.stringify(embedding),
+      };
+      // training_data uses embedding_updated_at; clara_conversation_memory uses updated_at
+      if (table === 'training_data') {
+        updateData.embedding_updated_at = new Date().toISOString();
+      } else {
+        updateData.updated_at = new Date().toISOString();
+      }
+
       const { error } = await supabase
         .from(table)
-        .update({
-          embedding: JSON.stringify(embedding),
-          embedding_updated_at: new Date().toISOString(),
-        })
+        .update(updateData)
         .eq('id', item.id);
 
       if (error) throw error;
@@ -216,11 +223,12 @@ serve(async (req) => {
         );
       }
 
-      // Create job record
+      // Create job record (map table name to valid job_type enum)
+      const jobType = table === 'clara_conversation_memory' ? 'memory' : table;
       const { data: job, error: jobError } = await supabase
         .from('clara_embedding_jobs')
         .insert({
-          job_type: table,
+          job_type: jobType,
           total_items: items.length,
           status: 'running',
           started_at: new Date().toISOString(),
@@ -247,7 +255,7 @@ serve(async (req) => {
         .update({
           processed_items: totalProcessed,
           failed_items: totalFailed,
-          status: totalFailed === items.length ? 'failed' : 'completed',
+          status: totalProcessed === 0 ? 'failed' : totalFailed > 0 ? 'completed' : 'completed',
           completed_at: new Date().toISOString(),
         })
         .eq('id', job.id);

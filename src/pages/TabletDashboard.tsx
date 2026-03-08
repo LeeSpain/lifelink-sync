@@ -1,8 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useWakeLock } from '@/hooks/useWakeLock';
 import { useEmergencyContacts } from '@/hooks/useEmergencyContacts';
+import { useEmergencySOS } from '@/hooks/useEmergencySOS';
+import { useTabletClara } from '@/hooks/useTabletClara';
 import { Button } from '@/components/ui/button';
 import { Phone, AlertTriangle, X, Download, Tablet } from 'lucide-react';
 import { usePWAFeatures } from '@/hooks/usePWAFeatures';
@@ -23,6 +25,7 @@ const TabletDashboard = () => {
   const { user } = useAuth();
   const { isActive: wakeLockActive } = useWakeLock(true);
   const { contacts } = useEmergencyContacts();
+  const { triggerEmergencySOS, isTriggering } = useEmergencySOS();
   const { toast } = useToast();
   const { isInstalled, isInstallable, installApp } = usePWAFeatures();
 
@@ -32,7 +35,7 @@ const TabletDashboard = () => {
   const [showMessages, setShowMessages] = useState(false);
   const [showContacts, setShowContacts] = useState(false);
   const [sosTriggered, setSosTriggered] = useState(false);
-  const [familyOnline] = useState(0); // TODO: wire to live_presence
+  const [familyOnline, setFamilyOnline] = useState(0);
   const [installDismissed, setInstallDismissed] = useState(
     () => localStorage.getItem('tablet-install-dismissed') === '1'
   );
@@ -46,6 +49,28 @@ const TabletDashboard = () => {
 
   const firstName = user?.user_metadata?.first_name || 'there';
 
+  // Swap manifest to tablet-specific version so PWA installs with
+  // start_url="/tablet-dashboard", display="fullscreen", orientation="any"
+  useEffect(() => {
+    const existing = document.querySelector('link[rel="manifest"]');
+    const originalHref = existing?.getAttribute('href') || '/manifest.webmanifest';
+
+    if (existing) {
+      existing.setAttribute('href', '/tablet-manifest.json');
+    } else {
+      const link = document.createElement('link');
+      link.rel = 'manifest';
+      link.href = '/tablet-manifest.json';
+      document.head.appendChild(link);
+    }
+
+    return () => {
+      // Restore original manifest when navigating away
+      const el = document.querySelector('link[rel="manifest"]');
+      if (el) el.setAttribute('href', originalHref);
+    };
+  }, []);
+
   // Update greeting every 5 minutes
   useEffect(() => {
     const timer = setInterval(() => setGreeting(getGreeting()), 5 * 60_000);
@@ -57,7 +82,7 @@ const TabletDashboard = () => {
     if (!user?.id) return;
 
     const fetchAlerts = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('family_alerts')
         .select('*')
         .eq('family_user_id', user.id)
@@ -65,6 +90,11 @@ const TabletDashboard = () => {
         .eq('status', 'sent')
         .order('created_at', { ascending: false })
         .limit(20);
+
+      if (error) {
+        console.error('Failed to fetch alerts:', error);
+        return;
+      }
 
       if (data) {
         const rems: Reminder[] = [];
@@ -121,6 +151,7 @@ const TabletDashboard = () => {
               ...prev,
             ]);
             toast({ title: 'New Reminder', description: d.message || 'You have a new reminder' });
+            speakAlertRef.current('reminder', d.from_name || 'Family', d.message || 'You have a new reminder');
           } else if (row.alert_type === 'family_message') {
             setMessages((prev) => [
               {
@@ -132,13 +163,26 @@ const TabletDashboard = () => {
               ...prev,
             ]);
             toast({ title: `Message from ${d.from_name || 'Family'}`, description: d.message });
+            speakAlertRef.current('message', d.from_name || 'Family', d.message || '');
           }
         }
       )
       .subscribe();
 
+    // Track family online count from live_presence
+    const fetchOnline = async () => {
+      const { count } = await supabase
+        .from('live_presence')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_online', true);
+      setFamilyOnline(count ?? 0);
+    };
+    fetchOnline();
+    const presenceInterval = setInterval(fetchOnline, 60_000);
+
     return () => {
       supabase.removeChannel(channel);
+      clearInterval(presenceInterval);
     };
   }, [user?.id, toast]);
 
@@ -151,13 +195,23 @@ const TabletDashboard = () => {
     []
   );
 
-  // SOS trigger
+  // SOS trigger — calls the real emergency edge function
   const handleSOS = useCallback(async () => {
-    setSosTriggered(true);
-    toast({ title: 'Emergency Alert Sent', description: 'Your emergency contacts have been notified.' });
-    // Reset after 10 seconds
-    setTimeout(() => setSosTriggered(false), 10_000);
-  }, [toast]);
+    try {
+      await triggerEmergencySOS();
+      setSosTriggered(true);
+      setTimeout(() => setSosTriggered(false), 10_000);
+    } catch {
+      // Error toast already shown by useEmergencySOS
+    }
+  }, [triggerEmergencySOS]);
+
+  // Clara AI — TTS for incoming alerts + voice activation
+  const clara = useTabletClara({ onSOSTrigger: handleSOS });
+
+  // Ref so the real-time subscription can call speakAlert without re-subscribing
+  const speakAlertRef = useRef(clara.speakAlert);
+  speakAlertRef.current = clara.speakAlert;
 
   const currentReminder = reminders[0] || null;
 
@@ -205,7 +259,18 @@ const TabletDashboard = () => {
       )}
 
       {/* Status Bar */}
-      <TabletStatusBar wakeLockActive={wakeLockActive} />
+      <TabletStatusBar
+        wakeLockActive={wakeLockActive}
+        claraState={{
+          isListening: clara.isListening,
+          isSpeaking: clara.isSpeaking,
+          isMuted: clara.isMuted,
+          hasPermission: clara.hasPermission,
+          transcript: clara.transcript,
+          onToggleMute: clara.toggleMute,
+          onToggleListening: () => clara.setVoiceEnabled(!clara.voiceEnabled),
+        }}
+      />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col justify-between p-6 md:p-10 max-w-6xl mx-auto w-full">
@@ -246,10 +311,10 @@ const TabletDashboard = () => {
                 : 'bg-red-600 hover:bg-red-700'
             }`}
             onClick={handleSOS}
-            disabled={sosTriggered}
+            disabled={sosTriggered || isTriggering}
           >
             <AlertTriangle className="h-7 w-7 mr-3" />
-            {sosTriggered ? 'ALERT SENT' : 'EMERGENCY'}
+            {isTriggering ? 'SENDING...' : sosTriggered ? 'ALERT SENT' : 'EMERGENCY'}
           </Button>
 
           <Button

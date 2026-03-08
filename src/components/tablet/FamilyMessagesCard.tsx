@@ -1,4 +1,4 @@
-import { MessageSquare, ChevronRight } from 'lucide-react';
+import { MessageSquare } from 'lucide-react';
 
 export interface FamilyMessage {
   id: string;

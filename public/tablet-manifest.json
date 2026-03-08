@@ -1,0 +1,27 @@
+{
+  "name": "LifeLink Sync – Tablet Dashboard",
+  "short_name": "LifeLink Tablet",
+  "description": "Always-on care dashboard for elderly support — reminders, SOS, family messages, and Clara AI voice assistant",
+  "start_url": "/tablet-dashboard",
+  "scope": "/tablet-dashboard",
+  "display": "fullscreen",
+  "background_color": "#020617",
+  "theme_color": "#020617",
+  "orientation": "any",
+  "categories": ["health", "safety", "emergency", "family"],
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/lovable-uploads/lifelink-sync-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/lovable-uploads/lifelink-sync-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

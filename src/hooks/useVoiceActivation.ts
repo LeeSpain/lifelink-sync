@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
+// --- Legacy single-phrase config (backwards-compatible) ---
 interface VoiceActivationConfig {
   triggerPhrase: string;
   onActivation: () => void;
@@ -7,16 +8,43 @@ interface VoiceActivationConfig {
   sensitivity?: number;
 }
 
-export const useVoiceActivation = ({
-  triggerPhrase = "help help help",
-  onActivation,
-  isEnabled = false,
-  sensitivity = 0.8
-}: VoiceActivationConfig) => {
+// --- Multi-command config ---
+export interface VoiceCommand {
+  phrases: string[];
+  onMatch: () => void;
+  label?: string;
+}
+
+interface VoiceActivationConfigMulti {
+  commands: VoiceCommand[];
+  isEnabled: boolean;
+  sensitivity?: number;
+}
+
+type VoiceActivationInput = VoiceActivationConfig | VoiceActivationConfigMulti;
+
+function isMultiConfig(config: VoiceActivationInput): config is VoiceActivationConfigMulti {
+  return 'commands' in config;
+}
+
+export const useVoiceActivation = (config: VoiceActivationInput) => {
   const [isListening, setIsListening] = useState(false);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [transcript, setTranscript] = useState('');
+  const [lastMatchedCommand, setLastMatchedCommand] = useState<string | null>(null);
   const recognition = useRef<SpeechRecognition | null>(null);
+
+  const { isEnabled, sensitivity = 0.8 } = config;
+
+  // Use refs for callbacks to avoid re-creating recognition on every render
+  const configRef = useRef(config);
+  configRef.current = config;
+
+  const hasPermissionRef = useRef(hasPermission);
+  hasPermissionRef.current = hasPermission;
+
+  const isEnabledRef = useRef(isEnabled);
+  isEnabledRef.current = isEnabled;
 
   const startListening = useCallback(async () => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
@@ -25,7 +53,6 @@ export const useVoiceActivation = ({
     }
 
     try {
-      // Request microphone permission
       await navigator.mediaDevices.getUserMedia({ audio: true });
       setHasPermission(true);
 
@@ -46,23 +73,40 @@ export const useVoiceActivation = ({
         let interimTranscript = '';
 
         for (let i = event.resultIndex; i < event.results.length; i++) {
-          const transcript = event.results[i][0].transcript;
+          const t = event.results[i][0].transcript;
           if (event.results[i].isFinal) {
-            finalTranscript += transcript;
+            finalTranscript += t;
           } else {
-            interimTranscript += transcript;
+            interimTranscript += t;
           }
         }
 
         const fullTranscript = (finalTranscript + interimTranscript).toLowerCase().trim();
         setTranscript(fullTranscript);
 
-        // Check for trigger phrase
-        if (fullTranscript.includes(triggerPhrase.toLowerCase())) {
-          console.log('🚨 Voice activation triggered!', fullTranscript);
-          onActivation();
-          // Clear transcript after activation
-          setTranscript('');
+        const cfg = configRef.current;
+
+        if (isMultiConfig(cfg)) {
+          // Multi-command mode: check each command's phrases
+          for (const cmd of cfg.commands) {
+            const matched = cmd.phrases.some((phrase) =>
+              fullTranscript.includes(phrase.toLowerCase())
+            );
+            if (matched) {
+              console.log(`🚨 Voice command matched: ${cmd.label || 'unknown'}`, fullTranscript);
+              setLastMatchedCommand(cmd.label || null);
+              cmd.onMatch();
+              setTranscript('');
+              return;
+            }
+          }
+        } else {
+          // Legacy single-phrase mode
+          if (fullTranscript.includes(cfg.triggerPhrase.toLowerCase())) {
+            console.log('🚨 Voice activation triggered!', fullTranscript);
+            cfg.onActivation();
+            setTranscript('');
+          }
         }
       };
 
@@ -77,7 +121,7 @@ export const useVoiceActivation = ({
       recognition.current.onend = () => {
         setIsListening(false);
         // Auto-restart if still enabled
-        if (isEnabled && hasPermission) {
+        if (isEnabledRef.current && hasPermissionRef.current) {
           setTimeout(() => {
             startListening();
           }, 1000);
@@ -89,7 +133,7 @@ export const useVoiceActivation = ({
       console.error('Failed to start voice recognition:', error);
       setHasPermission(false);
     }
-  }, [triggerPhrase, onActivation, isEnabled, hasPermission]);
+  }, []); // Stable — uses refs for all dynamic values
 
   const stopListening = useCallback(() => {
     if (recognition.current) {
@@ -116,6 +160,7 @@ export const useVoiceActivation = ({
     hasPermission,
     transcript,
     startListening,
-    stopListening
+    stopListening,
+    lastMatchedCommand,
   };
 };

@@ -38,25 +38,7 @@ export const SendReminderDialog = ({
     setSending(true);
 
     try {
-      // We need an event_id for the family_alerts table.
-      // Create a lightweight SOS event as the carrier, or use a placeholder.
-      // For reminders, we'll create a minimal event row first.
-      const { data: event, error: eventError } = await supabase
-        .from('sos_events')
-        .insert({
-          user_id: user?.id,
-          status: 'resolved', // not a real emergency
-          location_lat: 0,
-          location_lng: 0,
-          event_type: type === 'reminder' ? 'family_reminder' : 'family_message',
-        })
-        .select('id')
-        .single();
-
-      if (eventError) throw eventError;
-
       const { error } = await supabase.from('family_alerts').insert({
-        event_id: event.id,
         family_user_id: recipientUserId,
         alert_type: type === 'reminder' ? 'family_reminder' : 'family_message',
         alert_data: {
