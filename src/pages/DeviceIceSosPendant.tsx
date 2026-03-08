@@ -153,9 +153,9 @@ const DeviceIceSosPendant = () => {
       <section className="py-section bg-gradient-to-br from-primary/5 via-background to-guardian/5">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Smart Home Integration</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t('devices.smartHomeIntegration.title')}</h2>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-              Seamlessly integrates with your existing smart home ecosystem. Professional-grade compatibility with zero additional hubs or complex setup required.
+              {t('devices.smartHomeIntegration.description')}
             </p>
           </div>
 
@@ -462,9 +462,9 @@ const DeviceIceSosPendant = () => {
       <section className="py-section bg-gradient-to-br from-primary/10 via-background to-guardian/10">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">Professional Success Stories</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">{t('devices.professionalSuccessStories.title')}</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-12">
-              Real emergencies, real outcomes. Trusted by thousands of families worldwide for critical protection.
+              {t('devices.professionalSuccessStories.subtitle')}
             </p>
           </div>
 

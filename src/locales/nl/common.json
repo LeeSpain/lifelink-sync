@@ -307,6 +307,14 @@
       "hero": "Een discrete hanger met één knop die direct je noodplan activeert via de LifeLink Sync‑app. Ontworpen voor betrouwbaarheid, comfort en gemoedsrust.",
       "seoTitle": "LifeLink Sync Bluetooth-hanger – LifeLink Sync",
       "metaDescription": "Handsfree noodhanger met Bluetooth, waterdicht ontwerp en 7 dagen batterij."
+    },
+    "smartHomeIntegration": {
+      "title": "Slim Huis Integratie",
+      "description": "Integreert naadloos met je bestaande slimme huis ecosysteem. Professionele compatibiliteit zonder extra hubs of complexe installatie."
+    },
+    "professionalSuccessStories": {
+      "title": "Professionele Succesverhalen",
+      "subtitle": "Echte noodsituaties, echte resultaten. Vertrouwd door duizenden gezinnen wereldwijd voor kritische bescherming."
     }
   },
   "register": {
@@ -472,7 +480,34 @@
     "liveFamilyMap": "Live Familie Kaart",
     "myCircles": "Mijn Cirkels",
     "placesGeofences": "Plaatsen & Geofences",
-    "locationHistory": "Locatiegeschiedenis",
+    "locationHistory": {
+      "unknownPlace": "Onbekende Plaats",
+      "error": "Fout",
+      "failedToLoad": "Kon locatiegeschiedenis niet laden",
+      "title": "Locatiegeschiedenis",
+      "subtitle": "Bekijk historische locatiegegevens voor familieleden",
+      "selectDateMember": "Selecteer Datum & Lid",
+      "date": "Datum",
+      "familyMember": "Familielid",
+      "selectMember": "Selecteer Lid",
+      "locationPoints": "Locatiepunten",
+      "placeEvents": "Plaatsevenementen",
+      "timeSpan": "Tijdsduur",
+      "avgBattery": "Gem. Batterij",
+      "loading": "Laden...",
+      "routeMap": "Routekaart",
+      "noLocationData": "Geen locatiegegevens beschikbaar",
+      "needMorePoints": "Meer locatiepunten nodig om route te tonen",
+      "pointsFound": "punten gevonden",
+      "timelineFor": "Tijdlijn voor",
+      "arrivedAt": "Aangekomen bij",
+      "left": "Vertrokken",
+      "locationUpdate": "Locatie-update",
+      "noDataAvailable": "Geen gegevens beschikbaar",
+      "trackingMayNotBeActive": "Tracking is mogelijk niet actief",
+      "selectDateAndMember": "Selecteer datum en lid",
+      "chooseDateAndMember": "Kies datum en lid"
+    },
     "settings": "Instellingen",
     "subscription": "Abonnement",
     "notifications": "Meldingen",
@@ -849,7 +884,22 @@
   },
   "liveStatus": {
     "title": "Live Familiestatus",
-    "map": "Kaart",
+    "map": {
+      "sosTriggered": "SOS Geactiveerd",
+      "sosDescription": "Noodalarm is geactiveerd",
+      "liveMapDemo": "Live Kaart Demo",
+      "demoSubtitle": "Ervaar realtime familie locatie tracking",
+      "demoOnly": "Alleen Demo",
+      "familyLocations": "Familie Locaties",
+      "familyMembers": "Familieleden",
+      "familyMemberNumber": "Familielid {{number}}",
+      "memberActions": "Lid Acties",
+      "message": "Bericht",
+      "call": "Bellen",
+      "navigate": "Navigeren",
+      "emergency": "Noodgeval",
+      "locationSharingPaused": "Locatie delen gepauzeerd"
+    },
     "familyMember": "Familielid",
     "now": "Nu",
     "live": "Live",

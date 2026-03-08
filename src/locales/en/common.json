@@ -315,6 +315,14 @@
       "hero": "A discreet, one-button pendant that instantly activates your emergency plan via the LifeLink Sync app. Designed for reliability, comfort, and peace of mind.",
       "seoTitle": "LifeLink Sync Bluetooth Pendant – LifeLink Sync",
       "metaDescription": "Hands-free emergency pendant with Bluetooth, waterproof design, and 7-day battery."
+    },
+    "smartHomeIntegration": {
+      "title": "Smart Home Integration",
+      "description": "Seamlessly integrates with your existing smart home ecosystem. Professional-grade compatibility with zero additional hubs or complex setup required."
+    },
+    "professionalSuccessStories": {
+      "title": "Professional Success Stories",
+      "subtitle": "Real emergencies, real outcomes. Trusted by thousands of families worldwide for critical protection."
     }
   },
   "register": {
@@ -502,7 +510,34 @@
     "liveFamilyMap": "Live Family Map",
     "myCircles": "My Circles",
     "placesGeofences": "Places & Geofences",
-    "locationHistory": "Location History",
+    "locationHistory": {
+      "unknownPlace": "Unknown Place",
+      "error": "Error",
+      "failedToLoad": "Failed to load location history",
+      "title": "Location History",
+      "subtitle": "View historical location data for family members",
+      "selectDateMember": "Select Date & Member",
+      "date": "Date",
+      "familyMember": "Family Member",
+      "selectMember": "Select Member",
+      "locationPoints": "Location Points",
+      "placeEvents": "Place Events",
+      "timeSpan": "Time Span",
+      "avgBattery": "Avg Battery",
+      "loading": "Loading...",
+      "routeMap": "Route Map",
+      "noLocationData": "No location data available",
+      "needMorePoints": "Need more location points to show route",
+      "pointsFound": "points found",
+      "timelineFor": "Timeline for",
+      "arrivedAt": "Arrived at",
+      "left": "Left",
+      "locationUpdate": "Location Update",
+      "noDataAvailable": "No data available",
+      "trackingMayNotBeActive": "Tracking may not be active",
+      "selectDateAndMember": "Select date and member",
+      "chooseDateAndMember": "Choose date and member"
+    },
     "settings": "Settings",
     "subscription": "Subscription",
     "notifications": "Notifications",
@@ -972,7 +1007,22 @@
   },
   "liveStatus": {
     "title": "Live Family Status",
-    "map": "Map",
+    "map": {
+      "sosTriggered": "SOS Triggered",
+      "sosDescription": "Emergency alert has been activated",
+      "liveMapDemo": "Live Map Demo",
+      "demoSubtitle": "Experience real-time family location tracking",
+      "demoOnly": "Demo Only",
+      "familyLocations": "Family Locations",
+      "familyMembers": "Family Members",
+      "familyMemberNumber": "Family Member {{number}}",
+      "memberActions": "Member Actions",
+      "message": "Message",
+      "call": "Call",
+      "navigate": "Navigate",
+      "emergency": "Emergency",
+      "locationSharingPaused": "Location sharing paused"
+    },
     "familyMember": "Family Member",
     "now": "Now",
     "live": "Live",

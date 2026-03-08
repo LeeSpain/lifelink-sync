@@ -318,6 +318,14 @@
       "hero": "Un colgante discreto de un solo botón que activa al instante tu plan de emergencia con la app LifeLink Sync. Diseñado para la fiabilidad, la comodidad y la tranquilidad.",
       "seoTitle": "Colgante Bluetooth LifeLink Sync – LifeLink Sync",
       "metaDescription": "Colgante de emergencia manos libres con Bluetooth, diseño impermeable y batería de 7 días."
+    },
+    "smartHomeIntegration": {
+      "title": "Integración con Casa Inteligente",
+      "description": "Se integra perfectamente con tu ecosistema de casa inteligente existente. Compatibilidad profesional sin hubs adicionales ni configuraciones complejas."
+    },
+    "professionalSuccessStories": {
+      "title": "Historias de Éxito Profesionales",
+      "subtitle": "Emergencias reales, resultados reales. Confiado por miles de familias en todo el mundo para protección crítica."
     }
   },
   "register": {
@@ -514,7 +522,34 @@
     "liveFamilyMap": "Mapa Familiar en Vivo",
     "myCircles": "Mis Círculos",
     "placesGeofences": "Lugares & Geofences",
-    "locationHistory": "Historial de Ubicación",
+    "locationHistory": {
+      "unknownPlace": "Lugar Desconocido",
+      "error": "Error",
+      "failedToLoad": "Error al cargar el historial de ubicación",
+      "title": "Historial de Ubicación",
+      "subtitle": "Ver datos históricos de ubicación para miembros de la familia",
+      "selectDateMember": "Seleccionar Fecha y Miembro",
+      "date": "Fecha",
+      "familyMember": "Miembro de la Familia",
+      "selectMember": "Seleccionar Miembro",
+      "locationPoints": "Puntos de Ubicación",
+      "placeEvents": "Eventos de Lugar",
+      "timeSpan": "Período de Tiempo",
+      "avgBattery": "Batería Promedio",
+      "loading": "Cargando...",
+      "routeMap": "Mapa de Ruta",
+      "noLocationData": "No hay datos de ubicación disponibles",
+      "needMorePoints": "Se necesitan más puntos de ubicación para mostrar la ruta",
+      "pointsFound": "puntos encontrados",
+      "timelineFor": "Cronología para",
+      "arrivedAt": "Llegó a",
+      "left": "Salió",
+      "locationUpdate": "Actualización de Ubicación",
+      "noDataAvailable": "No hay datos disponibles",
+      "trackingMayNotBeActive": "El seguimiento puede no estar activo",
+      "selectDateAndMember": "Seleccionar fecha y miembro",
+      "chooseDateAndMember": "Elegir fecha y miembro"
+    },
     "settings": "Configuración",
     "subscription": "Suscripción",
     "notifications": "Notificaciones",
@@ -971,7 +1006,22 @@
   },
   "liveStatus": {
     "title": "Estado Familiar en Vivo",
-    "map": "Mapa",
+    "map": {
+      "sosTriggered": "SOS Activado",
+      "sosDescription": "Se ha activado la alerta de emergencia",
+      "liveMapDemo": "Demo de Mapa en Vivo",
+      "demoSubtitle": "Experimenta el seguimiento de ubicación familiar en tiempo real",
+      "demoOnly": "Solo Demo",
+      "familyLocations": "Ubicaciones Familiares",
+      "familyMembers": "Miembros Familiares",
+      "familyMemberNumber": "Miembro Familiar {{number}}",
+      "memberActions": "Acciones del Miembro",
+      "message": "Mensaje",
+      "call": "Llamar",
+      "navigate": "Navegar",
+      "emergency": "Emergencia",
+      "locationSharingPaused": "Compartición de ubicación pausada"
+    },
     "familyMember": "Miembro Familiar",
     "now": "Ahora",
     "live": "En Vivo",
