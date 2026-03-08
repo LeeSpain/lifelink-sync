@@ -42,10 +42,28 @@
       "Bash(git add src/components/dashboard/pages/SettingsPage.tsx src/components/dashboard/pages/SupportPage.tsx src/components/dashboard/family/LiveSOSFamily.tsx)",
       "Bash(grep -l \"Active\\\\|Pending\\\\|Revoked\" /Users/leewakeman/lifelink-sync/lifelink-sync/src/components/dashboard/*.tsx)",
       "Bash(git add src/App.tsx src/components/FinalCTA.tsx src/components/Footer.tsx src/components/Hero.tsx src/components/Navigation.tsx src/components/admin/pages/SystemSettingsPage.tsx src/components/family-carer/CallToActionSection.tsx src/components/family-carer/HeroSection.tsx src/components/family-carer/PricingSection.tsx src/components/onboarding/OnboardingWizard.tsx src/pages/AuthPage.tsx src/pages/DeviceIceSosPendant.tsx src/pages/FamilyCarerAccess.tsx src/pages/RegionalCenterSpain.tsx src/pages/TrialSignupPage.tsx src/components/registration/ src/pages/RegisterPage.tsx)",
-      "Bash(git add src/pages/AuthPage.tsx src/App.tsx src/components/DashboardRedirect.tsx src/components/dashboard/ActivityCard.tsx src/components/dashboard/AddOnMarketplace.tsx src/components/dashboard/ConnectionCard.tsx src/components/dashboard/ConnectionInviteModal.tsx src/components/dashboard/ConnectionsWidget.tsx src/components/dashboard/EmergencyContactsCard.tsx src/components/dashboard/MedicalInfoCard.tsx src/components/dashboard/MobileAppCard.tsx src/components/dashboard/PersonalDetailsCard.tsx src/components/dashboard/SubscriptionCard.tsx src/hooks/useConnections.ts src/hooks/useEnhancedConnectionDisplay.ts src/pages/ConnectionAcceptPage.tsx src/pages/FamilyAppPage.tsx src/pages/MyCirclesPage.tsx supabase/functions/connections-accept/index.ts supabase/functions/connections-invite/index.ts supabase/migrations/20260307100006_add_location_sharing_choice.sql .claude/settings.json)"
+      "Bash(git add src/pages/AuthPage.tsx src/App.tsx src/components/DashboardRedirect.tsx src/components/dashboard/ActivityCard.tsx src/components/dashboard/AddOnMarketplace.tsx src/components/dashboard/ConnectionCard.tsx src/components/dashboard/ConnectionInviteModal.tsx src/components/dashboard/ConnectionsWidget.tsx src/components/dashboard/EmergencyContactsCard.tsx src/components/dashboard/MedicalInfoCard.tsx src/components/dashboard/MobileAppCard.tsx src/components/dashboard/PersonalDetailsCard.tsx src/components/dashboard/SubscriptionCard.tsx src/hooks/useConnections.ts src/hooks/useEnhancedConnectionDisplay.ts src/pages/ConnectionAcceptPage.tsx src/pages/FamilyAppPage.tsx src/pages/MyCirclesPage.tsx supabase/functions/connections-accept/index.ts supabase/functions/connections-invite/index.ts supabase/migrations/20260307100006_add_location_sharing_choice.sql .claude/settings.json)",
+      "Bash(git add src/components/DashboardRedirect.tsx src/components/dashboard/ConnectionInviteModal.tsx src/hooks/useConnections.ts src/hooks/useEnhancedConnectionDisplay.ts src/pages/ConnectionAcceptPage.tsx src/pages/FamilyAppPage.tsx src/pages/MyCirclesPage.tsx supabase/functions/connections-accept/index.ts supabase/functions/connections-invite/index.ts supabase/migrations/20260307100006_add_location_sharing_choice.sql)",
+      "Bash(jq 'keys[] | select\\(. == \"\"activityCard\"\" or . == \"\"connectionCard\"\" or . == \"\"subscriptionCard\"\" or . == \"\"emergencyContactsCard\"\" or . == \"\"medicalInfo\"\" or . == \"\"mobileApp\"\" or . == \"\"connectionsWidget\"\" or . == \"\"personalDetails\"\" or . == \"\"addons\"\"\\)' /Users/leewakeman/lifelink-sync/lifelink-sync/src/locales/en/common.json)",
+      "Bash(jq '.medicalInfo | keys[] | \"\"medicalInfo.\"\" + .' /Users/leewakeman/lifelink-sync/lifelink-sync/src/locales/en/common.json)",
+      "Bash(jq '.mobileApp | keys[] | \"\"mobileApp.\"\" + .' /Users/leewakeman/lifelink-sync/lifelink-sync/src/locales/en/common.json)",
+      "Bash(jq '.connectionsWidget | keys[] | \"\"connectionsWidget.\"\" + .' /Users/leewakeman/lifelink-sync/lifelink-sync/src/locales/en/common.json)",
+      "Bash(jq '.personalDetails | keys[] | \"\"personalDetails.\"\" + .' /Users/leewakeman/lifelink-sync/lifelink-sync/src/locales/en/common.json)",
+      "Bash(jq '.addons | keys[] | \"\"addons.\"\" + .' /Users/leewakeman/lifelink-sync/lifelink-sync/src/locales/en/common.json)",
+      "Bash(grep -l \"useTranslation\\\\|useTranslations\" /Users/leewakeman/lifelink-sync/lifelink-sync/src/pages/*.tsx)",
+      "Bash(grep -l \"useTranslation\\\\|useTranslations\" /Users/leewakeman/lifelink-sync/lifelink-sync/src/components/*.tsx)",
+      "Bash(for f in *.tsx)",
+      "Bash(do grep -q \"useTranslation\\\\|useTranslations\" \"$f\")",
+      "Bash(echo \"$f\")",
+      "Bash(for dir in admin dashboard maplibre sos registration family-dashboard emergency onboarding)",
+      "Bash(do)",
+      "Bash(echo \"=== $dir ===\")",
+      "Read(//Users/leewakeman/lifelink-sync/lifelink-sync/src/components/**)",
+      "Bash(git add .claude/settings.json src/components/dashboard/ActivityCard.tsx src/components/dashboard/EmergencyContactsCard.tsx src/components/dashboard/SubscriptionCard.tsx src/contexts/AuthContext.tsx src/pages/AuthPage.tsx src/pages/FamilyAppPage.tsx)"
     ],
     "additionalDirectories": [
-      "/Users/leewakeman/lifelink-sync/lifelink-sync/.claude"
+      "/Users/leewakeman/lifelink-sync/lifelink-sync/.claude",
+      "/tmp"
     ]
   }
 }

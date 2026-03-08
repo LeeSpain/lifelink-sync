@@ -405,7 +405,7 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
           {/* Enhanced Billing & Invoices Tab */}
           <TabsContent value="billing" className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <h4 className="font-semibold text-sm">{t('subscriptionCard.invoiceHistory')}</h4>
+              <h4 className="font-semibold text-sm">{t('subscriptionCard.billingHistoryTitle')}</h4>
               <Button onClick={loadInvoices} variant="outline" size="sm" disabled={isLoadingInvoices} className="w-full sm:w-auto">
                 <FileText className="h-4 w-4 mr-2" />
                 {isLoadingInvoices ? 'Loading...' : 'Refresh'}
@@ -444,7 +444,7 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
               <div className="text-center py-8 text-muted-foreground">
                 <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
                 <p className="text-lg font-medium mb-2">{t('subscriptionCard.noInvoicesYet')}</p>
-                <p className="text-sm">{t('subscriptionCard.invoicesWillAppear')}</p>
+                <p className="text-sm">{t('subscriptionCard.billingHistoryAppear')}</p>
                 {!subscription?.subscribed && (
                   <Button onClick={() => window.location.href = '/register'} className="mt-4">
                     Start Subscription

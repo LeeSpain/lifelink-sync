@@ -54,7 +54,7 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
       console.error('Error loading emergency contacts:', error);
       toast({
         title: t('emergencyContactsCard.errorTitle'),
-        description: t('emergencyContactsCard.errorLoadContacts'),
+        description: t('emergencyContactsCard.loadError'),
         variant: "destructive"
       });
     }
@@ -63,8 +63,8 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
   const addContact = async () => {
     if (contacts.length >= 5) {
       toast({
-        title: t('emergencyContactsCard.maxContactsTitle'),
-        description: t('emergencyContactsCard.maxContactsDescription'),
+        title: t('emergencyContactsCard.maxReachedTitle'),
+        description: t('emergencyContactsCard.maxReachedDescription'),
         variant: "destructive"
       });
       return;
@@ -100,7 +100,7 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
       console.error('Error adding contact:', error);
       toast({
         title: t('emergencyContactsCard.errorTitle'),
-        description: t('emergencyContactsCard.errorAddContact'),
+        description: t('emergencyContactsCard.addError'),
         variant: "destructive"
       });
     }
@@ -118,15 +118,15 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
       setContacts(contacts.filter(c => c.id !== contactId));
       onProfileUpdate();
       toast({
-        title: t('emergencyContactsCard.successTitle'),
-        description: t('emergencyContactsCard.successRemoveContact')
+        title: t('emergencyContactsCard.removeSuccessTitle'),
+        description: t('emergencyContactsCard.removeSuccessDescription')
       });
 
     } catch (error) {
       console.error('Error removing contact:', error);
       toast({
         title: t('emergencyContactsCard.errorTitle'),
-        description: t('emergencyContactsCard.errorRemoveContact'),
+        description: t('emergencyContactsCard.removeError'),
         variant: "destructive"
       });
     }
@@ -144,8 +144,8 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
       for (const contact of contacts) {
         if (!contact.name || !contact.phone) {
           toast({
-            title: t('emergencyContactsCard.validationErrorTitle'),
-            description: t('emergencyContactsCard.validationErrorDescription'),
+            title: t('emergencyContactsCard.validationTitle'),
+            description: t('emergencyContactsCard.validationDescription'),
             variant: "destructive"
           });
           return;
@@ -167,15 +167,15 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
       setIsEditing(false);
       onProfileUpdate();
       toast({
-        title: t('emergencyContactsCard.successTitle'),
-        description: t('emergencyContactsCard.successSaveContacts')
+        title: t('emergencyContactsCard.saveSuccessTitle'),
+        description: t('emergencyContactsCard.saveSuccessDescription')
       });
 
     } catch (error) {
       console.error('Error saving contacts:', error);
       toast({
         title: t('emergencyContactsCard.errorTitle'),
-        description: t('emergencyContactsCard.errorSaveContacts'),
+        description: t('emergencyContactsCard.saveError'),
         variant: "destructive"
       });
     }

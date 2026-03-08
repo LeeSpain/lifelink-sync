@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Navigate, useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,6 +13,7 @@ import { PageSEO } from '@/components/PageSEO';
 import { logSecurityEvent } from '@/utils/security';
 
 const AuthPage = () => {
+  const { t } = useTranslation();
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -34,7 +36,7 @@ const AuthPage = () => {
     e.preventDefault();
     
     if (isRateLimited()) {
-      setError(`Too many attempts. Please wait ${getRemainingTime()} seconds.`);
+      setError(t('auth.tooManyAttempts', { seconds: getRemainingTime() }));
       return;
     }
 
@@ -159,19 +161,19 @@ const AuthPage = () => {
   return (
     <>
       <PageSEO pageType="auth" />
-      <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-3 sm:p-4">
         <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
+          <CardHeader className="text-center px-4 sm:px-6">
             <div className="mb-2">
-              <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+              <Button asChild variant="ghost" size="sm" className="min-h-[44px] text-muted-foreground hover:text-foreground">
                 <Link to="/">&larr; Back to Homepage</Link>
               </Button>
             </div>
-            <CardTitle className="text-2xl font-bold">Welcome</CardTitle>
+            <CardTitle className="text-xl sm:text-2xl font-bold">Welcome</CardTitle>
             <CardDescription>Sign in to your account</CardDescription>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSignIn} className="space-y-4">
+          <CardContent className="px-4 sm:px-6">
+            <form onSubmit={handleSignIn} className="space-y-3 sm:space-y-4">
               <div className="space-y-2">
                 <Input
                   type="email"
@@ -205,9 +207,9 @@ const AuthPage = () => {
                 </Alert>
               )}
               
-              <Button 
-                type="submit" 
-                className="w-full" 
+              <Button
+                type="submit"
+                className="w-full min-h-[44px]"
                 disabled={isSubmitting || isRateLimited()}
               >
                 {isSubmitting ? 'Signing In...' : 'Sign In'}
@@ -238,14 +240,14 @@ const AuthPage = () => {
                 {/* Dashboards */}
                 <div>
                   <p className="text-xs font-semibold text-foreground mb-2">Dashboards</p>
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {[
-                      { label: 'Member Dashboard', href: '/member-dashboard?dev=1' },
-                      { label: 'Family Dashboard', href: '/family-dashboard?dev=1' },
-                      { label: 'Admin Dashboard', href: '/admin-dashboard?dev=1' },
+                      { label: 'Member', href: '/member-dashboard?dev=1' },
+                      { label: 'Family', href: '/family-dashboard?dev=1' },
+                      { label: 'Admin', href: '/admin-dashboard?dev=1' },
                     ].map(link => (
-                      <Button key={link.href} asChild variant="default" size="sm" className="h-7 text-xs">
-                        <a href={link.href}>{link.label}</a>
+                      <Button key={link.href} asChild variant="default" size="sm" className="min-h-[44px] text-xs w-full">
+                        <Link to={link.href}>{link.label}</Link>
                       </Button>
                     ))}
                   </div>
@@ -254,14 +256,14 @@ const AuthPage = () => {
                 {/* Apps */}
                 <div>
                   <p className="text-xs font-semibold text-foreground mb-2">Apps</p>
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {[
                       { label: 'SOS App', href: '/sos-app?dev=1' },
                       { label: 'Family App', href: '/family-app?dev=1' },
                       { label: 'Mobile App', href: '/mobile-app?dev=1' },
                     ].map(link => (
-                      <Button key={link.href} asChild variant="default" size="sm" className="h-7 text-xs">
-                        <a href={link.href}>{link.label}</a>
+                      <Button key={link.href} asChild variant="default" size="sm" className="min-h-[44px] text-xs w-full">
+                        <Link to={link.href}>{link.label}</Link>
                       </Button>
                     ))}
                   </div>

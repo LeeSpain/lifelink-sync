@@ -41,7 +41,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = React.useState<Session | null>(null);
   const [loading, setLoading] = React.useState(true);
 
-  // Check for dev bypass mode
+  // Check for dev bypass mode — also activate from ?dev=1 URL parameter
+  if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('dev') === '1') {
+      localStorage.setItem('dev_bypass', '1');
+    }
+  }
   const devBypass = typeof window !== 'undefined' && localStorage.getItem('dev_bypass') === '1';
 
   React.useEffect(() => {

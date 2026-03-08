@@ -72,12 +72,12 @@ const ActivityCard = () => {
       await logActivity('emergency_test', 'Emergency system test completed successfully');
       
       toast({
-        title: t('activityCard.testSuccessful'),
+        title: t('activityCard.testSuccessTitle'),
         description: t('activityCard.testSuccessDescription'),
       });
     } catch (error) {
       toast({
-        title: t('activityCard.testFailed'),
+        title: t('activityCard.testFailedTitle'),
         description: t('activityCard.testFailedDescription'),
         variant: "destructive"
       });
@@ -102,13 +102,13 @@ const ActivityCard = () => {
   const getActivityType = (type: string) => {
     switch (type) {
       case 'emergency_test':
-        return t('activityCard.emergencyTestType');
+        return t('activityCard.emergencyTest');
       case 'profile_update':
         return t('activityCard.profileUpdate');
       case 'emergency_alert':
         return t('activityCard.emergencyAlert');
       default:
-        return t('activityCard.activityType');
+        return t('activityCard.activity');
     }
   };
 
@@ -128,7 +128,7 @@ const ActivityCard = () => {
               <div>
                 <h4 className="font-medium">{t('activityCard.emergencyTest')}</h4>
                 <p className="text-sm text-muted-foreground">
-                  {t('activityCard.emergencyTestDescription')}
+                  {t('activityCard.testDescription')}
                 </p>
               </div>
               <Button
@@ -151,7 +151,7 @@ const ActivityCard = () => {
               </Button>
             </div>
             <div className="text-xs text-blue-700 bg-blue-100 p-2 rounded">
-              <strong>{t('activityCard.note')}</strong> {t('activityCard.testNotificationNote')}
+              <strong>Note:</strong> {t('activityCard.testNote')}
             </div>
           </div>
 
