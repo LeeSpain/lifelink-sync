@@ -126,7 +126,7 @@ const FamilyCheckoutSuccess = () => {
             </Button>
             <Button
               variant="outline"
-              onClick={() => navigate('/family-dashboard')}
+              onClick={() => navigate('/family-app')}
               className="w-full"
             >
               {t('checkout.viewFamilySettings')}

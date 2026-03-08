@@ -40,7 +40,6 @@ const getBreadcrumbs = (pathname: string): BreadcrumbItem[] => {
     'auth': 'Sign In',
     'dashboard': 'Dashboard',
     'member-dashboard': 'Dashboard',
-    'family-dashboard': 'Family Dashboard',
     'admin-dashboard': 'Admin Dashboard'
   };
 

@@ -28,7 +28,7 @@ const FamilyCheckoutCanceled = () => {
 
           <div className="space-y-3">
             <Button
-              onClick={() => navigate('/family-dashboard')}
+              onClick={() => navigate('/family-app')}
               className="w-full"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />

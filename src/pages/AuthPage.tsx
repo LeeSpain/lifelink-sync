@@ -266,7 +266,6 @@ const AuthPage = () => {
                 <div className="grid grid-cols-3 gap-2">
                   {[
                     { label: 'Member', href: '/member-dashboard?dev=1' },
-                    { label: 'Family', href: '/family-dashboard?dev=1' },
                     { label: 'Admin', href: '/admin-dashboard?dev=1' },
                   ].map(link => (
                     <Button key={link.href} asChild variant="default" size="sm" className="min-h-[44px] text-xs w-full">

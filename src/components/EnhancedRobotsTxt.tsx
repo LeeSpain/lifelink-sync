@@ -196,7 +196,6 @@ Crawl-delay: 1
 Disallow: /dashboard/
 Disallow: /admin-dashboard/
 Disallow: /full-dashboard/
-Disallow: /family-dashboard/
 Disallow: /app
 Disallow: /test
 Disallow: /family-access-setup

@@ -94,7 +94,7 @@ const FamilyInviteAccept = () => {
         description: t('family.joinedFamilyGroup'),
       });
 
-      navigate('/family-dashboard');
+      navigate('/family-app');
     } catch (error) {
       console.error('Error accepting invite:', error);
       toast({

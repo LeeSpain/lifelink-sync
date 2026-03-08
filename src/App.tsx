@@ -28,7 +28,6 @@ import MapDemo from "./pages/MapDemo";
 // Dashboard Pages
 import DashboardRedirect from "./components/DashboardRedirect";
 import Dashboard from "./pages/Dashboard";
-import FamilyDashboard from "./pages/FamilyDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 
 // App Pages
@@ -292,15 +291,6 @@ function AppWithTracking() {
                   </ProtectedRoute>
                 } />
 
-                {/* Family Dashboard */}
-                <Route path="/family-dashboard/*" element={
-                  <ProtectedRoute>
-                    <OptimizedSuspense skeletonType="dashboard">
-                      <FamilyDashboard />
-                    </OptimizedSuspense>
-                  </ProtectedRoute>
-                } />
-
                 {/* SOS App */}
                 <Route path="/sos-app" element={
                   <ProtectedSOSRoute>
@@ -423,7 +413,7 @@ function AppWithTracking() {
 
                 {/* Legacy family route redirect */}
                 <Route path="/family/*" element={
-                  <Navigate to="/family-dashboard" replace />
+                  <Navigate to="/family-app" replace />
                 } />
 
                 {/* Common short paths redirect to member dashboard */}

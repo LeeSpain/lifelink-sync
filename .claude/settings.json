@@ -89,7 +89,12 @@
       "Bash(grep -n \"import.*useVoiceActivation\\\\|export.*useVoiceActivation\" /Users/leewakeman/lifelink-sync/lifelink-sync/src/**/*.tsx /Users/leewakeman/lifelink-sync/lifelink-sync/src/**/*.ts)",
       "Bash(git add src/hooks/useTextToSpeech.ts src/hooks/useTabletClara.ts src/hooks/useVoiceActivation.ts src/components/tablet/ClaraPresenceIndicator.tsx src/components/tablet/TabletStatusBar.tsx src/components/tablet/FamilyMessagesCard.tsx src/pages/TabletDashboard.tsx public/tablet-manifest.json src/pages/AuthPage.tsx src/locales/en/common.json src/components/family-dashboard/SendReminderDialog.tsx supabase/migrations/20260308120001_nullable_family_alerts_event_id.sql src/components/admin/AdminLayout.tsx src/components/admin/pages/AIAgentPage.tsx src/pages/DeviceIceSosPendant.tsx supabase/functions/ai-chat/index.ts supabase/functions/generate-embeddings/index.ts .claude/settings.json)",
       "Bash(git rm --cached src/components/PWAInstallPrompt.tsx)",
-      "Bash(git add -u src/components/PWAInstallPrompt.tsx)"
+      "Bash(git add -u src/components/PWAInstallPrompt.tsx)",
+      "Bash(node -e \"const fs = require\\(''fs''\\); const content = fs.readFileSync\\(''/Users/leewakeman/lifelink-sync/lifelink-sync/src/hooks/useTabletClara.ts'', ''utf8''\\); const lines = content.split\\(''\\\\n''\\); lines.forEach\\(\\(line, i\\) => { if \\(line.includes\\(''return {''\\)\\) { for \\(let j = i; j < Math.min\\(i + 20, lines.length\\); j++\\) { console.log\\(\\(j+1\\) + '': '' + lines[j]\\); } } }\\);\")",
+      "Bash(git add src/components/tablet/ClaraPresenceIndicator.tsx src/components/tablet/KioskSetupGuide.tsx src/hooks/useTabletClara.ts src/hooks/useTextToSpeech.ts src/hooks/useVoiceActivation.ts src/hooks/useWakeLock.ts src/locales/en/common.json src/pages/AuthPage.tsx src/pages/TabletDashboard.tsx)",
+      "Bash(git add src/pages/FamilyAppPage.tsx src/components/admin/AdminLayout.tsx)",
+      "Bash(git add .claude/settings.json public/robots.txt src/App.tsx src/components/EnhancedRobotsTxt.tsx src/components/SEOBreadcrumbs.tsx src/pages/AuthPage.tsx src/pages/FamilyCheckoutCanceled.tsx src/pages/FamilyCheckoutSuccess.tsx src/pages/FamilyInviteAccept.tsx)",
+      "Bash(git add FAMILY_ACCESS_COMPLETION.md src/components/family-dashboard/ src/pages/FamilyDashboard.tsx src/pages/FamilyTrackingApp.tsx)"
     ],
     "additionalDirectories": [
       "/Users/leewakeman/lifelink-sync/lifelink-sync/.claude",
