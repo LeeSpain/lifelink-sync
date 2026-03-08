@@ -18,6 +18,8 @@ export interface Connection {
   invite_token?: string;
   invited_at?: string;
   accepted_at?: string;
+  share_my_location: boolean;
+  contact_share_location: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -29,6 +31,7 @@ export interface CreateConnectionData {
   escalation_priority?: number;
   notify_channels?: string[];
   preferred_language?: string;
+  share_my_location?: boolean;
 }
 
 export const useConnections = (type?: 'family_circle' | 'trusted_contact') => {
@@ -179,6 +182,50 @@ export const useConnectionActions = () => {
     },
   });
 
+  const updateLocationSharing = useMutation({
+    mutationFn: async ({ connectionId, shareMyLocation }: { connectionId: string; shareMyLocation: boolean }) => {
+      if (!user) throw new Error('User not authenticated');
+
+      const { data, error } = await supabase
+        .from('connections')
+        .update({ share_my_location: shareMyLocation })
+        .eq('id', connectionId)
+        .eq('owner_id', user.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Also update circle_permissions so the other party sees the change
+      if (data.contact_user_id) {
+        await supabase
+          .from('circle_permissions')
+          .upsert({
+            owner_id: data.contact_user_id,
+            family_user_id: user.id,
+            can_view_location: shareMyLocation
+          });
+      }
+
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['connections'] });
+      toast({
+        title: "Location sharing updated",
+        description: "Your location sharing preference has been saved.",
+      });
+    },
+    onError: (error) => {
+      console.error('Error updating location sharing:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update location sharing. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const updatePriorities = useMutation({
     mutationFn: async (updates: Array<{ id: string; priority: number }>) => {
       const { data, error } = await supabase.functions.invoke('connections-reorder', {
@@ -211,6 +258,7 @@ export const useConnectionActions = () => {
     demoteConnection,
     revokeConnection,
     updatePriorities,
+    updateLocationSharing,
   };
 };
 

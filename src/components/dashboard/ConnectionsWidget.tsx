@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +10,7 @@ import { useConnections, useSpainRule } from '@/hooks/useConnections';
 import { SpainRuleBanner } from './SpainRuleBanner';
 
 export const ConnectionsWidget = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { data: familyConnections = [] } = useConnections('family_circle');
@@ -37,15 +39,15 @@ export const ConnectionsWidget = () => {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Users className="h-5 w-5" />
-                Emergency Connections
+                {t('connectionsWidget.title')}
               </CardTitle>
               <CardDescription>
-                Manage your family circle and trusted contacts for emergency situations
+                {t('connectionsWidget.description')}
               </CardDescription>
             </div>
             <Button onClick={handleManageConnections} size="sm">
               <Settings className="h-4 w-4 mr-2" />
-              Manage
+              {t('connectionsWidget.manage')}
             </Button>
           </div>
         </CardHeader>
@@ -54,15 +56,15 @@ export const ConnectionsWidget = () => {
           <div className="grid grid-cols-3 gap-2 sm:gap-4">
             <div className="text-center">
               <div className="text-lg font-semibold text-primary">{totalActive}</div>
-              <div className="text-sm text-muted-foreground">Active Connections</div>
+              <div className="text-sm text-muted-foreground">{t('connectionsWidget.activeConnections')}</div>
             </div>
             <div className="text-center">
               <div className="text-lg font-semibold text-foreground">{totalPending}</div>
-              <div className="text-sm text-muted-foreground">Pending Invites</div>
+              <div className="text-sm text-muted-foreground">{t('connectionsWidget.pendingInvites')}</div>
             </div>
             <div className="text-center">
               <div className="text-lg font-semibold text-foreground">{activeFamily.length}</div>
-              <div className="text-sm text-muted-foreground">Family Members</div>
+              <div className="text-sm text-muted-foreground">{t('connectionsWidget.familyMembers')}</div>
             </div>
           </div>
 
@@ -71,9 +73,9 @@ export const ConnectionsWidget = () => {
             <div className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
               <Crown className="h-5 w-5 text-primary" />
               <div className="flex-1">
-                <div className="font-semibold">Family Circle</div>
+                <div className="font-semibold">{t('connectionsWidget.familyCircle')}</div>
                 <div className="text-sm text-muted-foreground">
-                  {activeFamily.length} members with full access
+                  {t('connectionsWidget.membersWithAccess', { count: activeFamily.length })}
                 </div>
               </div>
               <Badge variant="default">{activeFamily.length}</Badge>
@@ -82,9 +84,9 @@ export const ConnectionsWidget = () => {
             <div className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
               <Shield className="h-5 w-5 text-muted-foreground" />
               <div className="flex-1">
-                <div className="font-semibold">Trusted Contacts</div>
+                <div className="font-semibold">{t('connectionsWidget.trustedContacts')}</div>
                 <div className="text-sm text-muted-foreground">
-                  {activeTrusted.length} emergency-only contacts
+                  {t('connectionsWidget.emergencyOnlyContacts', { count: activeTrusted.length })}
                 </div>
               </div>
               <Badge variant="secondary">{activeTrusted.length}</Badge>
@@ -95,10 +97,10 @@ export const ConnectionsWidget = () => {
           <div className="flex gap-2">
             <Button onClick={handleManageConnections} size="sm" className="flex-1">
               <Plus className="h-4 w-4 mr-2" />
-              Add Connection
+              {t('connectionsWidget.addConnection')}
             </Button>
             <Button onClick={handleManageConnections} variant="outline" size="sm" className="flex-1">
-              View All
+              {t('connectionsWidget.viewAll')}
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </div>
@@ -107,13 +109,13 @@ export const ConnectionsWidget = () => {
           {totalActive === 0 && (
             <div className="text-center py-6 border-t">
               <Users className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-              <h4 className="font-semibold mb-2">No connections yet</h4>
+              <h4 className="font-semibold mb-2">{t('connectionsWidget.noConnectionsYet')}</h4>
               <p className="text-sm text-muted-foreground mb-4">
-                Add family members and trusted contacts to notify them during emergencies
+                {t('connectionsWidget.addToNotify')}
               </p>
               <Button onClick={handleManageConnections}>
                 <Plus className="h-4 w-4 mr-2" />
-                Add Your First Connection
+                {t('connectionsWidget.addFirstConnection')}
               </Button>
             </div>
           )}

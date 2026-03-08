@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -25,16 +26,17 @@ interface ConnectionCardProps {
 }
 
 export const ConnectionCard: React.FC<ConnectionCardProps> = ({ connection }) => {
+  const { t } = useTranslation();
   const { promoteConnection, demoteConnection, revokeConnection } = useConnectionActions();
 
   const getStatusBadge = () => {
     switch (connection.status) {
       case 'active':
-        return <Badge variant="default" className="bg-green-100 text-green-800"><Check className="h-3 w-3 mr-1" />Active</Badge>;
+        return <Badge variant="default" className="bg-green-100 text-green-800"><Check className="h-3 w-3 mr-1" />{t('connectionCard.active')}</Badge>;
       case 'pending':
-        return <Badge variant="secondary"><Clock className="h-3 w-3 mr-1" />Pending</Badge>;
+        return <Badge variant="secondary"><Clock className="h-3 w-3 mr-1" />{t('connectionCard.pending')}</Badge>;
       case 'revoked':
-        return <Badge variant="destructive"><X className="h-3 w-3 mr-1" />Revoked</Badge>;
+        return <Badge variant="destructive"><X className="h-3 w-3 mr-1" />{t('connectionCard.revoked')}</Badge>;
       default:
         return null;
     }
@@ -44,12 +46,12 @@ export const ConnectionCard: React.FC<ConnectionCardProps> = ({ connection }) =>
     return connection.type === 'family_circle' ? (
       <Badge variant="default" className="bg-primary/10 text-primary">
         <Crown className="h-3 w-3 mr-1" />
-        Family Circle
+        {t('connectionCard.familyCircle')}
       </Badge>
     ) : (
       <Badge variant="secondary" className="bg-secondary/10 text-secondary">
         <Shield className="h-3 w-3 mr-1" />
-        Trusted Contact
+        {t('connectionCard.trustedContact')}
       </Badge>
     );
   };
@@ -70,12 +72,12 @@ export const ConnectionCard: React.FC<ConnectionCardProps> = ({ connection }) =>
   };
 
   const getPriorityText = () => {
-    const priorities = {
-      1: 'Primary',
-      2: 'Secondary', 
-      3: 'Tertiary',
+    const priorities: Record<number, string> = {
+      1: t('connectionCard.primary'),
+      2: t('connectionCard.secondary'),
+      3: t('connectionCard.tertiary'),
     };
-    return priorities[connection.escalation_priority as keyof typeof priorities] || `Priority ${connection.escalation_priority}`;
+    return priorities[connection.escalation_priority] || t('connectionCard.priority', { number: connection.escalation_priority });
   };
 
   const handlePromote = () => {
@@ -87,7 +89,7 @@ export const ConnectionCard: React.FC<ConnectionCardProps> = ({ connection }) =>
   };
 
   const handleRevoke = () => {
-    if (window.confirm('Are you sure you want to revoke this connection? This action cannot be undone.')) {
+    if (window.confirm(t('connectionCard.revokeConfirm'))) {
       revokeConnection.mutate(connection.id);
     }
   };
@@ -139,7 +141,7 @@ export const ConnectionCard: React.FC<ConnectionCardProps> = ({ connection }) =>
 
               {/* Notification Channels */}
               <div className="flex items-center gap-2 mt-2">
-                <span className="text-xs text-muted-foreground">Notifications:</span>
+                <span className="text-xs text-muted-foreground">{t('connectionCard.notifications')}</span>
                 {connection.notify_channels.map((channel) => (
                   <Badge key={channel} variant="outline" className="text-xs">
                     {channel}
@@ -153,10 +155,10 @@ export const ConnectionCard: React.FC<ConnectionCardProps> = ({ connection }) =>
               {/* Timestamps */}
               <div className="text-xs text-muted-foreground mt-2">
                 {connection.status === 'pending' && connection.invited_at && (
-                  <span>Invited {new Date(connection.invited_at).toLocaleDateString()}</span>
+                  <span>{t('connectionCard.invited')} {new Date(connection.invited_at).toLocaleDateString()}</span>
                 )}
                 {connection.status === 'active' && connection.accepted_at && (
-                  <span>Accepted {new Date(connection.accepted_at).toLocaleDateString()}</span>
+                  <span>{t('connectionCard.accepted')} {new Date(connection.accepted_at).toLocaleDateString()}</span>
                 )}
               </div>
             </div>
@@ -174,24 +176,24 @@ export const ConnectionCard: React.FC<ConnectionCardProps> = ({ connection }) =>
                 {connection.type === 'trusted_contact' && (
                   <DropdownMenuItem onClick={handlePromote}>
                     <ArrowUp className="h-4 w-4 mr-2" />
-                    Promote to Family Circle
+                    {t('connectionCard.promoteToFamily')}
                   </DropdownMenuItem>
                 )}
                 {connection.type === 'family_circle' && (
                   <DropdownMenuItem onClick={handleDemote}>
                     <ArrowDown className="h-4 w-4 mr-2" />
-                    Demote to Trusted Contact
+                    {t('connectionCard.demoteToTrusted')}
                   </DropdownMenuItem>
                 )}
                 {connection.status === 'pending' && (
                   <DropdownMenuItem>
                     <Mail className="h-4 w-4 mr-2" />
-                    Resend Invitation
+                    {t('connectionCard.resendInvitation')}
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuItem onClick={handleRevoke} className="text-destructive">
                   <X className="h-4 w-4 mr-2" />
-                  Revoke Access
+                  {t('connectionCard.revokeAccess')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

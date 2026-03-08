@@ -35,7 +35,14 @@
       "Bash(for f in src/components/dashboard/*.tsx)",
       "Bash(git add src/components/dashboard/DashboardHeader.tsx src/components/dashboard/SubscriptionCard.tsx src/components/dashboard/AddOnMarketplace.tsx src/components/dashboard/ConnectionsWidget.tsx)",
       "Bash(node -e \"const j=JSON.parse\\(require\\(''fs''\\).readFileSync\\(''/Users/leewakeman/lifelink-sync/lifelink-sync/src/locales/en/common.json'',''utf8''\\)\\); console.log\\(Object.keys\\(j\\).join\\(''\\\\n''\\)\\)\")",
-      "Bash(npx tsc --noEmit --skipLibCheck)"
+      "Bash(npx tsc --noEmit --skipLibCheck)",
+      "Bash(wc -l /Users/leewakeman/lifelink-sync/lifelink-sync/src/pages/*.tsx)",
+      "Bash(npm run build)",
+      "Bash(grep -l \"useTranslation\" /Users/leewakeman/lifelink-sync/lifelink-sync/src/components/dashboard/*.tsx)",
+      "Bash(git add src/components/dashboard/pages/SettingsPage.tsx src/components/dashboard/pages/SupportPage.tsx src/components/dashboard/family/LiveSOSFamily.tsx)",
+      "Bash(grep -l \"Active\\\\|Pending\\\\|Revoked\" /Users/leewakeman/lifelink-sync/lifelink-sync/src/components/dashboard/*.tsx)",
+      "Bash(git add src/App.tsx src/components/FinalCTA.tsx src/components/Footer.tsx src/components/Hero.tsx src/components/Navigation.tsx src/components/admin/pages/SystemSettingsPage.tsx src/components/family-carer/CallToActionSection.tsx src/components/family-carer/HeroSection.tsx src/components/family-carer/PricingSection.tsx src/components/onboarding/OnboardingWizard.tsx src/pages/AuthPage.tsx src/pages/DeviceIceSosPendant.tsx src/pages/FamilyCarerAccess.tsx src/pages/RegionalCenterSpain.tsx src/pages/TrialSignupPage.tsx src/components/registration/ src/pages/RegisterPage.tsx)",
+      "Bash(git add src/pages/AuthPage.tsx src/App.tsx src/components/DashboardRedirect.tsx src/components/dashboard/ActivityCard.tsx src/components/dashboard/AddOnMarketplace.tsx src/components/dashboard/ConnectionCard.tsx src/components/dashboard/ConnectionInviteModal.tsx src/components/dashboard/ConnectionsWidget.tsx src/components/dashboard/EmergencyContactsCard.tsx src/components/dashboard/MedicalInfoCard.tsx src/components/dashboard/MobileAppCard.tsx src/components/dashboard/PersonalDetailsCard.tsx src/components/dashboard/SubscriptionCard.tsx src/hooks/useConnections.ts src/hooks/useEnhancedConnectionDisplay.ts src/pages/ConnectionAcceptPage.tsx src/pages/FamilyAppPage.tsx src/pages/MyCirclesPage.tsx supabase/functions/connections-accept/index.ts supabase/functions/connections-invite/index.ts supabase/migrations/20260307100006_add_location_sharing_choice.sql .claude/settings.json)"
     ],
     "additionalDirectories": [
       "/Users/leewakeman/lifelink-sync/lifelink-sync/.claude"

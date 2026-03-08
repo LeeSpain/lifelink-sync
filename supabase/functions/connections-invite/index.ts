@@ -36,7 +36,7 @@ serve(async (req) => {
       });
     }
 
-    const { owner_id, type, invite_email, relationship, escalation_priority = 3, notify_channels = ['app'], preferred_language = 'en' } = await req.json();
+    const { owner_id, type, invite_email, relationship, escalation_priority = 3, notify_channels = ['app'], preferred_language = 'en', share_my_location = true } = await req.json();
 
     // Validate input
     if (!owner_id || !type || !invite_email) {
@@ -77,7 +77,8 @@ serve(async (req) => {
         preferred_language,
         invite_token,
         invited_at: new Date().toISOString(),
-        status: 'pending'
+        status: 'pending',
+        share_my_location
       })
       .select()
       .single();

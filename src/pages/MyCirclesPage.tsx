@@ -8,8 +8,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Users, UserPlus, MapPin, Crown, Shield, Plus,
   MoreVertical, Clock, CheckCircle, XCircle,
-  Mail, UserMinus, Trash2, Copy, Map, AlertTriangle
+  Mail, UserMinus, Trash2, Copy, Map, AlertTriangle, MapPinOff
 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,7 +26,7 @@ import { ConnectionInviteModal } from "@/components/dashboard/ConnectionInviteMo
 export default function MyCirclesPage() {
   const { data: familyConnections = [], isLoading: familyLoading } = useConnections('family_circle');
   const { data: trustedConnections = [], isLoading: trustedLoading } = useConnections('trusted_contact');
-  const { promoteConnection, demoteConnection, revokeConnection } = useConnectionActions();
+  const { promoteConnection, demoteConnection, revokeConnection, updateLocationSharing } = useConnectionActions();
   const { toast } = useToast();
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -142,6 +143,34 @@ export default function MyCirclesPage() {
                 <span>{t('connections.channels')}: {connection.notify_channels.join(', ')}</span>
                 <span>{t('connections.language')}: {connection.preferred_language}</span>
               </div>
+
+              {connection.status === 'active' && (
+                <div className="flex items-center gap-3 mt-1">
+                  <div className="flex items-center gap-1.5 text-xs">
+                    {connection.share_my_location ? (
+                      <MapPin className="h-3 w-3 text-green-500" />
+                    ) : (
+                      <MapPinOff className="h-3 w-3 text-muted-foreground" />
+                    )}
+                    <span className="text-muted-foreground">Sharing my location:</span>
+                    <Switch
+                      className="scale-75"
+                      checked={connection.share_my_location}
+                      onCheckedChange={(checked) =>
+                        updateLocationSharing.mutate({ connectionId: connection.id, shareMyLocation: checked })
+                      }
+                    />
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    {connection.contact_share_location ? (
+                      <MapPin className="h-3 w-3 text-green-500" />
+                    ) : (
+                      <MapPinOff className="h-3 w-3 text-muted-foreground" />
+                    )}
+                    <span>Their location: {connection.contact_share_location ? 'Shared' : 'Not shared'}</span>
+                  </div>
+                </div>
+              )}
 
               {connection.status === 'pending' && connection.invited_at && (
                 <p className="text-xs text-muted-foreground mt-1">

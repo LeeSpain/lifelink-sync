@@ -137,8 +137,10 @@ export const useEnhancedConnectionDisplay = (familyGroupId?: string) => {
         // Find presence data
         const presence = circleRealtime.presences.find(p => p.user_id === membership.user_id);
         
-        // Find location data
-        const location = liveLocation.locations.find(l => l.user_id === membership.user_id);
+        // Find location data - only if permission allows viewing location
+        const location = userPermissions.can_view_location
+          ? liveLocation.locations.find(l => l.user_id === membership.user_id)
+          : undefined;
 
         // Determine status based on presence and location data
         let status: FamilyMember['status'] = 'offline';

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +26,7 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
   const [contacts, setContacts] = useState<EmergencyContact[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   useEffect(() => {
     loadEmergencyContacts();
@@ -51,8 +53,8 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
     } catch (error) {
       console.error('Error loading emergency contacts:', error);
       toast({
-        title: "Error",
-        description: "Failed to load emergency contacts.",
+        title: t('emergencyContactsCard.errorTitle'),
+        description: t('emergencyContactsCard.errorLoadContacts'),
         variant: "destructive"
       });
     }
@@ -61,8 +63,8 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
   const addContact = async () => {
     if (contacts.length >= 5) {
       toast({
-        title: "Maximum contacts reached",
-        description: "You can only have up to 5 emergency contacts.",
+        title: t('emergencyContactsCard.maxContactsTitle'),
+        description: t('emergencyContactsCard.maxContactsDescription'),
         variant: "destructive"
       });
       return;
@@ -74,7 +76,7 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
 
       const newContact = {
         user_id: user.id,
-        name: "New Contact",
+        name: t('emergencyContactsCard.newContact'),
         phone: "",
         email: "",
         relationship: "",
@@ -97,8 +99,8 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
     } catch (error) {
       console.error('Error adding contact:', error);
       toast({
-        title: "Error",
-        description: "Failed to add emergency contact.",
+        title: t('emergencyContactsCard.errorTitle'),
+        description: t('emergencyContactsCard.errorAddContact'),
         variant: "destructive"
       });
     }
@@ -116,15 +118,15 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
       setContacts(contacts.filter(c => c.id !== contactId));
       onProfileUpdate();
       toast({
-        title: "Success",
-        description: "Emergency contact removed successfully."
+        title: t('emergencyContactsCard.successTitle'),
+        description: t('emergencyContactsCard.successRemoveContact')
       });
 
     } catch (error) {
       console.error('Error removing contact:', error);
       toast({
-        title: "Error",
-        description: "Failed to remove emergency contact.",
+        title: t('emergencyContactsCard.errorTitle'),
+        description: t('emergencyContactsCard.errorRemoveContact'),
         variant: "destructive"
       });
     }
@@ -142,8 +144,8 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
       for (const contact of contacts) {
         if (!contact.name || !contact.phone) {
           toast({
-            title: "Validation Error",
-            description: "All contacts must have a name and phone number.",
+            title: t('emergencyContactsCard.validationErrorTitle'),
+            description: t('emergencyContactsCard.validationErrorDescription'),
             variant: "destructive"
           });
           return;
@@ -165,15 +167,15 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
       setIsEditing(false);
       onProfileUpdate();
       toast({
-        title: "Success",
-        description: "Emergency contacts updated successfully."
+        title: t('emergencyContactsCard.successTitle'),
+        description: t('emergencyContactsCard.successSaveContacts')
       });
 
     } catch (error) {
       console.error('Error saving contacts:', error);
       toast({
-        title: "Error",
-        description: "Failed to save emergency contacts.",
+        title: t('emergencyContactsCard.errorTitle'),
+        description: t('emergencyContactsCard.errorSaveContacts'),
         variant: "destructive"
       });
     }
@@ -183,12 +185,12 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
     return type === 'family' ? (
       <Badge variant="default" className="gap-1">
         <Smartphone className="h-3 w-3" />
-        Family Access
+        {t('emergencyContactsCard.familyAccess')}
       </Badge>
     ) : (
       <Badge variant="secondary" className="gap-1">
         <Phone className="h-3 w-3" />
-        Call-only
+        {t('emergencyContactsCard.callOnly')}
       </Badge>
     );
   };
@@ -199,7 +201,7 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Users className="h-5 w-5 text-blue-500" />
-            Emergency Contacts
+            {t('emergencyContactsCard.title')}
           </CardTitle>
           <Button
             variant="outline"
@@ -207,7 +209,7 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
             onClick={() => setIsEditing(!isEditing)}
           >
             <Edit className="h-4 w-4 mr-2" />
-            {isEditing ? 'Save' : 'Edit'}
+            {isEditing ? t('emergencyContactsCard.save') : t('emergencyContactsCard.edit')}
           </Button>
         </div>
       </CardHeader>
@@ -216,7 +218,7 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
           {contacts.length === 0 && !isEditing ? (
             <div className="text-center py-8 text-muted-foreground">
               <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-              <p>No emergency contacts added yet</p>
+              <p>{t('emergencyContactsCard.noContactsYet')}</p>
               <Button
                 variant="outline"
                 size="sm"
@@ -224,7 +226,7 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
                 className="mt-4"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Add Contact
+                {t('emergencyContactsCard.addContact')}
               </Button>
             </div>
           ) : (
@@ -235,7 +237,7 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <h4 className="font-medium">{contact.name || 'New Contact'}</h4>
+                          <h4 className="font-medium">{contact.name || t('emergencyContactsCard.newContact')}</h4>
                           {getContactTypeBadge(contact.type)}
                         </div>
                         <Button
@@ -250,7 +252,7 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
                         <input
                           type="text"
-                          placeholder="Name *"
+                          placeholder={t('emergencyContactsCard.namePlaceholder')}
                           value={contact.name}
                           onChange={(e) => updateContact(contact.id, 'name', e.target.value)}
                           className="px-3 py-2 border rounded-md"
@@ -258,7 +260,7 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
                         />
                         <input
                           type="tel"
-                          placeholder="Phone *"
+                          placeholder={t('emergencyContactsCard.phonePlaceholder')}
                           value={contact.phone}
                           onChange={(e) => updateContact(contact.id, 'phone', e.target.value)}
                           className="px-3 py-2 border rounded-md"
@@ -266,14 +268,14 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
                         />
                         <input
                           type="email"
-                          placeholder="Email (optional)"
+                          placeholder={t('emergencyContactsCard.emailPlaceholder')}
                           value={contact.email || ''}
                           onChange={(e) => updateContact(contact.id, 'email', e.target.value)}
                           className="px-3 py-2 border rounded-md"
                         />
                         <input
                           type="text"
-                          placeholder="Relationship"
+                          placeholder={t('emergencyContactsCard.relationshipPlaceholder')}
                           value={contact.relationship || ''}
                           onChange={(e) => updateContact(contact.id, 'relationship', e.target.value)}
                           className="px-3 py-2 border rounded-md"
@@ -281,7 +283,7 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
                       </div>
                       {contact.type === 'call_only' && (
                         <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
-                          <strong>Call-only Contact:</strong> Sequential dialing during SOS (no alerts, no login)
+                          <strong>{t('emergencyContactsCard.callOnly')}:</strong> {t('emergencyContactsCard.callOnlyDescription')}
                         </div>
                       )}
                     </div>
@@ -312,7 +314,7 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
                       onClick={addContact}
                     >
                       <Plus className="h-4 w-4 mr-2" />
-                      Add Contact
+                      {t('emergencyContactsCard.addContact')}
                     </Button>
                   )}
                   <Button
@@ -320,7 +322,7 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
                     size="sm"
                     onClick={saveContacts}
                   >
-                    Save Changes
+                    {t('emergencyContactsCard.saveChanges')}
                   </Button>
                 </div>
               )}

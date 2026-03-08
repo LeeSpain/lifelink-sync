@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +22,7 @@ const MedicalInfoCard = ({ profile, onProfileUpdate }: MedicalInfoCardProps) => 
   const [newAllergy, setNewAllergy] = useState("");
   const [newMedication, setNewMedication] = useState("");
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (profile) {
@@ -51,14 +53,14 @@ const MedicalInfoCard = ({ profile, onProfileUpdate }: MedicalInfoCardProps) => 
       onProfileUpdate();
       setIsEditing(false);
       toast({
-        title: "Success",
-        description: "Medical information updated successfully."
+        title: t('medicalInfo.successTitle'),
+        description: t('medicalInfo.successDescription')
       });
     } catch (error) {
       console.error('Error updating medical info:', error);
       toast({
-        title: "Error",
-        description: "Failed to update medical information.",
+        title: t('medicalInfo.errorTitle'),
+        description: t('medicalInfo.errorDescription'),
         variant: "destructive"
       });
     }
@@ -105,7 +107,7 @@ const MedicalInfoCard = ({ profile, onProfileUpdate }: MedicalInfoCardProps) => 
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Heart className="h-5 w-5 text-red-500" />
-            Medical Information
+            {t('medicalInfo.title')}
           </CardTitle>
           <Button
             variant="outline"
@@ -119,7 +121,7 @@ const MedicalInfoCard = ({ profile, onProfileUpdate }: MedicalInfoCardProps) => 
             }}
           >
             <Edit className="h-4 w-4 mr-2" />
-            {isEditing ? 'Save' : 'Edit'}
+            {isEditing ? t('medicalInfo.save') : t('medicalInfo.edit')}
           </Button>
         </div>
       </CardHeader>
@@ -127,26 +129,26 @@ const MedicalInfoCard = ({ profile, onProfileUpdate }: MedicalInfoCardProps) => 
         <div className="space-y-6">
           {/* Blood Type */}
           <div>
-            <label className="block text-sm font-medium mb-2">Blood Type</label>
+            <label className="block text-sm font-medium mb-2">{t('medicalInfo.bloodType')}</label>
             {isEditing ? (
               <select
                 value={bloodType}
                 onChange={(e) => setBloodType(e.target.value)}
                 className="w-full px-3 py-2 border rounded-md"
               >
-                <option value="">Select blood type</option>
+                <option value="">{t('medicalInfo.selectBloodType')}</option>
                 {bloodTypes.map((type) => (
                   <option key={type} value={type}>{type}</option>
                 ))}
               </select>
             ) : (
-              <p className="text-muted-foreground">{bloodType || "Not specified"}</p>
+              <p className="text-muted-foreground">{bloodType || t('medicalInfo.notSpecified')}</p>
             )}
           </div>
 
           {/* Medical Conditions */}
           <div>
-            <label className="block text-sm font-medium mb-2">Medical Conditions</label>
+            <label className="block text-sm font-medium mb-2">{t('medicalInfo.medicalConditions')}</label>
             <div className="flex flex-wrap gap-2 mb-2">
               {medicalConditions.map((condition, index) => (
                 <Badge key={index} variant="outline" className="flex items-center gap-1">
@@ -166,7 +168,7 @@ const MedicalInfoCard = ({ profile, onProfileUpdate }: MedicalInfoCardProps) => 
                   type="text"
                   value={newCondition}
                   onChange={(e) => setNewCondition(e.target.value)}
-                  placeholder="Add medical condition"
+                  placeholder={t('medicalInfo.addCondition')}
                   className="flex-1 px-3 py-2 border rounded-md text-sm"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
@@ -186,7 +188,7 @@ const MedicalInfoCard = ({ profile, onProfileUpdate }: MedicalInfoCardProps) => 
 
           {/* Allergies */}
           <div>
-            <label className="block text-sm font-medium mb-2">Allergies</label>
+            <label className="block text-sm font-medium mb-2">{t('medicalInfo.allergies')}</label>
             <div className="flex flex-wrap gap-2 mb-2">
               {allergies.map((allergy, index) => (
                 <Badge key={index} variant="outline" className="flex items-center gap-1 bg-red-50">
@@ -206,7 +208,7 @@ const MedicalInfoCard = ({ profile, onProfileUpdate }: MedicalInfoCardProps) => 
                   type="text"
                   value={newAllergy}
                   onChange={(e) => setNewAllergy(e.target.value)}
-                  placeholder="Add allergy"
+                  placeholder={t('medicalInfo.addAllergy')}
                   className="flex-1 px-3 py-2 border rounded-md text-sm"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
@@ -226,7 +228,7 @@ const MedicalInfoCard = ({ profile, onProfileUpdate }: MedicalInfoCardProps) => 
 
           {/* Medications */}
           <div>
-            <label className="block text-sm font-medium mb-2">Current Medications</label>
+            <label className="block text-sm font-medium mb-2">{t('medicalInfo.currentMedications')}</label>
             <div className="flex flex-wrap gap-2 mb-2">
               {medications.map((medication, index) => (
                 <Badge key={index} variant="outline" className="flex items-center gap-1 bg-blue-50">
@@ -246,7 +248,7 @@ const MedicalInfoCard = ({ profile, onProfileUpdate }: MedicalInfoCardProps) => 
                   type="text"
                   value={newMedication}
                   onChange={(e) => setNewMedication(e.target.value)}
-                  placeholder="Add medication"
+                  placeholder={t('medicalInfo.addMedication')}
                   className="flex-1 px-3 py-2 border rounded-md text-sm"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {

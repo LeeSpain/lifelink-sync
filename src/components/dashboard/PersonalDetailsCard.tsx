@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +33,7 @@ interface PersonalDetailsCardProps {
 }
 
 const PersonalDetailsCard = ({ profile, onProfileUpdate }: PersonalDetailsCardProps) => {
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [activeSection, setActiveSection] = useState('personal');
   const [formData, setFormData] = useState({
@@ -164,14 +166,14 @@ const PersonalDetailsCard = ({ profile, onProfileUpdate }: PersonalDetailsCardPr
       onProfileUpdate();
       setIsEditing(false);
       toast({
-        title: "Success",
-        description: "Profile updated successfully."
+        title: t('personalDetails.successTitle'),
+        description: t('personalDetails.profileUpdated')
       });
     } catch (error) {
       console.error('Error updating profile:', error);
       toast({
-        title: "Error",
-        description: "Failed to update profile.",
+        title: t('personalDetails.errorTitle'),
+        description: t('personalDetails.profileUpdateError'),
         variant: "destructive"
       });
     }
@@ -204,7 +206,7 @@ const PersonalDetailsCard = ({ profile, onProfileUpdate }: PersonalDetailsCardPr
   };
 
   const removeEmergencyContact = (index: number) => {
-    if (confirm("Are you sure you want to remove this contact?")) {
+    if (confirm(t('personalDetails.removeConfirm'))) {
       const updatedContacts = emergencyContacts.filter((_, i) => i !== index);
       setEmergencyContacts(updatedContacts);
       setTimeout(() => savePersonalDetails(), 100);
@@ -239,7 +241,7 @@ const PersonalDetailsCard = ({ profile, onProfileUpdate }: PersonalDetailsCardPr
   };
 
   const removeFamilyMember = async (memberId: string) => {
-    if (confirm("Are you sure you want to remove this family member?")) {
+    if (confirm(t('personalDetails.removeFamilyConfirm'))) {
       try {
         const { error } = await supabase
           .from('family_invites')
@@ -250,14 +252,14 @@ const PersonalDetailsCard = ({ profile, onProfileUpdate }: PersonalDetailsCardPr
 
         setFamilyMembers(familyMembers.filter(member => member.id !== memberId));
         toast({
-          title: "Success",
-          description: "Family member removed successfully."
+          title: t('personalDetails.successTitle'),
+          description: t('personalDetails.familyRemoved')
         });
       } catch (error) {
         console.error('Error removing family member:', error);
         toast({
-          title: "Error",
-          description: "Failed to remove family member.",
+          title: t('personalDetails.errorTitle'),
+          description: t('personalDetails.familyRemoveError'),
           variant: "destructive"
         });
       }
@@ -274,10 +276,10 @@ const PersonalDetailsCard = ({ profile, onProfileUpdate }: PersonalDetailsCardPr
   ];
 
   const sections = [
-    { id: 'personal', title: 'Personal', icon: User },
-    { id: 'emergency', title: 'Emergency', icon: Phone },
-    { id: 'health', title: 'Health', icon: Heart },
-    { id: 'family', title: 'Family', icon: Users }
+    { id: 'personal', title: t('personalDetails.personal'), icon: User },
+    { id: 'emergency', title: t('personalDetails.emergency'), icon: Phone },
+    { id: 'health', title: t('personalDetails.health'), icon: Heart },
+    { id: 'family', title: t('personalDetails.family'), icon: Users }
   ];
 
   return (
@@ -286,7 +288,7 @@ const PersonalDetailsCard = ({ profile, onProfileUpdate }: PersonalDetailsCardPr
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-xl">
             <User className="h-6 w-6 text-primary" />
-            Personal Details
+            {t('personalDetails.title')}
           </CardTitle>
           <Button
             variant="outline"
@@ -300,7 +302,7 @@ const PersonalDetailsCard = ({ profile, onProfileUpdate }: PersonalDetailsCardPr
             }}
           >
             <Edit className="h-4 w-4 mr-2" />
-            {isEditing ? 'Save' : 'Edit'}
+            {isEditing ? t('personalDetails.save') : t('personalDetails.edit')}
           </Button>
         </div>
         
@@ -329,32 +331,32 @@ const PersonalDetailsCard = ({ profile, onProfileUpdate }: PersonalDetailsCardPr
             {/* Name Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="first_name">First Name</Label>
+                <Label htmlFor="first_name">{t('personalDetails.firstName')}</Label>
                 {isEditing ? (
                   <Input
                     id="first_name"
                     value={formData.first_name}
                     onChange={(e) => handleInputChange('first_name', e.target.value)}
-                    placeholder="Enter your first name"
+                    placeholder={t('personalDetails.enterFirstName')}
                   />
                 ) : (
                   <p className="px-3 py-2 text-sm bg-muted/50 rounded-md">
-                    {formData.first_name || 'Not provided'}
+                    {formData.first_name || t('personalDetails.notProvided')}
                   </p>
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="last_name">Last Name</Label>
+                <Label htmlFor="last_name">{t('personalDetails.lastName')}</Label>
                 {isEditing ? (
                   <Input
                     id="last_name"
                     value={formData.last_name}
                     onChange={(e) => handleInputChange('last_name', e.target.value)}
-                    placeholder="Enter your last name"
+                    placeholder={t('personalDetails.enterLastName')}
                   />
                 ) : (
                   <p className="px-3 py-2 text-sm bg-muted/50 rounded-md">
-                    {formData.last_name || 'Not provided'}
+                    {formData.last_name || t('personalDetails.notProvided')}
                   </p>
                 )}
               </div>
@@ -365,7 +367,7 @@ const PersonalDetailsCard = ({ profile, onProfileUpdate }: PersonalDetailsCardPr
               <div className="space-y-2">
                 <Label htmlFor="phone" className="flex items-center gap-2">
                   <Phone className="h-4 w-4" />
-                  Phone Number
+                  {t('personalDetails.phoneNumber')}
                 </Label>
                 {isEditing ? (
                   <Input
@@ -373,18 +375,18 @@ const PersonalDetailsCard = ({ profile, onProfileUpdate }: PersonalDetailsCardPr
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
-                    placeholder="Enter your phone number"
+                    placeholder={t('personalDetails.enterPhone')}
                   />
                 ) : (
                   <p className="px-3 py-2 text-sm bg-muted/50 rounded-md">
-                    {formData.phone || 'Not provided'}
+                    {formData.phone || t('personalDetails.notProvided')}
                   </p>
                 )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="date_of_birth" className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
-                  Date of Birth
+                  {t('personalDetails.dateOfBirth')}
                 </Label>
                 {isEditing ? (
                   <Input
@@ -395,9 +397,9 @@ const PersonalDetailsCard = ({ profile, onProfileUpdate }: PersonalDetailsCardPr
                   />
                 ) : (
                   <p className="px-3 py-2 text-sm bg-muted/50 rounded-md">
-                    {formData.date_of_birth 
+                    {formData.date_of_birth
                       ? new Date(formData.date_of_birth).toLocaleDateString()
-                      : 'Not provided'
+                      : t('personalDetails.notProvided')
                     }
                   </p>
                 )}
@@ -408,18 +410,18 @@ const PersonalDetailsCard = ({ profile, onProfileUpdate }: PersonalDetailsCardPr
             <div className="space-y-2">
               <Label htmlFor="address" className="flex items-center gap-2">
                 <MapPin className="h-4 w-4" />
-                Address
+                {t('personalDetails.address')}
               </Label>
               {isEditing ? (
                 <Input
                   id="address"
                   value={formData.address}
                   onChange={(e) => handleInputChange('address', e.target.value)}
-                  placeholder="Enter your address"
+                  placeholder={t('personalDetails.enterAddress')}
                 />
               ) : (
                 <p className="px-3 py-2 text-sm bg-muted/50 rounded-md">
-                  {formData.address || 'Not provided'}
+                  {formData.address || t('personalDetails.notProvided')}
                 </p>
               )}
             </div>
@@ -427,24 +429,24 @@ const PersonalDetailsCard = ({ profile, onProfileUpdate }: PersonalDetailsCardPr
             {/* Country and Language */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="country">Country</Label>
+                <Label htmlFor="country">{t('personalDetails.country')}</Label>
                 {isEditing ? (
                   <Input
                     id="country"
                     value={formData.country}
                     onChange={(e) => handleInputChange('country', e.target.value)}
-                    placeholder="Enter your country"
+                    placeholder={t('personalDetails.enterCountry')}
                   />
                 ) : (
                   <p className="px-3 py-2 text-sm bg-muted/50 rounded-md">
-                    {formData.country || 'Not provided'}
+                    {formData.country || t('personalDetails.notProvided')}
                   </p>
                 )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="language_preference" className="flex items-center gap-2">
                   <Globe className="h-4 w-4" />
-                  Preferred Language
+                  {t('personalDetails.preferredLanguage')}
                 </Label>
                 {isEditing ? (
                   <select
@@ -475,22 +477,22 @@ const PersonalDetailsCard = ({ profile, onProfileUpdate }: PersonalDetailsCardPr
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold flex items-center gap-2">
                 <Phone className="h-5 w-5 text-red-500" />
-                Emergency Contacts
+                {t('personalDetails.emergencyContacts')}
               </h3>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={addEmergencyContact}
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Add Contact
+                {t('personalDetails.addContact')}
               </Button>
             </div>
             <div className="space-y-3">
               {emergencyContacts.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <Phone className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-                  <p>No emergency contacts added yet</p>
+                  <p>{t('personalDetails.noContactsYet')}</p>
                   <Button
                     variant="outline"
                     size="sm"
@@ -498,7 +500,7 @@ const PersonalDetailsCard = ({ profile, onProfileUpdate }: PersonalDetailsCardPr
                     className="mt-4"
                   >
                     <Plus className="h-4 w-4 mr-2" />
-                    Add First Contact
+                    {t('personalDetails.addFirstContact')}
                   </Button>
                 </div>
               ) : (
@@ -507,41 +509,41 @@ const PersonalDetailsCard = ({ profile, onProfileUpdate }: PersonalDetailsCardPr
                     {editingContact === index ? (
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <h4 className="font-medium">Contact {index + 1}</h4>
+                          <h4 className="font-medium">{t('personalDetails.contact', { number: index + 1 })}</h4>
                           <div className="flex gap-2">
                             <Button
                               size="sm"
                               onClick={() => saveEmergencyContact(index)}
                             >
-                              Save
+                              {t('personalDetails.save')}
                             </Button>
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => setEditingContact(null)}
                             >
-                              Cancel
+                              {t('personalDetails.cancel')}
                             </Button>
                           </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           <Input
-                            placeholder="Name"
+                            placeholder={t('personalDetails.name')}
                             value={contact.name}
                             onChange={(e) => updateEmergencyContact(index, 'name', e.target.value)}
                           />
                           <Input
-                            placeholder="Phone"
+                            placeholder={t('personalDetails.phone')}
                             value={contact.phone}
                             onChange={(e) => updateEmergencyContact(index, 'phone', e.target.value)}
                           />
                           <Input
-                            placeholder="Email"
+                            placeholder={t('personalDetails.email')}
                             value={contact.email}
                             onChange={(e) => updateEmergencyContact(index, 'email', e.target.value)}
                           />
                           <Input
-                            placeholder="Relationship"
+                            placeholder={t('personalDetails.relationship')}
                             value={contact.relationship}
                             onChange={(e) => updateEmergencyContact(index, 'relationship', e.target.value)}
                           />
@@ -554,7 +556,7 @@ const PersonalDetailsCard = ({ profile, onProfileUpdate }: PersonalDetailsCardPr
                             <Phone className="h-6 w-6 text-red-500" />
                           </div>
                           <div>
-                            <h4 className="font-semibold text-base">{contact.name || 'Unnamed Contact'}</h4>
+                            <h4 className="font-semibold text-base">{contact.name || t('personalDetails.unnamedContact')}</h4>
                             <p className="text-sm text-muted-foreground">{contact.relationship}</p>
                             <p className="text-sm text-muted-foreground">{contact.phone}</p>
                             {contact.email && <p className="text-sm text-muted-foreground">{contact.email}</p>}
@@ -591,19 +593,19 @@ const PersonalDetailsCard = ({ profile, onProfileUpdate }: PersonalDetailsCardPr
           <div className="space-y-6">
             <h3 className="text-lg font-semibold flex items-center gap-2">
               <Heart className="h-5 w-5 text-red-500" />
-              Health Information
+              {t('personalDetails.healthInformation')}
             </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label className="text-sm font-medium">Blood Type</Label>
+                <Label className="text-sm font-medium">{t('personalDetails.bloodType')}</Label>
                 {isEditing ? (
                   <select
                     value={healthInfo.bloodType}
                     onChange={(e) => setHealthInfo(prev => ({...prev, bloodType: e.target.value}))}
                     className="w-full px-3 py-2 border border-input rounded-md bg-background mt-1"
                   >
-                    <option value="">Select blood type</option>
+                    <option value="">{t('personalDetails.selectBloodType')}</option>
                     <option value="A+">A+</option>
                     <option value="A-">A-</option>
                     <option value="B+">B+</option>
@@ -615,17 +617,17 @@ const PersonalDetailsCard = ({ profile, onProfileUpdate }: PersonalDetailsCardPr
                   </select>
                 ) : (
                   <p className="px-3 py-2 text-sm bg-muted/50 rounded-md mt-1">
-                    {healthInfo.bloodType || "Not specified"}
+                    {healthInfo.bloodType || t('personalDetails.notSpecified')}
                   </p>
                 )}
               </div>
             </div>
 
             <div>
-              <Label className="text-sm font-medium">Allergies</Label>
+              <Label className="text-sm font-medium">{t('personalDetails.allergiesLabel')}</Label>
               <div className="flex flex-wrap gap-2 mt-2">
                 {healthInfo.allergies.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No allergies recorded</p>
+                  <p className="text-sm text-muted-foreground">{t('personalDetails.noAllergies')}</p>
                 ) : (
                   healthInfo.allergies.map((allergy, index) => (
                     <Badge key={index} variant="outline" className="bg-yellow-50 text-yellow-800 border-yellow-200 flex items-center gap-1">
@@ -654,10 +656,10 @@ const PersonalDetailsCard = ({ profile, onProfileUpdate }: PersonalDetailsCardPr
             </div>
 
             <div>
-              <Label className="text-sm font-medium">Current Medications</Label>
+              <Label className="text-sm font-medium">{t('personalDetails.medicationsLabel')}</Label>
               <div className="flex flex-wrap gap-2 mt-2">
                 {healthInfo.medications.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No medications recorded</p>
+                  <p className="text-sm text-muted-foreground">{t('personalDetails.noMedications')}</p>
                 ) : (
                   healthInfo.medications.map((medication, index) => (
                     <Badge key={index} variant="outline" className="bg-blue-50 text-blue-800 border-blue-200 flex items-center gap-1">
@@ -685,10 +687,10 @@ const PersonalDetailsCard = ({ profile, onProfileUpdate }: PersonalDetailsCardPr
             </div>
 
             <div>
-              <Label className="text-sm font-medium">Medical Conditions</Label>
+              <Label className="text-sm font-medium">{t('personalDetails.conditionsLabel')}</Label>
               <div className="flex flex-wrap gap-2 mt-2">
                 {healthInfo.medicalConditions.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No medical conditions recorded</p>
+                  <p className="text-sm text-muted-foreground">{t('personalDetails.noConditions')}</p>
                 ) : (
                   healthInfo.medicalConditions.map((condition, index) => (
                     <Badge key={index} variant="outline" className="bg-purple-50 text-purple-800 border-purple-200 flex items-center gap-1">
@@ -716,12 +718,12 @@ const PersonalDetailsCard = ({ profile, onProfileUpdate }: PersonalDetailsCardPr
             </div>
 
             <div>
-              <Label className="text-sm font-medium">Emergency Medical Information</Label>
+              <Label className="text-sm font-medium">{t('personalDetails.emergencyMedicalInfo')}</Label>
               <Textarea
                 value={healthInfo.emergencyMedicalInfo}
                 onChange={(e) => setHealthInfo(prev => ({...prev, emergencyMedicalInfo: e.target.value}))}
                 readOnly={!isEditing}
-                placeholder="Additional medical information for emergency responders..."
+                placeholder={t('personalDetails.emergencyMedicalPlaceholder')}
                 className="mt-1 bg-muted/50"
                 rows={3}
               />
@@ -735,22 +737,22 @@ const PersonalDetailsCard = ({ profile, onProfileUpdate }: PersonalDetailsCardPr
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold flex items-center gap-2">
                 <Users className="h-5 w-5 text-blue-500" />
-                Family Connections
+                {t('personalDetails.familyConnections')}
               </h3>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={handleInviteFamily}
               >
                 <UserPlus className="h-4 w-4 mr-2" />
-                Invite Family
+                {t('personalDetails.inviteFamily')}
               </Button>
             </div>
             <div className="space-y-3">
               {familyMembers.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-                  <p>No family members connected yet</p>
+                  <p>{t('personalDetails.noFamilyYet')}</p>
                   <Button
                     variant="outline"
                     size="sm"
@@ -758,7 +760,7 @@ const PersonalDetailsCard = ({ profile, onProfileUpdate }: PersonalDetailsCardPr
                     className="mt-4"
                   >
                     <UserPlus className="h-4 w-4 mr-2" />
-                    Invite Family
+                    {t('personalDetails.inviteFamily')}
                   </Button>
                 </div>
               ) : (

@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Crown, Shield, Mail, Users, Phone, MessageSquare } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Crown, Shield, Mail, Users, Phone, MessageSquare, MapPin } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useConnectionActions, CreateConnectionData } from '@/hooks/useConnections';
@@ -22,6 +23,7 @@ interface FormData {
   escalation_priority: number;
   notify_channels: string[];
   preferred_language: string;
+  share_my_location: boolean;
 }
 
 export const ConnectionInviteModal: React.FC<ConnectionInviteModalProps> = ({
@@ -42,7 +44,8 @@ export const ConnectionInviteModal: React.FC<ConnectionInviteModalProps> = ({
     defaultValues: {
       escalation_priority: 3,
       notify_channels: ['app'],
-      preferred_language: 'en'
+      preferred_language: 'en',
+      share_my_location: true
     }
   });
 
@@ -194,6 +197,29 @@ export const ConnectionInviteModal: React.FC<ConnectionInviteModalProps> = ({
                 </Label>
               </div>
             </div>
+          </div>
+
+          {/* Location Sharing */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <MapPin className="h-4 w-4" />
+              Location Sharing
+            </Label>
+            <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/50">
+              <div className="space-y-0.5">
+                <p className="text-sm font-medium">Share my location</p>
+                <p className="text-xs text-muted-foreground">
+                  Allow this person to see your location when active
+                </p>
+              </div>
+              <Switch
+                checked={watch('share_my_location')}
+                onCheckedChange={(checked) => setValue('share_my_location', checked)}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              The invited person will also choose whether to share their location with you.
+            </p>
           </div>
 
           {/* Language */}

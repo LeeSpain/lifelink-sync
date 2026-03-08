@@ -3,9 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Smartphone, Download, QrCode, CheckCircle, AlertCircle } from "lucide-react";
 import { useEffect, useRef } from "react";
+import { useTranslation } from 'react-i18next';
 import QRCode from "qrcode";
 
 const MobileAppCard = () => {
+  const { t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const appStatus = {
     downloaded: false,
@@ -35,12 +37,12 @@ const MobileAppCard = () => {
     return status ? (
       <Badge className="bg-green-100 text-green-800">
         <CheckCircle className="h-3 w-3 mr-1" />
-        Complete
+        {t('mobileApp.complete')}
       </Badge>
     ) : (
       <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
         <AlertCircle className="h-3 w-3 mr-1" />
-        Pending
+        {t('mobileApp.pendingStatus')}
       </Badge>
     );
   };
@@ -50,7 +52,7 @@ const MobileAppCard = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Smartphone className="h-5 w-5 text-green-500" />
-          Mobile App Setup
+          {t('mobileApp.title')}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -61,23 +63,23 @@ const MobileAppCard = () => {
               <canvas ref={canvasRef} className="max-w-full max-h-full" />
             </div>
             <p className="text-sm text-muted-foreground mb-4">
-              Scan this QR code with your phone to access the LifeLink Sync web app
+              {t('mobileApp.scanQr')}
             </p>
             <div className="text-xs text-muted-foreground">
-              Download the native app for the best experience
+              {t('mobileApp.downloadNative')}
             </div>
           </div>
 
           {/* App Setup Status */}
           <div className="space-y-4">
-            <h4 className="font-medium">Setup Progress</h4>
+            <h4 className="font-medium">{t('mobileApp.setupProgress')}</h4>
             
             <div className="flex items-center justify-between p-3 border rounded-lg">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
                   <Download className="h-4 w-4 text-blue-600" />
                 </div>
-                <span className="font-medium">App Downloaded</span>
+                <span className="font-medium">{t('mobileApp.appDownloaded')}</span>
               </div>
               {getStatusBadge(appStatus.downloaded)}
             </div>
@@ -87,7 +89,7 @@ const MobileAppCard = () => {
                 <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
                   <CheckCircle className="h-4 w-4 text-purple-600" />
                 </div>
-                <span className="font-medium">Logged In</span>
+                <span className="font-medium">{t('mobileApp.loggedIn')}</span>
               </div>
               {getStatusBadge(appStatus.loggedIn)}
             </div>
@@ -97,7 +99,7 @@ const MobileAppCard = () => {
                 <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center">
                   <Smartphone className="h-4 w-4 text-orange-600" />
                 </div>
-                <span className="font-medium">Permissions Granted</span>
+                <span className="font-medium">{t('mobileApp.permissionsGranted')}</span>
               </div>
               {getStatusBadge(appStatus.permissionsGranted)}
             </div>
@@ -105,7 +107,7 @@ const MobileAppCard = () => {
 
           {/* Download Buttons */}
           <div className="space-y-3">
-            <h4 className="font-medium">Download Links</h4>
+            <h4 className="font-medium">{t('mobileApp.downloadLinks')}</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <Button 
                 variant="outline" 
@@ -115,7 +117,7 @@ const MobileAppCard = () => {
                 <div className="w-6 h-6 bg-black rounded-sm flex items-center justify-center">
                   <span className="text-white text-xs font-bold">iOS</span>
                 </div>
-                Download for iPhone
+                {t('mobileApp.downloadIPhone')}
               </Button>
               <Button 
                 variant="outline" 
@@ -125,19 +127,19 @@ const MobileAppCard = () => {
                 <div className="w-6 h-6 bg-green-500 rounded-sm flex items-center justify-center">
                   <span className="text-white text-xs font-bold">AND</span>
                 </div>
-                Download for Android
+                {t('mobileApp.downloadAndroid')}
               </Button>
             </div>
           </div>
 
           {/* Setup Instructions */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h4 className="font-medium text-blue-900 mb-2">Setup Instructions</h4>
+            <h4 className="font-medium text-blue-900 mb-2">{t('mobileApp.setupInstructions')}</h4>
             <ol className="text-sm text-blue-800 space-y-1">
-              <li>1. Download the LifeLink Sync app from your app store</li>
-              <li>2. Open the app and log in with your account</li>
-              <li>3. Grant location and notification permissions</li>
-              <li>4. Complete your emergency profile setup</li>
+              <li>{t('mobileApp.step1')}</li>
+              <li>{t('mobileApp.step2')}</li>
+              <li>{t('mobileApp.step3')}</li>
+              <li>{t('mobileApp.step4')}</li>
             </ol>
           </div>
         </div>

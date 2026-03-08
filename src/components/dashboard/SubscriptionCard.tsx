@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,7 @@ interface SubscriptionCardProps {
 }
 
 const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
+  const { t } = useTranslation();
   const [invoices, setInvoices] = useState<any[]>([]);
   const [familyMembers, setFamilyMembers] = useState<any[]>([]);
   const [isLoadingInvoices, setIsLoadingInvoices] = useState(false);
@@ -147,25 +149,25 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
       const trialEnd = subscription.trial_end ? new Date(subscription.trial_end) : null;
       const daysLeft = trialEnd ? Math.max(0, Math.ceil((trialEnd.getTime() - Date.now()) / (1000 * 60 * 60 * 24))) : 0;
       return {
-        status: `Trial (${daysLeft}d left)`,
+        status: t('subscriptionCard.trialDaysLeft', { count: daysLeft }),
         color: "bg-muted text-foreground",
         icon: <CheckCircle className="h-4 w-4" />,
-        description: "Your free trial is active"
+        description: t('subscriptionCard.protectionActive')
       };
     }
     if (subscription?.subscribed) {
       return {
-        status: "Active",
+        status: t('subscriptionCard.statusActive'),
         color: "bg-muted text-foreground",
         icon: <CheckCircle className="h-4 w-4" />,
-        description: "Your emergency protection is active"
+        description: t('subscriptionCard.protectionActive')
       };
     }
     return {
-      status: "Inactive",
+      status: t('subscriptionCard.statusInactive'),
       color: "bg-muted text-foreground",
       icon: <AlertCircle className="h-4 w-4" />,
-      description: "Complete your subscription to activate protection"
+      description: t('subscriptionCard.statusInactive')
     };
   };
 
@@ -193,14 +195,14 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <CreditCard className="h-5 w-5 text-primary" />
-          Subscription & Billing
+          {t('subscriptionCard.title')}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="billing">Billing & Invoices</TabsTrigger>
+            <TabsTrigger value="overview">{t('subscriptionCard.overview')}</TabsTrigger>
+            <TabsTrigger value="billing">{t('subscriptionCard.billingInvoices')}</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -227,7 +229,7 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
                   <div className="p-4 bg-muted/50 rounded-lg border">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div>
-                        <h4 className="font-semibold text-foreground">Free Trial Active</h4>
+                        <h4 className="font-semibold text-foreground">{t('subscriptionCard.freeTrialActive')}</h4>
                         <p className="text-sm text-muted-foreground">
                           Ends {subscription.trial_end
                             ? new Date(subscription.trial_end).toLocaleDateString()
@@ -248,7 +250,7 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
                 {/* Active Add-ons */}
                 {subscription?.active_addons && subscription.active_addons.length > 0 && (
                   <div className="p-4 bg-muted/50 rounded-lg border">
-                    <h4 className="font-semibold text-foreground mb-2">Active Add-Ons</h4>
+                    <h4 className="font-semibold text-foreground mb-2">{t('subscriptionCard.activeAddOns')}</h4>
                     <div className="flex flex-wrap gap-2">
                       {subscription.active_addons.map((slug: string) => (
                         <Badge key={slug} variant="secondary" className="capitalize">
@@ -267,13 +269,13 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
                 {/* Payment Overview */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="p-4 bg-muted/50 rounded-lg border">
-                    <h4 className="font-semibold text-foreground mb-1">Current Plan</h4>
+                    <h4 className="font-semibold text-foreground mb-1">{t('subscriptionCard.currentPlan')}</h4>
                     <p className="text-lg font-bold text-foreground capitalize">
                       {subscription.subscription_tier?.replace('_', ' ') || 'Basic'}
                     </p>
                   </div>
                   <div className="p-4 bg-muted/50 rounded-lg border">
-                    <h4 className="font-semibold text-foreground mb-1">Next Billing</h4>
+                    <h4 className="font-semibold text-foreground mb-1">{t('subscriptionCard.nextBilling')}</h4>
                     <p className="text-lg font-bold text-foreground">
                       {subscription.subscription_end
                         ? new Date(subscription.subscription_end).toLocaleDateString()
@@ -282,19 +284,19 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
                     </p>
                   </div>
                   <div className="p-4 bg-muted/50 rounded-lg border">
-                    <h4 className="font-semibold text-foreground mb-1">Payment Status</h4>
-                    <p className="text-lg font-bold text-foreground">Active</p>
+                    <h4 className="font-semibold text-foreground mb-1">{t('subscriptionCard.paymentStatus')}</h4>
+                    <p className="text-lg font-bold text-foreground">{t('subscriptionCard.statusActive')}</p>
                   </div>
                 </div>
 
                 {/* Payment Summary */}
                 <div className="bg-muted/50 rounded-lg p-4">
-                  <h4 className="font-semibold mb-3">Payment Summary</h4>
+                  <h4 className="font-semibold mb-3">{t('subscriptionCard.paymentSummary')}</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div>
                       <span className="text-muted-foreground">Current Status:</span>
                       <span className="ml-2 font-semibold text-foreground">
-                        {subscription.subscribed ? 'Active' : 'Inactive'}
+                        {subscription.subscribed ? t('subscriptionCard.statusActive') : t('subscriptionCard.statusInactive')}
                       </span>
                     </div>
                     <div>
@@ -323,7 +325,7 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
 
                 {/* Plan Features */}
                 <div className="border-t pt-4">
-                  <h4 className="font-medium mb-3">Available Features</h4>
+                  <h4 className="font-medium mb-3">{t('subscriptionCard.availableFeatures')}</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <div className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4 text-green-500" />
@@ -374,7 +376,7 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
                   <div className="flex flex-wrap gap-2">
                     <Button onClick={handleManageSubscription} variant="outline" size="sm">
                       <Settings className="h-4 w-4 mr-2" />
-                      Manage Subscription
+                      {t('subscriptionCard.manageSubscription')}
                     </Button>
                     <Button onClick={loadInvoices} variant="outline" size="sm">
                       <Download className="h-4 w-4 mr-2" />
@@ -403,7 +405,7 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
           {/* Enhanced Billing & Invoices Tab */}
           <TabsContent value="billing" className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <h4 className="font-semibold text-sm">Billing History & Invoices</h4>
+              <h4 className="font-semibold text-sm">{t('subscriptionCard.invoiceHistory')}</h4>
               <Button onClick={loadInvoices} variant="outline" size="sm" disabled={isLoadingInvoices} className="w-full sm:w-auto">
                 <FileText className="h-4 w-4 mr-2" />
                 {isLoadingInvoices ? 'Loading...' : 'Refresh'}
@@ -424,13 +426,13 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
                     {invoices.length > 0 ? formatCurrency(invoices[0].amount_paid, invoices[0].currency) : '€0.00'}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {invoices.length > 0 ? new Date(invoices[0].created * 1000).toLocaleDateString() : 'No invoices yet'}
+                    {invoices.length > 0 ? new Date(invoices[0].created * 1000).toLocaleDateString() : t('subscriptionCard.noInvoicesYet')}
                   </p>
                 </div>
                 <div className="p-4 bg-muted/50 rounded-lg border">
-                  <h5 className="font-semibold text-foreground mb-1">Status</h5>
+                  <h5 className="font-semibold text-foreground mb-1">{t('subscriptionCard.status')}</h5>
                   <p className="text-lg font-bold text-foreground">
-                    {subscription.subscribed ? 'Active' : 'Inactive'}
+                    {subscription.subscribed ? t('subscriptionCard.statusActive') : t('subscriptionCard.statusInactive')}
                   </p>
                   <p className="text-xs text-muted-foreground">Subscription status</p>
                 </div>
@@ -441,8 +443,8 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
             {invoices.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-                <p className="text-lg font-medium mb-2">No invoices found</p>
-                <p className="text-sm">Your billing history will appear here once you have active subscriptions</p>
+                <p className="text-lg font-medium mb-2">{t('subscriptionCard.noInvoicesYet')}</p>
+                <p className="text-sm">{t('subscriptionCard.invoicesWillAppear')}</p>
                 {!subscription?.subscribed && (
                   <Button onClick={() => window.location.href = '/register'} className="mt-4">
                     Start Subscription

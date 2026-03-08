@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useOptimizedAuth } from '@/hooks/useOptimizedAuth';
 import { Navigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { useFamilyRole } from '@/hooks/useFamilyRole';
 
 const DashboardRedirect = () => {
   const { user, loading, isAdmin, role } = useOptimizedAuth();
+  const { data: familyRole, isLoading: familyRoleLoading } = useFamilyRole();
   const [onboardingChecked, setOnboardingChecked] = useState(false);
   const [needsOnboarding, setNeedsOnboarding] = useState(false);
 
@@ -59,8 +61,8 @@ const DashboardRedirect = () => {
     timestamp: new Date().toISOString()
   });
 
-  // Show loading while checking authentication, role, and onboarding
-  if (loading || !onboardingChecked) {
+  // Show loading while checking authentication, role, family role, and onboarding
+  if (loading || !onboardingChecked || familyRoleLoading) {
     console.log('🔄 DashboardRedirect: Loading state, showing spinner');
     return (
       <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
@@ -99,10 +101,16 @@ const DashboardRedirect = () => {
   if (role === 'admin' || isAdmin) {
     console.log('🔄 DashboardRedirect: Admin user detected, redirecting to admin dashboard');
     return <Navigate to="/admin-dashboard" replace />;
-  } else {
-    console.log('🔄 DashboardRedirect: Regular user, redirecting to member dashboard');
-    return <Navigate to="/member-dashboard" replace />;
   }
+
+  // Family members (non-owners who joined via invitation) go to the family app
+  if (familyRole?.isFamilyMember && !familyRole?.isOwner) {
+    console.log('🔄 DashboardRedirect: Family member detected, redirecting to family app');
+    return <Navigate to="/family-app" replace />;
+  }
+
+  console.log('🔄 DashboardRedirect: Regular/owner user, redirecting to member dashboard');
+  return <Navigate to="/member-dashboard" replace />;
 };
 
 export default DashboardRedirect;

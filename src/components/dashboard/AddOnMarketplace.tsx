@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -24,6 +25,7 @@ const AddOnCard: React.FC<{
   onRemove: () => void;
   isLoading: boolean;
 }> = ({ addon, isActive, onAdd, onRemove, isLoading }) => {
+  const { t } = useTranslation();
   const features: string[] = Array.isArray(addon.features)
     ? addon.features
     : [];
@@ -38,7 +40,7 @@ const AddOnCard: React.FC<{
           <div>
             <h4 className="font-semibold text-sm">{addon.name}</h4>
             {addon.slug === 'family_link' && (
-              <span className="text-xs text-green-600 font-medium">1st link FREE</span>
+              <span className="text-xs text-green-600 font-medium">{t('addons.firstLinkFree')}</span>
             )}
           </div>
         </div>
@@ -69,7 +71,7 @@ const AddOnCard: React.FC<{
           disabled={isLoading}
         >
           {isLoading ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <X className="h-4 w-4 mr-1" />}
-          Remove
+          {t('addons.remove')}
         </Button>
       ) : (
         <Button
@@ -79,7 +81,7 @@ const AddOnCard: React.FC<{
           disabled={isLoading}
         >
           {isLoading ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Plus className="h-4 w-4 mr-1" />}
-          Add
+          {t('addons.addBtn')}
         </Button>
       )}
     </div>
@@ -87,6 +89,7 @@ const AddOnCard: React.FC<{
 };
 
 const AddOnMarketplace: React.FC = () => {
+  const { t } = useTranslation();
   const { data, isLoading, error } = useAddons();
   const mutation = useAddonMutation();
   const { toast } = useToast();
@@ -94,18 +97,18 @@ const AddOnMarketplace: React.FC = () => {
   const handleAdd = async (slug: string) => {
     try {
       await mutation.mutateAsync({ action: 'add', addon_slug: slug });
-      toast({ title: 'Add-on activated', description: `${slug.replace('_', ' ')} has been added to your plan.` });
+      toast({ title: t('addons.activated'), description: t('addons.activatedDesc', { name: slug.replace('_', ' ') }) });
     } catch (err: any) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+      toast({ title: t('subscriptionCard.errorTitle'), description: err.message, variant: 'destructive' });
     }
   };
 
   const handleRemove = async (slug: string) => {
     try {
       await mutation.mutateAsync({ action: 'remove', addon_slug: slug });
-      toast({ title: 'Add-on removed', description: `${slug.replace('_', ' ')} has been removed.` });
+      toast({ title: t('addons.removed'), description: t('addons.removedDesc', { name: slug.replace('_', ' ') }) });
     } catch (err: any) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+      toast({ title: t('subscriptionCard.errorTitle'), description: err.message, variant: 'destructive' });
     }
   };
 
@@ -117,7 +120,7 @@ const AddOnMarketplace: React.FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            Add-Ons
+            {t('addons.title')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -135,11 +138,11 @@ const AddOnMarketplace: React.FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            Add-Ons
+            {t('addons.title')}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">Unable to load add-ons.</p>
+          <p className="text-sm text-muted-foreground">{t('addons.unableToLoad')}</p>
         </CardContent>
       </Card>
     );
@@ -161,9 +164,9 @@ const AddOnMarketplace: React.FC = () => {
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            Add-Ons
+            {t('addons.title')}
             {activeSlugs.length > 0 && (
-              <Badge variant="secondary">{activeSlugs.length} active</Badge>
+              <Badge variant="secondary">{t('addons.active', { count: activeSlugs.length })}</Badge>
             )}
           </CardTitle>
           {addonCost > 0 && (
@@ -181,16 +184,16 @@ const AddOnMarketplace: React.FC = () => {
         }`}>
           <div className="flex items-center gap-2">
             <Sparkles className={`h-4 w-4 ${data?.clara_complete_unlocked ? 'text-primary' : 'text-muted-foreground'}`} />
-            <span className="font-semibold text-sm">CLARA Complete</span>
+            <span className="font-semibold text-sm">{t('addons.claraComplete')}</span>
             <Badge variant={data?.clara_complete_unlocked ? 'default' : 'secondary'} className="text-xs">
-              {data?.clara_complete_unlocked ? 'UNLOCKED' : 'LOCKED'}
+              {data?.clara_complete_unlocked ? t('addons.unlocked') : t('addons.locked')}
             </Badge>
-            <Badge variant="outline" className="text-xs ml-auto">FREE</Badge>
+            <Badge variant="outline" className="text-xs ml-auto">{t('addons.free')}</Badge>
           </div>
           <p className="text-xs text-muted-foreground mt-1">
             {data?.clara_complete_unlocked
-              ? 'Full CLARA AI experience is active with Daily Wellbeing + Medication Reminder.'
-              : 'Activate both Daily Wellbeing and Medication Reminder to unlock CLARA Complete for free.'}
+              ? t('addons.claraUnlockedDesc')
+              : t('addons.claraLockedDesc')}
           </p>
         </div>
 

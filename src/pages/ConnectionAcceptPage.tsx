@@ -3,7 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Crown, Shield, Check, AlertTriangle, Loader2 } from 'lucide-react';
+import { Crown, Shield, Check, AlertTriangle, Loader2, MapPin } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -17,6 +19,7 @@ export const ConnectionAcceptPage = () => {
   const [accepting, setAccepting] = useState(false);
   const [invitation, setInvitation] = useState(null);
   const [error, setError] = useState('');
+  const [shareMyLocation, setShareMyLocation] = useState(true);
 
   useEffect(() => {
     if (token) {
@@ -56,7 +59,7 @@ export const ConnectionAcceptPage = () => {
     try {
       setAccepting(true);
       const { data, error } = await supabase.functions.invoke('connections-accept', {
-        body: { token },
+        body: { token, contact_share_location: shareMyLocation },
         method: 'POST'
       });
 
@@ -177,6 +180,31 @@ export const ConnectionAcceptPage = () => {
               }
             </AlertDescription>
           </Alert>
+
+          {/* Location Sharing Choice */}
+          {invitation?.connection.type === 'family_circle' && (
+            <div className="space-y-3 p-4 rounded-lg border bg-muted/50">
+              <Label className="flex items-center gap-2 font-medium">
+                <MapPin className="h-4 w-4 text-primary" />
+                Location Sharing
+              </Label>
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">Share my location</p>
+                  <p className="text-xs text-muted-foreground">
+                    Allow this person to see your location when you're active
+                  </p>
+                </div>
+                <Switch
+                  checked={shareMyLocation}
+                  onCheckedChange={setShareMyLocation}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                You can change this at any time in your circle settings. The person who invited you has independently chosen whether to share their location with you.
+              </p>
+            </div>
+          )}
 
           {/* Auth Required Notice */}
           {!user && (

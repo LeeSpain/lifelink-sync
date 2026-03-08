@@ -62,13 +62,25 @@ serve(async (req) => {
         });
       }
 
+      // Parse the request body for the invitee's location sharing choice
+      let contact_share_location = true;
+      try {
+        const body = await req.json();
+        if (typeof body.contact_share_location === 'boolean') {
+          contact_share_location = body.contact_share_location;
+        }
+      } catch {
+        // No body or invalid JSON - use default (true)
+      }
+
       // Update connection with user ID and set as active
       const { data: updatedConnection, error: updateError } = await supabaseServiceClient
         .from('connections')
         .update({
           contact_user_id: user.id,
           status: 'active',
-          accepted_at: new Date().toISOString()
+          accepted_at: new Date().toISOString(),
+          contact_share_location
         })
         .eq('id', connection.id)
         .select()
@@ -83,7 +95,10 @@ serve(async (req) => {
       }
 
       // Create circle permissions if this is a family circle invitation
+      // Permissions are bi-directional: owner sees contact based on contact's sharing choice,
+      // contact sees owner based on owner's sharing choice
       if (connection.type === 'family_circle') {
+        // Permission for owner to view the contact's location (based on contact's consent)
         await supabaseServiceClient
           .from('circle_permissions')
           .insert({
@@ -91,7 +106,18 @@ serve(async (req) => {
             family_user_id: user.id,
             can_view_history: true,
             can_view_devices: true,
-            can_view_location: true
+            can_view_location: contact_share_location
+          });
+
+        // Permission for contact to view the owner's location (based on owner's consent)
+        await supabaseServiceClient
+          .from('circle_permissions')
+          .insert({
+            owner_id: user.id,
+            family_user_id: connection.owner_id,
+            can_view_history: true,
+            can_view_devices: true,
+            can_view_location: connection.share_my_location ?? true
           });
       }
 
