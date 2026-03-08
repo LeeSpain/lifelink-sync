@@ -302,6 +302,16 @@ const AuthPage = () => {
                 </div>
               </div>
 
+              {/* Tablet */}
+              <div>
+                <p className="text-xs font-semibold text-foreground mb-2">Tablet</p>
+                <div className="grid grid-cols-3 gap-2">
+                  <Button asChild variant="default" size="sm" className="min-h-[44px] text-xs w-full col-span-3">
+                    <Link to="/tablet-dashboard?dev=1">Tablet Dashboard</Link>
+                  </Button>
+                </div>
+              </div>
+
               {/* Disable dev mode */}
               {devBypassEnabled && (
                 <div className="border-t pt-3">

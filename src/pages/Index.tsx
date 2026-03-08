@@ -63,11 +63,11 @@ const Index = () => {
       {/* 7. Pricing */}
       <Pricing />
 
-      {/* 8. CTA Banner */}
-      <FinalCTA />
-
-      {/* 9. Pendant Promo */}
+      {/* 8. Pendant Promo */}
       <PendantPromo />
+
+      {/* 9. CTA Banner */}
+      <FinalCTA />
 
       {/* 10. Footer */}
       <Footer />

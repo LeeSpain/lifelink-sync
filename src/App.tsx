@@ -34,6 +34,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 // App Pages
 import SOSAppPage from "./pages/SOSAppPage";
 import FamilyAppPage from "./pages/FamilyAppPage";
+import TabletDashboard from "./pages/TabletDashboard";
 
 // Support & Info Pages
 import Support from "./pages/Support";
@@ -315,6 +316,13 @@ function AppWithTracking() {
                     <OptimizedSuspense skeletonType="card">
                       <FamilyAppPage />
                     </OptimizedSuspense>
+                  </ProtectedRoute>
+                } />
+
+                {/* Tablet Dashboard — always-on elderly care display */}
+                <Route path="/tablet-dashboard" element={
+                  <ProtectedRoute>
+                    <TabletDashboard />
                   </ProtectedRoute>
                 } />
 
