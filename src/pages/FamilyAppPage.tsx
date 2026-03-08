@@ -15,7 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Switch } from '@/components/ui/switch';
 import {
   MapPin, Users, Shield, Battery,
-  CheckCircle2, AlertTriangle, Bell, Wifi, RefreshCw,
+  CheckCircle2, Bell, RefreshCw,
   PhoneCall, MessageSquare, MapPinOff, Navigation,
   ArrowUpCircle, Heart, Eye, ChevronRight
 } from 'lucide-react';
@@ -23,10 +23,6 @@ import { useNavigate } from 'react-router-dom';
 import SEO from '@/components/SEO';
 import MapLibreMap from '@/components/maplibre/MapLibreMap';
 import { MapMemberLayer } from '@/components/maplibre/layers/MapMemberLayer';
-import { useEmergencySOS } from '@/hooks/useEmergencySOS';
-import { useEmergencyDisclaimer } from '@/hooks/useEmergencyDisclaimer';
-import EmergencyButton from '@/components/sos-app/EmergencyButton';
-import { EmergencyDisclaimerModal } from '@/components/emergency/EmergencyDisclaimerModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -39,8 +35,6 @@ const FamilyAppPage = () => {
   const { data: familyData, isLoading } = useFamilyMembers(familyRole?.familyGroupId);
   const { contacts } = useEmergencyContacts();
   const { permissionState } = useLocationServices();
-  const { triggerEmergencySOS, isTriggering } = useEmergencySOS();
-  const { showDisclaimer, requestDisclaimerAcceptance, acceptDisclaimer, cancelDisclaimer } = useEmergencyDisclaimer();
   const { data: familyConnections = [] } = useConnections('family_circle');
   const { updateLocationSharing } = useConnectionActions();
   const navigate = useNavigate();
@@ -186,15 +180,6 @@ const FamilyAppPage = () => {
     }
   };
 
-  const handleEmergencyTrigger = async () => {
-    if (!requestDisclaimerAcceptance()) return;
-    try { await triggerEmergencySOS(); } catch { /* handled by hook */ }
-  };
-
-  const handleDisclaimerAccept = () => {
-    acceptDisclaimer();
-    handleEmergencyTrigger();
-  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -271,22 +256,28 @@ const FamilyAppPage = () => {
                 </div>
               </div>
 
-              {/* Quick actions */}
+              {/* Quick actions — contact the member */}
               <div className="px-4 py-3 flex gap-3">
                 <Button
                   className="flex-1 h-11 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-sm"
-                  onClick={handleCheckIn}
+                  onClick={() => {
+                    const member = activeFamilyMembers[0];
+                    if (member?.phone) window.open(`tel:${member.phone}`);
+                  }}
                 >
-                  <CheckCircle2 className="h-4 w-4 mr-2" />
-                  {t('family.imSafe')}
+                  <PhoneCall className="h-4 w-4 mr-2" />
+                  {t('family.callMember', 'Call Member')}
                 </Button>
                 <Button
-                  className="flex-1 h-11 bg-red-600 hover:bg-red-700 text-white rounded-xl shadow-sm"
-                  onClick={handleEmergencyTrigger}
-                  disabled={isTriggering}
+                  variant="outline"
+                  className="flex-1 h-11 rounded-xl shadow-sm"
+                  onClick={() => {
+                    const member = activeFamilyMembers[0];
+                    if (member?.phone) window.open(`sms:${member.phone}`);
+                  }}
                 >
-                  <AlertTriangle className="h-4 w-4 mr-2" />
-                  {isTriggering ? t('family.sending') : t('family.sos')}
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  {t('family.sendMessage', 'Send Message')}
                 </Button>
               </div>
 
@@ -465,47 +456,67 @@ const FamilyAppPage = () => {
               ═══════════════════════════════════════════════ */}
           {selectedTab === 'safety' && (
             <div className="px-4 py-5 space-y-5">
-              {/* Emergency SOS */}
-              <div className="flex justify-center py-4">
-                <EmergencyButton />
-              </div>
-
-              {/* System status */}
+              {/* Member status overview */}
               <div className="rounded-xl border bg-card p-4 space-y-3">
                 <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2">
                   <Shield className="h-4 w-4" />
-                  {t('family.systemStatus')}
+                  {t('family.memberStatus', 'Member Status')}
                 </h3>
-                <div className="grid grid-cols-2 gap-3">
-                  <StatusItem
-                    icon={<MapPin className="h-4 w-4" />}
-                    label={t('family.location')}
-                    value={systemStatus.location ? t('family.locationActiveStatus') : t('family.locationDisabled')}
-                    isActive={systemStatus.location}
-                    pulse={locationState.isTracking}
-                  />
-                  <StatusItem
-                    icon={<Users className="h-4 w-4" />}
-                    label={t('family.contacts')}
-                    value={t('family.contactsSaved', { count: systemStatus.contacts })}
-                    isActive={systemStatus.contacts > 0}
-                  />
-                  <StatusItem
-                    icon={<Wifi className="h-4 w-4" />}
-                    label={t('family.network')}
-                    value={systemStatus.network ? t('family.connected') : t('family.offline')}
-                    isActive={systemStatus.network}
-                  />
-                  <StatusItem
-                    icon={<Battery className="h-4 w-4" />}
-                    label={t('family.battery')}
-                    value={`${systemStatus.battery}%`}
-                    isActive={systemStatus.battery > 20}
-                  />
-                </div>
-                {locationError && (
-                  <div className="p-2.5 bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 rounded-lg text-xs text-yellow-800 dark:text-yellow-200">
-                    {locationError}
+
+                {activeFamilyMembers.length === 0 ? (
+                  <div className="text-center py-6">
+                    <p className="text-sm text-muted-foreground">{t('family.noMembersToShow', 'No members to display')}</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {activeFamilyMembers.map(member => {
+                      const memberLocation = liveLocations.find(l => l.user_id === member.id);
+                      const isOnline = memberLocation?.status === 'online';
+
+                      return (
+                        <div key={member.id} className="rounded-lg bg-muted/30 p-3 space-y-2">
+                          <div className="flex items-center gap-3">
+                            <div className="relative">
+                              <Avatar className="h-10 w-10">
+                                <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${member.name || member.email}`} />
+                                <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
+                                  {(member.name || member.email.split('@')[0]).charAt(0).toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className={cn(
+                                "absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-background",
+                                isOnline ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'
+                              )} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">{member.name || member.email.split('@')[0]}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {isOnline ? (
+                                  <span className="text-green-600 dark:text-green-400">{t('family.onlineNow')}</span>
+                                ) : (
+                                  t('family.offline')
+                                )}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <StatusItem
+                              icon={<MapPin className="h-4 w-4" />}
+                              label={t('family.location')}
+                              value={isOnline ? t('family.locationActiveStatus') : t('family.locationDisabled')}
+                              isActive={isOnline}
+                              pulse={isOnline}
+                            />
+                            <StatusItem
+                              icon={<Battery className="h-4 w-4" />}
+                              label={t('family.battery')}
+                              value={memberLocation?.battery_level != null ? `${memberLocation.battery_level}%` : '—'}
+                              isActive={memberLocation?.battery_level != null && memberLocation.battery_level > 20}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -668,7 +679,7 @@ const FamilyAppPage = () => {
           {[
             { id: 'location', icon: MapPin, label: t('family.locationTab') },
             { id: 'alerts', icon: Bell, label: t('family.alertsTab'), badge: unreadNotifications },
-            { id: 'safety', icon: Shield, label: t('family.safetyTab') },
+            { id: 'safety', icon: Shield, label: t('family.statusTab', 'Status') },
             { id: 'circle', icon: Users, label: t('family.circleTab') },
           ].map(tab => (
             <button
@@ -698,8 +709,6 @@ const FamilyAppPage = () => {
         </div>
       </div>
 
-      {/* Emergency Disclaimer Modal */}
-      <EmergencyDisclaimerModal isOpen={showDisclaimer} onAccept={handleDisclaimerAccept} onCancel={cancelDisclaimer} subscriptionTier="basic" />
     </div>
   );
 };
