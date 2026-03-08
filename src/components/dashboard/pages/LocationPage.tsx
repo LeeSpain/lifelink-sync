@@ -6,8 +6,10 @@ import { Switch } from "@/components/ui/switch";
 import { MapPin, Shield, Clock, Plus, Navigation, Home, Briefcase, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from 'react-i18next';
 
 export function LocationPage() {
+  const { t } = useTranslation();
   const [locationSharing, setLocationSharing] = useState(true);
   const [emergencySharing, setEmergencySharing] = useState(true);
   const [currentLocation, setCurrentLocation] = useState<any>(null);
@@ -58,8 +60,8 @@ export function LocationPage() {
           console.error("Error getting location:", error);
           setIsLoadingLocation(false);
           toast({
-            title: "Location Error",
-            description: "Unable to get your current location. Please check location permissions.",
+            title: t('location.locationError'),
+            description: t('location.unableToGetLocation'),
             variant: "destructive"
           });
         }
@@ -67,8 +69,8 @@ export function LocationPage() {
     } else {
       setIsLoadingLocation(false);
       toast({
-        title: "Location Unavailable",
-        description: "Geolocation is not supported by this browser.",
+        title: t('location.locationUnavailable'),
+        description: t('location.geolocationNotSupported'),
         variant: "destructive"
       });
     }
@@ -109,14 +111,14 @@ export function LocationPage() {
       
       setLocationSharing(enabled);
       toast({
-        title: "Settings Updated",
-        description: `Location sharing ${enabled ? 'enabled' : 'disabled'} successfully.`
+        title: t('location.settingsUpdated'),
+        description: enabled ? t('location.sharingEnabled') : t('location.sharingDisabled')
       });
     } catch (error) {
       console.error('Error updating location sharing:', error);
       toast({
-        title: "Error",
-        description: "Failed to update location sharing settings.",
+        title: t('location.error'),
+        description: t('location.failedToUpdateSettings'),
         variant: "destructive"
       });
     }
@@ -127,8 +129,8 @@ export function LocationPage() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Location Services</h1>
-          <p className="text-muted-foreground">Manage your location sharing and safe zones</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t('location.title')}</h1>
+          <p className="text-muted-foreground">{t('location.subtitle')}</p>
         </div>
 
         {/* Location Settings */}
@@ -136,18 +138,18 @@ export function LocationPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Shield className="h-5 w-5" />
-              Privacy & Sharing Settings
+              {t('location.privacySharing')}
             </CardTitle>
             <CardDescription className="text-sm">
-              Control how your location is shared with family members and emergency services
+              {t('location.privacySharingDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-medium text-base">Share Location with Family</h3>
+                <h3 className="font-medium text-base">{t('location.shareWithFamily')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Allow family members to see your current location
+                  {t('location.shareWithFamilyDescription')}
                 </p>
               </div>
               <Switch 
@@ -158,9 +160,9 @@ export function LocationPage() {
             
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-medium text-base">Emergency Location Sharing</h3>
+                <h3 className="font-medium text-base">{t('location.emergencySharing')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Automatically share location during emergency situations
+                  {t('location.emergencySharingDescription')}
                 </p>
               </div>
               <Switch 
@@ -176,7 +178,7 @@ export function LocationPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <MapPin className="h-5 w-5" />
-              Current Location
+              {t('location.currentLocation')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -198,15 +200,15 @@ export function LocationPage() {
                   </div>
                 </div>
                 <Badge variant="secondary">
-                  Active
+                  {t('location.active')}
                 </Badge>
               </div>
             ) : (
               <div className="text-center py-8">
                 <MapPin className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-                <h3 className="font-medium mb-2">Location Not Available</h3>
+                <h3 className="font-medium mb-2">{t('location.locationNotAvailable')}</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Get your current location to enable location services
+                  {t('location.getLocationToEnable')}
                 </p>
                 <Button
                   onClick={getCurrentLocation}
@@ -216,12 +218,12 @@ export function LocationPage() {
                   {isLoadingLocation ? (
                     <>
                       <Clock className="h-4 w-4 mr-2 animate-spin" />
-                      Getting Location...
+                      {t('location.gettingLocation')}
                     </>
                   ) : (
                     <>
                       <Navigation className="h-4 w-4 mr-2" />
-                      Get Current Location
+                      {t('location.getCurrentLocation')}
                     </>
                   )}
                 </Button>
@@ -237,28 +239,28 @@ export function LocationPage() {
               <div>
                 <CardTitle className="flex items-center gap-2">
                   <Home className="h-5 w-5" />
-                  Safe Zones
+                  {t('location.safeZones')}
                 </CardTitle>
                 <CardDescription className="text-sm">
-                  Designated areas where family members receive arrival/departure notifications
+                  {t('location.safeZonesDescription')}
                 </CardDescription>
               </div>
               <Button variant="outline" size="sm">
                 <Plus className="h-4 w-4 mr-2" />
-                Add Zone
+                {t('location.addZone')}
               </Button>
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-center py-8">
               <Home className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-              <h3 className="font-medium mb-2">No Safe Zones Yet</h3>
+              <h3 className="font-medium mb-2">{t('location.noSafeZones')}</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Create safe zones to get notifications when family members arrive or leave
+                {t('location.createSafeZonesDescription')}
               </p>
               <Button size="sm">
                 <Plus className="h-4 w-4 mr-2" />
-                Create Your First Safe Zone
+                {t('location.createFirstSafeZone')}
               </Button>
             </div>
           </CardContent>
@@ -269,18 +271,18 @@ export function LocationPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Clock className="h-5 w-5" />
-              Recent Location History
+              {t('location.recentHistory')}
             </CardTitle>
             <CardDescription className="text-sm">
-              Your recent location visits and duration
+              {t('location.recentHistoryDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="text-center py-8">
               <Clock className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-              <h3 className="font-medium mb-2">No Location History</h3>
+              <h3 className="font-medium mb-2">{t('location.noHistory')}</h3>
               <p className="text-sm text-muted-foreground">
-                Location history will appear here once you enable location tracking
+                {t('location.noHistoryDescription')}
               </p>
             </div>
           </CardContent>

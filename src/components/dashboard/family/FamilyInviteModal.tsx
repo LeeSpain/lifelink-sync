@@ -7,6 +7,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from 'react-i18next';
 import { Plus, Shield, MapPin, Smartphone } from "lucide-react";
 
 interface FamilyInviteModalProps {
@@ -26,6 +27,7 @@ const FamilyInviteModal = ({ onInviteCreated, isOpen, onOpenChange }: FamilyInvi
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const getCurrentUser = async () => {
@@ -41,7 +43,7 @@ const FamilyInviteModal = ({ onInviteCreated, isOpen, onOpenChange }: FamilyInvi
 
     try {
       if (!formData.name || !formData.email || !formData.phone || !formData.relationship) {
-        throw new Error("Name, email, phone, and relationship are all required");
+        throw new Error(t('familyDashboard.allFieldsRequired'));
       }
 
       if (formData.billing_type === 'owner') {
@@ -76,8 +78,8 @@ const FamilyInviteModal = ({ onInviteCreated, isOpen, onOpenChange }: FamilyInvi
         }
 
         toast({
-          title: "Redirecting to Payment",
-          description: `Taking you to secure payment for ${formData.name}'s family access.`
+          title: t('familyDashboard.redirectingToPayment'),
+          description: t('familyDashboard.redirectingToPaymentDesc', { name: formData.name })
         });
 
         // Redirect to Stripe
@@ -124,8 +126,8 @@ const FamilyInviteModal = ({ onInviteCreated, isOpen, onOpenChange }: FamilyInvi
         }
 
         toast({
-          title: "Invite Sent",
-          description: `Invite sent to ${formData.name}. They will receive payment instructions via email.`
+          title: t('familyDashboard.inviteSent'),
+          description: t('familyDashboard.inviteSentDesc', { name: formData.name })
         });
 
         // Reset form
@@ -148,8 +150,8 @@ const FamilyInviteModal = ({ onInviteCreated, isOpen, onOpenChange }: FamilyInvi
     } catch (error) {
       console.error('Error creating family invite:', error);
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to process family invite",
+        title: t('familyDashboard.error'),
+        description: error instanceof Error ? error.message : t('familyDashboard.failedProcessInvite'),
         variant: "destructive"
       });
     } finally {
@@ -163,79 +165,79 @@ const FamilyInviteModal = ({ onInviteCreated, isOpen, onOpenChange }: FamilyInvi
         <DialogHeader className="sticky top-0 bg-background border-b pb-4 mb-4">
           <DialogTitle className="flex items-center gap-2">
             <Plus className="h-5 w-5 text-primary" />
-            Invite Family Member
+            {t('familyDashboard.inviteFamilyMember')}
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6 px-1">
           {/* Benefits Section */}
           <div className="bg-gradient-to-r from-primary/5 to-secondary/5 p-4 rounded-lg border">
-            <h4 className="font-medium mb-3 text-foreground">Family gets SOS alerts and a live map with a single "Received & On It."</h4>
+            <h4 className="font-medium mb-3 text-foreground">{t('familyDashboard.familyBenefits')}</h4>
             <div className="grid grid-cols-1 gap-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-primary" />
-                <span>Location only during SOS. No continuous tracking.</span>
+                <span>{t('familyDashboard.locationOnlyDuringSos')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Shield className="h-4 w-4 text-primary" />
-                <span>No device/battery telemetry shared with family.</span>
+                <span>{t('familyDashboard.noTelemetryShared')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Smartphone className="h-4 w-4 text-primary" />
-                <span>Live alerts, map access, and acknowledgment tools.</span>
+                <span>{t('familyDashboard.liveAlertMapAccess')}</span>
               </div>
             </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="name">Name *</Label>
+              <Label htmlFor="name">{t('familyDashboard.nameRequired')}</Label>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="Enter family member's name"
+                placeholder={t('familyDashboard.enterFamilyMemberName')}
                 required
               />
             </div>
 
             <div>
-              <Label htmlFor="email">Email *</Label>
+              <Label htmlFor="email">{t('familyDashboard.emailRequired')}</Label>
               <Input
                 id="email"
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                placeholder="Enter email address"
+                placeholder={t('familyDashboard.enterEmailAddress')}
                 required
               />
             </div>
 
             <div>
-              <Label htmlFor="phone">Phone *</Label>
+              <Label htmlFor="phone">{t('familyDashboard.phoneRequired')}</Label>
               <Input
                 id="phone"
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                placeholder="Enter phone number"
+                placeholder={t('familyDashboard.enterPhoneNumberField')}
                 required
               />
             </div>
 
             <div>
-              <Label htmlFor="relationship">Relationship *</Label>
+              <Label htmlFor="relationship">{t('familyDashboard.relationshipRequired')}</Label>
               <Input
                 id="relationship"
                 value={formData.relationship}
                 onChange={(e) => setFormData(prev => ({ ...prev, relationship: e.target.value }))}
-                placeholder="e.g., Spouse, Parent, Child, Sibling"
+                placeholder={t('familyDashboard.relationshipPlaceholder')}
                 required
               />
             </div>
 
             <div>
-              <Label className="text-base font-medium">Who pays? (€2.99/month)</Label>
+              <Label className="text-base font-medium">{t('familyDashboard.whoPays')}</Label>
               <RadioGroup
                 value={formData.billing_type}
                 onValueChange={(value) => setFormData(prev => ({ ...prev, billing_type: value as "owner" | "self" }))}
@@ -245,11 +247,11 @@ const FamilyInviteModal = ({ onInviteCreated, isOpen, onOpenChange }: FamilyInvi
                   <RadioGroupItem value="owner" id="owner" />
                   <Label htmlFor="owner" className="flex-1 cursor-pointer">
                     <div className="flex items-center justify-between">
-                      <span>You pay (Owner-paid)</span>
-                      <Badge variant="secondary">€2.99/month</Badge>
+                      <span>{t('familyDashboard.youPayOwner')}</span>
+                      <Badge variant="secondary">{t('familyDashboard.perMonth')}</Badge>
                     </div>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Seat is billed on your subscription
+                      {t('familyDashboard.seatBilledOnYours')}
                     </p>
                   </Label>
                 </div>
@@ -257,11 +259,11 @@ const FamilyInviteModal = ({ onInviteCreated, isOpen, onOpenChange }: FamilyInvi
                   <RadioGroupItem value="self" id="self" />
                   <Label htmlFor="self" className="flex-1 cursor-pointer">
                     <div className="flex items-center justify-between">
-                      <span>They pay (Invitee-paid)</span>
-                      <Badge variant="outline">€2.99/month</Badge>
+                      <span>{t('familyDashboard.theyPayInvitee')}</span>
+                      <Badge variant="outline">{t('familyDashboard.perMonth')}</Badge>
                     </div>
                     <p className="text-sm text-muted-foreground mt-1">
-                      They create their own subscription
+                      {t('familyDashboard.theyCreateSubscription')}
                     </p>
                   </Label>
                 </div>
@@ -276,16 +278,16 @@ const FamilyInviteModal = ({ onInviteCreated, isOpen, onOpenChange }: FamilyInvi
                 onClick={() => onOpenChange(false)}
                 disabled={isSubmitting}
               >
-                Cancel
+                {t('familyDashboard.cancel')}
               </Button>
               <Button
                 type="submit"
                 className="flex-1"
                 disabled={isSubmitting}
               >
-                {isSubmitting 
-                  ? (formData.billing_type === 'owner' ? "Processing..." : "Sending...") 
-                  : (formData.billing_type === 'owner' ? "Pay Now" : "Send Invite")
+                {isSubmitting
+                  ? (formData.billing_type === 'owner' ? t('familyDashboard.processing') : t('familyDashboard.sending'))
+                  : (formData.billing_type === 'owner' ? t('familyDashboard.payNow') : t('familyDashboard.sendInvite'))
                 }
               </Button>
             </div>

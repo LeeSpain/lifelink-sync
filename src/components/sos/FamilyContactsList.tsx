@@ -2,8 +2,10 @@ import React from 'react';
 import { Phone, Heart, Users } from 'lucide-react';
 import { useEmergencyContacts } from '@/hooks/useEmergencyContacts';
 import { Badge } from '@/components/ui/badge';
+import { useTranslation } from 'react-i18next';
 
 export const FamilyContactsList: React.FC = () => {
+  const { t } = useTranslation();
   const { contacts, loading } = useEmergencyContacts();
 
   if (loading) {
@@ -19,8 +21,8 @@ export const FamilyContactsList: React.FC = () => {
     return (
       <div className="text-center py-4 space-y-2">
         <Users className="h-8 w-8 text-gray-400 mx-auto" />
-        <p className="text-sm text-gray-500">No emergency contacts configured</p>
-        <p className="text-xs text-gray-400">Set up contacts in your dashboard</p>
+        <p className="text-sm text-gray-500">{t('familyContacts.noContactsConfigured')}</p>
+        <p className="text-xs text-gray-400">{t('familyContacts.setupInDashboard')}</p>
       </div>
     );
   }
@@ -29,7 +31,7 @@ export const FamilyContactsList: React.FC = () => {
     <div className="space-y-3">
       <div className="flex items-center justify-center gap-2 mb-3">
         <Heart className="h-4 w-4 text-red-500 animate-pulse" />
-        <span className="text-sm font-medium text-gray-700">Emergency Contacts</span>
+        <span className="text-sm font-medium text-gray-700">{t('familyContacts.emergencyContacts')}</span>
         <Badge variant="secondary" className="text-xs">
           {contacts.length}
         </Badge>
@@ -54,7 +56,7 @@ export const FamilyContactsList: React.FC = () => {
                 </span>
                 {index === 0 && (
                   <Badge variant="outline" className="text-xs bg-red-50 border-red-200 text-red-700">
-                    Primary
+                    {t('familyContacts.primary')}
                   </Badge>
                 )}
               </div>
@@ -68,7 +70,7 @@ export const FamilyContactsList: React.FC = () => {
         {contacts.length > 3 && (
           <div className="text-center py-2">
             <span className="text-xs text-gray-500">
-              +{contacts.length - 3} more contacts
+              {t('familyContacts.moreContacts', { count: contacts.length - 3 })}
             </span>
           </div>
         )}

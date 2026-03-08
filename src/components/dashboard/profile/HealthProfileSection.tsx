@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from 'react-i18next';
 
 interface HealthData {
   blood_type: string;
@@ -39,6 +40,7 @@ interface HealthProfileSectionProps {
 }
 
 const HealthProfileSection = ({ profile, onProfileUpdate }: HealthProfileSectionProps) => {
+  const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [newItem, setNewItem] = useState('');
@@ -79,14 +81,14 @@ const HealthProfileSection = ({ profile, onProfileUpdate }: HealthProfileSection
       onProfileUpdate();
       setIsModalOpen(false);
       toast({
-        title: "Success",
-        description: "Health profile updated successfully."
+        title: t('profileSection.success'),
+        description: t('profileSection.healthProfileUpdated')
       });
     } catch (error) {
       console.error('Error updating health profile:', error);
       toast({
-        title: "Error",
-        description: "Failed to update health profile.",
+        title: t('profileSection.error'),
+        description: t('profileSection.failedToUpdateHealthProfile'),
         variant: "destructive"
       });
     } finally {
@@ -136,7 +138,7 @@ const HealthProfileSection = ({ profile, onProfileUpdate }: HealthProfileSection
               <Heart className="h-5 w-5 text-red-500" />
             </div>
             <div>
-              <CardTitle className="text-lg">Medical Profile</CardTitle>
+              <CardTitle className="text-lg">{t('profileSection.medicalProfile')}</CardTitle>
               <div className="flex items-center gap-2 mt-1">
                 <div className="w-20 h-2 bg-muted rounded-full overflow-hidden">
                   <div 
@@ -144,7 +146,7 @@ const HealthProfileSection = ({ profile, onProfileUpdate }: HealthProfileSection
                     style={{ width: `${completionPercentage}%` }}
                   />
                 </div>
-                <span className="text-sm text-muted-foreground">{completionPercentage}% complete</span>
+                <span className="text-sm text-muted-foreground">{t('profileSection.percentComplete', { percent: completionPercentage })}</span>
               </div>
             </div>
           </div>
@@ -152,24 +154,24 @@ const HealthProfileSection = ({ profile, onProfileUpdate }: HealthProfileSection
             <DialogTrigger asChild>
               <Button variant="outline" size="sm">
                 <Edit className="h-4 w-4 mr-2" />
-                Edit
+                {t('profileSection.edit')}
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   <Heart className="h-5 w-5" />
-                  Edit Medical Profile
+                  {t('profileSection.editMedicalProfile')}
                 </DialogTitle>
               </DialogHeader>
               <div className="space-y-6 py-4">
                 {/* Basic Medical Info */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="blood_type">Blood Type</Label>
+                    <Label htmlFor="blood_type">{t('profileSection.bloodType')}</Label>
                     <Select value={healthData.blood_type} onValueChange={(value) => setHealthData({ ...healthData, blood_type: value })}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select blood type" />
+                        <SelectValue placeholder={t('profileSection.selectBloodType')} />
                       </SelectTrigger>
                       <SelectContent>
                         {bloodTypes.map((type) => (
@@ -179,12 +181,12 @@ const HealthProfileSection = ({ profile, onProfileUpdate }: HealthProfileSection
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="emergency_medical_info">Emergency Medical Notes</Label>
+                    <Label htmlFor="emergency_medical_info">{t('profileSection.emergencyMedicalNotes')}</Label>
                     <Textarea
                       id="emergency_medical_info"
                       value={healthData.emergency_medical_info}
                       onChange={(e) => setHealthData({ ...healthData, emergency_medical_info: e.target.value })}
-                      placeholder="Critical medical information for emergencies"
+                      placeholder={t('profileSection.criticalMedicalInfoPlaceholder')}
                       rows={2}
                     />
                   </div>
@@ -194,11 +196,11 @@ const HealthProfileSection = ({ profile, onProfileUpdate }: HealthProfileSection
                 <div className="space-y-4">
                   <h3 className="font-medium flex items-center gap-2">
                     <Activity className="h-4 w-4" />
-                    Doctor Information
+                    {t('profileSection.doctorInformation')}
                   </h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="doctor_name">Doctor Name</Label>
+                      <Label htmlFor="doctor_name">{t('profileSection.doctorName')}</Label>
                       <Input
                         id="doctor_name"
                         value={healthData.doctor_name}
@@ -207,7 +209,7 @@ const HealthProfileSection = ({ profile, onProfileUpdate }: HealthProfileSection
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="doctor_phone">Doctor Phone</Label>
+                      <Label htmlFor="doctor_phone">{t('profileSection.doctorPhone')}</Label>
                       <Input
                         id="doctor_phone"
                         type="tel"
@@ -223,11 +225,11 @@ const HealthProfileSection = ({ profile, onProfileUpdate }: HealthProfileSection
                 <div className="space-y-4">
                   <h3 className="font-medium flex items-center gap-2">
                     <FileText className="h-4 w-4" />
-                    Insurance Information
+                    {t('profileSection.insuranceInformation')}
                   </h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="insurance_provider">Insurance Provider</Label>
+                      <Label htmlFor="insurance_provider">{t('profileSection.insuranceProvider')}</Label>
                       <Input
                         id="insurance_provider"
                         value={healthData.insurance_provider}
@@ -236,12 +238,12 @@ const HealthProfileSection = ({ profile, onProfileUpdate }: HealthProfileSection
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="insurance_policy">Policy Number</Label>
+                      <Label htmlFor="insurance_policy">{t('profileSection.policyNumber')}</Label>
                       <Input
                         id="insurance_policy"
                         value={healthData.insurance_policy}
                         onChange={(e) => setHealthData({ ...healthData, insurance_policy: e.target.value })}
-                        placeholder="Policy/Member ID"
+                        placeholder={t('profileSection.policyMemberIdPlaceholder')}
                       />
                     </div>
                   </div>
@@ -254,13 +256,13 @@ const HealthProfileSection = ({ profile, onProfileUpdate }: HealthProfileSection
                       <button
                         key={section}
                         onClick={() => setActiveSection(section)}
-                        className={`flex-1 px-3 py-2 rounded-md text-sm font-medium capitalize transition-all ${
+                        className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-all ${
                           activeSection === section
                             ? 'bg-white shadow-sm text-primary'
                             : 'text-muted-foreground hover:text-foreground'
                         }`}
                       >
-                        {section}
+                        {section === 'allergies' ? t('profileSection.allergies') : section === 'medications' ? t('profileSection.medications') : t('profileSection.medicalConditions')}
                       </button>
                     ))}
                   </div>
@@ -270,7 +272,7 @@ const HealthProfileSection = ({ profile, onProfileUpdate }: HealthProfileSection
                       <Input
                         value={newItem}
                         onChange={(e) => setNewItem(e.target.value)}
-                        placeholder={`Add ${activeSection.slice(0, -1)}`}
+                        placeholder={activeSection === 'allergies' ? t('profileSection.addAllergy') : activeSection === 'medications' ? t('profileSection.addMedication') : t('profileSection.addCondition')}
                         onKeyPress={(e) => {
                           if (e.key === 'Enter') {
                             addItem(activeSection === 'conditions' ? 'medical_conditions' : activeSection);
@@ -303,11 +305,11 @@ const HealthProfileSection = ({ profile, onProfileUpdate }: HealthProfileSection
               <div className="flex gap-2 justify-end">
                 <Button variant="outline" onClick={() => setIsModalOpen(false)}>
                   <X className="h-4 w-4 mr-2" />
-                  Cancel
+                  {t('profileSection.cancel')}
                 </Button>
                 <Button onClick={handleSave} disabled={isLoading}>
                   <Check className="h-4 w-4 mr-2" />
-                  {isLoading ? 'Saving...' : 'Save Changes'}
+                  {isLoading ? t('profileSection.saving') : t('profileSection.saveChanges')}
                 </Button>
               </div>
             </DialogContent>
@@ -319,30 +321,30 @@ const HealthProfileSection = ({ profile, onProfileUpdate }: HealthProfileSection
           {/* Quick Overview */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="space-y-1">
-              <Label className="text-sm font-medium text-muted-foreground">Blood Type</Label>
+              <Label className="text-sm font-medium text-muted-foreground">{t('profileSection.bloodType')}</Label>
               <p className="font-medium">
                 {healthData.blood_type || (
-                  <span className="text-muted-foreground">Not set</span>
+                  <span className="text-muted-foreground">{t('profileSection.notSet')}</span>
                 )}
               </p>
             </div>
             <div className="space-y-1">
-              <Label className="text-sm font-medium text-muted-foreground">Total Items</Label>
-              <p className="font-medium">{totalItems} items</p>
+              <Label className="text-sm font-medium text-muted-foreground">{t('profileSection.totalItems')}</Label>
+              <p className="font-medium">{t('profileSection.itemsCount', { count: totalItems })}</p>
             </div>
             <div className="space-y-1">
-              <Label className="text-sm font-medium text-muted-foreground">Doctor</Label>
+              <Label className="text-sm font-medium text-muted-foreground">{t('profileSection.doctor')}</Label>
               <p className="font-medium">
                 {healthData.doctor_name || (
-                  <span className="text-muted-foreground">Not set</span>
+                  <span className="text-muted-foreground">{t('profileSection.notSet')}</span>
                 )}
               </p>
             </div>
             <div className="space-y-1">
-              <Label className="text-sm font-medium text-muted-foreground">Insurance</Label>
+              <Label className="text-sm font-medium text-muted-foreground">{t('profileSection.insurance')}</Label>
               <p className="font-medium">
                 {healthData.insurance_provider || (
-                  <span className="text-muted-foreground">Not set</span>
+                  <span className="text-muted-foreground">{t('profileSection.notSet')}</span>
                 )}
               </p>
             </div>
@@ -355,7 +357,7 @@ const HealthProfileSection = ({ profile, onProfileUpdate }: HealthProfileSection
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <AlertTriangle className="h-4 w-4 text-red-500" />
-                    <Label className="font-medium">Allergies</Label>
+                    <Label className="font-medium">{t('profileSection.allergies')}</Label>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {healthData.allergies.map((allergy, index) => (
@@ -371,7 +373,7 @@ const HealthProfileSection = ({ profile, onProfileUpdate }: HealthProfileSection
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <Pill className="h-4 w-4 text-blue-500" />
-                    <Label className="font-medium">Medications</Label>
+                    <Label className="font-medium">{t('profileSection.medications')}</Label>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {healthData.medications.map((medication, index) => (
@@ -387,7 +389,7 @@ const HealthProfileSection = ({ profile, onProfileUpdate }: HealthProfileSection
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <Heart className="h-4 w-4 text-orange-500" />
-                    <Label className="font-medium">Medical Conditions</Label>
+                    <Label className="font-medium">{t('profileSection.medicalConditions')}</Label>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {healthData.medical_conditions.map((condition, index) => (
@@ -402,13 +404,13 @@ const HealthProfileSection = ({ profile, onProfileUpdate }: HealthProfileSection
           ) : (
             <div className="text-center py-6">
               <Heart className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-              <h3 className="font-medium mb-2">No medical information yet</h3>
+              <h3 className="font-medium mb-2">{t('profileSection.noMedicalInfoYet')}</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Add your medical information for emergency situations
+                {t('profileSection.addMedicalInfoDescription')}
               </p>
               <Button variant="outline" onClick={() => setIsModalOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
-                Add Medical Info
+                {t('profileSection.addMedicalInfo')}
               </Button>
             </div>
           )}
@@ -418,7 +420,7 @@ const HealthProfileSection = ({ profile, onProfileUpdate }: HealthProfileSection
             <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
               <div className="flex items-center gap-2 mb-2">
                 <AlertTriangle className="h-4 w-4 text-red-600" />
-                <Label className="font-medium text-red-800">Emergency Medical Notes</Label>
+                <Label className="font-medium text-red-800">{t('profileSection.emergencyMedicalNotes')}</Label>
               </div>
               <p className="text-sm text-red-700">{healthData.emergency_medical_info}</p>
             </div>

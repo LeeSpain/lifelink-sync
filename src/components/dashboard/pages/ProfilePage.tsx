@@ -27,9 +27,11 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from 'react-i18next';
 import FamilyInviteModal from "@/components/dashboard/family/FamilyInviteModal";
 
 export default function ProfilePage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
@@ -103,8 +105,8 @@ export default function ProfilePage() {
     } catch (error) {
       console.error('Error loading profile:', error);
       toast({
-        title: "Error",
-        description: "Failed to load profile data.",
+        title: t('profile.error'),
+        description: t('profile.failedToLoadProfile'),
         variant: "destructive"
       });
     } finally {
@@ -139,15 +141,15 @@ export default function ProfilePage() {
       if (error) throw error;
 
       toast({
-        title: "Success",
-        description: "Profile updated successfully."
+        title: t('profile.success'),
+        description: t('profile.profileUpdated')
       });
       loadProfileData(); // Reload data after update
     } catch (error) {
       console.error('Error updating profile:', error);
       toast({
-        title: "Error",
-        description: "Failed to update profile.",
+        title: t('profile.error'),
+        description: t('profile.failedToUpdateProfile'),
         variant: "destructive"
       });
     }
@@ -260,14 +262,14 @@ export default function ProfilePage() {
 
         setFamilyMembers(familyMembers.filter(member => member.id !== memberId));
         toast({
-          title: "Success",
-          description: "Family member removed successfully."
+          title: t('profile.success'),
+          description: t('profile.familyMemberRemoved')
         });
       } catch (error) {
         console.error('Error removing family member:', error);
         toast({
-          title: "Error",
-          description: "Failed to remove family member.",
+          title: t('profile.error'),
+          description: t('profile.failedToRemoveFamilyMember'),
           variant: "destructive"
         });
       }
@@ -282,10 +284,10 @@ export default function ProfilePage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-2xl">
               <User className="h-6 w-6 text-primary" />
-              Profile, Emergency, Health & Family
+              {t('profile.headerTitle')}
             </CardTitle>
             <CardDescription className="text-base">
-              Manage your personal information, emergency contacts, health details, and family connections
+              {t('profile.headerDescription')}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -295,16 +297,16 @@ export default function ProfilePage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-xl">
               <User className="h-5 w-5" />
-              Personal Information
+              {t('profile.personalInformation')}
             </CardTitle>
             <CardDescription className="text-sm">
-              Your basic profile information and contact details
+              {t('profile.personalInformationDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="firstName" className="text-sm font-medium">First Name</Label>
+                <Label htmlFor="firstName" className="text-sm font-medium">{t('profile.firstName')}</Label>
                 <Input
                   id="firstName"
                   value={profile.firstName}
@@ -313,7 +315,7 @@ export default function ProfilePage() {
                 />
               </div>
               <div>
-                <Label htmlFor="lastName" className="text-sm font-medium">Last Name</Label>
+                <Label htmlFor="lastName" className="text-sm font-medium">{t('profile.lastName')}</Label>
                 <Input
                   id="lastName"
                   value={profile.lastName}
@@ -322,7 +324,7 @@ export default function ProfilePage() {
                 />
               </div>
               <div>
-                <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+                <Label htmlFor="email" className="text-sm font-medium">{t('profile.email')}</Label>
                 <Input
                   id="email"
                   type="email"
@@ -332,7 +334,7 @@ export default function ProfilePage() {
                 />
               </div>
               <div>
-                <Label htmlFor="phone" className="text-sm font-medium">Phone Number</Label>
+                <Label htmlFor="phone" className="text-sm font-medium">{t('profile.phoneNumber')}</Label>
                 <Input
                   id="phone"
                   value={profile.phone}
@@ -341,7 +343,7 @@ export default function ProfilePage() {
                 />
               </div>
               <div>
-                <Label htmlFor="dateOfBirth" className="text-sm font-medium">Date of Birth</Label>
+                <Label htmlFor="dateOfBirth" className="text-sm font-medium">{t('profile.dateOfBirth')}</Label>
                 <Input
                   id="dateOfBirth"
                   type="date"
@@ -351,7 +353,7 @@ export default function ProfilePage() {
                 />
               </div>
               <div>
-                <Label htmlFor="language" className="text-sm font-medium">Language</Label>
+                <Label htmlFor="language" className="text-sm font-medium">{t('profile.language')}</Label>
                 <Select value={profile.language} onValueChange={(value) => setProfile(prev => ({...prev, language: value}))}>
                   <SelectTrigger className="mt-1">
                     <SelectValue />
@@ -366,7 +368,7 @@ export default function ProfilePage() {
               </div>
             </div>
             <div>
-              <Label htmlFor="address" className="text-sm font-medium">Address</Label>
+              <Label htmlFor="address" className="text-sm font-medium">{t('profile.address')}</Label>
               <Textarea
                 id="address"
                 value={profile.address}
@@ -377,7 +379,7 @@ export default function ProfilePage() {
             </div>
             <Button onClick={updateProfile} className="w-full md:w-auto">
               <Edit className="h-4 w-4 mr-2" />
-              Update Profile
+              {t('profile.updateProfile')}
             </Button>
           </CardContent>
         </Card>
@@ -389,10 +391,10 @@ export default function ProfilePage() {
               <div>
                 <CardTitle className="flex items-center gap-2 text-xl">
                   <Phone className="h-5 w-5 text-red-500" />
-                  Emergency Contacts
+                  {t('profile.emergencyContacts')}
                 </CardTitle>
                 <CardDescription className="text-sm">
-                  People to contact in case of emergency
+                  {t('profile.emergencyContactsDescription')}
                 </CardDescription>
               </div>
               <Button 
@@ -401,7 +403,7 @@ export default function ProfilePage() {
                 onClick={() => addEmergencyContact()}
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Add Contact
+                {t('profile.addContact')}
               </Button>
             </div>
           </CardHeader>
@@ -410,7 +412,7 @@ export default function ProfilePage() {
               {emergencyContacts.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <Phone className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-                  <p>No emergency contacts added yet</p>
+                  <p>{t('profile.noEmergencyContacts')}</p>
                   <Button
                     variant="outline"
                     size="sm"
@@ -418,7 +420,7 @@ export default function ProfilePage() {
                     className="mt-4"
                   >
                     <Plus className="h-4 w-4 mr-2" />
-                    Add First Contact
+                    {t('profile.addFirstContact')}
                   </Button>
                 </div>
               ) : (
@@ -466,16 +468,16 @@ export default function ProfilePage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-xl">
               <Heart className="h-5 w-5 text-red-500" />
-              Health Information
+              {t('profile.healthInformation')}
             </CardTitle>
             <CardDescription className="text-sm">
-              Important medical information for emergency situations
+              {t('profile.healthInformationDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="bloodType" className="text-sm font-medium">Blood Type</Label>
+                <Label htmlFor="bloodType" className="text-sm font-medium">{t('profile.bloodType')}</Label>
                 <Select value={healthInfo.bloodType} onValueChange={(value) => setHealthInfo(prev => ({...prev, bloodType: value}))}>
                   <SelectTrigger className="mt-1">
                     <SelectValue />
@@ -495,7 +497,7 @@ export default function ProfilePage() {
             </div>
 
             <div>
-              <Label className="text-sm font-medium">Allergies</Label>
+              <Label className="text-sm font-medium">{t('profile.allergies')}</Label>
               <div className="flex flex-wrap gap-2 mt-2">
                 {healthInfo.allergies.map((allergy, index) => (
                   <Badge key={index} variant="outline" className="bg-yellow-50 text-yellow-800 border-yellow-200 flex items-center gap-1">
@@ -519,7 +521,7 @@ export default function ProfilePage() {
             </div>
 
             <div>
-              <Label className="text-sm font-medium">Current Medications</Label>
+              <Label className="text-sm font-medium">{t('profile.currentMedications')}</Label>
               <div className="flex flex-wrap gap-2 mt-2">
                 {healthInfo.medications.map((medication, index) => (
                   <Badge key={index} variant="outline" className="bg-blue-50 text-blue-800 border-blue-200 flex items-center gap-1">
@@ -542,7 +544,7 @@ export default function ProfilePage() {
             </div>
 
             <div>
-              <Label className="text-sm font-medium">Medical Conditions</Label>
+              <Label className="text-sm font-medium">{t('profile.medicalConditions')}</Label>
               <div className="flex flex-wrap gap-2 mt-2">
                 {healthInfo.medicalConditions.map((condition, index) => (
                   <Badge key={index} variant="outline" className="bg-purple-50 text-purple-800 border-purple-200 flex items-center gap-1">
@@ -565,12 +567,12 @@ export default function ProfilePage() {
             </div>
 
             <div>
-              <Label htmlFor="emergencyMedicalInfo" className="text-sm font-medium">Emergency Medical Information</Label>
+              <Label htmlFor="emergencyMedicalInfo" className="text-sm font-medium">{t('profile.emergencyMedicalInfo')}</Label>
               <Textarea
                 id="emergencyMedicalInfo"
                 value={healthInfo.emergencyMedicalInfo}
                 onChange={(e) => setHealthInfo(prev => ({...prev, emergencyMedicalInfo: e.target.value}))}
-                placeholder="Additional medical information for emergency responders..."
+                placeholder={t('profile.emergencyMedicalInfoPlaceholder')}
                 className="mt-1"
                 rows={3}
               />
@@ -581,7 +583,7 @@ export default function ProfilePage() {
               onClick={updateProfile}
             >
               <Heart className="h-4 w-4 mr-2" />
-              Update Health Information
+              {t('profile.updateHealthInfo')}
             </Button>
           </CardContent>
         </Card>
@@ -593,10 +595,10 @@ export default function ProfilePage() {
               <div>
                 <CardTitle className="flex items-center gap-2 text-xl">
                   <Users className="h-5 w-5 text-blue-500" />
-                  Family Connections
+                  {t('profile.familyConnections')}
                 </CardTitle>
                 <CardDescription className="text-sm">
-                  Connected family members who can access your location and emergency information
+                  {t('profile.familyConnectionsDescription')}
                 </CardDescription>
               </div>
               <Button 
@@ -605,7 +607,7 @@ export default function ProfilePage() {
                 onClick={handleInviteFamily}
               >
                 <UserPlus className="h-4 w-4 mr-2" />
-                Invite Family
+                {t('profile.inviteFamily')}
               </Button>
             </div>
           </CardHeader>
@@ -624,7 +626,7 @@ export default function ProfilePage() {
                           variant={member.status === 'accepted' ? 'default' : 'secondary'}
                           className={member.status === 'accepted' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}
                         >
-                          {member.status === 'accepted' ? 'Connected' : 'Pending'}
+                          {member.status === 'accepted' ? t('profile.connected') : t('profile.pending')}
                         </Badge>
                       </div>
                       <p className="text-sm text-muted-foreground">{member.relationship}</p>
@@ -645,8 +647,8 @@ export default function ProfilePage() {
               )) : (
                 <div className="text-center py-6 text-muted-foreground">
                   <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-                  <p>No family members yet</p>
-                  <p className="text-sm">Use the Family page to invite family members</p>
+                  <p>{t('profile.noFamilyMembers')}</p>
+                  <p className="text-sm">{t('profile.useFamilyPageToInvite')}</p>
                 </div>
               )}
             </div>

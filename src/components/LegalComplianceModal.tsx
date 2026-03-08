@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -6,30 +7,31 @@ import { Shield, FileText, AlertTriangle, Stethoscope } from "lucide-react";
 import { sanitizeHTML } from '@/utils/sanitize';
 
 const LegalComplianceModal = () => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
 
   const legalPages = [
     {
       id: "privacy",
-      title: "Privacy Policy",
+      title: t('legal.privacyPolicy'),
       icon: Shield,
       url: "/privacy-policy.html"
     },
     {
       id: "terms",
-      title: "Terms of Service", 
+      title: t('legal.termsOfService'),
       icon: FileText,
       url: "/terms-of-service.html"
     },
     {
       id: "emergency",
-      title: "Emergency Liability",
+      title: t('legal.emergencyLiability'),
       icon: AlertTriangle,
       url: "/emergency-liability.html"
     },
     {
       id: "medical",
-      title: "Medical Compliance",
+      title: t('legal.medicalCompliance'),
       icon: Stethoscope,
       url: "/medical-data-compliance.html"
     }
@@ -64,7 +66,7 @@ const LegalComplianceModal = () => {
       console.error('Failed to load page content:', error);
       setPageContent(prev => ({
         ...prev,
-        [pageId]: `<p>Sorry, we couldn't load this content. You can <a href="${url}" target="_blank" rel="noopener noreferrer" class="text-primary underline">view it directly here</a>.</p>`
+        [pageId]: `<p>${t('legal.loadError')} <a href="${url}" target="_blank" rel="noopener noreferrer" class="text-primary underline">${t('legal.viewDirectly')}</a>.</p>`
       }));
     }
   };
@@ -91,14 +93,14 @@ const LegalComplianceModal = () => {
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <button className="block text-sm text-muted-foreground hover:text-primary transition-colors text-left">
-          Legal & Compliance
+          {t('legal.triggerLabel')}
         </button>
       </DialogTrigger>
       <DialogContent className="max-w-5xl w-full h-[85vh] flex flex-col p-6">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
             <Shield className="h-6 w-6 text-primary" />
-            Legal & Compliance Documents
+            {t('legal.documentsTitle')}
           </DialogTitle>
         </DialogHeader>
         
@@ -138,7 +140,7 @@ const LegalComplianceModal = () => {
                       <div className="flex items-center justify-center h-48">
                         <div className="text-center">
                           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-                          <p className="text-base text-muted-foreground">Loading content...</p>
+                          <p className="text-base text-muted-foreground">{t('legal.loadingContent')}</p>
                         </div>
                       </div>
                     )}
@@ -151,7 +153,7 @@ const LegalComplianceModal = () => {
         
         <div className="mt-4 pt-4 border-t border-border text-center">
           <p className="text-xs text-muted-foreground">
-            These documents outline our commitment to your privacy, security, and compliance with applicable regulations.
+            {t('legal.footerNote')}
           </p>
         </div>
       </DialogContent>

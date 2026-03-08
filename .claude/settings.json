@@ -59,7 +59,13 @@
       "Bash(do)",
       "Bash(echo \"=== $dir ===\")",
       "Read(//Users/leewakeman/lifelink-sync/lifelink-sync/src/components/**)",
-      "Bash(git add .claude/settings.json src/components/dashboard/ActivityCard.tsx src/components/dashboard/EmergencyContactsCard.tsx src/components/dashboard/SubscriptionCard.tsx src/contexts/AuthContext.tsx src/pages/AuthPage.tsx src/pages/FamilyAppPage.tsx)"
+      "Bash(git add .claude/settings.json src/components/dashboard/ActivityCard.tsx src/components/dashboard/EmergencyContactsCard.tsx src/components/dashboard/SubscriptionCard.tsx src/contexts/AuthContext.tsx src/pages/AuthPage.tsx src/pages/FamilyAppPage.tsx)",
+      "Bash(do echo -n \"$f: \")",
+      "Read(//Users/leewakeman/lifelink-sync/lifelink-sync/**)",
+      "Bash(for id in a02ab40a7da324eb3 a4c2de609b76026d3 aeddd980ee01beceb a4887d0bda3f7cd7a)",
+      "Bash(do echo \"=== $id ===\")",
+      "Read(//private/tmp/claude-501/-Users-leewakeman-lifelink-sync-lifelink-sync/tasks/**)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d.get\\(''type'',''?''\\), d.get\\(''timestamp'',''?''\\)[:19]\\)\")"
     ],
     "additionalDirectories": [
       "/Users/leewakeman/lifelink-sync/lifelink-sync/.claude",

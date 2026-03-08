@@ -7,8 +7,10 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Shield, Key, Smartphone, Eye, EyeOff, AlertTriangle, CheckCircle, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from 'react-i18next';
 
 export function SecurityPage() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -23,9 +25,9 @@ export function SecurityPage() {
   const loginSessions = [
     {
       id: 1,
-      device: "Current Browser Session",
-      location: "Location unavailable",
-      lastActive: "Current session",
+      device: t('security.currentBrowserSession'),
+      location: t('security.locationUnavailable'),
+      lastActive: t('security.currentSession'),
       isCurrent: true
     }
   ];
@@ -75,13 +77,13 @@ export function SecurityPage() {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       toast({
-        title: "Security settings saved",
-        description: "Your security preferences have been updated successfully.",
+        title: t('security.saved'),
+        description: t('security.savedDescription'),
       });
     } catch (error) {
       toast({
-        title: "Error saving settings",
-        description: "There was an error updating your security settings. Please try again.",
+        title: t('security.errorSaving'),
+        description: t('security.errorSavingDescription'),
         variant: "destructive",
       });
     } finally {
@@ -94,8 +96,8 @@ export function SecurityPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Security</h1>
-          <p className="text-muted-foreground">Manage your account security and privacy settings</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t('security.title')}</h1>
+          <p className="text-muted-foreground">{t('security.subtitle')}</p>
         </div>
         <Button
           onClick={saveSecuritySettings}
@@ -105,12 +107,12 @@ export function SecurityPage() {
           {isSaving ? (
             <>
               <CheckCircle className="h-4 w-4 mr-2 animate-spin" />
-              Saving...
+              {t('security.saving')}
             </>
           ) : (
             <>
               <Save className="h-4 w-4 mr-2" />
-              Save Settings
+              {t('security.saveSettings')}
             </>
           )}
         </Button>
@@ -121,10 +123,10 @@ export function SecurityPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Shield className="h-5 w-5" />
-              Security Score
+              {t('security.securityScore')}
             </CardTitle>
             <CardDescription>
-              Your overall account security rating based on current settings
+              {t('security.securityScoreDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -139,11 +141,11 @@ export function SecurityPage() {
                     ></div>
                   </div>
                   <Badge variant={getSecurityScoreBadge(securityScore) as "default" | "secondary" | "destructive"}>
-                    {securityScore >= 80 ? 'Excellent' : securityScore >= 60 ? 'Good' : 'Needs Improvement'}
+                    {securityScore >= 80 ? t('security.excellent') : securityScore >= 60 ? t('security.good') : t('security.needsImprovement')}
                   </Badge>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Your security score is calculated based on password strength, two-factor authentication, and other security features.
+                  {t('security.scoreExplanation')}
                 </p>
               </div>
             </div>
@@ -155,19 +157,19 @@ export function SecurityPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Key className="h-5 w-5" />
-              Password & Authentication
+              {t('security.passwordAuthentication')}
             </CardTitle>
             <CardDescription>
-              Manage your password and authentication methods
+              {t('security.passwordAuthenticationDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Change Password */}
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold">Change Password</h3>
+              <h3 className="text-sm font-semibold">{t('security.changePassword')}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="current-password">Current Password</Label>
+                  <Label htmlFor="current-password">{t('security.currentPassword')}</Label>
                   <div className="relative">
                     <Input
                       id="current-password"
@@ -187,7 +189,7 @@ export function SecurityPage() {
                   </div>
                 </div>
                 <div>
-                  <Label htmlFor="new-password">New Password</Label>
+                  <Label htmlFor="new-password">{t('security.newPassword')}</Label>
                   <Input
                     id="new-password"
                     type="password"
@@ -196,7 +198,7 @@ export function SecurityPage() {
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <Label htmlFor="confirm-password">Confirm New Password</Label>
+                  <Label htmlFor="confirm-password">{t('security.confirmNewPassword')}</Label>
                   <Input
                     id="confirm-password"
                     type="password"
@@ -205,16 +207,16 @@ export function SecurityPage() {
                   />
                 </div>
               </div>
-              <Button onClick={handlePasswordChange}>Update Password</Button>
+              <Button onClick={handlePasswordChange}>{t('security.updatePassword')}</Button>
             </div>
 
             {/* Two-Factor Authentication */}
             <div className="border-t pt-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="text-sm font-semibold">Two-Factor Authentication</h3>
+                  <h3 className="text-sm font-semibold">{t('security.twoFactorAuth')}</h3>
                   <p className="text-xs text-muted-foreground">
-                    Add an extra layer of security to your account
+                    {t('security.twoFactorAuthDescription')}
                   </p>
                 </div>
                 <Switch
@@ -227,10 +229,10 @@ export function SecurityPage() {
                 <div className="bg-muted/50 border rounded-lg p-3">
                   <div className="flex items-center gap-2">
                     <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium text-foreground">Recommended</span>
+                    <span className="text-sm font-medium text-foreground">{t('security.recommended')}</span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Enable two-factor authentication to significantly improve your account security.
+                    {t('security.enable2faMessage')}
                   </p>
                 </div>
               )}
@@ -240,9 +242,9 @@ export function SecurityPage() {
             <div className="border-t pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-sm font-semibold">Biometric Authentication</h3>
+                  <h3 className="text-sm font-semibold">{t('security.biometricAuth')}</h3>
                   <p className="text-xs text-muted-foreground">
-                    Use fingerprint or face recognition for quick access
+                    {t('security.biometricAuthDescription')}
                   </p>
                 </div>
                 <Switch
@@ -259,10 +261,10 @@ export function SecurityPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Smartphone className="h-5 w-5" />
-              Active Sessions
+              {t('security.activeSessions')}
             </CardTitle>
             <CardDescription>
-              Manage devices that are currently signed in to your account
+              {t('security.activeSessionsDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -276,7 +278,7 @@ export function SecurityPage() {
                         {session.device}
                         {session.isCurrent && (
                           <Badge variant="outline" className="text-xs">
-                            Current
+                            {t('security.current')}
                           </Badge>
                         )}
                       </h3>
@@ -290,7 +292,7 @@ export function SecurityPage() {
                       size="sm"
                       onClick={() => terminateSession(session.id)}
                     >
-                      Terminate
+                      {t('security.terminate')}
                     </Button>
                   )}
                 </div>
@@ -302,17 +304,17 @@ export function SecurityPage() {
         {/* Privacy Settings */}
         <Card>
           <CardHeader>
-            <CardTitle>Privacy Settings</CardTitle>
+            <CardTitle>{t('security.privacySettings')}</CardTitle>
             <CardDescription>
-              Control how your data is used and shared
+              {t('security.privacySettingsDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-medium">Data Collection</h3>
+                <h3 className="text-sm font-medium">{t('security.dataCollection')}</h3>
                 <p className="text-xs text-muted-foreground">
-                  Allow collection of usage data to improve the app
+                  {t('security.dataCollectionDescription')}
                 </p>
               </div>
               <Switch defaultChecked />
@@ -320,9 +322,9 @@ export function SecurityPage() {
             
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-medium">Location History</h3>
+                <h3 className="text-sm font-medium">{t('security.locationHistory')}</h3>
                 <p className="text-xs text-muted-foreground">
-                  Store location history for better emergency response
+                  {t('security.locationHistoryDescription')}
                 </p>
               </div>
               <Switch defaultChecked />
@@ -330,9 +332,9 @@ export function SecurityPage() {
             
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-medium">Third-party Sharing</h3>
+                <h3 className="text-sm font-medium">{t('security.thirdPartySharing')}</h3>
                 <p className="text-xs text-muted-foreground">
-                  Share data with emergency services when needed
+                  {t('security.thirdPartySharingDescription')}
                 </p>
               </div>
               <Switch defaultChecked />

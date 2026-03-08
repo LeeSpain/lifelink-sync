@@ -1,18 +1,19 @@
 import React from 'react';
 import { Smartphone, Bot, ShieldCheck, PhoneCall, MapPin, Users, CheckCircle, AlertTriangle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const HowItWorks: React.FC = () => {
+  const { t } = useTranslation();
   return (
     <section id="how-it-works" className="py-20 bg-[#FAFAF9]">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-5xl font-bold font-poppins mb-4 text-[hsl(215,25%,27%)]">
-            From SOS to safe — in seconds.
+            {t('howItWorks.title')}
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto font-inter">
-            Whether it's your 17-year-old daughter out at night or your mum at home alone —
-            LifeLink Sync responds the same way. Instantly. Intelligently.
+            {t('howItWorks.subtitle')}
           </p>
         </div>
 
@@ -23,9 +24,9 @@ const HowItWorks: React.FC = () => {
             <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
               <Smartphone className="h-8 w-8 text-primary" />
             </div>
-            <h3 className="text-xl font-bold font-poppins mb-2 text-[hsl(215,25%,27%)]">SOS Triggered</h3>
+            <h3 className="text-xl font-bold font-poppins mb-2 text-[hsl(215,25%,27%)]">{t('howItWorks.step1Title')}</h3>
             <p className="text-gray-600 text-center max-w-md">
-              App button or Bluetooth pendant — fires in under 3 seconds. No phone needed for pendant.
+              {t('howItWorks.step1Desc')}
             </p>
           </div>
 
@@ -39,9 +40,9 @@ const HowItWorks: React.FC = () => {
             <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
               <Bot className="h-8 w-8 text-primary" />
             </div>
-            <h3 className="text-xl font-bold font-poppins mb-2 text-[hsl(215,25%,27%)]">Clara Answers Instantly</h3>
+            <h3 className="text-xl font-bold font-poppins mb-2 text-[hsl(215,25%,27%)]">{t('howItWorks.step2Title')}</h3>
             <p className="text-gray-600 text-center max-w-md">
-              "Are you okay? I'm here." Clara, your AI safety companion, responds to every SOS immediately.
+              {t('howItWorks.step2Desc')}
             </p>
           </div>
 
@@ -55,9 +56,9 @@ const HowItWorks: React.FC = () => {
             <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
               <ShieldCheck className="h-8 w-8 text-primary" />
             </div>
-            <h3 className="text-xl font-bold font-poppins mb-2 text-[hsl(215,25%,27%)]">Clara Checks In</h3>
+            <h3 className="text-xl font-bold font-poppins mb-2 text-[hsl(215,25%,27%)]">{t('howItWorks.step3Title')}</h3>
             <p className="text-gray-600 text-center max-w-md">
-              Clara assesses the situation through conversation — is this a false alarm or a real emergency?
+              {t('howItWorks.step3Desc')}
             </p>
           </div>
 
@@ -73,9 +74,9 @@ const HowItWorks: React.FC = () => {
               <div className="w-14 h-14 bg-wellness/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckCircle className="h-7 w-7 text-wellness" />
               </div>
-              <h4 className="text-lg font-bold font-poppins mb-3 text-wellness">False Alarm</h4>
+              <h4 className="text-lg font-bold font-poppins mb-3 text-wellness">{t('howItWorks.falseAlarmTitle')}</h4>
               <p className="text-gray-600 text-sm">
-                Clara confirms you're safe. Incident logged quietly. No alerts sent to contacts. No fuss.
+                {t('howItWorks.falseAlarmDesc')}
               </p>
             </div>
 
@@ -84,19 +85,19 @@ const HowItWorks: React.FC = () => {
               <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <AlertTriangle className="h-7 w-7 text-primary" />
               </div>
-              <h4 className="text-lg font-bold font-poppins mb-3 text-primary">Real Emergency</h4>
+              <h4 className="text-lg font-bold font-poppins mb-3 text-primary">{t('howItWorks.realEmergencyTitle')}</h4>
               <div className="text-gray-600 text-sm space-y-2">
                 <div className="flex items-center gap-2 justify-center">
                   <PhoneCall className="h-4 w-4 text-primary flex-shrink-0" />
-                  <span>All emergency contacts called simultaneously</span>
+                  <span>{t('howItWorks.emergencyContactsCalled')}</span>
                 </div>
                 <div className="flex items-center gap-2 justify-center">
                   <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
-                  <span>Live GPS link sent to each contact</span>
+                  <span>{t('howItWorks.liveGpsSent')}</span>
                 </div>
                 <div className="flex items-center gap-2 justify-center">
                   <Users className="h-4 w-4 text-primary flex-shrink-0" />
-                  <span>ETA shown — how long to reach you</span>
+                  <span>{t('howItWorks.etaShown')}</span>
                 </div>
               </div>
             </div>
@@ -105,13 +106,13 @@ const HowItWorks: React.FC = () => {
           {/* Scenario Tags */}
           <div className="flex flex-wrap gap-4 justify-center mt-12">
             <span className="bg-white border border-gray-200 rounded-full px-5 py-2.5 text-sm text-gray-600 shadow-sm">
-              Teenager out at night
+              {t('howItWorks.scenarioTeenager')}
             </span>
             <span className="bg-white border border-gray-200 rounded-full px-5 py-2.5 text-sm text-gray-600 shadow-sm">
-              Elderly parent at home
+              {t('howItWorks.scenarioElderly')}
             </span>
             <span className="bg-white border border-gray-200 rounded-full px-5 py-2.5 text-sm text-gray-600 shadow-sm">
-              Anyone — any age, any situation
+              {t('howItWorks.scenarioAnyone')}
             </span>
           </div>
         </div>

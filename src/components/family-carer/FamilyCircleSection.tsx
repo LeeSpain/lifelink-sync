@@ -2,65 +2,67 @@ import React, { useState, useEffect } from 'react';
 import { Users, Heart, Shield, Wifi, AlertTriangle, User, Clock, Baby, UserCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { BackgroundMap } from "./BackgroundMap";
+import { useTranslation } from 'react-i18next';
 
 // Testimonial Carousel Component
 const TestimonialCarousel: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const { t } = useTranslation();
 
   const testimonials = [
     {
       id: 1,
       name: "Sarah M.",
-      role: "Daughter",
+      role: t('familyCarer.circle.testimonials.role1'),
       avatar: "/mom-avatar.png",
       gradient: "from-primary to-primary/80",
       border: "border-primary/10",
-      text: "This system saved my mother's life. When she had a fall, the entire family was alerted immediately and help arrived within minutes. I can't imagine not having this protection now."
+      text: t('familyCarer.circle.testimonials.text1')
     },
     {
       id: 2,
       name: "James R.",
-      role: "Son",
+      role: t('familyCarer.circle.testimonials.role2'),
       avatar: "/dad-avatar.png",
       gradient: "from-wellness to-wellness/80",
       border: "border-wellness/10",
-      text: "Dad was hesitant at first, but after his first emergency alert, he calls it his 'guardian angel'. The whole family feels so much more secure knowing we're all connected and can respond instantly."
+      text: t('familyCarer.circle.testimonials.text2')
     },
     {
       id: 3,
       name: "Sophie K.",
-      role: "Granddaughter",
+      role: t('familyCarer.circle.testimonials.role3'),
       avatar: "/clara-avatar.png",
       gradient: "from-secondary to-secondary/80",
       border: "border-secondary/10",
-      text: "Grandma loves that she can see where all of us are and know we're safe. It's become more than an emergency system - it's brought our family closer together."
+      text: t('familyCarer.circle.testimonials.text3')
     },
     {
       id: 4,
       name: "Margaret D.",
-      role: "Grandmother",
+      role: t('familyCarer.circle.testimonials.role4'),
       avatar: "/grandma-avatar.png",
       gradient: "from-green-500 to-green-600",
       border: "border-primary/10",
-      text: "At 78, I was worried about being a burden. This system gives me independence while keeping my children's minds at ease. When I press the button, I know help is coming."
+      text: t('familyCarer.circle.testimonials.text4')
     },
     {
       id: 5,
       name: "Dr. Lisa H.",
-      role: "Professional Carer",
+      role: t('familyCarer.circle.testimonials.role5'),
       avatar: "/lovable-uploads/carer-avatar.png",
       gradient: "from-blue-500 to-blue-600",
       border: "border-wellness/10",
-      text: "As a professional carer, I've seen how crucial those first few minutes are in an emergency. This system ensures no one waits alone for help to arrive."
+      text: t('familyCarer.circle.testimonials.text5')
     },
     {
       id: 6,
       name: "Robert T.",
-      role: "Trusted Neighbor",
+      role: t('familyCarer.circle.testimonials.role6'),
       avatar: "/lovable-uploads/neighbor-avatar.png",
       gradient: "from-purple-500 to-purple-600",
       border: "border-secondary/10",
-      text: "Being included as a trusted contact makes me feel like part of the family. I'm honored to be someone they can count on, and the system makes it so easy to help when needed."
+      text: t('familyCarer.circle.testimonials.text6')
     }
   ];
 
@@ -158,6 +160,8 @@ const TestimonialCarousel: React.FC = () => {
 };
 
 export const FamilyCircleSection: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <section className="py-section bg-gradient-to-br from-background to-muted/50 relative overflow-hidden">
       {/* Background Elements */}
@@ -169,10 +173,10 @@ export const FamilyCircleSection: React.FC = () => {
         {/* Section Header - Matching Homepage Pattern */}
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-black bg-white p-4 rounded-lg shadow-sm mb-4 inline-block">
-            How Your Family Circle Works
+            {t('familyCarer.circle.title')}
           </h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            Create secure connections with family members and trusted contacts. Everyone in your circle knows exactly what's happening during an emergency.
+            {t('familyCarer.circle.subtitle')}
           </p>
         </div>
 
@@ -180,10 +184,10 @@ export const FamilyCircleSection: React.FC = () => {
         <div className="relative max-w-6xl mx-auto mb-20">
           <div className="text-center mb-16">
             <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
-              Your Emergency Network
+              {t('familyCarer.circle.networkTitle')}
             </h3>
             <p className="text-lg text-muted-foreground">
-              See how information flows instantly through your family circle during an emergency
+              {t('familyCarer.circle.networkSubtitle')}
             </p>
           </div>
           
@@ -241,7 +245,7 @@ export const FamilyCircleSection: React.FC = () => {
                 </div>
                 
                 <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-xl border border-white/50 text-sm font-semibold text-primary">
-                  Grandmother
+                  {t('familyCarer.circle.grandmother')}
                 </div>
                 
                 {/* Alert indicator with animation */}
@@ -263,10 +267,10 @@ export const FamilyCircleSection: React.FC = () => {
                   <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
                 </div>
                 <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-lg text-xs font-medium">
-                  Daughter
+                  {t('familyCarer.circle.daughter')}
                 </div>
                 <Badge className="absolute -top-4 -right-4 text-xs px-3 py-1 bg-primary/90 text-white shadow-lg">
-                  Family
+                  {t('familyCarer.circle.familyBadge')}
                 </Badge>
               </div>
             </div>
@@ -282,10 +286,10 @@ export const FamilyCircleSection: React.FC = () => {
                   <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
                 </div>
                 <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-lg text-xs font-medium">
-                  Son
+                  {t('familyCarer.circle.son')}
                 </div>
                 <Badge className="absolute -top-4 -right-4 text-xs px-3 py-1 bg-primary/90 text-white shadow-lg">
-                  Family
+                  {t('familyCarer.circle.familyBadge')}
                 </Badge>
               </div>
             </div>
@@ -304,7 +308,7 @@ export const FamilyCircleSection: React.FC = () => {
                   Sophie
                 </div>
                 <Badge className="absolute -top-4 -right-4 text-xs px-3 py-1 bg-primary/90 text-white shadow-lg">
-                  Family
+                  {t('familyCarer.circle.familyBadge')}
                 </Badge>
               </div>
             </div>
@@ -321,10 +325,10 @@ export const FamilyCircleSection: React.FC = () => {
                   <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-500 rounded-full border-2 border-white animate-pulse"></div>
                 </div>
                 <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-lg text-xs font-medium">
-                  Carer
+                  {t('familyCarer.circle.carer')}
                 </div>
                 <Badge variant="outline" className="absolute -top-4 -right-4 text-xs px-3 py-1 bg-white/90 shadow-lg">
-                  Trusted
+                  {t('familyCarer.circle.trustedBadge')}
                 </Badge>
               </div>
             </div>
@@ -340,10 +344,10 @@ export const FamilyCircleSection: React.FC = () => {
                   <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-500 rounded-full border-2 border-white animate-pulse"></div>
                 </div>
                 <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-lg text-xs font-medium">
-                  Neighbor
+                  {t('familyCarer.circle.neighbor')}
                 </div>
                 <Badge variant="outline" className="absolute -top-4 -right-4 text-xs px-3 py-1 bg-white/90 shadow-lg">
-                  Trusted
+                  {t('familyCarer.circle.trustedBadge')}
                 </Badge>
               </div>
             </div>
@@ -368,8 +372,8 @@ export const FamilyCircleSection: React.FC = () => {
                   <AlertTriangle className="h-4 w-4 text-white" />
                 </div>
               </div>
-              <h4 className="font-semibold text-lg">Grandmother</h4>
-              <p className="text-sm text-muted-foreground">Emergency Alert Activated</p>
+              <h4 className="font-semibold text-lg">{t('familyCarer.circle.grandmother')}</h4>
+              <p className="text-sm text-muted-foreground">{t('familyCarer.circle.emergencyAlertActivated')}</p>
             </div>
 
             {/* Animated connection indicator */}
@@ -389,7 +393,7 @@ export const FamilyCircleSection: React.FC = () => {
                     <img src="/mom-avatar.png" alt="Daughter" className="w-16 h-16 object-cover rounded-full" />
                     <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
                   </div>
-                  <h5 className="font-medium">Daughter</h5>
+                  <h5 className="font-medium">{t('familyCarer.circle.daughter')}</h5>
                   <Badge className="text-xs bg-primary/90 text-white">Family</Badge>
                 </div>
               </div>
@@ -400,7 +404,7 @@ export const FamilyCircleSection: React.FC = () => {
                     <img src="/dad-avatar.png" alt="Son" className="w-16 h-16 object-cover rounded-full" />
                     <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
                   </div>
-                  <h5 className="font-medium">Son</h5>
+                  <h5 className="font-medium">{t('familyCarer.circle.son')}</h5>
                   <Badge className="text-xs bg-primary/90 text-white">Family</Badge>
                 </div>
               </div>
@@ -424,7 +428,7 @@ export const FamilyCircleSection: React.FC = () => {
                     <img src="/lovable-uploads/carer-avatar.png" alt="Professional Carer" className="w-16 h-16 object-cover rounded-full relative z-10" />
                     <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 rounded-full border-2 border-white animate-pulse"></div>
                   </div>
-                  <h5 className="font-medium text-sm">Professional Carer</h5>
+                  <h5 className="font-medium text-sm">{t('familyCarer.circle.professionalCarer')}</h5>
                   <Badge variant="outline" className="text-xs bg-white/90">Trusted</Badge>
                 </div>
               </div>
@@ -436,7 +440,7 @@ export const FamilyCircleSection: React.FC = () => {
                     <img src="/lovable-uploads/neighbor-avatar.png" alt="Trusted Neighbor" className="w-16 h-16 object-cover rounded-full relative z-10" />
                     <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 rounded-full border-2 border-white animate-pulse"></div>
                   </div>
-                  <h5 className="font-medium">Neighbor</h5>
+                  <h5 className="font-medium">{t('familyCarer.circle.neighbor')}</h5>
                   <Badge variant="outline" className="text-xs bg-white/90">Trusted</Badge>
                 </div>
               </div>
@@ -449,11 +453,11 @@ export const FamilyCircleSection: React.FC = () => {
           <div className="bg-gradient-to-br from-wellness/10 to-primary/10 rounded-2xl p-8 border border-primary/20 backdrop-blur-sm">
             <div className="flex items-center space-x-3 mb-4">
               <div className="w-4 h-4 bg-primary rounded-full animate-pulse"></div>
-              <h3 className="text-xl font-bold text-foreground">Family Circle</h3>
-              <Badge className="bg-primary/10 text-primary border-primary/20">Always Connected</Badge>
+              <h3 className="text-xl font-bold text-foreground">{t('familyCarer.circle.familyCircleTitle')}</h3>
+              <Badge className="bg-primary/10 text-primary border-primary/20">{t('familyCarer.circle.alwaysConnected')}</Badge>
             </div>
             <p className="text-muted-foreground mb-6 leading-relaxed">
-              Your closest family members stay connected with you through continuous location sharing and full emergency coordination. They're always just a glance away from knowing you're safe.
+              {t('familyCarer.circle.familyCircleDescription')}
             </p>
             <div className="space-y-4">
               <div className="flex items-start space-x-4 p-4 bg-white/60 rounded-lg border border-primary/10">
@@ -461,8 +465,8 @@ export const FamilyCircleSection: React.FC = () => {
                   <Clock className="h-4 w-4 text-primary" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-sm mb-1">Always-On Location Sharing</h4>
-                  <p className="text-xs text-muted-foreground leading-relaxed">Family members can see your real-time location 24/7, giving everyone peace of mind. Perfect for knowing when you've arrived safely or if you need assistance.</p>
+                  <h4 className="font-semibold text-sm mb-1">{t('familyCarer.circle.alwaysOnTitle')}</h4>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{t('familyCarer.circle.alwaysOnDescription')}</p>
                 </div>
               </div>
               <div className="flex items-start space-x-4 p-4 bg-white/60 rounded-lg border border-primary/10">
@@ -470,8 +474,8 @@ export const FamilyCircleSection: React.FC = () => {
                   <Shield className="h-4 w-4 text-primary" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-sm mb-1">Instant Emergency Response</h4>
-                  <p className="text-xs text-muted-foreground leading-relaxed">The moment an SOS is triggered, family members receive immediate alerts and can coordinate the response together in real-time.</p>
+                  <h4 className="font-semibold text-sm mb-1">{t('familyCarer.circle.instantEmergencyTitle')}</h4>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{t('familyCarer.circle.instantEmergencyDescription')}</p>
                 </div>
               </div>
               <div className="flex items-start space-x-4 p-4 bg-white/60 rounded-lg border border-primary/10">
@@ -479,8 +483,8 @@ export const FamilyCircleSection: React.FC = () => {
                   <Users className="h-4 w-4 text-primary" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-sm mb-1">Full Coordination Access</h4>
-                  <p className="text-xs text-muted-foreground leading-relaxed">Family members can see each other's locations during emergencies, communicate through the app, and ensure the fastest response possible.</p>
+                  <h4 className="font-semibold text-sm mb-1">{t('familyCarer.circle.fullCoordinationTitle')}</h4>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{t('familyCarer.circle.fullCoordinationDescription')}</p>
                 </div>
               </div>
             </div>
@@ -489,11 +493,11 @@ export const FamilyCircleSection: React.FC = () => {
           <div className="bg-gradient-to-br from-muted/20 to-secondary/10 rounded-2xl p-8 border border-muted/30 backdrop-blur-sm">
             <div className="flex items-center space-x-3 mb-4">
               <div className="w-4 h-4 border-2 border-secondary border-dashed rounded-full animate-pulse"></div>
-              <h3 className="text-xl font-bold text-foreground">Trusted Contacts</h3>
-              <Badge variant="outline" className="bg-secondary/10 text-secondary border-secondary/20">Privacy First</Badge>
+              <h3 className="text-xl font-bold text-foreground">{t('familyCarer.circle.trustedContactsTitle')}</h3>
+              <Badge variant="outline" className="bg-secondary/10 text-secondary border-secondary/20">{t('familyCarer.circle.privacyFirst')}</Badge>
             </div>
             <p className="text-muted-foreground mb-6 leading-relaxed">
-              Professional carers, close neighbors, and trusted friends who provide support when needed, while respecting your privacy. They're only alerted during genuine emergencies unless you choose otherwise.
+              {t('familyCarer.circle.trustedContactsDescription')}
             </p>
             <div className="space-y-4">
               <div className="flex items-start space-x-4 p-4 bg-white/60 rounded-lg border border-secondary/10">
@@ -501,8 +505,8 @@ export const FamilyCircleSection: React.FC = () => {
                   <Heart className="h-4 w-4 text-secondary" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-sm mb-1">Emergency-Only Alerts</h4>
-                  <p className="text-xs text-muted-foreground leading-relaxed">Trusted contacts are only notified during genuine SOS situations, ensuring your privacy while maintaining a reliable support network when you need it most.</p>
+                  <h4 className="font-semibold text-sm mb-1">{t('familyCarer.circle.emergencyOnlyTitle')}</h4>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{t('familyCarer.circle.emergencyOnlyDescription')}</p>
                 </div>
               </div>
               <div className="flex items-start space-x-4 p-4 bg-white/60 rounded-lg border border-secondary/10">
@@ -510,8 +514,8 @@ export const FamilyCircleSection: React.FC = () => {
                   <UserCircle className="h-4 w-4 text-secondary" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-sm mb-1">Professional Support Access</h4>
-                  <p className="text-xs text-muted-foreground leading-relaxed">Perfect for professional carers who need emergency access but respect your daily privacy. You can grant additional permissions if desired.</p>
+                  <h4 className="font-semibold text-sm mb-1">{t('familyCarer.circle.professionalSupportTitle')}</h4>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{t('familyCarer.circle.professionalSupportDescription')}</p>
                 </div>
               </div>
               <div className="flex items-start space-x-4 p-4 bg-white/60 rounded-lg border border-secondary/10">
@@ -519,8 +523,8 @@ export const FamilyCircleSection: React.FC = () => {
                   <Wifi className="h-4 w-4 text-secondary" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-sm mb-1">Customizable Permissions</h4>
-                  <p className="text-xs text-muted-foreground leading-relaxed">You control what information trusted contacts can see. Start with emergency-only access and upgrade to location sharing if you choose.</p>
+                  <h4 className="font-semibold text-sm mb-1">{t('familyCarer.circle.customPermissionsTitle')}</h4>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{t('familyCarer.circle.customPermissionsDescription')}</p>
                 </div>
               </div>
             </div>
@@ -530,9 +534,9 @@ export const FamilyCircleSection: React.FC = () => {
         {/* Emergency Scenario Flow */}
         <div className="mb-20">
           <div className="text-center mb-16">
-            <h3 className="text-3xl md:text-4xl font-bold text-foreground mb-6">When Emergency Happens</h3>
+            <h3 className="text-3xl md:text-4xl font-bold text-foreground mb-6">{t('familyCarer.circle.whenEmergencyTitle')}</h3>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              See how our seamless emergency response system activates instantly, connecting your entire support network in seconds
+              {t('familyCarer.circle.whenEmergencySubtitle')}
             </p>
           </div>
           
@@ -567,9 +571,9 @@ export const FamilyCircleSection: React.FC = () => {
                 </div>
                 
                 <div className="space-y-3">
-                  <h4 className="text-lg font-bold text-foreground">SOS Button Pressed</h4>
+                  <h4 className="text-lg font-bold text-foreground">{t('familyCarer.circle.step1Title')}</h4>
                   <p className="text-sm text-muted-foreground leading-relaxed px-2">
-                    Emergency SOS button is pressed, immediately triggering the emergency response system
+                    {t('familyCarer.circle.step1Description')}
                   </p>
                 </div>
                 
@@ -600,9 +604,9 @@ export const FamilyCircleSection: React.FC = () => {
                 </div>
                 
                 <div className="space-y-3">
-                  <h4 className="text-lg font-bold text-foreground">Emergency Calls Made</h4>
+                  <h4 className="text-lg font-bold text-foreground">{t('familyCarer.circle.step2Title')}</h4>
                   <p className="text-sm text-muted-foreground leading-relaxed px-2">
-                    System automatically calls emergency contacts in priority order until someone answers
+                    {t('familyCarer.circle.step2Description')}
                   </p>
                 </div>
                 
@@ -632,9 +636,9 @@ export const FamilyCircleSection: React.FC = () => {
                 </div>
                 
                 <div className="space-y-3">
-                  <h4 className="text-lg font-bold text-foreground">Family Coordination</h4>
+                  <h4 className="text-lg font-bold text-foreground">{t('familyCarer.circle.step3Title')}</h4>
                   <p className="text-sm text-muted-foreground leading-relaxed px-2">
-                    Family members receive alerts and coordinate who's responding while calls are being made
+                    {t('familyCarer.circle.step3Description')}
                   </p>
                 </div>
                 
@@ -664,9 +668,9 @@ export const FamilyCircleSection: React.FC = () => {
                 </div>
                 
                 <div className="space-y-3">
-                  <h4 className="text-lg font-bold text-foreground">Help Responds</h4>
+                  <h4 className="text-lg font-bold text-foreground">{t('familyCarer.circle.step4Title')}</h4>
                   <p className="text-sm text-muted-foreground leading-relaxed px-2">
-                    Emergency contact answers the call and family member arrives with full situation awareness
+                    {t('familyCarer.circle.step4Description')}
                   </p>
                 </div>
               </div>
@@ -680,11 +684,11 @@ export const FamilyCircleSection: React.FC = () => {
                     <AlertTriangle className="h-5 w-5 text-white" />
                   </div>
                   <div className="text-left">
-                    <div className="text-2xl font-bold text-green-700">Under 2 minutes</div>
-                    <div className="text-sm text-green-600">Average emergency response time</div>
+                    <div className="text-2xl font-bold text-green-700">{t('familyCarer.circle.under2Min')}</div>
+                    <div className="text-sm text-green-600">{t('familyCarer.circle.avgResponseTime')}</div>
                   </div>
                 </div>
-                <p className="text-xs text-green-600 mt-2">Based on real emergency activations across our network</p>
+                <p className="text-xs text-green-600 mt-2">{t('familyCarer.circle.basedOnReal')}</p>
               </div>
             </div>
           </div>
@@ -693,9 +697,9 @@ export const FamilyCircleSection: React.FC = () => {
         {/* Family Connection Setup & Pricing */}
         <div className="mb-20">
           <div className="text-center mb-16">
-            <h3 className="text-3xl md:text-4xl font-bold text-foreground mb-6">Building Your Family Safety Network</h3>
+            <h3 className="text-3xl md:text-4xl font-bold text-foreground mb-6">{t('familyCarer.circle.buildingNetworkTitle')}</h3>
             <p className="text-xl text-muted-foreground max-w-4xl mx-auto leading-relaxed">
-              Create meaningful connections with the people who matter most. Set up your family circle with transparent pricing and flexible payment options that work for everyone.
+              {t('familyCarer.circle.buildingNetworkSubtitle')}
             </p>
           </div>
 
@@ -714,9 +718,9 @@ export const FamilyCircleSection: React.FC = () => {
                     1
                   </div>
                 </div>
-                <h4 className="text-xl font-bold text-foreground mb-4">Send Personal Invitations</h4>
+                <h4 className="text-xl font-bold text-foreground mb-4">{t('familyCarer.circle.setupStep1Title')}</h4>
                 <p className="text-muted-foreground leading-relaxed">
-                  As the account owner, you'll send warm, personal invitations to your family members via email or phone. Each invitation explains how the service works and why their participation keeps you safe.
+                  {t('familyCarer.circle.setupStep1Description')}
                 </p>
               </div>
 
@@ -731,9 +735,9 @@ export const FamilyCircleSection: React.FC = () => {
                     2
                   </div>
                 </div>
-                <h4 className="text-xl font-bold text-foreground mb-4">Flexible Payment Options</h4>
+                <h4 className="text-xl font-bold text-foreground mb-4">{t('familyCarer.circle.setupStep2Title')}</h4>
                 <p className="text-muted-foreground leading-relaxed">
-                  You decide who pays for each connection. Cover all costs yourself as a gift to your family, or let each family member handle their own €2.99/month subscription. Change this anytime.
+                  {t('familyCarer.circle.setupStep2Description')}
                 </p>
               </div>
 
@@ -748,9 +752,9 @@ export const FamilyCircleSection: React.FC = () => {
                     3
                   </div>
                 </div>
-                <h4 className="text-xl font-bold text-foreground mb-4">Instant Protection Active</h4>
+                <h4 className="text-xl font-bold text-foreground mb-4">{t('familyCarer.circle.setupStep3Title')}</h4>
                 <p className="text-muted-foreground leading-relaxed">
-                  Once your family accepts and sets up their accounts, your safety network is immediately active. Everyone can see when you're safe and respond instantly in emergencies.
+                  {t('familyCarer.circle.setupStep3Description')}
                 </p>
               </div>
             </div>
@@ -765,17 +769,17 @@ export const FamilyCircleSection: React.FC = () => {
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/20 rounded-full mb-4">
                   <Clock className="h-8 w-8 text-primary" />
                 </div>
-                <h4 className="text-2xl font-bold text-foreground mb-2">Simple, Transparent Pricing</h4>
-                <p className="text-muted-foreground">No hidden fees, no long-term contracts</p>
+                <h4 className="text-2xl font-bold text-foreground mb-2">{t('familyCarer.circle.simplePricingTitle')}</h4>
+                <p className="text-muted-foreground">{t('familyCarer.circle.simplePricingSubtitle')}</p>
               </div>
 
               <div className="space-y-6">
                 <div className="text-center">
                   <div className="text-4xl font-bold text-primary mb-2">€2.99</div>
-                  <div className="text-lg text-muted-foreground mb-4">per month, per family connection</div>
+                  <div className="text-lg text-muted-foreground mb-4">{t('familyCarer.circle.perMonthPerConnection')}</div>
                   <div className="bg-white/60 rounded-lg p-4 border border-primary/10">
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      Each family member you connect costs just €2.99/month. Start with one connection and add more family members as needed. Cancel anytime with no penalties.
+                      {t('familyCarer.circle.pricingExplanation')}
                     </p>
                   </div>
                 </div>
@@ -785,19 +789,19 @@ export const FamilyCircleSection: React.FC = () => {
                     <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
                       <Clock className="h-3 w-3 text-white" />
                     </div>
-                    <span className="text-sm font-medium">24/7 emergency monitoring</span>
+                    <span className="text-sm font-medium">{t('familyCarer.circle.feature247')}</span>
                   </div>
                   <div className="flex items-center space-x-3 p-3 bg-white/60 rounded-lg border border-primary/10">
                     <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
                       <Wifi className="h-3 w-3 text-white" />
                     </div>
-                    <span className="text-sm font-medium">Real-time location sharing</span>
+                    <span className="text-sm font-medium">{t('familyCarer.circle.featureLocation')}</span>
                   </div>
                   <div className="flex items-center space-x-3 p-3 bg-white/60 rounded-lg border border-primary/10">
                     <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
                       <Users className="h-3 w-3 text-white" />
                     </div>
-                    <span className="text-sm font-medium">Instant emergency alerts</span>
+                    <span className="text-sm font-medium">{t('familyCarer.circle.featureAlerts')}</span>
                   </div>
                 </div>
               </div>
@@ -809,8 +813,8 @@ export const FamilyCircleSection: React.FC = () => {
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-wellness/20 rounded-full mb-4">
                   <Heart className="h-8 w-8 text-wellness" />
                 </div>
-                <h4 className="text-2xl font-bold text-foreground mb-2">Payment Flexibility</h4>
-                <p className="text-muted-foreground">Choose what works best for your family</p>
+                <h4 className="text-2xl font-bold text-foreground mb-2">{t('familyCarer.circle.paymentFlexTitle')}</h4>
+                <p className="text-muted-foreground">{t('familyCarer.circle.paymentFlexSubtitle')}</p>
               </div>
 
               <div className="space-y-6">
@@ -822,9 +826,9 @@ export const FamilyCircleSection: React.FC = () => {
                       <UserCircle className="h-4 w-4 text-wellness" />
                     </div>
                     <div className="flex-1">
-                      <h5 className="font-semibold text-foreground mb-2">I'll Cover Everyone (Owner Pays)</h5>
+                      <h5 className="font-semibold text-foreground mb-2">{t('familyCarer.circle.ownerPaysTitle')}</h5>
                       <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-                        Perfect if you want to provide peace of mind as a gift to your family. You handle all subscription costs, and your family members just enjoy the protection.
+                        {t('familyCarer.circle.ownerPaysDescription')}
                       </p>
                     </div>
                   </div>
@@ -837,9 +841,9 @@ export const FamilyCircleSection: React.FC = () => {
                       <Users className="h-4 w-4 text-secondary" />
                     </div>
                     <div className="flex-1">
-                      <h5 className="font-semibold text-foreground mb-2">Each Family Member Pays</h5>
+                      <h5 className="font-semibold text-foreground mb-2">{t('familyCarer.circle.memberPaysTitle')}</h5>
                       <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-                        Each family member manages their own €2.99/month subscription. Great for adult children who want to contribute to the family's safety network.
+                        {t('familyCarer.circle.memberPaysDescription')}
                       </p>
                     </div>
                   </div>
@@ -848,7 +852,7 @@ export const FamilyCircleSection: React.FC = () => {
                 {/* Mixed Option */}
                 <div className="bg-gradient-to-r from-primary/10 to-wellness/10 rounded-lg p-4 border border-primary/20">
                   <p className="text-sm text-center text-muted-foreground">
-                    <strong className="text-foreground">Mix & Match:</strong> You can change payment responsibility for any family member at any time through your account settings.
+                    <strong className="text-foreground">{t('familyCarer.circle.mixMatchLabel')}</strong> {t('familyCarer.circle.mixMatchDescription')}
                   </p>
                 </div>
               </div>
@@ -859,9 +863,9 @@ export const FamilyCircleSection: React.FC = () => {
         <div className="py-20 bg-gradient-to-b from-background to-muted/30">
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
-              <h3 className="text-3xl md:text-4xl font-bold text-foreground mb-6">Real Families, Real Peace of Mind</h3>
+              <h3 className="text-3xl md:text-4xl font-bold text-foreground mb-6">{t('familyCarer.circle.testimonialsTitle')}</h3>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-                Hear from families who've experienced the difference our emergency response system makes when it matters most.
+                {t('familyCarer.circle.testimonialsSubtitle')}
               </p>
             </div>
 
@@ -876,19 +880,19 @@ export const FamilyCircleSection: React.FC = () => {
                     <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
                       <Shield className="h-4 w-4 text-white" />
                     </div>
-                    <span className="text-sm font-medium text-muted-foreground">10,000+ Families Protected</span>
+                    <span className="text-sm font-medium text-muted-foreground">{t('familyCarer.circle.trustFamilies')}</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
                       <Heart className="h-4 w-4 text-white" />
                     </div>
-                    <span className="text-sm font-medium text-muted-foreground">98% Family Satisfaction</span>
+                    <span className="text-sm font-medium text-muted-foreground">{t('familyCarer.circle.trustSatisfaction')}</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
                       <Clock className="h-4 w-4 text-white" />
                     </div>
-                    <span className="text-sm font-medium text-muted-foreground">24/7 Support Available</span>
+                    <span className="text-sm font-medium text-muted-foreground">{t('familyCarer.circle.trustSupport')}</span>
                   </div>
                 </div>
               </div>

@@ -14,6 +14,7 @@ import {
   Clock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 interface RealTimeStatusBarProps {
   isConnected: boolean;
@@ -38,6 +39,7 @@ export function RealTimeStatusBar({
   onAlertsClick,
   compact = false
 }: RealTimeStatusBarProps) {
+  const { t } = useTranslation();
   const getTimeSinceLastUpdate = () => {
     const now = new Date();
     const diffMs = now.getTime() - lastUpdate.getTime();
@@ -64,7 +66,7 @@ export function RealTimeStatusBar({
             "text-xs font-medium",
             isConnected ? "text-green-600" : "text-red-600"
           )}>
-            {isConnected ? 'Live' : 'Offline'}
+            {isConnected ? t('familyDashboard.liveMemberStatus') : t('familyDashboard.offline')}
           </span>
         </div>
         
@@ -110,7 +112,7 @@ export function RealTimeStatusBar({
   return (
     <Card className="p-4 space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold">Real-Time Status</h3>
+        <h3 className="text-sm font-semibold">{t('familyDashboard.realTimeStatus')}</h3>
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
           <Clock className="h-3 w-3" />
           {getTimeSinceLastUpdate()}
@@ -131,12 +133,12 @@ export function RealTimeStatusBar({
             )}
           </div>
           <div>
-            <p className="text-xs font-medium">Connection</p>
+            <p className="text-xs font-medium">{t('familyDashboard.connectionLabel')}</p>
             <p className={cn(
               "text-xs",
               isConnected ? "text-green-600" : "text-red-600"
             )}>
-              {isConnected ? 'Connected' : 'Disconnected'}
+              {isConnected ? t('familyDashboard.connected') : t('familyDashboard.disconnected')}
             </p>
           </div>
         </div>
@@ -147,9 +149,9 @@ export function RealTimeStatusBar({
             <Users className="h-4 w-4" />
           </div>
           <div>
-            <p className="text-xs font-medium">Active</p>
+            <p className="text-xs font-medium">{t('familyDashboard.activeLabel')}</p>
             <p className="text-xs text-blue-600">
-              {onlineMembers} of {totalMembers}
+              {t('familyDashboard.activeOfTotal', { online: onlineMembers, total: totalMembers })}
             </p>
           </div>
         </div>
@@ -171,12 +173,12 @@ export function RealTimeStatusBar({
             <AlertTriangle className="h-4 w-4" />
           </div>
           <div className="text-left">
-            <p className="text-xs font-medium">Alerts</p>
+            <p className="text-xs font-medium">{t('familyDashboard.alertsLabel')}</p>
             <p className={cn(
               "text-xs",
               activeAlerts > 0 ? "text-red-600" : "text-gray-600"
             )}>
-              {activeAlerts} active
+              {t('familyDashboard.activeAlertsCount', { count: activeAlerts })}
             </p>
           </div>
         </Button>
@@ -198,12 +200,12 @@ export function RealTimeStatusBar({
             <Bell className="h-4 w-4" />
           </div>
           <div className="text-left">
-            <p className="text-xs font-medium">Messages</p>
+            <p className="text-xs font-medium">{t('familyDashboard.messagesLabel')}</p>
             <p className={cn(
               "text-xs",
               unreadNotifications > 0 ? "text-blue-600" : "text-gray-600"
             )}>
-              {unreadNotifications} unread
+              {t('familyDashboard.unreadMessages', { count: unreadNotifications })}
             </p>
           </div>
           {unreadNotifications > 0 && (
@@ -219,16 +221,16 @@ export function RealTimeStatusBar({
         <div className="flex items-center gap-3 text-xs text-muted-foreground">
           <div className="flex items-center gap-1">
             <CheckCircle className="h-3 w-3 text-green-500" />
-            <span>Location Services</span>
+            <span>{t('familyDashboard.locationServices')}</span>
           </div>
           <div className="flex items-center gap-1">
             <Battery className="h-3 w-3 text-green-500" />
-            <span>Background Sync</span>
+            <span>{t('familyDashboard.backgroundSync')}</span>
           </div>
         </div>
         
         <Badge variant="outline" className="text-xs">
-          {isConnected ? 'Real-time Active' : 'Offline Mode'}
+          {isConnected ? t('familyDashboard.realTimeActive') : t('familyDashboard.offlineMode')}
         </Badge>
       </div>
     </Card>

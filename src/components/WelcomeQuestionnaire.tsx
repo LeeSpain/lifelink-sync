@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -21,6 +22,7 @@ interface EmergencyContact {
 }
 
 const WelcomeQuestionnaire = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -225,8 +227,8 @@ const WelcomeQuestionnaire = () => {
       if (error) throw error;
 
       toast({
-        title: "Profile Complete!",
-        description: `Profile updated with ${completionPercentage}% completion. Welcome to your dashboard!`,
+        title: t('questionnaire.profileComplete'),
+        description: t('questionnaire.profileUpdated', { percentage: completionPercentage }),
       });
 
       // Redirect to member dashboard
@@ -235,8 +237,8 @@ const WelcomeQuestionnaire = () => {
     } catch (error) {
       console.error('Error updating profile:', error);
       toast({
-        title: "Error",
-        description: "Failed to update profile. Please try again.",
+        title: t('questionnaire.error'),
+        description: t('questionnaire.errorDescription'),
         variant: "destructive"
       });
     } finally {
@@ -251,46 +253,46 @@ const WelcomeQuestionnaire = () => {
           <div className="space-y-6">
             <div className="text-center mb-6">
               <UserCircle className="w-16 h-16 text-primary mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-foreground">Personal Information</h2>
-              <p className="text-muted-foreground">Let's start with your basic details</p>
+              <h2 className="text-2xl font-bold text-foreground">{t('questionnaire.personalInfo')}</h2>
+              <p className="text-muted-foreground">{t('questionnaire.personalInfoDesc')}</p>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="first_name" className="flex items-center gap-2">
-                  First Name
+                  {t('questionnaire.firstName')}
                   {formData.first_name && user?.user_metadata?.first_name && (
-                    <Badge variant="secondary" className="text-xs">From registration</Badge>
+                    <Badge variant="secondary" className="text-xs">{t('questionnaire.fromRegistration')}</Badge>
                   )}
                 </Label>
                 <Input
                   id="first_name"
                   value={formData.first_name}
                   onChange={(e) => setFormData(prev => ({ ...prev, first_name: e.target.value }))}
-                  placeholder="Enter your first name"
+                  placeholder={t('questionnaire.enterFirstName')}
                 />
               </div>
               <div>
                 <Label htmlFor="last_name" className="flex items-center gap-2">
-                  Last Name
+                  {t('questionnaire.lastName')}
                   {formData.last_name && user?.user_metadata?.last_name && (
-                    <Badge variant="secondary" className="text-xs">From registration</Badge>
+                    <Badge variant="secondary" className="text-xs">{t('questionnaire.fromRegistration')}</Badge>
                   )}
                 </Label>
                 <Input
                   id="last_name"
                   value={formData.last_name}
                   onChange={(e) => setFormData(prev => ({ ...prev, last_name: e.target.value }))}
-                  placeholder="Enter your last name"
+                  placeholder={t('questionnaire.enterLastName')}
                 />
               </div>
             </div>
 
             <div>
               <Label htmlFor="phone" className="flex items-center gap-2">
-                Phone Number
+                {t('questionnaire.phoneNumber')}
                 {formData.phone && user?.user_metadata?.phone_number && (
-                  <Badge variant="secondary" className="text-xs">From registration</Badge>
+                  <Badge variant="secondary" className="text-xs">{t('questionnaire.fromRegistration')}</Badge>
                 )}
               </Label>
               <Input
@@ -303,7 +305,7 @@ const WelcomeQuestionnaire = () => {
             </div>
 
             <div>
-              <Label htmlFor="date_of_birth">Date of Birth</Label>
+              <Label htmlFor="date_of_birth">{t('questionnaire.dateOfBirth')}</Label>
               <Input
                 id="date_of_birth"
                 type="date"
@@ -319,63 +321,63 @@ const WelcomeQuestionnaire = () => {
           <div className="space-y-6">
             <div className="text-center mb-6">
               <MapPin className="w-16 h-16 text-primary mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-foreground">Location & Language</h2>
-              <p className="text-muted-foreground">Where are you located?</p>
+              <h2 className="text-2xl font-bold text-foreground">{t('questionnaire.locationLanguage')}</h2>
+              <p className="text-muted-foreground">{t('questionnaire.locationLanguageDesc')}</p>
             </div>
 
             <div>
               <Label htmlFor="street_address" className="flex items-center gap-2">
-                Street Address
+                {t('questionnaire.streetAddress')}
                 {formData.street_address && user?.user_metadata?.current_location && (
-                  <Badge variant="secondary" className="text-xs">From registration</Badge>
+                  <Badge variant="secondary" className="text-xs">{t('questionnaire.fromRegistration')}</Badge>
                 )}
               </Label>
               <Input
                 id="street_address"
                 value={formData.street_address}
                 onChange={(e) => setFormData(prev => ({ ...prev, street_address: e.target.value }))}
-                placeholder="Enter your street address"
+                placeholder={t('questionnaire.enterStreetAddress')}
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="city">City</Label>
+                <Label htmlFor="city">{t('questionnaire.city')}</Label>
                 <Input
                   id="city"
                   value={formData.city}
                   onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
-                  placeholder="Enter your city"
+                  placeholder={t('questionnaire.enterCity')}
                 />
               </div>
               <div>
-                <Label htmlFor="state_province">State/Province</Label>
+                <Label htmlFor="state_province">{t('questionnaire.stateProvince')}</Label>
                 <Input
                   id="state_province"
                   value={formData.state_province}
                   onChange={(e) => setFormData(prev => ({ ...prev, state_province: e.target.value }))}
-                  placeholder="Enter state or province"
+                  placeholder={t('questionnaire.enterStateProvince')}
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="postal_code">Postal/Zip Code</Label>
+                <Label htmlFor="postal_code">{t('questionnaire.postalCode')}</Label>
                 <Input
                   id="postal_code"
                   value={formData.postal_code}
                   onChange={(e) => setFormData(prev => ({ ...prev, postal_code: e.target.value }))}
-                  placeholder="Enter postal or zip code"
+                  placeholder={t('questionnaire.enterPostalCode')}
                 />
               </div>
               <div>
-                <Label htmlFor="country">Country</Label>
+                <Label htmlFor="country">{t('questionnaire.country')}</Label>
                 <Input
                   id="country"
                   value={formData.country}
                   onChange={(e) => setFormData(prev => ({ ...prev, country: e.target.value }))}
-                  placeholder="Enter your country"
+                  placeholder={t('questionnaire.enterCountry')}
                 />
               </div>
             </div>
@@ -383,14 +385,14 @@ const WelcomeQuestionnaire = () => {
 
             <div>
               <Label htmlFor="language" className="flex items-center gap-2">
-                Preferred Language
+                {t('questionnaire.preferredLanguage')}
                 {formData.language_preference && user?.user_metadata?.preferred_language && (
-                  <Badge variant="secondary" className="text-xs">From registration</Badge>
+                  <Badge variant="secondary" className="text-xs">{t('questionnaire.fromRegistration')}</Badge>
                 )}
               </Label>
               <Select value={formData.language_preference} onValueChange={(value) => setFormData(prev => ({ ...prev, language_preference: value }))}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select language" />
+                  <SelectValue placeholder={t('questionnaire.selectLanguage')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="en">English</SelectItem>
@@ -410,15 +412,15 @@ const WelcomeQuestionnaire = () => {
           <div className="space-y-6">
             <div className="text-center mb-6">
               <Heart className="w-16 h-16 text-emergency mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-foreground">Medical Information</h2>
-              <p className="text-muted-foreground">Important for emergency situations</p>
+              <h2 className="text-2xl font-bold text-foreground">{t('questionnaire.medicalInfo')}</h2>
+              <p className="text-muted-foreground">{t('questionnaire.medicalInfoDesc')}</p>
             </div>
 
             <div>
-              <Label htmlFor="blood_type">Blood Type</Label>
+              <Label htmlFor="blood_type">{t('questionnaire.bloodType')}</Label>
               <Select value={formData.blood_type} onValueChange={(value) => setFormData(prev => ({ ...prev, blood_type: value }))}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select blood type" />
+                  <SelectValue placeholder={t('questionnaire.selectBloodType')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="A+">A+</SelectItem>
@@ -435,16 +437,16 @@ const WelcomeQuestionnaire = () => {
 
             <div>
               <Label className="flex items-center gap-2">
-                Medical Conditions
+                {t('questionnaire.medicalConditions')}
                 {formData.medical_conditions.length > 0 && user?.user_metadata?.medical_conditions && (
-                  <Badge variant="secondary" className="text-xs">From registration</Badge>
+                  <Badge variant="secondary" className="text-xs">{t('questionnaire.fromRegistration')}</Badge>
                 )}
               </Label>
               <div className="flex gap-2 mb-2">
                 <Input
                   value={newMedicalCondition}
                   onChange={(e) => setNewMedicalCondition(e.target.value)}
-                  placeholder="Add medical condition"
+                  placeholder={t('questionnaire.addMedicalCondition')}
                   onKeyPress={(e) => e.key === 'Enter' && addArrayItem('medical_conditions', newMedicalCondition)}
                 />
                 <Button
@@ -470,16 +472,16 @@ const WelcomeQuestionnaire = () => {
 
             <div>
               <Label className="flex items-center gap-2">
-                Allergies
+                {t('questionnaire.allergies')}
                 {formData.allergies.length > 0 && user?.user_metadata?.allergies && (
-                  <Badge variant="secondary" className="text-xs">From registration</Badge>
+                  <Badge variant="secondary" className="text-xs">{t('questionnaire.fromRegistration')}</Badge>
                 )}
               </Label>
               <div className="flex gap-2 mb-2">
                 <Input
                   value={newAllergy}
                   onChange={(e) => setNewAllergy(e.target.value)}
-                  placeholder="Add allergy"
+                  placeholder={t('questionnaire.addAllergy')}
                   onKeyPress={(e) => e.key === 'Enter' && addArrayItem('allergies', newAllergy)}
                 />
                 <Button
@@ -504,12 +506,12 @@ const WelcomeQuestionnaire = () => {
             </div>
 
             <div>
-              <Label>Current Medications</Label>
+              <Label>{t('questionnaire.currentMedications')}</Label>
               <div className="flex gap-2 mb-2">
                 <Input
                   value={newMedication}
                   onChange={(e) => setNewMedication(e.target.value)}
-                  placeholder="Add medication"
+                  placeholder={t('questionnaire.addMedication')}
                   onKeyPress={(e) => e.key === 'Enter' && addArrayItem('medications', newMedication)}
                 />
                 <Button
@@ -540,43 +542,43 @@ const WelcomeQuestionnaire = () => {
           <div className="space-y-6">
             <div className="text-center mb-6">
               <Phone className="w-16 h-16 text-primary mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-foreground">Emergency Contacts</h2>
-              <p className="text-muted-foreground">Who should we contact in an emergency?</p>
+              <h2 className="text-2xl font-bold text-foreground">{t('questionnaire.emergencyContacts')}</h2>
+              <p className="text-muted-foreground">{t('questionnaire.emergencyContactsDesc')}</p>
             </div>
 
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
-                  Add Emergency Contact
+                  {t('questionnaire.addEmergencyContact')}
                   {formData.emergency_contacts.length > 0 && user?.user_metadata?.emergency_contacts && (
-                    <Badge variant="secondary" className="text-xs">Some from registration</Badge>
+                    <Badge variant="secondary" className="text-xs">{t('questionnaire.someFromRegistration')}</Badge>
                   )}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="contact_name">Name</Label>
+                    <Label htmlFor="contact_name">{t('questionnaire.contactName')}</Label>
                     <Input
                       id="contact_name"
                       value={newContact.name}
                       onChange={(e) => setNewContact(prev => ({ ...prev, name: e.target.value }))}
-                      placeholder="Contact name"
+                      placeholder={t('questionnaire.contactNamePlaceholder')}
                     />
                   </div>
                   <div>
-                    <Label htmlFor="contact_relationship">Relationship</Label>
+                    <Label htmlFor="contact_relationship">{t('questionnaire.relationship')}</Label>
                     <Input
                       id="contact_relationship"
                       value={newContact.relationship}
                       onChange={(e) => setNewContact(prev => ({ ...prev, relationship: e.target.value }))}
-                      placeholder="e.g., Spouse, Parent, Friend"
+                      placeholder={t('questionnaire.relationshipPlaceholder')}
                     />
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="contact_phone">Phone</Label>
+                    <Label htmlFor="contact_phone">{t('questionnaire.phone')}</Label>
                     <Input
                       id="contact_phone"
                       type="tel"
@@ -586,7 +588,7 @@ const WelcomeQuestionnaire = () => {
                     />
                   </div>
                    <div>
-                     <Label htmlFor="contact_email">Email</Label>
+                     <Label htmlFor="contact_email">{t('questionnaire.email')}</Label>
                      <Input
                        id="contact_email"
                        type="email"
@@ -604,14 +606,14 @@ const WelcomeQuestionnaire = () => {
                   variant="outline"
                 >
                   <Plus className="w-4 h-4 mr-2" />
-                  Add Contact
+                  {t('questionnaire.addContact')}
                 </Button>
               </CardContent>
             </Card>
 
             {formData.emergency_contacts.length > 0 && (
               <div className="space-y-3">
-                <Label>Your Emergency Contacts</Label>
+                <Label>{t('questionnaire.yourEmergencyContacts')}</Label>
                 {formData.emergency_contacts.map((contact, index) => (
                   <Card key={index}>
                     <CardContent className="p-4">
@@ -646,14 +648,14 @@ const WelcomeQuestionnaire = () => {
         const completedFields = [];
         
         const fieldChecks = [
-          { key: 'first_name', label: 'First Name', value: formData.first_name },
-          { key: 'last_name', label: 'Last Name', value: formData.last_name },
-          { key: 'phone', label: 'Phone Number', value: formData.phone },
-          { key: 'date_of_birth', label: 'Date of Birth', value: formData.date_of_birth },
-          { key: 'street_address', label: 'Street Address', value: formData.street_address },
-          { key: 'country', label: 'Country', value: formData.country },
-          { key: 'blood_type', label: 'Blood Type', value: formData.blood_type },
-          { key: 'emergency_contacts', label: 'Emergency Contacts', value: formData.emergency_contacts.length > 0 ? 'Yes' : '' }
+          { key: 'first_name', label: t('questionnaire.firstName'), value: formData.first_name },
+          { key: 'last_name', label: t('questionnaire.lastName'), value: formData.last_name },
+          { key: 'phone', label: t('questionnaire.phoneNumber'), value: formData.phone },
+          { key: 'date_of_birth', label: t('questionnaire.dateOfBirth'), value: formData.date_of_birth },
+          { key: 'street_address', label: t('questionnaire.streetAddress'), value: formData.street_address },
+          { key: 'country', label: t('questionnaire.country'), value: formData.country },
+          { key: 'blood_type', label: t('questionnaire.bloodType'), value: formData.blood_type },
+          { key: 'emergency_contacts', label: t('questionnaire.emergencyContacts'), value: formData.emergency_contacts.length > 0 ? 'Yes' : '' }
         ];
         
         fieldChecks.forEach(field => {
@@ -668,25 +670,25 @@ const WelcomeQuestionnaire = () => {
           <div className="space-y-6">
             <div className="text-center mb-6">
               <Globe className="w-16 h-16 text-primary mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-foreground">Ready to Go!</h2>
-              <p className="text-muted-foreground">Review your information and complete setup</p>
+              <h2 className="text-2xl font-bold text-foreground">{t('questionnaire.readyToGo')}</h2>
+              <p className="text-muted-foreground">{t('questionnaire.reviewInfo')}</p>
             </div>
 
             <Card>
               <CardHeader>
-                <CardTitle>Profile Completion</CardTitle>
+                <CardTitle>{t('questionnaire.profileCompletion')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <span>Progress</span>
+                    <span>{t('questionnaire.progress')}</span>
                     <span className="font-semibold">{completionPercentage}%</span>
                   </div>
                   <Progress value={completionPercentage} className="w-full" />
                   
                   {missingFields.length > 0 && (
                     <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                      <h5 className="font-medium text-amber-800 mb-2">Missing Information:</h5>
+                      <h5 className="font-medium text-amber-800 mb-2">{t('questionnaire.missingInfo')}</h5>
                       <ul className="text-sm text-amber-700 space-y-1">
                         {missingFields.map(field => (
                           <li key={field.key} className="flex items-center gap-2">
@@ -705,7 +707,7 @@ const WelcomeQuestionnaire = () => {
               {/* Completed Information */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg text-green-600">✓ Information Provided</CardTitle>
+                  <CardTitle className="text-lg text-green-600">{t('questionnaire.infoProvided')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-sm space-y-2">
@@ -713,28 +715,28 @@ const WelcomeQuestionnaire = () => {
                       <div key={field.key} className="flex items-center gap-2 text-green-700">
                         <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                         <span className="font-medium">{field.label}:</span>
-                        <span>{field.key === 'emergency_contacts' ? `${formData.emergency_contacts.length} contact(s)` : field.value}</span>
+                        <span>{field.key === 'emergency_contacts' ? t('questionnaire.contactCount', { count: formData.emergency_contacts.length }) : field.value}</span>
                       </div>
                     ))}
                     {formData.medical_conditions.length > 0 && (
                       <div className="flex items-center gap-2 text-green-700">
                         <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        <span className="font-medium">Medical Conditions:</span>
-                        <span>{formData.medical_conditions.length} condition(s)</span>
+                        <span className="font-medium">{t('questionnaire.medicalConditions')}:</span>
+                        <span>{t('questionnaire.conditionCount', { count: formData.medical_conditions.length })}</span>
                       </div>
                     )}
                     {formData.allergies.length > 0 && (
                       <div className="flex items-center gap-2 text-green-700">
                         <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        <span className="font-medium">Allergies:</span>
-                        <span>{formData.allergies.length} allergy(ies)</span>
+                        <span className="font-medium">{t('questionnaire.allergies')}:</span>
+                        <span>{t('questionnaire.allergyCount', { count: formData.allergies.length })}</span>
                       </div>
                     )}
                     {formData.medications.length > 0 && (
                       <div className="flex items-center gap-2 text-green-700">
                         <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        <span className="font-medium">Medications:</span>
-                        <span>{formData.medications.length} medication(s)</span>
+                        <span className="font-medium">{t('questionnaire.currentMedications')}:</span>
+                        <span>{t('questionnaire.medicationCount', { count: formData.medications.length })}</span>
                       </div>
                     )}
                   </div>
@@ -745,7 +747,7 @@ const WelcomeQuestionnaire = () => {
               {missingFields.length > 0 && (
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg text-amber-600">⚠ Still Needed</CardTitle>
+                    <CardTitle className="text-lg text-amber-600">{t('questionnaire.stillNeeded')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-sm space-y-2">
@@ -757,7 +759,7 @@ const WelcomeQuestionnaire = () => {
                       ))}
                     </div>
                     <p className="text-xs text-amber-600 mt-3">
-                      You can complete these fields in your dashboard after setup.
+                      {t('questionnaire.completeInDashboard')}
                     </p>
                   </CardContent>
                 </Card>
@@ -782,9 +784,9 @@ const WelcomeQuestionnaire = () => {
           <Card className="bg-white/95 backdrop-blur-sm shadow-xl">
             <CardHeader>
               <div className="flex justify-between items-center">
-                <CardTitle className="text-2xl">Complete Your Profile</CardTitle>
+                <CardTitle className="text-2xl">{t('questionnaire.completeProfile')}</CardTitle>
                 <Badge variant="outline">
-                  Step {currentStep} of {totalSteps}
+                  {t('questionnaire.stepOf', { current: currentStep, total: totalSteps })}
                 </Badge>
               </div>
               <Progress value={progress} className="w-full" />
@@ -799,14 +801,14 @@ const WelcomeQuestionnaire = () => {
                   onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
                   disabled={currentStep === 1}
                 >
-                  Previous
+                  {t('questionnaire.previous')}
                 </Button>
                 
                 {currentStep < totalSteps ? (
                   <Button
                     onClick={() => setCurrentStep(prev => Math.min(totalSteps, prev + 1))}
                   >
-                    Next
+                    {t('questionnaire.next')}
                   </Button>
                 ) : (
                   <Button
@@ -814,7 +816,7 @@ const WelcomeQuestionnaire = () => {
                     disabled={isLoading}
                     className="bg-primary hover:bg-primary/90"
                   >
-                    {isLoading ? 'Saving...' : 'Complete Setup'}
+                    {isLoading ? t('questionnaire.saving') : t('questionnaire.completeSetup')}
                   </Button>
                 )}
               </div>

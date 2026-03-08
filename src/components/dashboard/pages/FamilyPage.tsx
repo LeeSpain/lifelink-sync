@@ -8,8 +8,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Users, Plus, Shield, MapPin, Phone, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from 'react-i18next';
 
 export function FamilyPage() {
+  const { t } = useTranslation();
   const [showInviteForm, setShowInviteForm] = useState(false);
   const [familyMembers, setFamilyMembers] = useState<any[]>([]);
   const [pendingInvites, setPendingInvites] = useState<any[]>([]);
@@ -47,8 +49,8 @@ export function FamilyPage() {
     } catch (error) {
       console.error('Error loading family data:', error);
       toast({
-        title: "Error",
-        description: "Failed to load family data.",
+        title: t('familyPage.error'),
+        description: t('familyPage.failedToLoadData'),
         variant: "destructive"
       });
     } finally {
@@ -59,8 +61,8 @@ export function FamilyPage() {
   const handleInvite = async () => {
     if (!inviteData.name || !inviteData.email || !inviteData.relationship) {
       toast({
-        title: "Missing Information",
-        description: "Please fill in all fields.",
+        title: t('familyPage.missingInformation'),
+        description: t('familyPage.fillAllFields'),
         variant: "destructive"
       });
       return;
@@ -92,8 +94,8 @@ export function FamilyPage() {
       if (error) throw error;
 
       toast({
-        title: "Invitation Sent",
-        description: `Family invitation sent to ${inviteData.name} successfully.`
+        title: t('familyPage.invitationSent'),
+        description: t('familyPage.invitationSentTo', { name: inviteData.name })
       });
 
       setShowInviteForm(false);
@@ -102,8 +104,8 @@ export function FamilyPage() {
     } catch (error) {
       console.error('Error sending invite:', error);
       toast({
-        title: "Error",
-        description: "Failed to send family invitation.",
+        title: t('familyPage.error'),
+        description: t('familyPage.failedToSendInvitation'),
         variant: "destructive"
       });
     }
@@ -112,13 +114,13 @@ export function FamilyPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "active":
-        return <Badge variant="secondary">Active</Badge>;
+        return <Badge variant="secondary">{t('familyPage.active')}</Badge>;
       case "offline":
-        return <Badge variant="secondary">Offline</Badge>;
+        return <Badge variant="secondary">{t('familyPage.offline')}</Badge>;
       case "pending":
-        return <Badge variant="outline">Pending</Badge>;
+        return <Badge variant="outline">{t('familyPage.pending')}</Badge>;
       default:
-        return <Badge variant="secondary">Unknown</Badge>;
+        return <Badge variant="secondary">{t('familyPage.unknown')}</Badge>;
     }
   };
 
@@ -128,12 +130,12 @@ export function FamilyPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Family</h1>
-            <p className="text-muted-foreground">Manage your family members and invitations</p>
+            <h1 className="text-2xl font-bold tracking-tight">{t('familyPage.title')}</h1>
+            <p className="text-muted-foreground">{t('familyPage.subtitle')}</p>
           </div>
           <Button onClick={() => setShowInviteForm(true)} variant="outline" size="sm" className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
-            Invite Family Member
+            {t('familyPage.inviteFamilyMember')}
           </Button>
         </div>
 
@@ -141,45 +143,45 @@ export function FamilyPage() {
         {showInviteForm && (
           <Card>
             <CardHeader>
-              <CardTitle>Invite Family Member</CardTitle>
+              <CardTitle>{t('familyPage.inviteFamilyMember')}</CardTitle>
               <CardDescription>
-                Send an invitation to a family member to join your safety network
+                {t('familyPage.inviteDescription')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="name">Full Name</Label>
+                  <Label htmlFor="name">{t('familyPage.fullName')}</Label>
                   <Input
                     id="name"
                     value={inviteData.name}
                     onChange={(e) => setInviteData({...inviteData, name: e.target.value})}
-                    placeholder="Enter full name"
+                    placeholder={t('familyPage.enterFullName')}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="email">Email Address</Label>
+                  <Label htmlFor="email">{t('familyPage.emailAddress')}</Label>
                   <Input
                     id="email"
                     type="email"
                     value={inviteData.email}
                     onChange={(e) => setInviteData({...inviteData, email: e.target.value})}
-                    placeholder="Enter email address"
+                    placeholder={t('familyPage.enterEmail')}
                   />
                 </div>
               </div>
               <div>
-                <Label htmlFor="relationship">Relationship</Label>
+                <Label htmlFor="relationship">{t('familyPage.relationship')}</Label>
                 <Input
                   id="relationship"
                   value={inviteData.relationship}
                   onChange={(e) => setInviteData({...inviteData, relationship: e.target.value})}
-                  placeholder="e.g., Spouse, Child, Parent, Sibling"
+                  placeholder={t('familyPage.relationshipPlaceholder')}
                 />
               </div>
               <div className="flex gap-2">
-                <Button onClick={handleInvite} size="sm">Send Invitation</Button>
-                <Button variant="outline" size="sm" onClick={() => setShowInviteForm(false)}>Cancel</Button>
+                <Button onClick={handleInvite} size="sm">{t('familyPage.sendInvitation')}</Button>
+                <Button variant="outline" size="sm" onClick={() => setShowInviteForm(false)}>{t('familyPage.cancel')}</Button>
               </div>
             </CardContent>
           </Card>
@@ -190,10 +192,10 @@ export function FamilyPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
-              Family Members ({familyMembers.length})
+              {t('familyPage.familyMembers')} ({familyMembers.length})
             </CardTitle>
             <CardDescription>
-              Monitor the safety status and location of your family members
+              {t('familyPage.monitorSafetyStatus')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -201,7 +203,7 @@ export function FamilyPage() {
               {/* Accepted Family Members */}
               {familyMembers.length > 0 && (
                 <div className="space-y-4">
-                  <h4 className="font-medium text-base">Connected Family Members</h4>
+                  <h4 className="font-medium text-base">{t('familyPage.connectedFamilyMembers')}</h4>
                   {familyMembers.map((member) => (
                     <div key={member.id} className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors">
                       <div className="flex items-center gap-3">
@@ -220,9 +222,9 @@ export function FamilyPage() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <Badge variant="secondary">Connected</Badge>
+                        <Badge variant="secondary">{t('familyPage.connected')}</Badge>
                         <p className="text-xs text-muted-foreground mt-1">
-                          Joined: {new Date(member.accepted_at).toLocaleDateString()}
+                          {t('familyPage.joined')}: {new Date(member.accepted_at).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
@@ -233,7 +235,7 @@ export function FamilyPage() {
               {/* Pending Invites */}
               {pendingInvites.length > 0 && (
                 <div className="space-y-4">
-                  <h4 className="font-medium text-base">Pending Invitations</h4>
+                  <h4 className="font-medium text-base">{t('familyPage.pendingInvitations')}</h4>
                   {pendingInvites.map((invite) => (
                     <div key={invite.id} className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors">
                       <div className="flex items-center gap-3">
@@ -252,9 +254,9 @@ export function FamilyPage() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <Badge variant="outline">Pending</Badge>
+                        <Badge variant="outline">{t('familyPage.pending')}</Badge>
                         <p className="text-xs text-muted-foreground mt-1">
-                          Sent: {new Date(invite.created_at).toLocaleDateString()}
+                          {t('familyPage.sent')}: {new Date(invite.created_at).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
@@ -266,13 +268,13 @@ export function FamilyPage() {
               {familyMembers.length === 0 && pendingInvites.length === 0 && !isLoading && (
                 <div className="text-center py-8">
                   <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No family members yet</h3>
+                  <h3 className="text-lg font-semibold mb-2">{t('familyPage.noFamilyMembers')}</h3>
                   <p className="text-muted-foreground mb-4">
-                    Start building your safety network by inviting family members
+                    {t('familyPage.startBuildingNetwork')}
                   </p>
                   <Button onClick={() => setShowInviteForm(true)}>
                     <Plus className="h-4 w-4 mr-2" />
-                    Invite Your First Family Member
+                    {t('familyPage.inviteFirstFamilyMember')}
                   </Button>
                 </div>
               )}
@@ -281,7 +283,7 @@ export function FamilyPage() {
               {isLoading && (
                 <div className="text-center py-8">
                   <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                  <p className="text-muted-foreground">Loading family members...</p>
+                  <p className="text-muted-foreground">{t('familyPage.loadingFamilyMembers')}</p>
                 </div>
               )}
             </div>

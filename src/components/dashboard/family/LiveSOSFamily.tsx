@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from 'react-i18next';
 import { MapPin, Users, Clock, CheckCircle, Phone, AlertTriangle } from "lucide-react";
 import { sanitizeHTML } from '@/utils/sanitize';
 
@@ -44,6 +45,7 @@ const LiveSOSFamily = () => {
   const [isLoading, setIsLoading] = useState(false);
   const mapRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   useEffect(() => {
     // Check for active SOS events

@@ -21,12 +21,14 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from 'react-i18next';
 
 interface ProtectionServicesSectionProps {
   profile: any;
 }
 
 const ProtectionServicesSection = ({ profile }: ProtectionServicesSectionProps) => {
+  const { t } = useTranslation();
   const [subscriptionData, setSubscriptionData] = useState<any>(null);
   const [emergencyContacts, setEmergencyContacts] = useState<any[]>([]);
   const [familyConnections, setFamilyConnections] = useState<any[]>([]);
@@ -103,56 +105,56 @@ const ProtectionServicesSection = ({ profile }: ProtectionServicesSectionProps) 
   const services = [
     {
       id: 'emergency_sos',
-      name: 'Emergency SOS',
-      description: 'Instant emergency response with sequential calling',
+      name: t('profileSection.emergencySos'),
+      description: t('profileSection.emergencySosDesc'),
       icon: Phone,
       status: emergencyContacts.length > 0 ? 'active' : 'setup_required',
-      data: `${emergencyContacts.length}/5 contacts`,
+      data: t('profileSection.contactsOfMax', { count: emergencyContacts.length }),
       premium: false
     },
     {
       id: 'family_circle',
-      name: 'Family Circle',
-      description: 'Real-time family location sharing and safety alerts',
+      name: t('profileSection.familyCircle'),
+      description: t('profileSection.familyCircleDesc'),
       icon: Users,
       status: familyConnections.length > 0 ? 'active' : 'available',
-      data: `${familyConnections.length} members`,
+      data: t('profileSection.membersCount', { count: familyConnections.length }),
       premium: true
     },
     {
       id: 'location_services',
-      name: 'Location Services',
-      description: 'GPS tracking and geofencing for safety zones',
+      name: t('profileSection.locationServices'),
+      description: t('profileSection.locationServicesDesc'),
       icon: MapPin,
       status: profile?.country ? 'active' : 'setup_required',
-      data: profile?.country || 'Not configured',
+      data: profile?.country || t('profileSection.notConfigured'),
       premium: false
     },
     {
       id: 'regional_center',
-      name: 'Regional Call Center',
-      description: '24/7 professional emergency response center',
+      name: t('profileSection.regionalCallCenter'),
+      description: t('profileSection.regionalCallCenterDesc'),
       icon: Globe,
       status: profile?.country === 'ES' ? 'active' : 'not_available',
-      data: profile?.country === 'ES' ? 'Spain Center' : 'Not in coverage area',
+      data: profile?.country === 'ES' ? t('profileSection.spainCenter') : t('profileSection.notInCoverageArea'),
       premium: true
     },
     {
       id: 'health_profile',
-      name: 'Medical Profile',
-      description: 'Emergency medical information for first responders',
+      name: t('profileSection.medicalProfile'),
+      description: t('profileSection.medicalProfileDesc'),
       icon: Heart,
       status: (profile?.blood_type || profile?.allergies?.length || profile?.medications?.length) ? 'active' : 'setup_required',
-      data: [profile?.blood_type, ...(profile?.allergies || []), ...(profile?.medications || [])].filter(Boolean).length + ' items',
+      data: t('profileSection.itemsCount', { count: [profile?.blood_type, ...(profile?.allergies || []), ...(profile?.medications || [])].filter(Boolean).length }),
       premium: false
     },
     {
       id: 'device_integration',
-      name: 'Device Integration',
-      description: 'Connect smart devices like Flic buttons and pendants',
+      name: t('profileSection.deviceIntegration'),
+      description: t('profileSection.deviceIntegrationDesc'),
       icon: Smartphone,
       status: 'available',
-      data: 'No devices connected',
+      data: t('profileSection.noDevicesConnected'),
       premium: true
     }
   ];
@@ -160,15 +162,15 @@ const ProtectionServicesSection = ({ profile }: ProtectionServicesSectionProps) 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
-        return <Badge variant="default" className="gap-1"><CheckCircle className="h-3 w-3" />Active</Badge>;
+        return <Badge variant="default" className="gap-1"><CheckCircle className="h-3 w-3" />{t('profileSection.active')}</Badge>;
       case 'setup_required':
-        return <Badge variant="outline" className="gap-1 border-orange-200 text-orange-700"><Clock className="h-3 w-3" />Setup Required</Badge>;
+        return <Badge variant="outline" className="gap-1 border-orange-200 text-orange-700"><Clock className="h-3 w-3" />{t('profileSection.setupRequired')}</Badge>;
       case 'available':
-        return <Badge variant="secondary" className="gap-1">Available</Badge>;
+        return <Badge variant="secondary" className="gap-1">{t('profileSection.available')}</Badge>;
       case 'not_available':
-        return <Badge variant="outline" className="gap-1 border-muted text-muted-foreground">Not Available</Badge>;
+        return <Badge variant="outline" className="gap-1 border-muted text-muted-foreground">{t('profileSection.notAvailable')}</Badge>;
       default:
-        return <Badge variant="outline">Unknown</Badge>;
+        return <Badge variant="outline">{t('profileSection.unknown')}</Badge>;
     }
   };
 
@@ -185,13 +187,13 @@ const ProtectionServicesSection = ({ profile }: ProtectionServicesSectionProps) 
                 <Shield className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <CardTitle className="text-xl">Protection Score</CardTitle>
-                <p className="text-sm text-muted-foreground">Your emergency preparedness level</p>
+                <CardTitle className="text-xl">{t('profileSection.protectionScore')}</CardTitle>
+                <p className="text-sm text-muted-foreground">{t('profileSection.emergencyPreparednessLevel')}</p>
               </div>
             </div>
             <div className="text-right">
               <div className="text-3xl font-bold text-primary">{protectionScore}</div>
-              <div className="text-sm text-muted-foreground">out of 100</div>
+              <div className="text-sm text-muted-foreground">{t('profileSection.outOf100')}</div>
             </div>
           </div>
         </CardHeader>
@@ -199,14 +201,14 @@ const ProtectionServicesSection = ({ profile }: ProtectionServicesSectionProps) 
           <Progress value={protectionScore} className="h-3 mb-4" />
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">
-              {protectionScore >= 80 ? 'Excellent protection' : 
-               protectionScore >= 60 ? 'Good protection' : 
-               protectionScore >= 40 ? 'Basic protection' : 'Needs improvement'}
+              {protectionScore >= 80 ? t('profileSection.excellentProtection') :
+               protectionScore >= 60 ? t('profileSection.goodProtection') :
+               protectionScore >= 40 ? t('profileSection.basicProtection') : t('profileSection.needsImprovement')}
             </span>
             {protectionScore < 100 && (
               <Button variant="outline" size="sm">
                 <Zap className="h-4 w-4 mr-2" />
-                Improve Score
+                {t('profileSection.improveScore')}
               </Button>
             )}
           </div>
@@ -225,18 +227,18 @@ const ProtectionServicesSection = ({ profile }: ProtectionServicesSectionProps) 
                 <div>
                   <CardTitle className="text-lg flex items-center gap-2">
                     LifeLink Sync {subscriptionData.subscription_tier}
-                    <Badge variant="default">Active</Badge>
+                    <Badge variant="default">{t('profileSection.active')}</Badge>
                   </CardTitle>
                   <p className="text-sm text-muted-foreground">
                     {subscriptionData.subscription_end && 
-                      `Valid until ${new Date(subscriptionData.subscription_end).toLocaleDateString()}`
+                      t('profileSection.validUntil', { date: new Date(subscriptionData.subscription_end).toLocaleDateString() })
                     }
                   </p>
                 </div>
               </div>
               <Button variant="outline" size="sm">
                 <Settings className="h-4 w-4 mr-2" />
-                Manage
+                {t('profileSection.manage')}
               </Button>
             </div>
           </CardHeader>
@@ -248,7 +250,7 @@ const ProtectionServicesSection = ({ profile }: ProtectionServicesSectionProps) 
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5" />
-            Your Protection Services
+            {t('profileSection.yourProtectionServices')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -265,7 +267,7 @@ const ProtectionServicesSection = ({ profile }: ProtectionServicesSectionProps) 
                       <div className="flex items-center gap-2 mb-1">
                         <h4 className="font-medium">{service.name}</h4>
                         {service.premium && (
-                          <Badge variant="outline" className="text-xs">Premium</Badge>
+                          <Badge variant="outline" className="text-xs">{t('profileSection.premium')}</Badge>
                         )}
                         {getStatusBadge(service.status)}
                       </div>
@@ -289,7 +291,7 @@ const ProtectionServicesSection = ({ profile }: ProtectionServicesSectionProps) 
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-orange-700">
               <AlertTriangle className="h-5 w-5" />
-              Recommendations to Improve Protection
+              {t('profileSection.recommendationsToImprove')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -297,28 +299,28 @@ const ProtectionServicesSection = ({ profile }: ProtectionServicesSectionProps) 
               {emergencyContacts.length === 0 && (
                 <div className="flex items-center justify-between p-3 bg-white rounded-lg border">
                   <div>
-                    <p className="font-medium text-sm">Add Emergency Contacts</p>
-                    <p className="text-xs text-muted-foreground">Add up to 5 emergency contacts for SOS calls</p>
+                    <p className="font-medium text-sm">{t('profileSection.addEmergencyContacts')}</p>
+                    <p className="text-xs text-muted-foreground">{t('profileSection.addUpTo5Contacts')}</p>
                   </div>
-                  <Button size="sm" variant="outline">Setup</Button>
+                  <Button size="sm" variant="outline">{t('profileSection.setup')}</Button>
                 </div>
               )}
               {!subscriptionData?.subscribed && (
                 <div className="flex items-center justify-between p-3 bg-white rounded-lg border">
                   <div>
-                    <p className="font-medium text-sm">Upgrade to Premium</p>
-                    <p className="text-xs text-muted-foreground">Access advanced features and family sharing</p>
+                    <p className="font-medium text-sm">{t('profileSection.upgradeToPremium')}</p>
+                    <p className="text-xs text-muted-foreground">{t('profileSection.accessAdvancedFeatures')}</p>
                   </div>
-                  <Button size="sm">Upgrade</Button>
+                  <Button size="sm">{t('profileSection.upgrade')}</Button>
                 </div>
               )}
               {familyConnections.length === 0 && (
                 <div className="flex items-center justify-between p-3 bg-white rounded-lg border">
                   <div>
-                    <p className="font-medium text-sm">Connect Family Members</p>
-                    <p className="text-xs text-muted-foreground">Share your location and safety status with family</p>
+                    <p className="font-medium text-sm">{t('profileSection.connectFamilyMembers')}</p>
+                    <p className="text-xs text-muted-foreground">{t('profileSection.shareLocationWithFamily')}</p>
                   </div>
-                  <Button size="sm" variant="outline">Connect</Button>
+                  <Button size="sm" variant="outline">{t('profileSection.connect')}</Button>
                 </div>
               )}
             </div>

@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from 'react-i18next';
 import DeviceManagerButton from "@/components/devices/DeviceManagerButton";
 
 interface FlicButton {
@@ -36,6 +37,7 @@ interface FlicEvent {
 }
 
 const EnhancedMyProductsPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [userProducts, setUserProducts] = useState<any[]>([]);
   const [subscription, setSubscription] = useState<any>(null);
@@ -269,15 +271,15 @@ const EnhancedMyProductsPage = () => {
       if (data.url) {
         window.open(data.url, '_blank');
         toast({
-          title: "Redirecting to payment",
-          description: "Please complete your purchase in the new tab.",
+          title: t('products.redirectingToPayment'),
+          description: t('products.completePurchaseInNewTab'),
         });
       }
     } catch (error) {
       console.error('Error creating payment:', error);
       toast({
-        title: "Payment Error",
-        description: "Unable to process payment. Please try again.",
+        title: t('products.paymentError'),
+        description: t('products.unableToProcessPayment'),
         variant: "destructive",
       });
     } finally {
@@ -287,9 +289,9 @@ const EnhancedMyProductsPage = () => {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'connected': return <Badge className="bg-primary/10 text-primary">Connected</Badge>;
-      case 'disconnected': return <Badge variant="destructive">Disconnected</Badge>;
-      default: return <Badge variant="secondary">Unknown</Badge>;
+      case 'connected': return <Badge className="bg-primary/10 text-primary">{t('products.connected')}</Badge>;
+      case 'disconnected': return <Badge variant="destructive">{t('products.disconnected')}</Badge>;
+      default: return <Badge variant="secondary">{t('products.unknown')}</Badge>;
     }
   };
 
@@ -313,16 +315,16 @@ const EnhancedMyProductsPage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">My Products & Devices</h1>
-        <p className="text-muted-foreground">Manage your connected products, devices, and subscriptions</p>
+        <h1 className="text-2xl font-bold tracking-tight">{t('products.title')}</h1>
+        <p className="text-muted-foreground">{t('products.subtitle')}</p>
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="devices">Connected Devices</TabsTrigger>
-          <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
-          <TabsTrigger value="available">Available Products</TabsTrigger>
+          <TabsTrigger value="overview">{t('products.overview')}</TabsTrigger>
+          <TabsTrigger value="devices">{t('products.connectedDevices')}</TabsTrigger>
+          <TabsTrigger value="subscriptions">{t('products.subscriptions')}</TabsTrigger>
+          <TabsTrigger value="available">{t('products.availableProducts')}</TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
@@ -332,8 +334,8 @@ const EnhancedMyProductsPage = () => {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">Premium Protection</p>
-                    <p className="text-lg font-semibold">{hasPremiumActive ? 'Active' : 'Inactive'}</p>
+                    <p className="text-sm text-muted-foreground">{t('products.premiumProtection')}</p>
+                    <p className="text-lg font-semibold">{hasPremiumActive ? t('products.active') : t('products.inactive')}</p>
                   </div>
                   <Shield className={`h-5 w-5 ${hasPremiumActive ? 'text-primary' : 'text-muted-foreground'}`} />
                 </div>
@@ -344,7 +346,7 @@ const EnhancedMyProductsPage = () => {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">Flic Devices</p>
+                    <p className="text-sm text-muted-foreground">{t('products.flicDevices')}</p>
                     <p className="text-lg font-semibold">{flicButtons.length}</p>
                   </div>
                   <Bluetooth className={`h-5 w-5 ${flicButtons.length > 0 ? 'text-primary' : 'text-muted-foreground'}`} />
@@ -356,7 +358,7 @@ const EnhancedMyProductsPage = () => {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">Products Owned</p>
+                    <p className="text-sm text-muted-foreground">{t('products.productsOwned')}</p>
                     <p className="text-lg font-semibold">{userProducts.length}</p>
                   </div>
                   <Package className={`h-5 w-5 ${userProducts.length > 0 ? 'text-primary' : 'text-muted-foreground'}`} />
@@ -368,8 +370,8 @@ const EnhancedMyProductsPage = () => {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">Regional Services</p>
-                    <p className="text-lg font-semibold">{profile?.has_spain_call_center ? 'Active' : 'None'}</p>
+                    <p className="text-sm text-muted-foreground">{t('products.regionalServices')}</p>
+                    <p className="text-lg font-semibold">{profile?.has_spain_call_center ? t('products.active') : t('products.none')}</p>
                   </div>
                   <Smartphone className={`h-5 w-5 ${profile?.has_spain_call_center ? 'text-primary' : 'text-muted-foreground'}`} />
                 </div>
@@ -380,7 +382,7 @@ const EnhancedMyProductsPage = () => {
           {/* Quick Actions */}
           <Card>
             <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
+              <CardTitle>{t('products.quickActions')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -391,7 +393,7 @@ const EnhancedMyProductsPage = () => {
                   onClick={() => window.dispatchEvent(new Event('open-device-settings'))}
                 >
                   <Bluetooth className="mr-2 h-4 w-4" />
-                  Connect Flic Device
+                  {t('products.connectFlicDevice')}
                 </Button>
                 <Button
                   variant="outline"
@@ -400,7 +402,7 @@ const EnhancedMyProductsPage = () => {
                   onClick={() => navigate('/member-dashboard/subscription')}
                 >
                   <CreditCard className="mr-2 h-4 w-4" />
-                  Manage Subscription
+                  {t('products.manageSubscription')}
                 </Button>
                 <Button
                   variant="outline"
@@ -410,7 +412,7 @@ const EnhancedMyProductsPage = () => {
                 >
                   <a href="/devices/lifelink-sync-pendant" target="_blank" rel="noreferrer">
                     <ExternalLink className="mr-2 h-4 w-4" />
-                    Device Landing Page
+                    {t('products.deviceLandingPage')}
                   </a>
                 </Button>
               </div>
@@ -425,17 +427,17 @@ const EnhancedMyProductsPage = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Bluetooth className="h-5 w-5" />
-                Flic 2 Emergency Buttons
+                {t('products.flic2EmergencyButtons')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {flicLoading ? (
-                <p className="text-sm text-muted-foreground">Loading Flic devices...</p>
+                <p className="text-sm text-muted-foreground">{t('products.loadingFlicDevices')}</p>
               ) : flicButtons.length === 0 ? (
                 <div className="text-center py-8">
                   <Bluetooth className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium mb-2">No Flic devices connected</h3>
-                  <p className="text-muted-foreground mb-4">Connect your Flic 2 button to enable instant emergency alerts</p>
+                  <h3 className="text-lg font-medium mb-2">{t('products.noFlicDevices')}</h3>
+                  <p className="text-muted-foreground mb-4">{t('products.connectFlicToEnable')}</p>
                   <DeviceManagerButton />
                 </div>
               ) : (

@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useTranslation } from 'react-i18next';
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { useNavigate } from "react-router-dom";
@@ -49,6 +50,7 @@ interface PaymentFormProps {
 }
 
 const PaymentForm = ({ clientSecret, customerId, plans, firstName, lastName, userEmail, country, onSuccess, onError }: PaymentFormProps) => {
+  const { t } = useTranslation();
   const stripe = useStripe();
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -95,8 +97,8 @@ const PaymentForm = ({ clientSecret, customerId, plans, firstName, lastName, use
         if (error) throw error;
 
         toast({
-          title: "Payment Successful!",
-          description: "Your subscription and orders are now active.",
+          title: t('payment.paymentSuccessful'),
+          description: t('payment.subscriptionAndOrdersActive'),
         });
         
         onSuccess();
@@ -104,7 +106,7 @@ const PaymentForm = ({ clientSecret, customerId, plans, firstName, lastName, use
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Payment failed";
       toast({
-        title: "Payment Failed",
+        title: t('payment.paymentFailed'),
         description: errorMessage,
         variant: "destructive"
       });
@@ -147,13 +149,13 @@ const PaymentForm = ({ clientSecret, customerId, plans, firstName, lastName, use
           }}
           onLoadError={(error) => {
             console.error("❌ PaymentElement load error:", error);
-            onError("Payment form failed to load. Please refresh and try again.");
+            onError(t('payment.formFailedToLoad'));
           }}
         />
         {!elementReady && (
           <div className="flex items-center justify-center h-32">
             <Loader2 className="h-6 w-6 animate-spin" />
-            <span className="ml-2 text-sm text-muted-foreground">Loading payment form...</span>
+            <span className="ml-2 text-sm text-muted-foreground">{t('payment.loadingForm')}</span>
           </div>
         )}
       </div>
@@ -166,10 +168,10 @@ const PaymentForm = ({ clientSecret, customerId, plans, firstName, lastName, use
         {isProcessing ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Processing Payment...
+            {t('payment.processingPayment')}
           </>
         ) : (
-          "Complete Payment"
+          t('payment.completePayment')
         )}
       </Button>
     </form>
@@ -194,6 +196,7 @@ interface EmbeddedPaymentProps {
 
 
 const EmbeddedPayment = ({ plans, products = [], regionalServices = [], userEmail, firstName, lastName, password, phone, city, country, currency: propCurrency, onSuccess, onBack }: EmbeddedPaymentProps) => {
+  const { t } = useTranslation();
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [customerId, setCustomerId] = useState<string>("");
   const [loading, setLoading] = useState(true);
@@ -316,7 +319,7 @@ const initializePayment = async (retryCount = 0) => {
     setInitializationError(errorMsg);
     toast({
       title: "Error",
-      description: "No items selected for payment. Please go back and select items.",
+      description: t('payment.noItemsSelected'),
       variant: "destructive"
     });
     setLoading(false);
@@ -334,8 +337,8 @@ const initializePayment = async (retryCount = 0) => {
     console.error("❌", errorMsg);
     setInitializationError(errorMsg);
     toast({
-      title: "Configuration Error",
-      description: "Payment system is not properly configured. Please contact support.",
+      title: t('payment.configurationError'),
+      description: t('payment.systemNotConfigured'),
       variant: "destructive"
     });
     setLoading(false);
@@ -370,8 +373,8 @@ const initializePayment = async (retryCount = 0) => {
         console.error("❌", errorMsg);
         setInitializationError(errorMsg);
         toast({
-          title: "Payment Configuration Error",
-          description: "There's a mismatch in payment configuration. Please contact support.",
+          title: t('payment.configurationError'),
+          description: t('payment.configMismatch'),
           variant: "destructive"
         });
         setLoading(false);
@@ -408,8 +411,8 @@ const initializePayment = async (retryCount = 0) => {
     }
     
     toast({
-      title: "Payment Error",
-      description: "Failed to initialize payment. Please try again or contact support.",
+      title: t('payment.paymentError'),
+      description: t('payment.failedToInitialize'),
       variant: "destructive"
     });
   } finally {
@@ -432,22 +435,22 @@ const initializePayment = async (retryCount = 0) => {
     <div className="space-y-6">
       {/* Customer Information */}
       <div className="bg-muted/50 p-4 rounded-lg space-y-3">
-        <h4 className="font-medium">Customer Information:</h4>
+        <h4 className="font-medium">{t('payment.customerInformation')}</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div>
-            <span className="font-medium">Name:</span> {firstName} {lastName}
+            <span className="font-medium">{t('payment.name')}:</span> {firstName} {lastName}
           </div>
           <div>
-            <span className="font-medium">Email:</span> {userEmail}
+            <span className="font-medium">{t('payment.email')}:</span> {userEmail}
           </div>
           {phone && (
             <div>
-              <span className="font-medium">Phone:</span> {phone}
+              <span className="font-medium">{t('payment.phone')}:</span> {phone}
             </div>
           )}
           {city && country && (
             <div>
-              <span className="font-medium">Location:</span> {city}, {country}
+              <span className="font-medium">{t('payment.location')}:</span> {city}, {country}
             </div>
           )}
         </div>
@@ -456,12 +459,12 @@ const initializePayment = async (retryCount = 0) => {
 
       {/* Order Summary */}
       <div className="bg-muted/50 p-4 rounded-lg space-y-4">
-        <h4 className="font-medium">Order Summary:</h4>
+        <h4 className="font-medium">{t('payment.orderSummary')}</h4>
         
         {/* Subscription Plans */}
         {planData.length > 0 && (
           <div>
-            <h5 className="text-sm font-medium text-muted-foreground mb-2">Monthly Subscriptions:</h5>
+            <h5 className="text-sm font-medium text-muted-foreground mb-2">{t('payment.monthlySubscriptions')}</h5>
             <ul className="space-y-2">
               {planData.map(plan => {
                 const convertedPrice = convertCurrency(parseFloat(plan.price.toString()), 'EUR', selectedCurrency);
@@ -469,7 +472,7 @@ const initializePayment = async (retryCount = 0) => {
                 return (
                   <li key={plan.id} className="flex justify-between p-2 bg-white rounded border">
                     <span className="font-medium">{plan.name}</span>
-                    <span className="text-foreground">{formattedPrice}/month</span>
+                    <span className="text-foreground">{formattedPrice}/{t('payment.month')}</span>
                   </li>
                 );
               })}
@@ -480,7 +483,7 @@ const initializePayment = async (retryCount = 0) => {
         {/* Regional Services */}
         {serviceData.length > 0 && (
           <div>
-            <h5 className="text-sm font-medium text-muted-foreground mb-2">Regional Services:</h5>
+            <h5 className="text-sm font-medium text-muted-foreground mb-2">{t('payment.regionalServices')}</h5>
             <ul className="space-y-2">
               {serviceData.map(service => {
                 const netPrice = parseFloat(service.price.toString());
@@ -495,8 +498,8 @@ const initializePayment = async (retryCount = 0) => {
                     <div className="flex justify-between items-start">
                       <span className="font-medium">{service.name} ({service.region})</span>
                       <div className="text-right text-sm">
-                        <div className="text-muted-foreground">Net: {formattedNetPrice} + IVA: {formattedIvaAmount}</div>
-                        <div className="font-bold text-foreground">{formattedTotalPrice}/month</div>
+                        <div className="text-muted-foreground">{t('payment.net')}: {formattedNetPrice} + IVA: {formattedIvaAmount}</div>
+                        <div className="font-bold text-foreground">{formattedTotalPrice}/{t('payment.month')}</div>
                       </div>
                     </div>
                   </li>
@@ -509,7 +512,7 @@ const initializePayment = async (retryCount = 0) => {
         {/* Products */}
         {productData.length > 0 && (
           <div>
-            <h5 className="text-sm font-medium text-muted-foreground mb-2">Safety Products (One-time):</h5>
+            <h5 className="text-sm font-medium text-muted-foreground mb-2">{t('payment.safetyProductsOneTime')}</h5>
             <ul className="space-y-2">
               {productData.map(product => {
                 const netPrice = parseFloat(product.price.toString());
@@ -524,7 +527,7 @@ const initializePayment = async (retryCount = 0) => {
                     <div className="flex justify-between items-start">
                       <span className="font-medium">{product.name}</span>
                       <div className="text-right text-sm">
-                        <div className="text-muted-foreground">Net: {formattedNetPrice} + IVA: {formattedIvaAmount}</div>
+                        <div className="text-muted-foreground">{t('payment.net')}: {formattedNetPrice} + IVA: {formattedIvaAmount}</div>
                         <div className="font-bold text-foreground">{formattedTotalPrice}</div>
                       </div>
                     </div>
@@ -539,18 +542,18 @@ const initializePayment = async (retryCount = 0) => {
         <div className="border-t pt-3 space-y-2">
           {subscriptionTotal > 0 && (
             <div className="flex justify-between text-base">
-              <span>Monthly Subscription:</span>
-              <span className="text-foreground">{formatDisplayCurrency(subscriptionTotal, selectedCurrency, languageToLocale(language))}/month</span>
+              <span>{t('payment.monthlySubscription')}:</span>
+              <span className="text-foreground">{formatDisplayCurrency(subscriptionTotal, selectedCurrency, languageToLocale(language))}/{t('payment.month')}</span>
             </div>
           )}
           {productTotal > 0 && (
             <div className="flex justify-between text-base">
-              <span>One-time Products:</span>
+              <span>{t('payment.oneTimeProducts')}:</span>
               <span className="text-foreground">{formatDisplayCurrency(productTotal, selectedCurrency, languageToLocale(language))}</span>
             </div>
           )}
           <div className="flex justify-between text-lg font-bold border-t pt-2">
-            <span>Total Payment:</span>
+            <span>{t('payment.totalPayment')}:</span>
             <span className="text-foreground">
               {formatDisplayCurrency(grandTotal, selectedCurrency, languageToLocale(language))}
             </span>
@@ -561,17 +564,17 @@ const initializePayment = async (retryCount = 0) => {
       {/* Payment Form */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-center">💳 Payment Details</CardTitle>
+          <CardTitle className="text-center">{t('payment.paymentDetails')}</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
             <div className="flex items-center justify-center p-8">
               <Loader2 className="h-8 w-8 animate-spin" />
-              <span className="ml-2">Loading payment form...</span>
+              <span className="ml-2">{t('payment.loadingForm')}</span>
             </div>
           ) : initializationError ? (
             <div className="text-center p-4 space-y-3">
-              <p className="text-destructive font-medium">Payment Setup Failed</p>
+              <p className="text-destructive font-medium">{t('payment.setupFailed')}</p>
               <p className="text-sm text-muted-foreground">
                 {initializationError}
               </p>
@@ -584,14 +587,14 @@ const initializePayment = async (retryCount = 0) => {
                 className="bg-background hover:bg-muted"
               >
                 <Loader2 className="mr-2 h-4 w-4" />
-                Retry Payment Setup
+                {t('payment.retrySetup')}
               </Button>
             </div>
           ) : clientSecret && stripeOptions ? (
             <div className="space-y-4">
               
               <div className="text-sm text-muted-foreground text-center">
-                🔒 Secure payment powered by Stripe
+                {t('payment.securePayment')}
               </div>
               <Elements 
                 stripe={stripePromise} 
@@ -616,12 +619,12 @@ const initializePayment = async (retryCount = 0) => {
             </div>
           ) : (
             <div className="text-center p-4 space-y-3">
-              <p className="text-destructive">Failed to load payment form</p>
+              <p className="text-destructive">{t('payment.failedToLoadForm')}</p>
               <p className="text-sm text-muted-foreground">
-                Please check your internet connection and try again
+                {t('payment.checkConnection')}
               </p>
               <Button onClick={() => initializePayment()} className="mt-2">
-                Retry
+                {t('payment.retry')}
               </Button>
             </div>
           )}
@@ -630,7 +633,7 @@ const initializePayment = async (retryCount = 0) => {
       
       
       <Button variant="outline" onClick={onBack} className="w-full">
-        Back to Plans
+        {t('payment.backToPlans')}
       </Button>
     </div>
   );

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,6 +24,7 @@ interface FamilyInvite {
 }
 
 const FamilyInviteAccept = () => {
+  const { t } = useTranslation();
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -49,24 +51,24 @@ const FamilyInviteAccept = () => {
       if (error) throw error;
 
       if (!data) {
-        setError('Invite not found');
+        setError(t('family.inviteNotFound'));
         return;
       }
 
       if (data.status !== 'pending') {
-        setError('This invitation has already been processed');
+        setError(t('family.alreadyProcessed'));
         return;
       }
 
       if (new Date(data.expires_at) < new Date()) {
-        setError('This invitation has expired');
+        setError(t('family.inviteExpired'));
         return;
       }
 
       setInvite(data);
     } catch (error) {
       console.error('Error loading invite:', error);
-      setError('Failed to load invitation');
+      setError(t('family.failedToLoadInvite'));
     } finally {
       setLoading(false);
     }
@@ -88,16 +90,16 @@ const FamilyInviteAccept = () => {
       if (error) throw error;
 
       toast({
-        title: "Success",
-        description: "You've successfully joined the family group!",
+        title: t('family.successTitle'),
+        description: t('family.joinedFamilyGroup'),
       });
 
       navigate('/family-dashboard');
     } catch (error) {
       console.error('Error accepting invite:', error);
       toast({
-        title: "Error",
-        description: "Failed to accept invitation. Please try again.",
+        title: t('family.errorTitle'),
+        description: t('family.failedToAccept'),
         variant: "destructive"
       });
     } finally {
@@ -119,16 +121,16 @@ const FamilyInviteAccept = () => {
       if (error) throw error;
 
       toast({
-        title: "Invitation Declined",
-        description: "You've declined the family invitation.",
+        title: t('family.invitationDeclinedTitle'),
+        description: t('family.invitationDeclinedDescription'),
       });
 
       navigate('/');
     } catch (error) {
       console.error('Error declining invite:', error);
       toast({
-        title: "Error",
-        description: "Failed to decline invitation. Please try again.",
+        title: t('family.errorTitle'),
+        description: t('family.failedToDecline'),
         variant: "destructive"
       });
     }
@@ -151,9 +153,9 @@ const FamilyInviteAccept = () => {
   if (error) {
     return (
       <div className="min-h-screen bg-background">
-        <SEO 
-          title="Family Invitation Error"
-          description="There was an issue with your family invitation."
+        <SEO
+          title={t('family.invitationErrorSeoTitle')}
+          description={t('family.invitationErrorSeoDescription')}
         />
         <Navigation />
         <div className="container mx-auto px-4 py-16">
@@ -163,12 +165,12 @@ const FamilyInviteAccept = () => {
                 <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
                   <AlertCircle className="h-8 w-8 text-red-600" />
                 </div>
-                <CardTitle className="text-xl">Invitation Error</CardTitle>
+                <CardTitle className="text-xl">{t('family.invitationError')}</CardTitle>
               </CardHeader>
               <CardContent className="text-center space-y-4">
                 <p className="text-muted-foreground">{error}</p>
                 <Button onClick={() => navigate('/')}>
-                  Return Home
+                  {t('family.returnHome')}
                 </Button>
               </CardContent>
             </Card>
@@ -185,9 +187,9 @@ const FamilyInviteAccept = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEO 
-        title="Family Invitation"
-        description="You've been invited to join a family emergency protection group."
+      <SEO
+        title={t('family.familyInvitation')}
+        description={t('family.familyInvitationSeoDescription')}
       />
       <Navigation />
       
@@ -198,50 +200,50 @@ const FamilyInviteAccept = () => {
               <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
                 <Users className="h-8 w-8 text-primary" />
               </div>
-              <CardTitle className="text-2xl">Family Invitation</CardTitle>
+              <CardTitle className="text-2xl">{t('family.familyInvitation')}</CardTitle>
               <p className="text-muted-foreground">
-                You've been invited to join a family emergency protection group
+                {t('family.invitedToJoin')}
               </p>
             </CardHeader>
             
             <CardContent className="p-8 space-y-6">
               <div className="bg-muted/50 rounded-lg p-6 space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium">Invited by:</span>
+                  <span className="font-medium">{t('family.invitedBy')}</span>
                   <span>{invite.inviter_email}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="font-medium">Your name:</span>
+                  <span className="font-medium">{t('family.yourName')}</span>
                   <span>{invite.invitee_name}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="font-medium">Relationship:</span>
+                  <span className="font-medium">{t('family.relationship')}</span>
                   <Badge variant="outline">{invite.relationship}</Badge>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="font-medium">Invited on:</span>
+                  <span className="font-medium">{t('family.invitedOn')}</span>
                   <span>{new Date(invite.created_at).toLocaleDateString()}</span>
                 </div>
               </div>
 
               <div className="space-y-4">
-                <h3 className="font-semibold text-lg">What you'll get access to:</h3>
+                <h3 className="font-semibold text-lg">{t('family.whatYouGetAccess')}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex items-start gap-3">
                     <Shield className="h-5 w-5 text-primary mt-1" />
                     <div>
-                      <h4 className="font-medium">Emergency Alerts</h4>
+                      <h4 className="font-medium">{t('family.emergencyAlertsTitle')}</h4>
                       <p className="text-sm text-muted-foreground">
-                        Receive instant notifications during family emergencies
+                        {t('family.emergencyAlertsDescription')}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
                     <Users className="h-5 w-5 text-primary mt-1" />
                     <div>
-                      <h4 className="font-medium">Family Dashboard</h4>
+                      <h4 className="font-medium">{t('family.familyDashboardTitle')}</h4>
                       <p className="text-sm text-muted-foreground">
-                        Access shared family emergency information
+                        {t('family.familyDashboardDescription')}
                       </p>
                     </div>
                   </div>
@@ -251,13 +253,13 @@ const FamilyInviteAccept = () => {
               {!user ? (
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                   <p className="text-sm text-yellow-800">
-                    You need to sign in or create an account to accept this invitation.
+                    {t('family.signInRequired')}
                   </p>
-                  <Button 
-                    className="mt-3" 
+                  <Button
+                    className="mt-3"
                     onClick={() => navigate('/auth', { state: { returnTo: `/family-invite/${token}` } })}
                   >
-                    Sign In / Create Account
+                    {t('family.signInCreateAccount')}
                   </Button>
                 </div>
               ) : (
@@ -268,15 +270,15 @@ const FamilyInviteAccept = () => {
                     className="flex-1"
                   >
                     <Check className="h-4 w-4 mr-2" />
-                    {accepting ? 'Joining...' : 'Accept Invitation'}
+                    {accepting ? t('family.joining') : t('family.acceptInvitation')}
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={declineInvite}
                     className="flex-1"
                   >
                     <X className="h-4 w-4 mr-2" />
-                    Decline
+                    {t('family.decline')}
                   </Button>
                 </div>
               )}

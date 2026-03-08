@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usePreferences } from '@/contexts/PreferencesContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,7 @@ import { trackCustomEvent } from '@/hooks/usePageTracking';
 const FIRST_VISIT_KEY = 'hasVisitedBefore';
 
 export const FirstVisitPreferencesModal: React.FC = () => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [isApplying, setIsApplying] = useState(false);
   const { language, currency, setLanguage, setCurrency } = usePreferences();
@@ -83,10 +85,10 @@ export const FirstVisitPreferencesModal: React.FC = () => {
   ];
 
   const currencyOptions = [
-    { value: 'EUR', label: 'EUR (€)', region: 'Europe' },
-    { value: 'GBP', label: 'GBP (£)', region: 'United Kingdom' },
-    { value: 'USD', label: 'USD ($)', region: 'United States' },
-    { value: 'AUD', label: 'AUD (A$)', region: 'Australia' },
+    { value: 'EUR', label: 'EUR (€)', region: t('preferences.europe') },
+    { value: 'GBP', label: 'GBP (£)', region: t('preferences.unitedKingdom') },
+    { value: 'USD', label: 'USD ($)', region: t('preferences.unitedStates') },
+    { value: 'AUD', label: 'AUD (A$)', region: t('preferences.australia') },
   ];
 
   return (
@@ -97,10 +99,10 @@ export const FirstVisitPreferencesModal: React.FC = () => {
             <Globe className="w-8 h-8 text-primary-foreground" />
           </div>
           <DialogTitle className="text-2xl font-poppins text-foreground">
-            Welcome to LifeLink Sync
+            {t('preferences.welcomeTitle')}
           </DialogTitle>
           <p className="text-muted-foreground">
-            Please select your preferred language and currency to get started
+            {t('preferences.welcomeSubtitle')}
           </p>
         </DialogHeader>
 
@@ -110,11 +112,11 @@ export const FirstVisitPreferencesModal: React.FC = () => {
             <CardContent className="p-4 space-y-3">
               <div className="flex items-center gap-2 text-sm font-medium text-foreground">
                 <Globe className="w-4 h-4" />
-                Language
+                {t('preferences.language')}
               </div>
               <Select value={selectedLanguage} onValueChange={(value) => setSelectedLanguage(value as SupportedLanguage)}>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select language" />
+                  <SelectValue placeholder={t('preferences.selectLanguage')} />
                 </SelectTrigger>
                 <SelectContent>
                   {languageOptions.map((option) => (
@@ -135,11 +137,11 @@ export const FirstVisitPreferencesModal: React.FC = () => {
             <CardContent className="p-4 space-y-3">
               <div className="flex items-center gap-2 text-sm font-medium text-foreground">
                 <DollarSign className="w-4 h-4" />
-                Currency
+                {t('preferences.currency')}
               </div>
               <Select value={selectedCurrency} onValueChange={(value) => setSelectedCurrency(value as SupportedCurrency)}>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select currency" />
+                  <SelectValue placeholder={t('preferences.selectCurrency')} />
                 </SelectTrigger>
                 <SelectContent>
                   {currencyOptions.map((option) => (
@@ -164,12 +166,12 @@ export const FirstVisitPreferencesModal: React.FC = () => {
             {isApplying ? (
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                Applying preferences...
+                {t('preferences.applyingPreferences')}
               </div>
             ) : (
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4" />
-                Continue to LifeLink Sync
+                {t('preferences.continueToApp')}
               </div>
             )}
           </Button>
@@ -177,7 +179,7 @@ export const FirstVisitPreferencesModal: React.FC = () => {
 
         <div className="text-center pt-4 sticky bottom-0 bg-card/95 backdrop-blur-sm">
           <p className="text-xs text-muted-foreground">
-            You can change these preferences anytime in the navigation menu
+            {t('preferences.changeAnytime')}
           </p>
         </div>
       </DialogContent>

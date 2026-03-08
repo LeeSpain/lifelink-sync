@@ -1,31 +1,34 @@
 import React from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Users, UserCog, Heart, Building, ArrowRight, Check } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 
 export const AccessLevelsSection = () => {
+  const { t } = useTranslation();
+
   return (
     <section className="py-32 bg-gradient-to-b from-muted/30 via-background to-muted/30 relative overflow-hidden">
-      
+
       {/* Background Effects */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(220,38,38,0.1)_0%,transparent_50%)] "></div>
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(16,185,129,0.1)_0%,transparent_50%)] "></div>
-      
+
       <div className="container mx-auto px-4 relative z-10">
-        
+
         {/* Header */}
         <div className="text-center mb-20">
           <h2 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
-            Your
-            <span className="bg-gradient-to-r from-primary via-emergency to-wellness bg-clip-text text-transparent"> Support Network</span>
+            {t('familyCarer.accessLevels.titlePrefix')}
+            <span className="bg-gradient-to-r from-primary via-emergency to-wellness bg-clip-text text-transparent"> {t('familyCarer.accessLevels.titleHighlight')}</span>
           </h2>
           <p className="text-2xl text-muted-foreground max-w-4xl mx-auto leading-relaxed">
-            Grant the right level of emergency access to everyone in your circle of care
+            {t('familyCarer.accessLevels.subtitle')}
           </p>
         </div>
 
         {/* Interactive Access Levels */}
         <div className="max-w-7xl mx-auto">
-          
+
           {/* Family Members - Primary */}
           <div className="mb-16">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -38,61 +41,60 @@ export const AccessLevelsSection = () => {
                         <Users className="h-8 w-8 text-white" />
                       </div>
                       <div>
-                        <h3 className="text-2xl font-bold text-foreground">Family Members</h3>
-                        <p className="text-muted-foreground">Your closest support network</p>
+                        <h3 className="text-2xl font-bold text-foreground">{t('familyCarer.accessLevels.familyMembersTitle')}</h3>
+                        <p className="text-muted-foreground">{t('familyCarer.accessLevels.familyMembersSubtitle')}</p>
                       </div>
                     </div>
-                    <Badge className="bg-primary text-primary-foreground px-4 py-2">Most Common</Badge>
+                    <Badge className="bg-primary text-primary-foreground px-4 py-2">{t('familyCarer.accessLevels.mostCommon')}</Badge>
                   </div>
-                  
+
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-3">
                       <div className="flex items-center">
                         <Check className="h-5 w-5 text-primary mr-3" />
-                        <span className="text-foreground">Instant SOS alerts</span>
+                        <span className="text-foreground">{t('familyCarer.accessLevels.familyFeature1')}</span>
                       </div>
                       <div className="flex items-center">
                         <Check className="h-5 w-5 text-primary mr-3" />
-                        <span className="text-foreground">Real-time emergency location</span>
+                        <span className="text-foreground">{t('familyCarer.accessLevels.familyFeature2')}</span>
                       </div>
                       <div className="flex items-center">
                         <Check className="h-5 w-5 text-primary mr-3" />
-                        <span className="text-foreground">Family coordination dashboard</span>
+                        <span className="text-foreground">{t('familyCarer.accessLevels.familyFeature3')}</span>
                       </div>
                     </div>
                     <div className="space-y-3">
                       <div className="flex items-center">
                         <Check className="h-5 w-5 text-primary mr-3" />
-                        <span className="text-foreground">Emergency response tools</span>
+                        <span className="text-foreground">{t('familyCarer.accessLevels.familyFeature4')}</span>
                       </div>
                       <div className="flex items-center">
                         <Check className="h-5 w-5 text-primary mr-3" />
-                        <span className="text-foreground">Two-way communication</span>
+                        <span className="text-foreground">{t('familyCarer.accessLevels.familyFeature5')}</span>
                       </div>
                       <div className="flex items-center">
                         <Check className="h-5 w-5 text-primary mr-3" />
-                        <span className="text-foreground">Full emergency coordination</span>
+                        <span className="text-foreground">{t('familyCarer.accessLevels.familyFeature6')}</span>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-              
+
               <div className="space-y-8">
                 <div className="text-center lg:text-left">
-                  <h4 className="text-3xl font-bold text-foreground mb-4">Complete Emergency Access</h4>
+                  <h4 className="text-3xl font-bold text-foreground mb-4">{t('familyCarer.accessLevels.completeAccessTitle')}</h4>
                   <p className="text-xl text-muted-foreground leading-relaxed">
-                    Your family gets instant alerts when you trigger SOS, sees your exact location, 
-                    and can coordinate response with other family members in real-time.
+                    {t('familyCarer.accessLevels.completeAccessDescription')}
                   </p>
                 </div>
-                
+
                 {/* Pricing highlight */}
                 <div className="bg-primary/10 rounded-2xl p-6 border border-primary/20">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-3xl font-bold text-primary">€2.99/month</div>
-                      <p className="text-muted-foreground">per family member</p>
+                      <div className="text-3xl font-bold text-primary">{t('familyCarer.accessLevels.pricePerMonth')}</div>
+                      <p className="text-muted-foreground">{t('familyCarer.accessLevels.perFamilyMember')}</p>
                     </div>
                     <ArrowRight className="h-8 w-8 text-primary" />
                   </div>
@@ -103,7 +105,7 @@ export const AccessLevelsSection = () => {
 
           {/* Professional Network */}
           <div className="grid lg:grid-cols-3 gap-8">
-            
+
             {/* Trusted Friends */}
             <div className="group relative">
               <div className="absolute -inset-2 bg-gradient-to-br from-wellness/20 to-wellness/10 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
@@ -113,23 +115,23 @@ export const AccessLevelsSection = () => {
                     <Heart className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <h4 className="text-xl font-bold text-foreground">Trusted Friends</h4>
-                    <Badge className="bg-wellness text-wellness-foreground">Flexible</Badge>
+                    <h4 className="text-xl font-bold text-foreground">{t('familyCarer.accessLevels.trustedFriendsTitle')}</h4>
+                    <Badge className="bg-wellness text-wellness-foreground">{t('familyCarer.accessLevels.flexible')}</Badge>
                   </div>
                 </div>
-                <p className="text-muted-foreground mb-6">Close friends who can help in emergency situations</p>
+                <p className="text-muted-foreground mb-6">{t('familyCarer.accessLevels.trustedFriendsDescription')}</p>
                 <div className="space-y-2">
                   <div className="flex items-center text-sm">
                     <div className="w-2 h-2 bg-wellness rounded-full mr-2"></div>
-                    <span>Emergency notifications</span>
+                    <span>{t('familyCarer.accessLevels.trustedFeature1')}</span>
                   </div>
                   <div className="flex items-center text-sm">
                     <div className="w-2 h-2 bg-wellness rounded-full mr-2"></div>
-                    <span>Location during SOS</span>
+                    <span>{t('familyCarer.accessLevels.trustedFeature2')}</span>
                   </div>
                   <div className="flex items-center text-sm">
                     <div className="w-2 h-2 bg-wellness rounded-full mr-2"></div>
-                    <span>Response coordination</span>
+                    <span>{t('familyCarer.accessLevels.trustedFeature3')}</span>
                   </div>
                 </div>
               </div>
@@ -144,23 +146,23 @@ export const AccessLevelsSection = () => {
                     <UserCog className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <h4 className="text-xl font-bold text-foreground">Professional Carers</h4>
-                    <Badge className="bg-guardian text-guardian-foreground">Professional</Badge>
+                    <h4 className="text-xl font-bold text-foreground">{t('familyCarer.accessLevels.professionalCarersTitle')}</h4>
+                    <Badge className="bg-guardian text-guardian-foreground">{t('familyCarer.accessLevels.professional')}</Badge>
                   </div>
                 </div>
-                <p className="text-muted-foreground mb-6">Healthcare workers, caregivers, professional services</p>
+                <p className="text-muted-foreground mb-6">{t('familyCarer.accessLevels.professionalCarersDescription')}</p>
                 <div className="space-y-2">
                   <div className="flex items-center text-sm">
                     <div className="w-2 h-2 bg-guardian rounded-full mr-2"></div>
-                    <span>Professional protocols</span>
+                    <span>{t('familyCarer.accessLevels.carerFeature1')}</span>
                   </div>
                   <div className="flex items-center text-sm">
                     <div className="w-2 h-2 bg-guardian rounded-full mr-2"></div>
-                    <span>Medical information access</span>
+                    <span>{t('familyCarer.accessLevels.carerFeature2')}</span>
                   </div>
                   <div className="flex items-center text-sm">
                     <div className="w-2 h-2 bg-guardian rounded-full mr-2"></div>
-                    <span>Care coordination tools</span>
+                    <span>{t('familyCarer.accessLevels.carerFeature3')}</span>
                   </div>
                 </div>
               </div>
@@ -175,23 +177,23 @@ export const AccessLevelsSection = () => {
                     <Building className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <h4 className="text-xl font-bold text-foreground">Regional Services</h4>
-                    <Badge className="bg-emergency text-emergency-foreground">Advanced</Badge>
+                    <h4 className="text-xl font-bold text-foreground">{t('familyCarer.accessLevels.regionalServicesTitle')}</h4>
+                    <Badge className="bg-emergency text-emergency-foreground">{t('familyCarer.accessLevels.advanced')}</Badge>
                   </div>
                 </div>
-                <p className="text-muted-foreground mb-6">Local emergency services and community support</p>
+                <p className="text-muted-foreground mb-6">{t('familyCarer.accessLevels.regionalServicesDescription')}</p>
                 <div className="space-y-2">
                   <div className="flex items-center text-sm">
                     <div className="w-2 h-2 bg-emergency rounded-full mr-2"></div>
-                    <span>Regional integration</span>
+                    <span>{t('familyCarer.accessLevels.regionalFeature1')}</span>
                   </div>
                   <div className="flex items-center text-sm">
                     <div className="w-2 h-2 bg-emergency rounded-full mr-2"></div>
-                    <span>Local service coordination</span>
+                    <span>{t('familyCarer.accessLevels.regionalFeature2')}</span>
                   </div>
                   <div className="flex items-center text-sm">
                     <div className="w-2 h-2 bg-emergency rounded-full mr-2"></div>
-                    <span>Community networks</span>
+                    <span>{t('familyCarer.accessLevels.regionalFeature3')}</span>
                   </div>
                 </div>
               </div>
@@ -202,11 +204,10 @@ export const AccessLevelsSection = () => {
           <div className="mt-20 text-center">
             <div className="bg-gradient-to-r from-guardian/10 via-primary/10 to-wellness/10 rounded-3xl p-8 border border-primary/20">
               <h4 className="text-2xl font-bold text-foreground mb-4">
-                One System, Multiple Access Levels
+                {t('familyCarer.accessLevels.summaryTitle')}
               </h4>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-                Grant appropriate emergency access to everyone in your support network. 
-                From family to professionals, everyone gets the right level of access for effective coordination.
+                {t('familyCarer.accessLevels.summaryDescription')}
               </p>
             </div>
           </div>

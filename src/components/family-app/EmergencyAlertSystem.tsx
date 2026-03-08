@@ -7,6 +7,7 @@ import { AlertTriangle, Phone, MapPin, Clock, Bell } from 'lucide-react';
 import { useFamilyMembers } from '@/hooks/useFamilyMembers';
 import { useFamilyRole } from '@/hooks/useFamilyRole';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 interface EmergencyAlert {
   id: string;
@@ -19,6 +20,7 @@ interface EmergencyAlert {
 }
 
 const EmergencyAlertSystem = () => {
+  const { t } = useTranslation();
   const { data: familyRole } = useFamilyRole();
   const { data: familyData } = useFamilyMembers(familyRole?.familyGroupId);
   const [alerts, setAlerts] = useState<EmergencyAlert[]>([]);
@@ -90,13 +92,13 @@ const EmergencyAlertSystem = () => {
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
             <Bell className="h-5 w-5" />
-            Emergency Alerts
+            {t('emergencyAlert.emergencyAlerts')}
           </CardTitle>
           <Badge 
             variant={activeAlerts.length > 0 ? 'destructive' : 'default'} 
             className="text-xs"
           >
-            {activeAlerts.length} Active
+            {t('emergencyAlert.activeCount', { count: activeAlerts.length })}
           </Badge>
         </div>
       </CardHeader>
@@ -104,8 +106,8 @@ const EmergencyAlertSystem = () => {
         {alerts.length === 0 ? (
           <div className="text-center py-6 text-white/60">
             <AlertTriangle className="h-12 w-12 mx-auto mb-3 opacity-50" />
-            <p className="text-sm">No emergency alerts</p>
-            <p className="text-xs opacity-60">Family members are safe</p>
+            <p className="text-sm">{t('emergencyAlert.noAlerts')}</p>
+            <p className="text-xs opacity-60">{t('emergencyAlert.familySafe')}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -150,7 +152,7 @@ const EmergencyAlertSystem = () => {
                             size="sm"
                             className="bg-blue-600 hover:bg-blue-700 text-white"
                           >
-                            {acknowledgingAlert === alert.id ? 'Acknowledging...' : 'Acknowledge'}
+                            {acknowledgingAlert === alert.id ? t('emergencyAlert.acknowledging') : t('emergencyAlert.acknowledge')}
                           </Button>
                           <Button
                             onClick={() => handleCallMember(alert.memberName)}
@@ -159,7 +161,7 @@ const EmergencyAlertSystem = () => {
                             className="border-white/20 text-white hover:bg-white/10"
                           >
                             <Phone className="h-3 w-3 mr-1" />
-                            Call
+                            {t('emergencyAlert.call')}
                           </Button>
                         </div>
                       )}

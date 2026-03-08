@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 import { useOptimizedAuth } from "@/hooks/useOptimizedAuth";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { Navigate } from "react-router-dom";
@@ -6,6 +7,7 @@ import Dashboard from "./Dashboard";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 
 const SimpleDashboard = () => {
+  const { t } = useTranslation();
   const { user, loading: authLoading, isAdmin } = useOptimizedAuth();
   const { isLoading: dashboardLoading, loadingStates } = useDashboardData();
 
@@ -18,7 +20,7 @@ const SimpleDashboard = () => {
       <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
         <div className="text-white text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4"></div>
-          <p>Loading your dashboard...</p>
+          <p>{t('dashboard.loadingDashboard')}</p>
         </div>
       </div>
     );
@@ -30,7 +32,7 @@ const SimpleDashboard = () => {
     return (
       <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
         <div className="text-white text-center">
-          <p>Authentication required. Please log in.</p>
+          <p>{t('dashboard.authRequired')}</p>
         </div>
       </div>
     );

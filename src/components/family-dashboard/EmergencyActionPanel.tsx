@@ -15,6 +15,7 @@ import {
   Send
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 interface EmergencyActionPanelProps {
   onEmergencyTrigger: (type: 'sos' | 'panic' | 'medical' | 'accident', message?: string) => void;
@@ -25,8 +26,8 @@ interface EmergencyActionPanelProps {
 
 interface EmergencyAction {
   id: 'sos' | 'panic' | 'medical' | 'accident';
-  label: string;
-  description: string;
+  labelKey: string;
+  descriptionKey: string;
   icon: React.ReactNode;
   color: string;
   priority: 'critical' | 'high' | 'medium';
@@ -35,32 +36,32 @@ interface EmergencyAction {
 const emergencyActions: EmergencyAction[] = [
   {
     id: 'sos',
-    label: 'General SOS',
-    description: 'I need immediate help',
+    labelKey: 'familyDashboard.generalSos',
+    descriptionKey: 'familyDashboard.needImmediateHelp',
     icon: <AlertTriangle className="h-5 w-5" />,
     color: 'text-red-600 bg-red-100 hover:bg-red-200',
     priority: 'critical'
   },
   {
     id: 'medical',
-    label: 'Medical Emergency',
-    description: 'Medical assistance needed',
+    labelKey: 'familyDashboard.medicalEmergency',
+    descriptionKey: 'familyDashboard.medicalAssistanceNeeded',
     icon: <Heart className="h-5 w-5" />,
     color: 'text-red-600 bg-red-100 hover:bg-red-200',
     priority: 'critical'
   },
   {
     id: 'accident',
-    label: 'Accident',
-    description: 'Vehicle or injury accident',
+    labelKey: 'familyDashboard.accident',
+    descriptionKey: 'familyDashboard.vehicleInjuryAccident',
     icon: <Car className="h-5 w-5" />,
     color: 'text-orange-600 bg-orange-100 hover:bg-orange-200',
     priority: 'high'
   },
   {
     id: 'panic',
-    label: 'Panic Button',
-    description: 'Silent emergency alert',
+    labelKey: 'familyDashboard.panicButton',
+    descriptionKey: 'familyDashboard.silentEmergencyAlert',
     icon: <Shield className="h-5 w-5" />,
     color: 'text-purple-600 bg-purple-100 hover:bg-purple-200',
     priority: 'high'
@@ -73,6 +74,7 @@ export function EmergencyActionPanel({
   isConnected,
   className
 }: EmergencyActionPanelProps) {
+  const { t } = useTranslation();
   const [selectedAction, setSelectedAction] = useState<EmergencyAction | null>(null);
   const [message, setMessage] = useState('');
   const [isConfirming, setIsConfirming] = useState(false);
@@ -118,10 +120,10 @@ export function EmergencyActionPanel({
             </div>
             <div>
               <CardTitle className="text-lg text-red-800">
-                Confirm {selectedAction.label}
+                {t('familyDashboard.confirm', { action: t(selectedAction.labelKey) })}
               </CardTitle>
               <p className="text-sm text-red-600">
-                {selectedAction.description}
+                {t(selectedAction.descriptionKey)}
               </p>
             </div>
           </div>
@@ -130,21 +132,21 @@ export function EmergencyActionPanel({
         <CardContent className="space-y-4">
           <div className="p-3 bg-red-100 rounded-lg border border-red-200">
             <p className="text-sm text-red-800 font-medium mb-1">
-              ⚠️ This will immediately alert all family members
+              {t('familyDashboard.alertAllMembers')}
             </p>
             <p className="text-xs text-red-600">
-              Your location and emergency type will be shared. Emergency services may be contacted.
+              {t('familyDashboard.locationSharedWarning')}
             </p>
           </div>
           
           <div>
             <label className="text-sm font-medium text-red-800 mb-2 block">
-              Optional Message (recommended)
+              {t('familyDashboard.optionalMessage')}
             </label>
             <Textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Describe your situation (optional but helpful)..."
+              placeholder={t('familyDashboard.messagePlaceholder')}
               className="border-red-200 focus:border-red-400"
               rows={3}
             />
@@ -157,20 +159,20 @@ export function EmergencyActionPanel({
               disabled={!isConnected}
             >
               <AlertTriangle className="h-4 w-4 mr-2" />
-              Confirm Emergency
+              {t('familyDashboard.confirmEmergency')}
             </Button>
             <Button
               variant="outline"
               onClick={handleCancel}
               className="px-6"
             >
-              Cancel
+              {t('familyDashboard.cancel')}
             </Button>
           </div>
-          
+
           {!isConnected && (
             <div className="text-xs text-red-600 text-center">
-              ⚠️ No internet connection. Alert will be sent when reconnected.
+              {t('familyDashboard.noConnectionWarning')}
             </div>
           )}
         </CardContent>
@@ -188,10 +190,10 @@ export function EmergencyActionPanel({
             </div>
             <div>
               <CardTitle className="text-lg text-green-800">
-                Family Check-In
+                {t('familyDashboard.familyCheckIn')}
               </CardTitle>
               <p className="text-sm text-green-600">
-                Let your family know you're safe
+                {t('familyDashboard.letFamilyKnowSafe')}
               </p>
             </div>
           </div>
@@ -200,12 +202,12 @@ export function EmergencyActionPanel({
         <CardContent className="space-y-4">
           <div>
             <label className="text-sm font-medium text-green-800 mb-2 block">
-              Optional Message
+              {t('familyDashboard.optionalMessageLabel')}
             </label>
             <Textarea
               value={checkInMessage}
               onChange={(e) => setCheckInMessage(e.target.value)}
-              placeholder="I'm safe and doing well..."
+              placeholder={t('familyDashboard.checkInPlaceholder')}
               className="border-green-200 focus:border-green-400"
               rows={2}
             />
@@ -218,14 +220,14 @@ export function EmergencyActionPanel({
               disabled={!isConnected}
             >
               <Send className="h-4 w-4 mr-2" />
-              Send Check-In
+              {t('familyDashboard.sendCheckIn')}
             </Button>
             <Button
               variant="outline"
               onClick={handleCancel}
               className="px-6"
             >
-              Cancel
+              {t('familyDashboard.cancel')}
             </Button>
           </div>
         </CardContent>
@@ -238,9 +240,9 @@ export function EmergencyActionPanel({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Shield className="h-5 w-5" />
-          Emergency Actions
+          {t('familyDashboard.emergencyActions')}
           <Badge variant={isConnected ? "default" : "secondary"} className="ml-auto">
-            {isConnected ? 'Online' : 'Offline'}
+            {isConnected ? t('familyDashboard.online') : t('familyDashboard.offline')}
           </Badge>
         </CardTitle>
       </CardHeader>
@@ -261,14 +263,14 @@ export function EmergencyActionPanel({
             >
               {action.icon}
               <div className="text-center">
-                <div className="font-medium text-xs">{action.label}</div>
+                <div className="font-medium text-xs">{t(action.labelKey)}</div>
                 <div className="text-xs opacity-75 font-normal">
-                  {action.description}
+                  {t(action.descriptionKey)}
                 </div>
               </div>
               {action.priority === 'critical' && (
                 <Badge variant="destructive" className="text-xs">
-                  Critical
+                  {t('familyDashboard.critical')}
                 </Badge>
               )}
             </Button>
@@ -284,16 +286,16 @@ export function EmergencyActionPanel({
             disabled={!isConnected}
           >
             <CheckCircle className="h-4 w-4 mr-2" />
-            Check In
+            {t('familyDashboard.checkIn')}
           </Button>
-          
+
           <Button
             variant="outline"
             onClick={() => window.open('tel:911', '_self')}
             className="flex-1 text-red-600 border-red-200 hover:bg-red-50"
           >
             <Phone className="h-4 w-4 mr-2" />
-            Call 911
+            {t('familyDashboard.call911')}
           </Button>
         </div>
         
@@ -301,11 +303,11 @@ export function EmergencyActionPanel({
         <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t">
           <div className="flex items-center gap-1">
             <Clock className="h-3 w-3" />
-            <span>Instant family alerts</span>
+            <span>{t('familyDashboard.instantFamilyAlerts')}</span>
           </div>
           {!isConnected && (
             <Badge variant="outline" className="text-xs text-orange-600">
-              Offline Mode
+              {t('familyDashboard.offlineMode')}
             </Badge>
           )}
         </div>

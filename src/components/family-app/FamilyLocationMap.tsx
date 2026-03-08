@@ -7,6 +7,7 @@ import { useFamilyRole } from '@/hooks/useFamilyRole';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MapPin, Users, RefreshCw } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface FamilyLocationData {
   id: string;
@@ -18,6 +19,7 @@ interface FamilyLocationData {
 }
 
 const FamilyLocationMap = () => {
+  const { t } = useTranslation();
   const { MapView } = useCanvasMap();
   const { getCurrentLocationData } = useLocationServices();
   const { data: familyRole } = useFamilyRole();
@@ -94,7 +96,7 @@ const FamilyLocationMap = () => {
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
             <MapPin className="h-5 w-5" />
-            Family Locations
+            {t('familyMap.familyLocations')}
           </CardTitle>
           <Button
             onClick={handleRefreshLocations}
@@ -119,7 +121,7 @@ const FamilyLocationMap = () => {
         {familyLocations.length === 0 && (
           <div className="p-6 text-center text-white/60">
             <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
-            <p className="text-sm">No family members with location sharing</p>
+            <p className="text-sm">{t('familyMap.noMembersWithLocation')}</p>
           </div>
         )}
       </CardContent>

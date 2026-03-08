@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from 'react-i18next';
 import { Users, Plus, Settings, Euro, Shield } from "lucide-react";
 import FamilyInviteModal from "./FamilyInviteModal";
 
@@ -41,6 +42,7 @@ const FamilyAccessPanel = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const loadFamilyData = async () => {
     try {
@@ -104,8 +106,8 @@ const FamilyAccessPanel = () => {
     } catch (error) {
       console.error('Error loading family data:', error);
       toast({
-        title: "Error",
-        description: "Failed to load family access data",
+        title: t('familyDashboard.error'),
+        description: t('familyDashboard.failedLoadFamilyData'),
         variant: "destructive"
       });
     } finally {
@@ -147,8 +149,8 @@ const FamilyAccessPanel = () => {
       if (data.error) throw new Error(data.error);
 
       toast({
-        title: "Invite Revoked",
-        description: "Family invite has been revoked successfully"
+        title: t('familyDashboard.inviteRevoked'),
+        description: t('familyDashboard.inviteRevokedDesc')
       });
 
       loadFamilyData();
@@ -170,11 +172,11 @@ const FamilyAccessPanel = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
-        return <Badge variant="default">Active</Badge>;
+        return <Badge variant="default">{t('familyDashboard.active')}</Badge>;
       case 'pending':
-        return <Badge variant="secondary">Pending</Badge>;
+        return <Badge variant="secondary">{t('familyDashboard.pending')}</Badge>;
       case 'canceled':
-        return <Badge variant="destructive">Canceled</Badge>;
+        return <Badge variant="destructive">{t('familyDashboard.cancel')}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -184,12 +186,12 @@ const FamilyAccessPanel = () => {
     return billingType === 'owner' ? (
       <Badge variant="default" className="gap-1">
         <Euro className="h-3 w-3" />
-        You pay
+        {t('familyDashboard.youPay')}
       </Badge>
     ) : (
       <Badge variant="outline" className="gap-1">
         <Euro className="h-3 w-3" />
-        They pay
+        {t('familyDashboard.theyPay')}
       </Badge>
     );
   };
@@ -200,7 +202,7 @@ const FamilyAccessPanel = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-5 w-5 text-primary" />
-            Family Access
+            {t('familyDashboard.familyAccessTitle')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -219,8 +221,8 @@ const FamilyAccessPanel = () => {
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5 text-primary" />
-              Family Access
-              <Badge variant="secondary">{totalSeatsUsed}/{maxSeats} seats</Badge>
+              {t('familyDashboard.familyAccessTitle')}
+              <Badge variant="secondary">{t('familyDashboard.seats', { used: totalSeatsUsed, max: maxSeats })}</Badge>
             </CardTitle>
             <Button
               variant="outline"
@@ -229,7 +231,7 @@ const FamilyAccessPanel = () => {
               disabled={totalSeatsUsed >= maxSeats}
             >
               <Plus className="h-4 w-4 mr-2" />
-              Invite Family
+              {t('familyDashboard.inviteFamily')}
             </Button>
           </div>
         </CardHeader>
@@ -239,31 +241,31 @@ const FamilyAccessPanel = () => {
             <div className="bg-gradient-to-r from-primary/5 to-secondary/5 p-4 rounded-lg border">
               <div className="flex items-center gap-2 mb-2">
                 <Shield className="h-4 w-4 text-primary" />
-                <span className="font-medium text-foreground">Privacy-First Design</span>
+                <span className="font-medium text-foreground">{t('familyDashboard.privacyFirstDesign')}</span>
               </div>
               <div className="text-sm text-muted-foreground space-y-1">
-                <p>• Location only during active SOS (no continuous tracking)</p>
-                <p>• No device/battery telemetry shared with family</p>
-                <p>• Live SOS map + "Received & On It" + incident summary</p>
+                <p>• {t('familyDashboard.privacyLocationOnly')}</p>
+                <p>• {t('familyDashboard.privacyNoTelemetry')}</p>
+                <p>• {t('familyDashboard.privacyLiveSos')}</p>
               </div>
             </div>
 
             {/* Billing Summary */}
             {familyGroup && (
               <div className="bg-muted/50 p-4 rounded-lg">
-                <h4 className="font-medium mb-2">Billing Summary</h4>
+                <h4 className="font-medium mb-2">{t('familyDashboard.billingSummary')}</h4>
                 <div className="text-sm space-y-1">
                   <div className="flex justify-between">
-                    <span>Owner-paid seats:</span>
-                    <span>{familyGroup.owner_seat_quota} × €2.99/month</span>
+                    <span>{t('familyDashboard.ownerPaidSeats')}</span>
+                    <span>{t('familyDashboard.ownerPaidAmount', { count: familyGroup.owner_seat_quota })}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Invitee-paid seats:</span>
-                    <span>{activeMembers.filter(m => m.billing_type === 'self').length} seats (billed separately)</span>
+                    <span>{t('familyDashboard.inviteePaidSeats')}</span>
+                    <span>{t('familyDashboard.inviteePaidAmount', { count: activeMembers.filter(m => m.billing_type === 'self').length })}</span>
                   </div>
                   <div className="border-t pt-1 flex justify-between font-medium">
-                    <span>Your total:</span>
-                    <span>€{(familyGroup.owner_seat_quota * 2.99).toFixed(2)}/month</span>
+                    <span>{t('familyDashboard.yourTotal')}</span>
+                    <span>{t('familyDashboard.totalAmount', { amount: (familyGroup.owner_seat_quota * 2.99).toFixed(2) })}</span>
                   </div>
                 </div>
               </div>
@@ -272,7 +274,7 @@ const FamilyAccessPanel = () => {
             {/* Active Members */}
             {activeMembers.length > 0 && (
               <div>
-                <h4 className="font-medium mb-3">Active Family Members</h4>
+                <h4 className="font-medium mb-3">{t('familyDashboard.activeFamilyMembers')}</h4>
                 <div className="space-y-2">
                   {activeMembers.map((member) => (
                     <div key={member.id} className="flex items-center justify-between p-3 border rounded-lg">
@@ -281,7 +283,7 @@ const FamilyAccessPanel = () => {
                           {member.profiles?.first_name} {member.profiles?.last_name}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          Joined {new Date(member.created_at).toLocaleDateString()}
+                          {t('familyDashboard.joined', { date: new Date(member.created_at).toLocaleDateString() })}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
@@ -297,14 +299,14 @@ const FamilyAccessPanel = () => {
             {/* Pending Invites */}
             {pendingInvites.length > 0 && (
               <div>
-                <h4 className="font-medium mb-3">Pending Invites</h4>
+                <h4 className="font-medium mb-3">{t('familyDashboard.pendingInvites')}</h4>
                 <div className="space-y-2">
                   {pendingInvites.map((invite) => (
                     <div key={invite.id} className="flex items-center justify-between p-3 border rounded-lg bg-yellow-50/50">
                       <div>
                         <p className="font-medium">{invite.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          {invite.email_or_phone} • Expires {new Date(invite.expires_at).toLocaleDateString()}
+                          {invite.email_or_phone} • {t('familyDashboard.expires', { date: new Date(invite.expires_at).toLocaleDateString() })}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
@@ -314,7 +316,7 @@ const FamilyAccessPanel = () => {
                           size="sm"
                           onClick={() => handleRevokeInvite(invite.id)}
                         >
-                          Revoke
+                          {t('familyDashboard.revoke')}
                         </Button>
                       </div>
                     </div>
@@ -327,13 +329,13 @@ const FamilyAccessPanel = () => {
             {totalSeatsUsed === 0 && (
               <div className="text-center py-8">
                 <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-                <h4 className="font-medium mb-2">No Family Access Yet</h4>
+                <h4 className="font-medium mb-2">{t('familyDashboard.noFamilyAccessYet')}</h4>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Upgrade emergency contacts to Family Access for €2.99/month to get live SOS alerts, maps, and "Received & On It."
+                  {t('familyDashboard.noFamilyAccessDesc')}
                 </p>
                 <Button onClick={() => setIsInviteModalOpen(true)}>
                   <Plus className="h-4 w-4 mr-2" />
-                  Invite First Family Member
+                  {t('familyDashboard.inviteFirstMember')}
                 </Button>
               </div>
             )}
@@ -342,7 +344,7 @@ const FamilyAccessPanel = () => {
             {totalSeatsUsed < maxSeats && totalSeatsUsed > 0 && (
               <div className="text-center p-4 bg-primary/5 rounded-lg border">
                 <p className="text-sm text-muted-foreground mb-2">
-                  Upgrade to Family Access for €2.99/month to get alerts, a live SOS map, and "Received & On It."
+                  {t('familyDashboard.upgradeCta')}
                 </p>
                 <Button
                   variant="outline"
@@ -350,7 +352,7 @@ const FamilyAccessPanel = () => {
                   onClick={() => setIsInviteModalOpen(true)}
                 >
                   <Plus className="h-4 w-4 mr-2" />
-                  Add Another Family Member
+                  {t('familyDashboard.addAnotherMember')}
                 </Button>
               </div>
             )}

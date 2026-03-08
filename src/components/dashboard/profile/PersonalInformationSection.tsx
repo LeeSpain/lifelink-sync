@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { User, Phone, Calendar, MapPin, Globe, Edit, Check, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from 'react-i18next';
 
 interface PersonalInfo {
   first_name: string;
@@ -27,6 +28,7 @@ interface PersonalInformationSectionProps {
 }
 
 const PersonalInformationSection = ({ profile, onProfileUpdate }: PersonalInformationSectionProps) => {
+  const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<PersonalInfo>({
@@ -73,14 +75,14 @@ const PersonalInformationSection = ({ profile, onProfileUpdate }: PersonalInform
       onProfileUpdate();
       setIsModalOpen(false);
       toast({
-        title: "Success",
-        description: "Personal information updated successfully."
+        title: t('profileSection.success'),
+        description: t('profileSection.personalInfoUpdated')
       });
     } catch (error) {
       console.error('Error updating personal info:', error);
       toast({
-        title: "Error",
-        description: "Failed to update personal information.",
+        title: t('profileSection.error'),
+        description: t('profileSection.failedToUpdatePersonalInfo'),
         variant: "destructive"
       });
     } finally {
@@ -104,7 +106,7 @@ const PersonalInformationSection = ({ profile, onProfileUpdate }: PersonalInform
               <User className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <CardTitle className="text-lg">Personal Information</CardTitle>
+              <CardTitle className="text-lg">{t('profileSection.personalInformation')}</CardTitle>
               <div className="flex items-center gap-2 mt-1">
                 <div className="w-20 h-2 bg-muted rounded-full overflow-hidden">
                   <div 
@@ -112,7 +114,7 @@ const PersonalInformationSection = ({ profile, onProfileUpdate }: PersonalInform
                     style={{ width: `${completionPercentage}%` }}
                   />
                 </div>
-                <span className="text-sm text-muted-foreground">{completionPercentage}% complete</span>
+                <span className="text-sm text-muted-foreground">{t('profileSection.percentComplete', { percent: completionPercentage })}</span>
               </div>
             </div>
           </div>
@@ -120,35 +122,35 @@ const PersonalInformationSection = ({ profile, onProfileUpdate }: PersonalInform
             <DialogTrigger asChild>
               <Button variant="outline" size="sm">
                 <Edit className="h-4 w-4 mr-2" />
-                Edit
+                {t('profileSection.edit')}
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   <User className="h-5 w-5" />
-                  Edit Personal Information
+                  {t('profileSection.editPersonalInformation')}
                 </DialogTitle>
               </DialogHeader>
               <div className="space-y-6 py-4">
                 {/* Name Fields */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="first_name">First Name</Label>
+                    <Label htmlFor="first_name">{t('profileSection.firstName')}</Label>
                     <Input
                       id="first_name"
                       value={formData.first_name}
                       onChange={(e) => handleInputChange('first_name', e.target.value)}
-                      placeholder="Enter your first name"
+                      placeholder={t('profileSection.enterFirstName')}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="last_name">Last Name</Label>
+                    <Label htmlFor="last_name">{t('profileSection.lastName')}</Label>
                     <Input
                       id="last_name"
                       value={formData.last_name}
                       onChange={(e) => handleInputChange('last_name', e.target.value)}
-                      placeholder="Enter your last name"
+                      placeholder={t('profileSection.enterLastName')}
                     />
                   </div>
                 </div>
@@ -158,20 +160,20 @@ const PersonalInformationSection = ({ profile, onProfileUpdate }: PersonalInform
                   <div className="space-y-2">
                     <Label htmlFor="phone" className="flex items-center gap-2">
                       <Phone className="h-4 w-4" />
-                      Phone Number
+                      {t('profileSection.phoneNumber')}
                     </Label>
                     <Input
                       id="phone"
                       type="tel"
                       value={formData.phone}
                       onChange={(e) => handleInputChange('phone', e.target.value)}
-                      placeholder="Enter your phone number"
+                      placeholder={t('profileSection.enterPhoneNumber')}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="date_of_birth" className="flex items-center gap-2">
                       <Calendar className="h-4 w-4" />
-                      Date of Birth
+                      {t('profileSection.dateOfBirth')}
                     </Label>
                     <Input
                       id="date_of_birth"
@@ -186,13 +188,13 @@ const PersonalInformationSection = ({ profile, onProfileUpdate }: PersonalInform
                 <div className="space-y-2">
                   <Label htmlFor="address" className="flex items-center gap-2">
                     <MapPin className="h-4 w-4" />
-                    Address
+                    {t('profileSection.address')}
                   </Label>
                   <Textarea
                     id="address"
                     value={formData.address}
                     onChange={(e) => handleInputChange('address', e.target.value)}
-                    placeholder="Enter your address"
+                    placeholder={t('profileSection.enterAddress')}
                     rows={2}
                   />
                 </div>
@@ -200,18 +202,18 @@ const PersonalInformationSection = ({ profile, onProfileUpdate }: PersonalInform
                 {/* Country and Language */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="country">Country</Label>
+                    <Label htmlFor="country">{t('profileSection.country')}</Label>
                     <Input
                       id="country"
                       value={formData.country}
                       onChange={(e) => handleInputChange('country', e.target.value)}
-                      placeholder="Enter your country"
+                      placeholder={t('profileSection.enterCountry')}
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="language_preference" className="flex items-center gap-2">
                       <Globe className="h-4 w-4" />
-                      Preferred Language
+                      {t('profileSection.preferredLanguage')}
                     </Label>
                     <Select value={formData.language_preference} onValueChange={(value) => handleInputChange('language_preference', value)}>
                       <SelectTrigger>
@@ -231,11 +233,11 @@ const PersonalInformationSection = ({ profile, onProfileUpdate }: PersonalInform
               <div className="flex gap-2 justify-end">
                 <Button variant="outline" onClick={() => setIsModalOpen(false)}>
                   <X className="h-4 w-4 mr-2" />
-                  Cancel
+                  {t('profileSection.cancel')}
                 </Button>
                 <Button onClick={handleSave} disabled={isLoading}>
                   <Check className="h-4 w-4 mr-2" />
-                  {isLoading ? 'Saving...' : 'Save Changes'}
+                  {isLoading ? t('profileSection.saving') : t('profileSection.saveChanges')}
                 </Button>
               </div>
             </DialogContent>
@@ -246,11 +248,11 @@ const PersonalInformationSection = ({ profile, onProfileUpdate }: PersonalInform
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Name */}
           <div className="space-y-1">
-            <Label className="text-sm font-medium text-muted-foreground">Full Name</Label>
+            <Label className="text-sm font-medium text-muted-foreground">{t('profileSection.fullName')}</Label>
             <p className="font-medium">
-              {formData.first_name && formData.last_name 
+              {formData.first_name && formData.last_name
                 ? `${formData.first_name} ${formData.last_name}`
-                : 'Not provided'
+                : t('profileSection.notProvided')
               }
             </p>
           </div>
@@ -259,45 +261,45 @@ const PersonalInformationSection = ({ profile, onProfileUpdate }: PersonalInform
           <div className="space-y-1">
             <Label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <Phone className="h-4 w-4" />
-              Phone Number
+              {t('profileSection.phoneNumber')}
             </Label>
-            <p className="font-medium">{formData.phone || 'Not provided'}</p>
+            <p className="font-medium">{formData.phone || t('profileSection.notProvided')}</p>
           </div>
 
           {/* Date of Birth */}
           <div className="space-y-1">
             <Label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <Calendar className="h-4 w-4" />
-              Date of Birth
+              {t('profileSection.dateOfBirth')}
             </Label>
             <p className="font-medium">
-              {formData.date_of_birth 
+              {formData.date_of_birth
                 ? new Date(formData.date_of_birth).toLocaleDateString()
-                : 'Not provided'
+                : t('profileSection.notProvided')
               }
             </p>
           </div>
 
           {/* Country */}
           <div className="space-y-1">
-            <Label className="text-sm font-medium text-muted-foreground">Country</Label>
-            <p className="font-medium">{formData.country || 'Not provided'}</p>
+            <Label className="text-sm font-medium text-muted-foreground">{t('profileSection.country')}</Label>
+            <p className="font-medium">{formData.country || t('profileSection.notProvided')}</p>
           </div>
 
           {/* Address */}
           <div className="space-y-1 md:col-span-2">
             <Label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <MapPin className="h-4 w-4" />
-              Address
+              {t('profileSection.address')}
             </Label>
-            <p className="font-medium">{formData.address || 'Not provided'}</p>
+            <p className="font-medium">{formData.address || t('profileSection.notProvided')}</p>
           </div>
 
           {/* Language */}
           <div className="space-y-1">
             <Label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
               <Globe className="h-4 w-4" />
-              Language
+              {t('profileSection.language')}
             </Label>
             <Badge variant="outline">
               {languages.find(lang => lang.code === formData.language_preference)?.name || 'English'}

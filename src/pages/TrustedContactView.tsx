@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,6 +26,7 @@ interface UserProfile {
 }
 
 const TrustedContactView = () => {
+  const { t } = useTranslation();
   const { eventId } = useParams();
   const { toast } = useToast();
   const [sosEvent, setSOSEvent] = useState<SOSEvent | null>(null);
@@ -63,8 +65,8 @@ const TrustedContactView = () => {
     } catch (error) {
       console.error('Error loading event data:', error);
       toast({
-        title: "Error",
-        description: "Failed to load emergency information",
+        title: t('family.loadErrorTitle'),
+        description: t('family.loadErrorDescription'),
         variant: "destructive"
       });
     } finally {
@@ -85,15 +87,15 @@ const TrustedContactView = () => {
 
       setHasAcknowledged(true);
       toast({
-        title: "Response Sent",
-        description: "Your acknowledgment has been recorded and the family has been notified."
+        title: t('family.acknowledgmentSentTitle'),
+        description: t('family.acknowledgmentSentDescription')
       });
 
     } catch (error) {
       console.error('Error acknowledging SOS:', error);
       toast({
-        title: "Error",
-        description: "Failed to send acknowledgment. Please try again.",
+        title: t('family.acknowledgmentErrorTitle'),
+        description: t('family.acknowledgmentErrorDescription'),
         variant: "destructive"
       });
     }
@@ -110,7 +112,7 @@ const TrustedContactView = () => {
       <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
         <div className="text-white text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4"></div>
-          <p>Loading emergency information...</p>
+          <p>{t('family.loadingEmergencyInfo')}</p>
         </div>
       </div>
     );
@@ -124,11 +126,11 @@ const TrustedContactView = () => {
             <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
               <AlertTriangle className="h-8 w-8 text-red-600" />
             </div>
-            <CardTitle className="text-xl">Emergency Alert Not Found</CardTitle>
+            <CardTitle className="text-xl">{t('family.emergencyAlertNotFound')}</CardTitle>
           </CardHeader>
           <CardContent className="text-center">
             <p className="text-muted-foreground mb-4">
-              The emergency alert you're looking for could not be found or may have been resolved.
+              {t('family.emergencyAlertNotFoundDescription')}
             </p>
           </CardContent>
         </Card>
@@ -145,9 +147,9 @@ const TrustedContactView = () => {
             <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
               <Shield className="h-8 w-8 text-red-600" />
             </div>
-            <CardTitle className="text-2xl text-destructive">Emergency Alert</CardTitle>
+            <CardTitle className="text-2xl text-destructive">{t('family.emergencyAlert')}</CardTitle>
             <p className="text-muted-foreground">
-              {userProfile?.first_name} {userProfile?.last_name} has triggered an emergency SOS
+              {t('family.triggeredSOS', { name: `${userProfile?.first_name} ${userProfile?.last_name}` })}
             </p>
           </CardHeader>
         </Card>
@@ -157,7 +159,7 @@ const TrustedContactView = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-destructive" />
-              Emergency Information
+              {t('family.emergencyInformation')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -165,7 +167,7 @@ const TrustedContactView = () => {
               <div className="flex items-center gap-3">
                 <Clock className="h-4 w-4 text-muted-foreground" />
                 <div>
-                  <p className="text-sm font-medium">Time Triggered</p>
+                  <p className="text-sm font-medium">{t('family.timeTriggered')}</p>
                   <p className="text-sm text-muted-foreground">
                     {new Date(sosEvent.created_at).toLocaleString()}
                   </p>
@@ -176,7 +178,7 @@ const TrustedContactView = () => {
                 <div className="flex items-center gap-3">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
                   <div>
-                    <p className="text-sm font-medium">Location</p>
+                    <p className="text-sm font-medium">{t('family.location')}</p>
                     <p className="text-sm text-muted-foreground">{sosEvent.address}</p>
                   </div>
                 </div>
@@ -185,7 +187,7 @@ const TrustedContactView = () => {
               <div className="flex items-center gap-3">
                 <Shield className="h-4 w-4 text-muted-foreground" />
                 <div>
-                  <p className="text-sm font-medium">Status</p>
+                  <p className="text-sm font-medium">{t('family.status')}</p>
                   <Badge variant={sosEvent.status === 'active' ? 'destructive' : 'secondary'}>
                     {sosEvent.status}
                   </Badge>
@@ -195,7 +197,7 @@ const TrustedContactView = () => {
 
             {sosEvent.notes && (
               <div className="mt-4 p-3 bg-muted rounded-lg">
-                <p className="text-sm font-medium mb-1">Additional Information</p>
+                <p className="text-sm font-medium mb-1">{t('family.additionalInformation')}</p>
                 <p className="text-sm text-muted-foreground">{sosEvent.notes}</p>
               </div>
             )}
@@ -207,9 +209,9 @@ const TrustedContactView = () => {
           <CardContent className="pt-6">
             <div className="space-y-4">
               <div className="text-center mb-4">
-                <h3 className="font-medium mb-2">How would you like to respond?</h3>
+                <h3 className="font-medium mb-2">{t('family.howToRespond')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Choose an action to help {userProfile?.first_name}
+                  {t('family.chooseAction', { name: userProfile?.first_name })}
                 </p>
               </div>
 
@@ -221,14 +223,14 @@ const TrustedContactView = () => {
                     variant="destructive"
                   >
                     <CheckCircle className="h-4 w-4 mr-2" />
-                    Acknowledge Emergency & Send Response
+                    {t('family.acknowledgeEmergency')}
                   </Button>
                 ) : (
                   <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
                     <CheckCircle className="h-6 w-6 text-green-600 mx-auto mb-2" />
-                    <p className="text-green-800 font-medium">Response Sent</p>
+                    <p className="text-green-800 font-medium">{t('family.responseSent')}</p>
                     <p className="text-green-700 text-sm">
-                      {userProfile?.first_name} has been notified that you've received the alert
+                      {t('family.responseSentDescription', { name: userProfile?.first_name })}
                     </p>
                   </div>
                 )}
@@ -240,7 +242,7 @@ const TrustedContactView = () => {
                     className="w-full h-12"
                   >
                     <Phone className="h-4 w-4 mr-2" />
-                    Call {userProfile.first_name} Now
+                    {t('family.callNow', { name: userProfile.first_name })}
                   </Button>
                 )}
 
@@ -254,7 +256,7 @@ const TrustedContactView = () => {
                     }}
                   >
                     <MapPin className="h-4 w-4 mr-2" />
-                    View Location on Map
+                    {t('family.viewLocationOnMap')}
                   </Button>
                 )}
               </div>
@@ -266,10 +268,9 @@ const TrustedContactView = () => {
         <Card className="bg-white/95 backdrop-blur-sm">
           <CardContent className="pt-6">
             <div className="text-center space-y-2">
-              <h4 className="font-medium">Emergency Response Instructions</h4>
+              <h4 className="font-medium">{t('family.emergencyResponseInstructions')}</h4>
               <p className="text-sm text-muted-foreground">
-                If this is a life-threatening emergency, please contact local emergency services (911/112) immediately.
-                This alert is to inform you as a trusted contact.
+                {t('family.emergencyResponseDescription')}
               </p>
             </div>
           </CardContent>

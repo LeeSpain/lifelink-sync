@@ -19,11 +19,13 @@ import {
   EyeOff
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 import { EnhancedConnectionDisplay } from './EnhancedConnectionDisplay';
 import { useEnhancedConnectionDisplay } from '@/hooks/useEnhancedConnectionDisplay';
 import { useFamilyRole } from '@/hooks/useFamilyRole';
 
 const ConnectionDashboard: React.FC = () => {
+  const { t } = useTranslation();
   const { data: familyRole } = useFamilyRole();
   const {
     familyMembers,
@@ -61,9 +63,9 @@ const ConnectionDashboard: React.FC = () => {
   };
 
   const getConnectionStatusText = () => {
-    if (!isConnected) return 'Disconnected';
-    if (hasErrors) return 'Unstable';
-    return 'Connected';
+    if (!isConnected) return t('familyDashboard.disconnected');
+    if (hasErrors) return t('familyDashboard.unstable');
+    return t('familyDashboard.connected');
   };
 
   return (
@@ -71,7 +73,7 @@ const ConnectionDashboard: React.FC = () => {
       {/* Header with Real-time Status */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Family Connections</h1>
+          <h1 className="text-3xl font-bold">{t('familyDashboard.familyConnections')}</h1>
           <div className="flex items-center space-x-4 mt-2">
             <div className="flex items-center space-x-2">
               {isConnected ? (
@@ -97,7 +99,7 @@ const ConnectionDashboard: React.FC = () => {
               <div className="flex items-center space-x-2">
                 <Activity className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">
-                  Updated {connectionMetrics.lastUpdate.toLocaleTimeString()}
+                  {t('familyDashboard.updated')} {connectionMetrics.lastUpdate.toLocaleTimeString()}
                 </span>
               </div>
             )}
@@ -113,7 +115,7 @@ const ConnectionDashboard: React.FC = () => {
             className="flex items-center space-x-2"
           >
             <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
-            <span>Refresh</span>
+            <span>{t('familyDashboard.refresh')}</span>
           </Button>
           
           <Button variant="outline" size="sm">
@@ -128,7 +130,7 @@ const ConnectionDashboard: React.FC = () => {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Total Members</p>
+                <p className="text-sm text-muted-foreground">{t('familyDashboard.totalMembers')}</p>
                 <p className="text-2xl font-bold">{connectionMetrics.totalMembers}</p>
               </div>
               <Users className="h-8 w-8 text-blue-500" />
@@ -140,7 +142,7 @@ const ConnectionDashboard: React.FC = () => {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Online Now</p>
+                <p className="text-sm text-muted-foreground">{t('familyDashboard.onlineNow')}</p>
                 <p className="text-2xl font-bold text-green-600">{connectionMetrics.onlineMembers}</p>
               </div>
               <div className="relative">
@@ -157,7 +159,7 @@ const ConnectionDashboard: React.FC = () => {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Connection Quality</p>
+                <p className="text-sm text-muted-foreground">{t('familyDashboard.connectionQuality')}</p>
                 <p className={cn(
                   "text-2xl font-bold",
                   connectionMetrics.connectionQuality === 'excellent' ? 'text-green-600' :
@@ -181,7 +183,7 @@ const ConnectionDashboard: React.FC = () => {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Avg Response</p>
+                <p className="text-sm text-muted-foreground">{t('familyDashboard.avgResponse')}</p>
                 <p className="text-2xl font-bold">
                   {connectionMetrics.averageLatency > 0 ? `${connectionMetrics.averageLatency.toFixed(0)}ms` : '--'}
                 </p>
@@ -199,9 +201,9 @@ const ConnectionDashboard: React.FC = () => {
             <div className="flex items-center space-x-3">
               <AlertTriangle className="h-5 w-5 text-yellow-600" />
               <div>
-                <p className="font-medium text-yellow-800">Connection Issues Detected</p>
+                <p className="font-medium text-yellow-800">{t('familyDashboard.connectionIssuesDetected')}</p>
                 <p className="text-sm text-yellow-700">
-                  Some family members may have unstable connections. Real-time updates might be delayed.
+                  {t('familyDashboard.connectionIssuesDesc')}
                 </p>
               </div>
             </div>
@@ -214,15 +216,15 @@ const ConnectionDashboard: React.FC = () => {
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="all" className="flex items-center space-x-2">
             <Users className="h-4 w-4" />
-            <span>All Members ({familyMembers.length})</span>
+            <span>{t('familyDashboard.allMembersTab', { count: familyMembers.length })}</span>
           </TabsTrigger>
           <TabsTrigger value="online" className="flex items-center space-x-2">
             <div className="w-2 h-2 bg-green-500 rounded-full" />
-            <span>Online ({onlineMembers.length})</span>
+            <span>{t('familyDashboard.onlineTab', { count: onlineMembers.length })}</span>
           </TabsTrigger>
           <TabsTrigger value="locations" className="flex items-center space-x-2">
             <MapPin className="h-4 w-4" />
-            <span>Locations</span>
+            <span>{t('familyDashboard.locationsTab')}</span>
           </TabsTrigger>
         </TabsList>
 
@@ -243,10 +245,10 @@ const ConnectionDashboard: React.FC = () => {
               <CardContent className="p-8 text-center">
                 <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-muted-foreground mb-2">
-                  No Family Members Online
+                  {t('familyDashboard.noMembersOnline')}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Family members will appear here when they come online.
+                  {t('familyDashboard.membersAppearOnline')}
                 </p>
               </CardContent>
             </Card>
@@ -267,7 +269,7 @@ const ConnectionDashboard: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <MapPin className="h-5 w-5" />
-                <span>Location Sharing Status</span>
+                <span>{t('familyDashboard.locationSharingStatus')}</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -277,7 +279,7 @@ const ConnectionDashboard: React.FC = () => {
                     <div className="flex items-center space-x-3">
                       <div className="font-medium">{member.name}</div>
                       {member.id === currentUser?.id && (
-                        <Badge variant="secondary">You</Badge>
+                        <Badge variant="secondary">{t('familyDashboard.you')}</Badge>
                       )}
                     </div>
                     
@@ -285,7 +287,7 @@ const ConnectionDashboard: React.FC = () => {
                       {member.location ? (
                         <div className="flex items-center space-x-2 text-green-600">
                           <Eye className="h-4 w-4" />
-                          <span className="text-sm">Sharing Location</span>
+                          <span className="text-sm">{t('familyDashboard.sharingLocation')}</span>
                           {member.location.accuracy && (
                             <span className="text-xs text-muted-foreground">
                               ±{member.location.accuracy}m
@@ -295,17 +297,17 @@ const ConnectionDashboard: React.FC = () => {
                       ) : (
                         <div className="flex items-center space-x-2 text-muted-foreground">
                           <EyeOff className="h-4 w-4" />
-                          <span className="text-sm">Not Sharing</span>
+                          <span className="text-sm">{t('familyDashboard.notSharing')}</span>
                         </div>
                       )}
                       
                       {member.permissions.canViewLocation ? (
                         <Badge variant="outline" className="text-green-600">
-                          Can View
+                          {t('familyDashboard.canView')}
                         </Badge>
                       ) : (
                         <Badge variant="outline" className="text-red-600">
-                          Restricted
+                          {t('familyDashboard.restricted')}
                         </Badge>
                       )}
                     </div>

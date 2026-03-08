@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -48,6 +49,7 @@ type FamilyMember = {
 };
 
 const FamilyTrackingApp = () => {
+  const { t } = useTranslation();
   const { user } = useOptimizedAuth();
   const { data: familyRole } = useFamilyRole();
   const { toast } = useToast();
@@ -214,16 +216,16 @@ const FamilyTrackingApp = () => {
   }, [presences, familyRole?.familyGroupId]);
 
   const getStatusInfo = (member: FamilyMember) => {
-    if (!member.last_seen) return { status: 'offline', color: 'bg-gray-400', text: 'Offline' };
-    
+    if (!member.last_seen) return { status: 'offline', color: 'bg-gray-400', text: t('family.offline') };
+
     const lastSeen = new Date(member.last_seen);
     const now = new Date();
     const diffMinutes = (now.getTime() - lastSeen.getTime()) / (1000 * 60);
-    
-    if (member.is_paused) return { status: 'paused', color: 'bg-yellow-400', text: 'Paused' };
-    if (diffMinutes < 5) return { status: 'live', color: 'bg-green-400', text: 'Live' };
+
+    if (member.is_paused) return { status: 'paused', color: 'bg-yellow-400', text: t('family.paused') };
+    if (diffMinutes < 5) return { status: 'live', color: 'bg-green-400', text: t('family.live') };
     if (diffMinutes < 60) return { status: 'recent', color: 'bg-blue-400', text: `${Math.floor(diffMinutes)}m ago` };
-    return { status: 'idle', color: 'bg-gray-400', text: 'Idle' };
+    return { status: 'idle', color: 'bg-gray-400', text: t('family.offline') };
   };
 
   const getActivityIcon = (activity?: string) => {
@@ -249,8 +251,8 @@ const FamilyTrackingApp = () => {
       });
 
       toast({
-        title: "✅ Checked In",
-        description: "Your family has been notified you're safe"
+        title: t('family.checkedInTitle'),
+        description: t('family.checkedInDescription')
       });
     } catch (error) {
       console.error('Check-in error:', error);
@@ -264,8 +266,8 @@ const FamilyTrackingApp = () => {
       await triggerEmergencySOS();
       
       toast({
-        title: "🚨 Emergency Alert Sent",
-        description: "Your family has been notified",
+        title: t('family.emergencyAlertSentTitle'),
+        description: t('family.emergencyAlertSentDescription'),
         variant: "destructive"
       });
     } catch (error) {
@@ -284,9 +286,9 @@ const FamilyTrackingApp = () => {
               onClick={() => setShowMap(true)}
               className="text-blue-600"
             >
-              ← Back to Map
+              {t('family.backToMap')}
             </Button>
-            <h1 className="text-lg font-semibold">Family Tracker</h1>
+            <h1 className="text-lg font-semibold">{t('family.familyTracker')}</h1>
             <Settings className="w-5 h-5 text-gray-400" />
           </div>
 
@@ -318,12 +320,12 @@ const FamilyTrackingApp = () => {
 
           {/* Live Status */}
           <Card className="p-4">
-            <h3 className="font-semibold mb-3">Live Status</h3>
+            <h3 className="font-semibold mb-3">{t('family.liveStatus')}</h3>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <MapPin className="w-4 h-4 text-blue-500" />
-                  <span className="text-sm">Location</span>
+                  <span className="text-sm">{t('family.location')}</span>
                 </div>
                 <span className="text-sm font-mono">
                   {selectedMember.lat.toFixed(4)}, {selectedMember.lng.toFixed(4)}
@@ -334,7 +336,7 @@ const FamilyTrackingApp = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Battery className="w-4 h-4 text-green-500" />
-                    <span className="text-sm">Battery</span>
+                    <span className="text-sm">{t('family.battery')}</span>
                   </div>
                   <span className="text-sm">{selectedMember.battery}%</span>
                 </div>
@@ -343,7 +345,7 @@ const FamilyTrackingApp = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {getActivityIcon(selectedMember.activity)}
-                  <span className="text-sm">Activity</span>
+                  <span className="text-sm">{t('family.activity')}</span>
                 </div>
                 <span className="text-sm capitalize">{selectedMember.activity}</span>
               </div>
@@ -352,7 +354,7 @@ const FamilyTrackingApp = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Car className="w-4 h-4 text-orange-500" />
-                    <span className="text-sm">Speed</span>
+                    <span className="text-sm">{t('family.speed')}</span>
                   </div>
                   <span className="text-sm">{selectedMember.speed} km/h</span>
                 </div>
@@ -368,10 +370,10 @@ const FamilyTrackingApp = () => {
               onClick={() => window.open(`tel:${selectedMember.user_id}`, '_self')}
             >
               <Phone className="w-4 h-4 mr-2" />
-              Call
+              {t('family.call')}
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="h-12"
               onClick={() => {
                 const url = `https://www.google.com/maps/dir/?api=1&destination=${selectedMember.lat},${selectedMember.lng}`;
@@ -379,7 +381,7 @@ const FamilyTrackingApp = () => {
               }}
             >
               <Navigation className="w-4 h-4 mr-2" />
-              Directions
+              {t('family.directions')}
             </Button>
           </div>
         </div>
@@ -394,16 +396,16 @@ const FamilyTrackingApp = () => {
         <div className="max-w-md mx-auto flex items-center justify-between">
           <div>
             <h1 className="text-lg font-semibold">
-              {user?.user_metadata?.first_name ? `${user.user_metadata.first_name}'s Family` : 'My Family'}
+              {user?.user_metadata?.first_name ? t('family.possessiveFamily', { name: user.user_metadata.first_name }) : t('family.myFamily')}
             </h1>
             <p className="text-sm text-gray-600">
-              {totalMembers || familyMembers.length} {(totalMembers || familyMembers.length) === 1 ? 'member' : 'members'} • {onlineMembers} online
+              {t('family.membersCount', { count: totalMembers || familyMembers.length })} • {onlineMembers} {t('family.online')}
             </p>
           </div>
           <div className="flex items-center gap-2">
             <Badge variant={isTracking ? "default" : "secondary"} className="gap-1">
               <div className={`w-2 h-2 rounded-full ${isTracking ? 'bg-green-400 animate-pulse' : 'bg-gray-400'}`} />
-              {isTracking ? 'Live' : 'Paused'}
+              {isTracking ? t('family.live') : t('family.paused')}
             </Badge>
             <Settings className="w-5 h-5 text-gray-400" />
           </div>
@@ -475,27 +477,27 @@ const FamilyTrackingApp = () => {
         {/* Family Members List */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Family Members</h2>
-            <Button 
-              size="sm" 
+            <h2 className="text-lg font-semibold">{t('family.familyMembers')}</h2>
+            <Button
+              size="sm"
               variant="outline"
               onClick={() => setShowInviteModal(true)}
             >
               <Users className="w-4 h-4 mr-1" />
-              Add
+              {t('family.add')}
             </Button>
           </div>
 
           {familyMembers.length === 0 ? (
             <Card className="p-6 text-center">
               <Users className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
-              <h3 className="font-semibold mb-2">No family members yet</h3>
+              <h3 className="font-semibold mb-2">{t('family.noFamilyMembersYetTracking')}</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Invite family members to start tracking their location and staying connected.
+                {t('family.inviteFamilyDescription')}
               </p>
               <Button onClick={() => setShowInviteModal(true)}>
                 <UserPlus className="w-4 h-4 mr-2" />
-                Invite Family Member
+                {t('family.inviteFamilyMember')}
               </Button>
             </Card>
           ) : (
@@ -529,7 +531,7 @@ const FamilyTrackingApp = () => {
                             <div className="flex items-center gap-2">
                               <h3 className="font-medium">{member.name}</h3>
                               {member.user_id === user?.id && (
-                                <Badge variant="secondary" className="text-xs">You</Badge>
+                                <Badge variant="secondary" className="text-xs">{t('family.you')}</Badge>
                               )}
                             </div>
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -571,7 +573,7 @@ const FamilyTrackingApp = () => {
       <Dialog open={showInviteModal} onOpenChange={setShowInviteModal}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Invite Family Member</DialogTitle>
+            <DialogTitle>{t('family.inviteFamilyMember')}</DialogTitle>
           </DialogHeader>
           <FamilyInviteQuickSetup onMemberAdded={() => setShowInviteModal(false)} />
         </DialogContent>

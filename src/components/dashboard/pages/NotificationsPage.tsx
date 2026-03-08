@@ -7,8 +7,10 @@ import { Bell, Smartphone, Mail, MessageSquare, AlertTriangle, Users, MapPin, Sa
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from 'react-i18next';
 
 export function NotificationsPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { toast } = useToast();
   const [settings, setSettings] = useState({
@@ -84,14 +86,14 @@ export function NotificationsPage() {
       if (error) throw error;
 
       toast({
-        title: "Preferences saved",
-        description: "Your notification preferences have been updated successfully.",
+        title: t('notifications.saved'),
+        description: t('notifications.savedDescription'),
       });
     } catch (error) {
       console.error('Error saving preferences:', error);
       toast({
-        title: "Error saving preferences",
-        description: "There was an error updating your preferences. Please try again.",
+        title: t('notifications.errorSaving'),
+        description: t('notifications.errorSavingDescription'),
         variant: "destructive",
       });
     } finally {
@@ -102,8 +104,8 @@ export function NotificationsPage() {
   const notificationTypes = [
     {
       id: "emergency",
-      title: "Emergency Alerts",
-      description: "Critical safety alerts and SOS notifications",
+      title: t('notifications.emergencyAlerts'),
+      description: t('notifications.emergencyAlertsDescription'),
       icon: AlertTriangle,
       setting: "emergencyAlerts",
       methodSetting: "emergencyMethod",
@@ -111,8 +113,8 @@ export function NotificationsPage() {
     },
     {
       id: "family",
-      title: "Family Updates",
-      description: "Family member status changes and location updates",
+      title: t('notifications.familyUpdates'),
+      description: t('notifications.familyUpdatesDescription'),
       icon: Users,
       setting: "familyUpdates",
       methodSetting: "familyMethod",
@@ -120,8 +122,8 @@ export function NotificationsPage() {
     },
     {
       id: "location",
-      title: "Location Notifications",
-      description: "Safe zone entries/exits and location sharing alerts",
+      title: t('notifications.locationNotifications'),
+      description: t('notifications.locationNotificationsDescription'),
       icon: MapPin,
       setting: "locationAlerts",
       methodSetting: "locationMethod",
@@ -129,8 +131,8 @@ export function NotificationsPage() {
     },
     {
       id: "system",
-      title: "System Updates",
-      description: "App updates, maintenance notifications, and feature announcements",
+      title: t('notifications.systemUpdates'),
+      description: t('notifications.systemUpdatesDescription'),
       icon: Bell,
       setting: "systemUpdates",
       methodSetting: "systemMethod",
@@ -139,11 +141,11 @@ export function NotificationsPage() {
   ];
 
   const deliveryMethods = [
-    { value: "all", label: "Push + Email + SMS" },
-    { value: "push", label: "Push Notifications Only" },
-    { value: "email", label: "Email Only" },
-    { value: "sms", label: "SMS Only" },
-    { value: "none", label: "Disabled" }
+    { value: "all", label: t('notifications.pushEmailSms') },
+    { value: "push", label: t('notifications.pushOnly') },
+    { value: "email", label: t('notifications.emailOnly') },
+    { value: "sms", label: t('notifications.smsOnly') },
+    { value: "none", label: t('notifications.disabled') }
   ];
 
   return (
@@ -151,8 +153,8 @@ export function NotificationsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Notifications</h1>
-          <p className="text-muted-foreground">Customize how and when you receive notifications</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t('notifications.title')}</h1>
+          <p className="text-muted-foreground">{t('notifications.subtitle')}</p>
         </div>
         <Button
           onClick={savePreferences}
@@ -162,12 +164,12 @@ export function NotificationsPage() {
           {isSaving ? (
             <>
               <CheckCircle className="h-4 w-4 mr-2 animate-spin" />
-              Saving...
+              {t('notifications.saving')}
             </>
           ) : (
             <>
               <Save className="h-4 w-4 mr-2" />
-              Save Preferences
+              {t('notifications.savePreferences')}
             </>
           )}
         </Button>
@@ -176,9 +178,9 @@ export function NotificationsPage() {
         {/* Notification Types */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-semibold">Notification Categories</CardTitle>
+            <CardTitle className="text-sm font-semibold">{t('notifications.categories')}</CardTitle>
             <CardDescription>
-              Choose which types of notifications you want to receive and how you want to receive them
+              {t('notifications.categoriesDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -200,7 +202,7 @@ export function NotificationsPage() {
                 
                 {settings[type.setting as keyof typeof settings] && (
                   <div className="ml-13 pt-2">
-                    <label className="text-sm font-medium text-muted-foreground">Delivery Method</label>
+                    <label className="text-sm font-medium text-muted-foreground">{t('notifications.deliveryMethod')}</label>
                     <Select
                       value={settings[type.methodSetting as keyof typeof settings] as string}
                       onValueChange={(value) => updateSetting(type.methodSetting, value)}
@@ -228,18 +230,18 @@ export function NotificationsPage() {
           <CardHeader>
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <Bell className="h-5 w-5" />
-              Quiet Hours
+              {t('notifications.quietHours')}
             </CardTitle>
             <CardDescription>
-              Set specific hours when non-emergency notifications are silenced
+              {t('notifications.quietHoursDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-semibold">Enable Quiet Hours</h3>
+                <h3 className="text-sm font-semibold">{t('notifications.enableQuietHours')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Emergency alerts will still come through during quiet hours
+                  {t('notifications.emergencyStillComeThrough')}
                 </p>
               </div>
               <Switch
@@ -251,7 +253,7 @@ export function NotificationsPage() {
             {settings.quietHours && (
               <div className="grid grid-cols-2 gap-4 pt-4">
                 <div>
-                  <label className="text-sm font-medium">Start Time</label>
+                  <label className="text-sm font-medium">{t('notifications.startTime')}</label>
                   <Select
                     value={settings.quietStart}
                     onValueChange={(value) => updateSetting("quietStart", value)}
@@ -273,7 +275,7 @@ export function NotificationsPage() {
                 </div>
                 
                 <div>
-                  <label className="text-sm font-medium">End Time</label>
+                  <label className="text-sm font-medium">{t('notifications.endTime')}</label>
                   <Select
                     value={settings.quietEnd}
                     onValueChange={(value) => updateSetting("quietEnd", value)}
@@ -301,9 +303,9 @@ export function NotificationsPage() {
         {/* Delivery Channels */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-semibold">Delivery Channels</CardTitle>
+            <CardTitle className="text-sm font-semibold">{t('notifications.deliveryChannels')}</CardTitle>
             <CardDescription>
-              Manage your notification delivery preferences across different channels
+              {t('notifications.deliveryChannelsDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -311,24 +313,24 @@ export function NotificationsPage() {
               <div className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
                 <Smartphone className="h-5 w-5 text-primary" />
                 <div>
-                  <h3 className="text-sm font-semibold">Push Notifications</h3>
-                  <p className="text-xs text-muted-foreground">Mobile app alerts</p>
+                  <h3 className="text-sm font-semibold">{t('notifications.pushNotifications')}</h3>
+                  <p className="text-xs text-muted-foreground">{t('notifications.mobileAppAlerts')}</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
                 <Mail className="h-5 w-5 text-muted-foreground" />
                 <div>
-                  <h3 className="text-sm font-semibold">Email</h3>
-                  <p className="text-xs text-muted-foreground">Email notifications</p>
+                  <h3 className="text-sm font-semibold">{t('notifications.email')}</h3>
+                  <p className="text-xs text-muted-foreground">{t('notifications.emailNotifications')}</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
                 <MessageSquare className="h-5 w-5 text-muted-foreground" />
                 <div>
-                  <h3 className="text-sm font-semibold">SMS</h3>
-                  <p className="text-xs text-muted-foreground">Text messages</p>
+                  <h3 className="text-sm font-semibold">{t('notifications.sms')}</h3>
+                  <p className="text-xs text-muted-foreground">{t('notifications.textMessages')}</p>
                 </div>
               </div>
             </div>
@@ -338,17 +340,17 @@ export function NotificationsPage() {
         {/* Marketing Preferences */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-semibold">Marketing Communications</CardTitle>
+            <CardTitle className="text-sm font-semibold">{t('notifications.marketingCommunications')}</CardTitle>
             <CardDescription>
-              Control promotional and marketing communications
+              {t('notifications.marketingDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-semibold">Promotional Emails</h3>
+                <h3 className="text-sm font-semibold">{t('notifications.promotionalEmails')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Receive updates about new features, tips, and special offers
+                  {t('notifications.promotionalEmailsDescription')}
                 </p>
               </div>
               <Switch

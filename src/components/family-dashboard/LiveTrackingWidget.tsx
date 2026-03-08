@@ -15,8 +15,10 @@ import {
 import { useCircleRealtime } from '@/hooks/useCircleRealtime';
 import { useFamilyRole } from '@/hooks/useFamilyRole';
 import { supabase } from '@/integrations/supabase/client';
+import { useTranslation } from 'react-i18next';
 
 const LiveTrackingWidget = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { data: familyRole } = useFamilyRole();
   const [activeCircleId, setActiveCircleId] = useState<string | null>(null);
@@ -77,16 +79,16 @@ const LiveTrackingWidget = () => {
   };
 
   const getStatusInfo = (presence: any) => {
-    if (!presence?.last_seen) return { status: 'offline', color: 'bg-gray-400', text: 'Offline' };
-    
+    if (!presence?.last_seen) return { status: 'offline', color: 'bg-gray-400', text: t('familyDashboard.offline') };
+
     const lastSeen = new Date(presence.last_seen);
     const now = new Date();
     const diffMinutes = (now.getTime() - lastSeen.getTime()) / (1000 * 60);
-    
-    if (presence.is_paused) return { status: 'paused', color: 'bg-yellow-400', text: 'Paused' };
-    if (diffMinutes < 5) return { status: 'live', color: 'bg-green-400', text: 'Live' };
-    if (diffMinutes < 60) return { status: 'recent', color: 'bg-blue-400', text: `${Math.floor(diffMinutes)}m` };
-    return { status: 'idle', color: 'bg-gray-400', text: 'Idle' };
+
+    if (presence.is_paused) return { status: 'paused', color: 'bg-yellow-400', text: t('familyDashboard.paused') };
+    if (diffMinutes < 5) return { status: 'live', color: 'bg-green-400', text: t('familyDashboard.liveMemberStatus') };
+    if (diffMinutes < 60) return { status: 'recent', color: 'bg-blue-400', text: t('familyDashboard.minutesAgo', { count: Math.floor(diffMinutes) }) };
+    return { status: 'idle', color: 'bg-gray-400', text: t('familyDashboard.idle') };
   };
 
   const activeMembersCount = familyMembers.filter(m => {
@@ -102,11 +104,11 @@ const LiveTrackingWidget = () => {
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-blue-700">
             <Activity className="h-5 w-5" />
-            Live Family Tracking
+            {t('familyDashboard.liveFamilyTracking')}
           </CardTitle>
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="text-blue-600 border-blue-300">
-              {activeMembersCount} Active
+              {t('familyDashboard.activeMembersCount', { count: activeMembersCount })}
             </Badge>
             <Button
               size="sm"
@@ -149,15 +151,15 @@ const LiveTrackingWidget = () => {
           <div className="grid grid-cols-3 gap-2 pt-2 border-t border-blue-100">
             <div className="text-center">
               <div className="text-lg font-semibold text-blue-700">{familyMembers.length}</div>
-              <div className="text-xs text-blue-600">Total</div>
+              <div className="text-xs text-blue-600">{t('familyDashboard.total')}</div>
             </div>
             <div className="text-center">
               <div className="text-lg font-semibold text-green-600">{activeMembersCount}</div>
-              <div className="text-xs text-blue-600">Active</div>
+              <div className="text-xs text-blue-600">{t('familyDashboard.active')}</div>
             </div>
             <div className="text-center">
               <div className="text-lg font-semibold text-gray-600">{familyMembers.length - activeMembersCount}</div>
-              <div className="text-xs text-blue-600">Offline</div>
+              <div className="text-xs text-blue-600">{t('familyDashboard.offline')}</div>
             </div>
           </div>
 
@@ -170,7 +172,7 @@ const LiveTrackingWidget = () => {
               onClick={() => navigate('/family-dashboard/live-map')}
             >
               <MapPin className="h-4 w-4 mr-2" />
-              Open Live Map
+              {t('familyDashboard.openLiveMap')}
             </Button>
             <Button 
               variant="outline" 
@@ -179,13 +181,13 @@ const LiveTrackingWidget = () => {
               onClick={() => navigate('/family-dashboard')}
             >
               <Users className="h-4 w-4 mr-2" />
-              Manage Family
+              {t('familyDashboard.manageFamily')}
             </Button>
           </div>
 
           {/* Info Text */}
           <div className="text-xs text-blue-600 text-center pt-2 border-t border-blue-100">
-            Real-time location sharing • Privacy protected • Family only
+            {t('familyDashboard.realTimeInfo')}
           </div>
         </CardContent>
       )}

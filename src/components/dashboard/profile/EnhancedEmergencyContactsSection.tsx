@@ -22,6 +22,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useEmergencyContacts, type EmergencyContact } from "@/hooks/useEmergencyContacts";
+import { useTranslation } from 'react-i18next';
 
 interface EnhancedEmergencyContactsSectionProps {
   profile: any;
@@ -29,6 +30,7 @@ interface EnhancedEmergencyContactsSectionProps {
 }
 
 const EnhancedEmergencyContactsSection = ({ profile, onProfileUpdate }: EnhancedEmergencyContactsSectionProps) => {
+  const { t } = useTranslation();
   const { contacts, loading, refetch } = useEmergencyContacts();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingContact, setEditingContact] = useState<EmergencyContact | null>(null);
@@ -78,8 +80,8 @@ const EnhancedEmergencyContactsSection = ({ profile, onProfileUpdate }: Enhanced
   const handleSave = async () => {
     if (!formData.name || !formData.phone) {
       toast({
-        title: "Validation Error",
-        description: "Name and phone number are required.",
+        title: t('profileSection.validationError'),
+        description: t('profileSection.namePhoneRequired'),
         variant: "destructive"
       });
       return;
@@ -127,14 +129,14 @@ const EnhancedEmergencyContactsSection = ({ profile, onProfileUpdate }: Enhanced
       resetForm();
       
       toast({
-        title: "Success",
-        description: `Emergency contact ${editingContact ? 'updated' : 'added'} successfully.`
+        title: t('profileSection.success'),
+        description: editingContact ? t('profileSection.contactUpdated') : t('profileSection.contactAdded')
       });
     } catch (error) {
       console.error('Error saving contact:', error);
       toast({
-        title: "Error",
-        description: "Failed to save emergency contact.",
+        title: t('profileSection.error'),
+        description: t('profileSection.failedToSaveContact'),
         variant: "destructive"
       });
     } finally {
@@ -154,14 +156,14 @@ const EnhancedEmergencyContactsSection = ({ profile, onProfileUpdate }: Enhanced
       refetch();
       onProfileUpdate();
       toast({
-        title: "Success",
-        description: "Emergency contact removed successfully."
+        title: t('profileSection.success'),
+        description: t('profileSection.contactRemoved')
       });
     } catch (error) {
       console.error('Error deleting contact:', error);
       toast({
-        title: "Error",
-        description: "Failed to remove emergency contact.",
+        title: t('profileSection.error'),
+        description: t('profileSection.failedToRemoveContact'),
         variant: "destructive"
       });
     }
@@ -171,7 +173,7 @@ const EnhancedEmergencyContactsSection = ({ profile, onProfileUpdate }: Enhanced
     return (
       <Badge variant="secondary" className="gap-1">
         <PhoneCall className="h-3 w-3" />
-        Call Only
+        {t('profileSection.callOnly')}
       </Badge>
     );
   };
@@ -190,9 +192,9 @@ const EnhancedEmergencyContactsSection = ({ profile, onProfileUpdate }: Enhanced
               <Phone className="h-5 w-5 text-red-500" />
             </div>
             <div>
-              <CardTitle className="text-lg">Emergency Contacts</CardTitle>
+              <CardTitle className="text-lg">{t('profileSection.emergencyContacts')}</CardTitle>
               <p className="text-sm text-muted-foreground">
-                {contacts.length}/5 contacts • Sequential calling during SOS
+                {t('profileSection.contactsCount', { count: contacts.length })}
               </p>
             </div>
           </div>
@@ -205,29 +207,29 @@ const EnhancedEmergencyContactsSection = ({ profile, onProfileUpdate }: Enhanced
                 disabled={contacts.length >= 5}
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Add Contact
+                {t('profileSection.addContact')}
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-md">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   <Phone className="h-5 w-5" />
-                  {editingContact ? 'Edit Contact' : 'Add Emergency Contact'}
+                  {editingContact ? t('profileSection.editContact') : t('profileSection.addEmergencyContact')}
                 </DialogTitle>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Name *</Label>
+                  <Label htmlFor="name">{t('profileSection.nameRequired')}</Label>
                   <Input
                     id="name"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Contact name"
+                    placeholder={t('profileSection.contactNamePlaceholder')}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number *</Label>
+                  <Label htmlFor="phone">{t('profileSection.phoneNumberRequired')}</Label>
                   <Input
                     id="phone"
                     type="tel"
@@ -238,7 +240,7 @@ const EnhancedEmergencyContactsSection = ({ profile, onProfileUpdate }: Enhanced
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email (Optional)</Label>
+                  <Label htmlFor="email">{t('profileSection.emailOptional')}</Label>
                   <Input
                     id="email"
                     type="email"
@@ -249,10 +251,10 @@ const EnhancedEmergencyContactsSection = ({ profile, onProfileUpdate }: Enhanced
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="relationship">Relationship</Label>
+                  <Label htmlFor="relationship">{t('profileSection.relationship')}</Label>
                   <Select value={formData.relationship} onValueChange={(value) => setFormData({ ...formData, relationship: value })}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select relationship" />
+                      <SelectValue placeholder={t('profileSection.selectRelationship')} />
                     </SelectTrigger>
                     <SelectContent>
                       {relationships.map((rel) => (
@@ -263,7 +265,7 @@ const EnhancedEmergencyContactsSection = ({ profile, onProfileUpdate }: Enhanced
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="priority">Priority Order</Label>
+                  <Label htmlFor="priority">{t('profileSection.priorityOrder')}</Label>
                   <Select value={formData.priority.toString()} onValueChange={(value) => setFormData({ ...formData, priority: parseInt(value) })}>
                     <SelectTrigger>
                       <SelectValue />
@@ -271,7 +273,7 @@ const EnhancedEmergencyContactsSection = ({ profile, onProfileUpdate }: Enhanced
                     <SelectContent>
                       {[1, 2, 3, 4, 5].map((num) => (
                         <SelectItem key={num} value={num.toString()}>
-                          {num === 1 ? `${num} (Primary)` : num.toString()}
+                          {num === 1 ? `${num} (${t('profileSection.primary')})` : num.toString()}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -279,21 +281,20 @@ const EnhancedEmergencyContactsSection = ({ profile, onProfileUpdate }: Enhanced
                 </div>
 
                 <div className="p-3 bg-muted/50 rounded-lg">
-                  <p className="text-sm font-medium mb-1">Contact Type: Call Only</p>
+                  <p className="text-sm font-medium mb-1">{t('profileSection.contactTypeCallOnly')}</p>
                   <p className="text-xs text-muted-foreground">
-                    Emergency contacts receive sequential calls during SOS activation. 
-                    They cannot access your location or receive alerts.
+                    {t('profileSection.callOnlyDescription')}
                   </p>
                 </div>
               </div>
               <div className="flex gap-2 justify-end">
                 <Button variant="outline" onClick={() => setIsModalOpen(false)}>
                   <X className="h-4 w-4 mr-2" />
-                  Cancel
+                  {t('profileSection.cancel')}
                 </Button>
                 <Button onClick={handleSave} disabled={isLoading}>
                   <Check className="h-4 w-4 mr-2" />
-                  {isLoading ? 'Saving...' : editingContact ? 'Update' : 'Add Contact'}
+                  {isLoading ? t('profileSection.saving') : editingContact ? t('profileSection.update') : t('profileSection.addContact')}
                 </Button>
               </div>
             </DialogContent>
@@ -310,13 +311,13 @@ const EnhancedEmergencyContactsSection = ({ profile, onProfileUpdate }: Enhanced
         ) : contacts.length === 0 ? (
           <div className="text-center py-8">
             <Phone className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-            <h3 className="font-medium mb-2">No emergency contacts yet</h3>
+            <h3 className="font-medium mb-2">{t('profileSection.noContactsYet')}</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Add up to 5 emergency contacts for SOS calling
+              {t('profileSection.addUpTo5Contacts')}
             </p>
             <Button variant="outline" onClick={() => openModal()}>
               <Plus className="h-4 w-4 mr-2" />
-              Add First Contact
+              {t('profileSection.addFirstContact')}
             </Button>
           </div>
         ) : (
@@ -334,7 +335,7 @@ const EnhancedEmergencyContactsSection = ({ profile, onProfileUpdate }: Enhanced
                     <div className="flex items-center gap-2 mb-1">
                       <h4 className="font-medium">{contact.name}</h4>
                       <Badge variant="outline" className="text-xs">
-                        Priority {contact.priority}
+                        {t('profileSection.priorityLabel', { number: contact.priority })}
                       </Badge>
                       {getContactTypeBadge()}
                     </div>
@@ -356,7 +357,7 @@ const EnhancedEmergencyContactsSection = ({ profile, onProfileUpdate }: Enhanced
                     variant="ghost"
                     size="sm"
                     onClick={() => {
-                      if (window.confirm("Are you sure you want to remove this contact?")) {
+                      if (window.confirm(t('profileSection.confirmRemoveContact'))) {
                         handleDelete(contact.id!);
                       }
                     }}
@@ -374,10 +375,10 @@ const EnhancedEmergencyContactsSection = ({ profile, onProfileUpdate }: Enhanced
           <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-orange-600" />
-              <p className="text-sm font-medium text-orange-800">Maximum contacts reached</p>
+              <p className="text-sm font-medium text-orange-800">{t('profileSection.maxContactsReached')}</p>
             </div>
             <p className="text-xs text-orange-700 mt-1">
-              You can have up to 5 emergency contacts. Remove one to add another.
+              {t('profileSection.maxContactsDescription')}
             </p>
           </div>
         )}

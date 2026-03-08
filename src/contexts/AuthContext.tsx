@@ -50,13 +50,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
   const devBypass = typeof window !== 'undefined' && localStorage.getItem('dev_bypass') === '1';
 
+  // Dev bypass effect: activate mock user when devBypass changes (e.g. navigating with ?dev=1)
   React.useEffect(() => {
-    // Dev bypass: provide mock user immediately, skip real auth
     if (devBypass) {
       console.log('🔧 Dev bypass active: using mock user');
       setUser(DEV_MOCK_USER);
       setSession(null);
       setLoading(false);
+    }
+  }, [devBypass]);
+
+  React.useEffect(() => {
+    // Dev bypass: skip real auth entirely
+    if (devBypass) {
       return;
     }
 
@@ -96,19 +102,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (!mounted) return;
-        
+
         console.log('🔄 Auth state changed:', event, session?.user?.id || 'no user');
-        
+
         // Skip INITIAL_SESSION to avoid double-setting from getInitialSession
         if (event === 'INITIAL_SESSION') {
           return;
         }
-        
+
         // Only update state if we have a meaningful change
         if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
           setSession(session);
           setUser(session?.user ?? null);
-          
+
           // Log authentication events for security monitoring
           setTimeout(() => {
             if (event === 'SIGNED_IN' && session?.user) {
@@ -132,7 +138,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               });
             }
           }, 0);
-          
+
           // Handle email confirmation status
           if (session?.user && !session.user.email_confirmed_at) {
             console.log('⚠️ User email not confirmed:', session.user.email);
@@ -154,7 +160,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [devBypass]);
 
   const signOut = async () => {
     try {

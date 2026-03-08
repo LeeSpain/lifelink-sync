@@ -7,12 +7,14 @@ import { UserPlus, Mail, Phone, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useOptimizedAuth } from '@/hooks/useOptimizedAuth';
+import { useTranslation } from 'react-i18next';
 
 interface FamilyInviteQuickSetupProps {
   onMemberAdded: () => void;
 }
 
 const FamilyInviteQuickSetup: React.FC<FamilyInviteQuickSetupProps> = ({ onMemberAdded }) => {
+  const { t } = useTranslation();
   const { user } = useOptimizedAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -26,8 +28,8 @@ const FamilyInviteQuickSetup: React.FC<FamilyInviteQuickSetupProps> = ({ onMembe
   const handleInvite = async () => {
     if (!user || !formData.name || !formData.email) {
       toast({
-        title: "Missing Information",
-        description: "Please provide name and email for the family member",
+        title: t('familyDashboard.missingInfo'),
+        description: t('familyDashboard.missingInfoDesc'),
         variant: "destructive"
       });
       return;
@@ -71,8 +73,8 @@ const FamilyInviteQuickSetup: React.FC<FamilyInviteQuickSetupProps> = ({ onMembe
       if (error) throw error;
 
       toast({
-        title: "Invitation Sent! 📧",
-        description: `Family invitation sent to ${formData.name}`,
+        title: t('familyDashboard.invitationSent'),
+        description: t('familyDashboard.invitationSentDesc', { name: formData.name }),
       });
 
       // Reset form
@@ -82,8 +84,8 @@ const FamilyInviteQuickSetup: React.FC<FamilyInviteQuickSetupProps> = ({ onMembe
     } catch (error) {
       console.error('Invite error:', error);
       toast({
-        title: "Invitation Failed",
-        description: "Unable to send family invitation. Please try again.",
+        title: t('familyDashboard.invitationFailed'),
+        description: t('familyDashboard.invitationFailedDesc'),
         variant: "destructive"
       });
     } finally {
@@ -97,25 +99,25 @@ const FamilyInviteQuickSetup: React.FC<FamilyInviteQuickSetupProps> = ({ onMembe
         <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-2">
           <Users className="w-6 h-6 text-primary" />
         </div>
-        <CardTitle>Add Family Member</CardTitle>
+        <CardTitle>{t('familyDashboard.addFamilyMember')}</CardTitle>
         <CardDescription>
-          Invite family members to join your tracking circle
+          {t('familyDashboard.inviteToCircle')}
         </CardDescription>
       </CardHeader>
       
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="name">Full Name</Label>
+          <Label htmlFor="name">{t('familyDashboard.fullName')}</Label>
           <Input
             id="name"
             value={formData.name}
             onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-            placeholder="Enter full name"
+            placeholder={t('familyDashboard.enterFullName')}
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="email">Email Address</Label>
+          <Label htmlFor="email">{t('familyDashboard.emailAddress')}</Label>
           <div className="relative">
             <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
@@ -130,7 +132,7 @@ const FamilyInviteQuickSetup: React.FC<FamilyInviteQuickSetupProps> = ({ onMembe
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="phone">Phone Number (Optional)</Label>
+          <Label htmlFor="phone">{t('familyDashboard.phoneOptional')}</Label>
           <div className="relative">
             <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
@@ -145,20 +147,20 @@ const FamilyInviteQuickSetup: React.FC<FamilyInviteQuickSetupProps> = ({ onMembe
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="relationship">Relationship</Label>
+          <Label htmlFor="relationship">{t('familyDashboard.relationship')}</Label>
           <select
             id="relationship"
             value={formData.relationship}
             onChange={(e) => setFormData(prev => ({ ...prev, relationship: e.target.value }))}
             className="w-full p-2 border border-input bg-background rounded-md"
           >
-            <option value="Family Member">Family Member</option>
-            <option value="Spouse">Spouse</option>
-            <option value="Child">Child</option>
-            <option value="Parent">Parent</option>
-            <option value="Sibling">Sibling</option>
-            <option value="Friend">Friend</option>
-            <option value="Caregiver">Caregiver</option>
+            <option value="Family Member">{t('familyDashboard.relationshipFamilyMember')}</option>
+            <option value="Spouse">{t('familyDashboard.relationshipSpouse')}</option>
+            <option value="Child">{t('familyDashboard.relationshipChild')}</option>
+            <option value="Parent">{t('familyDashboard.relationshipParent')}</option>
+            <option value="Sibling">{t('familyDashboard.relationshipSibling')}</option>
+            <option value="Friend">{t('familyDashboard.relationshipFriend')}</option>
+            <option value="Caregiver">{t('familyDashboard.relationshipCaregiver')}</option>
           </select>
         </div>
 
@@ -168,17 +170,17 @@ const FamilyInviteQuickSetup: React.FC<FamilyInviteQuickSetupProps> = ({ onMembe
           className="w-full"
         >
           {isLoading ? (
-            "Sending Invitation..."
+            t('familyDashboard.sendingInvitation')
           ) : (
             <>
               <UserPlus className="w-4 h-4 mr-2" />
-              Send Invitation
+              {t('familyDashboard.sendInvitation')}
             </>
           )}
         </Button>
 
         <p className="text-xs text-muted-foreground text-center">
-          They'll receive an email invitation to join your family tracking circle
+          {t('familyDashboard.inviteEmailDesc')}
         </p>
       </CardContent>
     </Card>

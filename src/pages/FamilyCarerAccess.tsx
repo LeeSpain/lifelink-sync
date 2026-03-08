@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import SEO from '@/components/SEO';
@@ -10,11 +11,12 @@ import { getImageSizes, generateBlurPlaceholder } from "@/utils/imageOptimizatio
 import { FamilyCircleSection } from "@/components/family-carer/FamilyCircleSection";
 
 const FamilyCarerAccessPage = () => {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen">
-      <SEO 
-        title="Family Emergency Coordination - Connect Your Loved Ones | LifeLink Sync"
-        description="Professional family emergency coordination system. Instant SOS alerts, real-time location sharing during emergencies only. Privacy-first family safety solution."
+      <SEO
+        title={t('family.carerSeoTitle')}
+        description={t('family.carerSeoDescription')}
         keywords={["family emergency coordination", "emergency alerts", "family safety", "SOS system", "emergency response"]}
       />
       <Navigation />
@@ -28,17 +30,16 @@ const FamilyCarerAccessPage = () => {
               <div className="text-center lg:text-left text-white">
                 <div className="inline-flex items-center space-x-2 bg-emergency/20 backdrop-blur-sm rounded-full px-4 py-2 mb-6 shadow-lg border border-emergency/30">
                   <Users className="h-4 w-4 text-emergency-glow" />
-                  <span className="text-sm font-medium text-white">Family Emergency Network</span>
+                  <span className="text-sm font-medium text-white">{t('family.familyEmergencyNetwork')}</span>
                 </div>
-                
+
                 <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight text-white drop-shadow-lg">
-                  Connect Your Family's 
-                  <span className="text-wellness drop-shadow-md">Emergency Response</span>
+                  {t('family.heroTitle')}
+                  <span className="text-wellness drop-shadow-md">{t('family.heroTitleHighlight')}</span>
                 </h1>
-                
+
                 <p className="text-xl md:text-2xl mb-8 text-white leading-relaxed font-medium drop-shadow-sm">
-                  Instant SOS alerts, real-time coordination, and 24/7 professional monitoring. 
-                  When emergencies happen, every family member knows immediately.
+                  {t('family.heroDescription')}
                 </p>
                 
 
@@ -51,17 +52,17 @@ const FamilyCarerAccessPage = () => {
                   >
                     <Link to="/register">
                       <Shield className="h-5 w-5 mr-2" />
-                      Join Now
+                      {t('family.joinNow')}
                     </Link>
                   </Button>
 
                   {/* Watch Video Button */}
-                  <Button 
-                    size="xl" 
+                  <Button
+                    size="xl"
                     className="bg-wellness text-black hover:bg-wellness/90 shadow-glow hover:shadow-xl transform hover:scale-105 transition-all duration-300 font-semibold text-lg px-8 py-4 rounded-xl border-2 border-wellness/20"
                   >
                     <Heart className="h-5 w-5 mr-2" />
-                    Watch Video
+                    {t('family.watchVideo')}
                   </Button>
                 </div>
               </div>

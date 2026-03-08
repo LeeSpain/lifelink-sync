@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { X, Download, Smartphone } from 'lucide-react';
 import { usePWAFeatures } from '@/hooks/usePWAFeatures';
 
 export const PWAInstallPrompt = () => {
+  const { t } = useTranslation();
   const { isInstallable, installApp, isInstalled } = usePWAFeatures();
   const [showPrompt, setShowPrompt] = useState(false);
   const [hasBeenDismissed, setHasBeenDismissed] = useState(false);
@@ -51,9 +53,9 @@ export const PWAInstallPrompt = () => {
           </div>
           
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-sm mb-1">Install LifeLink Sync</h3>
+            <h3 className="font-semibold text-sm mb-1">{t('pwa.installTitle')}</h3>
             <p className="text-muted-foreground text-xs mb-3">
-              Install our app for faster access and offline emergency features.
+              {t('pwa.installDescription')}
             </p>
             
             <div className="flex gap-2">
@@ -63,7 +65,7 @@ export const PWAInstallPrompt = () => {
                 className="flex-1 h-8 text-xs"
               >
                 <Download className="w-3 h-3 mr-1" />
-                Install
+                {t('pwa.install')}
               </Button>
               <Button 
                 variant="outline" 

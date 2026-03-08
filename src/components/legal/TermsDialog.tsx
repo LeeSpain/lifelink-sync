@@ -4,6 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { CheckCircle, FileText, Scale, Shield, CreditCard, Users, AlertTriangle } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 
 interface TermsDialogProps {
   open: boolean;
@@ -22,6 +23,7 @@ export const TermsDialog: React.FC<TermsDialogProps> = ({
 }) => {
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
   const currentYear = new Date().getFullYear();
+  const { t } = useTranslation();
 
   const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
@@ -32,13 +34,13 @@ export const TermsDialog: React.FC<TermsDialogProps> = ({
   };
 
   const sections = [
-    { id: "acceptance", title: "Acceptance of Terms", icon: CheckCircle },
-    { id: "services", title: "Service Description", icon: Shield },
-    { id: "emergency", title: "Emergency Services Disclaimer", icon: AlertTriangle },
-    { id: "user-responsibilities", title: "User Responsibilities", icon: Users },
-    { id: "payments", title: "Payment Terms", icon: CreditCard },
-    { id: "liability", title: "Limitation of Liability", icon: Scale },
-    { id: "termination", title: "Termination", icon: FileText },
+    { id: "acceptance", title: t('legal.terms.navAcceptance'), icon: CheckCircle },
+    { id: "services", title: t('legal.terms.navServices'), icon: Shield },
+    { id: "emergency", title: t('legal.terms.navEmergency'), icon: AlertTriangle },
+    { id: "user-responsibilities", title: t('legal.terms.navResponsibilities'), icon: Users },
+    { id: "payments", title: t('legal.terms.navPayments'), icon: CreditCard },
+    { id: "liability", title: t('legal.terms.navLiability'), icon: Scale },
+    { id: "termination", title: t('legal.terms.navTermination'), icon: FileText },
   ];
 
   return (
@@ -47,10 +49,10 @@ export const TermsDialog: React.FC<TermsDialogProps> = ({
         <DialogHeader className="flex-shrink-0">
           <DialogTitle className="text-2xl font-bold flex items-center gap-2">
             <Scale className="h-6 w-6 text-primary" />
-            Terms of Service
+            {t('legal.terms.title')}
           </DialogTitle>
           <DialogDescription>
-            Please read these terms carefully before using LifeLink Sync emergency services.
+            {t('legal.terms.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -58,7 +60,7 @@ export const TermsDialog: React.FC<TermsDialogProps> = ({
           {/* Table of Contents */}
           <div className="w-64 flex-shrink-0">
             <div className="sticky top-0">
-              <h4 className="font-semibold mb-3 text-sm text-muted-foreground uppercase tracking-wide">Contents</h4>
+              <h4 className="font-semibold mb-3 text-sm text-muted-foreground uppercase tracking-wide">{t('legal.terms.contents')}</h4>
               <nav className="space-y-1">
                 {sections.map((section) => {
                   const Icon = section.icon;
@@ -82,7 +84,7 @@ export const TermsDialog: React.FC<TermsDialogProps> = ({
             <ScrollArea className="h-full pr-4" onScrollCapture={handleScroll}>
               <div className="prose prose-sm max-w-none">
                 <div className="text-sm text-muted-foreground mb-6">
-                  <strong>Last updated:</strong> {currentYear} | <strong>Effective date:</strong> January 1, {currentYear}
+                  <strong>{t('legal.terms.lastUpdated')}:</strong> {currentYear} | <strong>{t('legal.terms.effectiveDate')}:</strong> {t('legal.terms.january1')} {currentYear}
                 </div>
 
                 <section id="acceptance" className="mb-8">
@@ -297,7 +299,7 @@ export const TermsDialog: React.FC<TermsDialogProps> = ({
                 {showActions && (
                   <div className="bg-muted/30 border rounded-lg p-4 mt-8">
                     <p className="text-sm text-muted-foreground">
-                      By clicking "Accept," you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.
+                      {t('legal.terms.consentText')}
                     </p>
                   </div>
                 )}
@@ -315,18 +317,18 @@ export const TermsDialog: React.FC<TermsDialogProps> = ({
                 ) : (
                   <div className="h-4 w-4 border-2 border-muted-foreground rounded-full" />
                 )}
-                {hasScrolledToBottom ? "Document reviewed" : "Please scroll to read all terms"}
+                {hasScrolledToBottom ? t('legal.terms.documentReviewed') : t('legal.terms.pleaseScroll')}
               </div>
               <div className="flex gap-3">
                 <Button variant="outline" onClick={onDecline}>
-                  Decline
+                  {t('legal.terms.decline')}
                 </Button>
-                <Button 
-                  onClick={onAccept} 
+                <Button
+                  onClick={onAccept}
                   disabled={!hasScrolledToBottom}
                   className="min-w-24"
                 >
-                  Accept Terms
+                  {t('legal.terms.acceptTerms')}
                 </Button>
               </div>
             </div>

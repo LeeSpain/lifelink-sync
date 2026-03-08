@@ -15,8 +15,10 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useOptimizedAuth } from '@/hooks/useOptimizedAuth';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 
 const FamilyNotifications = () => {
+  const { t } = useTranslation();
   const { user } = useOptimizedAuth();
   const { toast } = useToast();
   
@@ -75,8 +77,8 @@ const FamilyNotifications = () => {
     } catch (error) {
       console.error('Error loading notifications:', error);
       toast({
-        title: "Error",
-        description: "Failed to load notifications",
+        title: t('familyDashboard.error'),
+        description: t('familyDashboard.failedLoadEmergency'),
         variant: "destructive"
       });
     } finally {
@@ -104,8 +106,8 @@ const FamilyNotifications = () => {
       const permission = await Notification.requestPermission();
       if (permission === 'granted') {
         toast({
-          title: "Notifications Enabled",
-          description: "You'll now receive browser notifications for family emergencies"
+          title: t('familyDashboard.notificationsEnabled'),
+          description: t('familyDashboard.notificationsEnabledDesc')
         });
       }
     }
@@ -161,14 +163,14 @@ const FamilyNotifications = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Family Notifications</h1>
+          <h1 className="text-2xl font-bold">{t('familyDashboard.familyNotifications')}</h1>
           <p className="text-muted-foreground">
-            Emergency alerts and family updates
+            {t('familyDashboard.emergencyAlertsAndUpdates')}
           </p>
         </div>
         <div className="flex items-center gap-3">
           {unreadCount > 0 && (
-            <Badge variant="destructive">{unreadCount} unread</Badge>
+            <Badge variant="destructive">{t('familyDashboard.unreadCount', { count: unreadCount })}</Badge>
           )}
           {Notification.permission === 'default' && (
             <Button 
@@ -177,7 +179,7 @@ const FamilyNotifications = () => {
               onClick={requestNotificationPermission}
             >
               <Bell className="h-4 w-4 mr-2" />
-              Enable Notifications
+              {t('familyDashboard.enableNotifications')}
             </Button>
           )}
         </div>
@@ -192,21 +194,21 @@ const FamilyNotifications = () => {
               size="sm"
               onClick={() => setFilter('all')}
             >
-              All ({notifications.length})
+              {t('familyDashboard.allFilter', { count: notifications.length })}
             </Button>
             <Button
               variant={filter === 'unread' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setFilter('unread')}
             >
-              Unread ({unreadCount})
+              {t('familyDashboard.unreadFilter', { count: unreadCount })}
             </Button>
             <Button
               variant={filter === 'emergency' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setFilter('emergency')}
             >
-              Emergency ({notifications.filter(n => n.alert_type === 'sos_emergency').length})
+              {t('familyDashboard.emergencyFilter', { count: notifications.filter(n => n.alert_type === 'sos_emergency').length })}
             </Button>
           </div>
         </CardContent>
@@ -240,14 +242,14 @@ const FamilyNotifications = () => {
                           {getAlertPriority(notification.alert_type)}
                         </Badge>
                         {notification.status !== 'read' && (
-                          <Badge variant="outline" className="text-xs">New</Badge>
+                          <Badge variant="outline" className="text-xs">{t('familyDashboard.new')}</Badge>
                         )}
                       </div>
                       
                       {notification.alert_data?.location && (
                         <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
                           <MapPin className="h-3 w-3" />
-                          <span>{notification.alert_data.location.address || 'Location available'}</span>
+                          <span>{notification.alert_data.location.address || t('familyDashboard.locationAvailable')}</span>
                         </div>
                       )}
                       
@@ -259,7 +261,7 @@ const FamilyNotifications = () => {
                         {notification.delivered_at && (
                           <div className="flex items-center gap-1">
                             <CheckCircle className="h-3 w-3" />
-                            <span>Delivered {new Date(notification.delivered_at).toLocaleString()}</span>
+                            <span>{t('familyDashboard.delivered')} {new Date(notification.delivered_at).toLocaleString()}</span>
                           </div>
                         )}
                       </div>
@@ -277,7 +279,7 @@ const FamilyNotifications = () => {
                         }}
                       >
                         <MapPin className="h-4 w-4 mr-1" />
-                        Directions
+                        {t('familyDashboard.directions')}
                       </Button>
                     )}
                     
@@ -287,7 +289,7 @@ const FamilyNotifications = () => {
                         variant="ghost"
                         onClick={() => markAsRead(notification.id)}
                       >
-                        Mark Read
+                        {t('familyDashboard.markRead')}
                       </Button>
                     )}
                   </div>
@@ -300,12 +302,12 @@ const FamilyNotifications = () => {
             <CardContent className="text-center py-12">
               <Bell className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
               <h3 className="text-lg font-semibold mb-2">
-                {filter === 'all' ? 'No Notifications' : `No ${filter} notifications`}
+                {filter === 'all' ? t('familyDashboard.noNotifications') : t('familyDashboard.noFilteredNotifications', { filter })}
               </h3>
               <p className="text-muted-foreground">
-                {filter === 'all' 
-                  ? "You're all caught up! Emergency notifications will appear here."
-                  : `No ${filter} notifications found.`
+                {filter === 'all'
+                  ? t('familyDashboard.allCaughtUp')
+                  : t('familyDashboard.noFilteredFound', { filter })
                 }
               </p>
             </CardContent>
@@ -318,26 +320,26 @@ const FamilyNotifications = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Bell className="h-5 w-5" />
-            Notification Settings
+            {t('familyDashboard.notificationSettings')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <div className="flex items-center justify-between">
-            <span>Browser Notifications:</span>
+            <span>{t('familyDashboard.browserNotifications')}</span>
             <Badge variant={Notification.permission === 'granted' ? 'default' : 'secondary'}>
-              {Notification.permission === 'granted' ? 'Enabled' : 'Disabled'}
+              {Notification.permission === 'granted' ? t('familyDashboard.enabled') : t('familyDashboard.disabled')}
             </Badge>
           </div>
           <div className="flex items-center justify-between">
-            <span>Emergency Alerts:</span>
-            <Badge variant="default">Always On</Badge>
+            <span>{t('familyDashboard.emergencyAlertsLabel')}</span>
+            <Badge variant="default">{t('familyDashboard.alwaysOn')}</Badge>
           </div>
           <div className="flex items-center justify-between">
-            <span>Family Updates:</span>
-            <Badge variant="default">Enabled</Badge>
+            <span>{t('familyDashboard.familyUpdates')}</span>
+            <Badge variant="default">{t('familyDashboard.enabled')}</Badge>
           </div>
           <p className="text-xs text-muted-foreground pt-2 border-t">
-            Emergency notifications are always enabled for family safety. You can manage browser notification preferences above.
+            {t('familyDashboard.notificationsAlwaysEnabled')}
           </p>
         </CardContent>
       </Card>

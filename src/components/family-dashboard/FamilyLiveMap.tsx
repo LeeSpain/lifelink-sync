@@ -4,6 +4,7 @@ import { useLiveLocation } from '@/hooks/useLiveLocation';
 import MapLibreMap from '@/components/maplibre/MapLibreMap';
 import { MapMemberLayer } from '@/components/maplibre/layers/MapMemberLayer';
 import { MapEntity, getStatusFromPresence } from '@/types/map';
+import { useTranslation } from 'react-i18next';
 
 interface FamilyLiveMapProps {
   className?: string;
@@ -11,6 +12,7 @@ interface FamilyLiveMapProps {
 }
 
 const FamilyLiveMap: React.FC<FamilyLiveMapProps> = ({ className, familyGroupId }) => {
+  const { t } = useTranslation();
   const { getCurrentLocationData, requestLocationPermission, permissionState, isGettingLocation } = useLocationServices();
   const { locations } = useLiveLocation(familyGroupId);
 
@@ -61,13 +63,13 @@ const FamilyLiveMap: React.FC<FamilyLiveMapProps> = ({ className, familyGroupId 
     <div className={`min-h-[600px] ${className || ''}`}>
       {!isReady && (
         <div className="flex flex-col items-center justify-center gap-3 py-10">
-          <p className="text-sm opacity-80">Waiting for your location...</p>
+          <p className="text-sm opacity-80">{t('familyDashboard.waitingForLocation')}</p>
           <button
             onClick={handleUseMyLocation}
             disabled={isGettingLocation}
             className="inline-flex items-center rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground shadow transition-opacity disabled:opacity-50"
           >
-            {permissionState.granted ? 'Recenter to my location' : 'Use my location'}
+            {permissionState.granted ? t('familyDashboard.recenterLocation') : t('familyDashboard.useMyLocation')}
           </button>
         </div>
       )}

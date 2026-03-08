@@ -1,5 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +17,7 @@ import FamilyNotifications from '@/components/family-dashboard/FamilyNotificatio
 import FamilyProfile from '@/components/family-dashboard/FamilyProfile';
 
 const FamilyDashboard = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useOptimizedAuth();
   const { data: familyRole, isLoading: roleLoading } = useFamilyRole();
@@ -26,7 +28,7 @@ const FamilyDashboard = () => {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center space-y-4">
           <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-sm text-muted-foreground">Loading Family App...</p>
+          <p className="text-sm text-muted-foreground">{t('family.loadingFamilyApp')}</p>
         </div>
       </div>
     );
@@ -50,20 +52,20 @@ const FamilyDashboard = () => {
             <div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
               <Shield className="h-8 w-8 text-muted-foreground" />
             </div>
-            <CardTitle className="text-xl">Access Restricted</CardTitle>
+            <CardTitle className="text-xl">{t('family.accessRestricted')}</CardTitle>
           </CardHeader>
           <CardContent className="text-center space-y-4">
             <p className="text-muted-foreground">
-              This Family Emergency App is only available to invited family members.
+              {t('family.accessRestrictedDescription')}
             </p>
             <p className="text-sm text-muted-foreground">
-              If you believe this is an error, please contact the family member who invited you.
+              {t('family.accessRestrictedError')}
             </p>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => navigate('/member-dashboard')}
             >
-              Go to Main Dashboard
+              {t('family.goToMainDashboard')}
             </Button>
           </CardContent>
         </Card>

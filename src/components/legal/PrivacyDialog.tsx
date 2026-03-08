@@ -4,6 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { CheckCircle, Shield, Database, MapPin, Users, Cookie, Mail, Trash2, Lock } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 
 interface PrivacyDialogProps {
   open: boolean;
@@ -22,6 +23,7 @@ export const PrivacyDialog: React.FC<PrivacyDialogProps> = ({
 }) => {
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
   const currentYear = new Date().getFullYear();
+  const { t } = useTranslation();
 
   const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
@@ -32,15 +34,15 @@ export const PrivacyDialog: React.FC<PrivacyDialogProps> = ({
   };
 
   const sections = [
-    { id: "overview", title: "Privacy Overview", icon: Shield },
-    { id: "data-collection", title: "Data We Collect", icon: Database },
-    { id: "location-data", title: "Location Information", icon: MapPin },
-    { id: "medical-data", title: "Medical Information", icon: Lock },
-    { id: "data-usage", title: "How We Use Data", icon: Users },
-    { id: "data-sharing", title: "Data Sharing", icon: Mail },
-    { id: "cookies", title: "Cookies & Analytics", icon: Cookie },
-    { id: "user-rights", title: "Your Rights", icon: CheckCircle },
-    { id: "data-retention", title: "Data Retention", icon: Trash2 },
+    { id: "overview", title: t('legal.privacy.navOverview'), icon: Shield },
+    { id: "data-collection", title: t('legal.privacy.navDataCollection'), icon: Database },
+    { id: "location-data", title: t('legal.privacy.navLocation'), icon: MapPin },
+    { id: "medical-data", title: t('legal.privacy.navMedical'), icon: Lock },
+    { id: "data-usage", title: t('legal.privacy.navUsage'), icon: Users },
+    { id: "data-sharing", title: t('legal.privacy.navSharing'), icon: Mail },
+    { id: "cookies", title: t('legal.privacy.navCookies'), icon: Cookie },
+    { id: "user-rights", title: t('legal.privacy.navRights'), icon: CheckCircle },
+    { id: "data-retention", title: t('legal.privacy.navRetention'), icon: Trash2 },
   ];
 
   return (
@@ -49,10 +51,10 @@ export const PrivacyDialog: React.FC<PrivacyDialogProps> = ({
         <DialogHeader className="flex-shrink-0">
           <DialogTitle className="text-2xl font-bold flex items-center gap-2">
             <Shield className="h-6 w-6 text-primary" />
-            Privacy Policy
+            {t('legal.privacy.title')}
           </DialogTitle>
           <DialogDescription>
-            Your privacy and data protection are fundamental to our emergency services.
+            {t('legal.privacy.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -60,7 +62,7 @@ export const PrivacyDialog: React.FC<PrivacyDialogProps> = ({
           {/* Table of Contents */}
           <div className="w-64 flex-shrink-0">
             <div className="sticky top-0">
-              <h4 className="font-semibold mb-3 text-sm text-muted-foreground uppercase tracking-wide">Contents</h4>
+              <h4 className="font-semibold mb-3 text-sm text-muted-foreground uppercase tracking-wide">{t('legal.privacy.contents')}</h4>
               <nav className="space-y-1">
                 {sections.map((section) => {
                   const Icon = section.icon;
@@ -84,7 +86,7 @@ export const PrivacyDialog: React.FC<PrivacyDialogProps> = ({
             <ScrollArea className="h-full pr-4" onScrollCapture={handleScroll}>
               <div className="prose prose-sm max-w-none">
                 <div className="text-sm text-muted-foreground mb-6">
-                  <strong>Last updated:</strong> {currentYear} | <strong>Effective date:</strong> January 1, {currentYear}
+                  <strong>{t('legal.privacy.lastUpdated')}:</strong> {currentYear} | <strong>{t('legal.privacy.effectiveDate')}:</strong> {t('legal.privacy.january1')} {currentYear}
                 </div>
 
                 <section id="overview" className="mb-8">
@@ -449,7 +451,7 @@ export const PrivacyDialog: React.FC<PrivacyDialogProps> = ({
                 {showActions && (
                   <div className="bg-muted/30 border rounded-lg p-4 mt-8">
                     <p className="text-sm text-muted-foreground">
-                      By clicking "Accept," you consent to our collection, use, and sharing of your data as described in this Privacy Policy.
+                      {t('legal.privacy.consentText')}
                     </p>
                   </div>
                 )}
@@ -467,18 +469,18 @@ export const PrivacyDialog: React.FC<PrivacyDialogProps> = ({
                 ) : (
                   <div className="h-4 w-4 border-2 border-muted-foreground rounded-full" />
                 )}
-                {hasScrolledToBottom ? "Policy reviewed" : "Please scroll to read full policy"}
+                {hasScrolledToBottom ? t('legal.privacy.policyReviewed') : t('legal.privacy.pleaseScroll')}
               </div>
               <div className="flex gap-3">
                 <Button variant="outline" onClick={onDecline}>
-                  Decline
+                  {t('legal.privacy.decline')}
                 </Button>
-                <Button 
-                  onClick={onAccept} 
+                <Button
+                  onClick={onAccept}
                   disabled={!hasScrolledToBottom}
                   className="min-w-24"
                 >
-                  Accept Policy
+                  {t('legal.privacy.acceptPolicy')}
                 </Button>
               </div>
             </div>

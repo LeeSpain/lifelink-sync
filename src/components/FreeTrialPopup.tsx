@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, Gift, Shield, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +15,7 @@ interface FreeTrialPopupProps {
 }
 
 export const FreeTrialPopup = ({ onClose }: FreeTrialPopupProps) => {
+  const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -39,8 +41,8 @@ export const FreeTrialPopup = ({ onClose }: FreeTrialPopupProps) => {
     
     if (!formData.name || !formData.email || !formData.phone) {
       toast({
-        title: "Please fill in all fields",
-        description: "All fields are required to start your free trial.",
+        title: t('trialPopup.fillAllFields'),
+        description: t('trialPopup.allFieldsRequired'),
         variant: "destructive"
       });
       return;
@@ -63,8 +65,8 @@ export const FreeTrialPopup = ({ onClose }: FreeTrialPopupProps) => {
       }
 
       toast({
-        title: "🎉 Free Trial Activated!",
-        description: "Check your email for next steps. Welcome to LifeLink Sync!",
+        title: t('trialPopup.trialActivated'),
+        description: t('trialPopup.checkEmail'),
         duration: 5000
       });
 
@@ -85,8 +87,8 @@ export const FreeTrialPopup = ({ onClose }: FreeTrialPopupProps) => {
     } catch (error: any) {
       console.error('Trial signup error:', error);
       toast({
-        title: "Something went wrong",
-        description: error.message || "Please try again later.",
+        title: t('trialPopup.somethingWentWrong'),
+        description: error.message || t('trialPopup.tryAgainLater'),
         variant: "destructive"
       });
     } finally {
@@ -122,10 +124,10 @@ export const FreeTrialPopup = ({ onClose }: FreeTrialPopupProps) => {
           </div>
           
           <CardTitle className="text-2xl font-bold text-gray-900">
-            Start Your 7-Day Free Trial
+            {t('trialPopup.title')}
           </CardTitle>
           <CardDescription className="text-gray-600">
-            Experience complete emergency protection - no payment required!
+            {t('trialPopup.subtitle')}
           </CardDescription>
         </CardHeader>
         
@@ -133,25 +135,25 @@ export const FreeTrialPopup = ({ onClose }: FreeTrialPopupProps) => {
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="flex items-center gap-2 p-3 bg-green-50 rounded-lg">
               <Shield className="h-5 w-5 text-green-600" />
-              <span className="text-sm font-medium text-green-800">Full Protection</span>
+              <span className="text-sm font-medium text-green-800">{t('trialPopup.fullProtection')}</span>
             </div>
             <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg">
               <Clock className="h-5 w-5 text-blue-600" />
-              <span className="text-sm font-medium text-blue-800">7 Days Free</span>
+              <span className="text-sm font-medium text-blue-800">{t('trialPopup.sevenDaysFree')}</span>
             </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label htmlFor="name" className="text-sm font-medium text-gray-700">
-                Full Name
+                {t('trialPopup.fullName')}
               </Label>
               <Input
                 id="name"
                 type="text"
                 value={formData.name}
                 onChange={(e) => handleInputChange('name', e.target.value)}
-                placeholder="Enter your full name"
+                placeholder={t('trialPopup.enterFullName')}
                 className="mt-1"
                 required
               />
@@ -159,14 +161,14 @@ export const FreeTrialPopup = ({ onClose }: FreeTrialPopupProps) => {
             
             <div>
               <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                Email Address
+                {t('trialPopup.emailAddress')}
               </Label>
               <Input
                 id="email"
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
-                placeholder="Enter your email"
+                placeholder={t('trialPopup.enterEmail')}
                 className="mt-1"
                 required
               />
@@ -174,14 +176,14 @@ export const FreeTrialPopup = ({ onClose }: FreeTrialPopupProps) => {
             
             <div>
               <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
-                Phone Number
+                {t('trialPopup.phoneNumber')}
               </Label>
               <Input
                 id="phone"
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => handleInputChange('phone', e.target.value)}
-                placeholder="Enter your phone number"
+                placeholder={t('trialPopup.enterPhone')}
                 className="mt-1"
                 required
               />
@@ -192,7 +194,7 @@ export const FreeTrialPopup = ({ onClose }: FreeTrialPopupProps) => {
               disabled={isSubmitting}
               className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white font-semibold py-3 transition-all duration-200"
             >
-              {isSubmitting ? 'Starting Your Trial...' : 'Start Free Trial Now'}
+              {isSubmitting ? t('trialPopup.startingTrial') : t('trialPopup.startTrialNow')}
             </Button>
           </form>
 
@@ -207,18 +209,18 @@ export const FreeTrialPopup = ({ onClose }: FreeTrialPopupProps) => {
               }}
               className="text-sm text-gray-500 hover:text-gray-700 transition-colors underline"
             >
-              Not interested right now
+              {t('trialPopup.notInterested')}
             </button>
           </div>
 
           <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-800 text-center font-medium">
-              📧 After signing up, check your email to activate your trial
+              {t('trialPopup.checkEmailToActivate')}
             </p>
           </div>
 
           <p className="text-xs text-gray-500 text-center mt-4">
-            No credit card required. Cancel anytime during trial.
+            {t('trialPopup.noCreditCard')}
           </p>
         </CardContent>
       </Card>

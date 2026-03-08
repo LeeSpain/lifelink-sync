@@ -1,17 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface StatItem {
   value: string;
   suffix: string;
-  label: string;
+  labelKey: string;
 }
-
-const stats: StatItem[] = [
-  { value: '24', suffix: '/7', label: 'Clara availability' },
-  { value: '3', suffix: 's', label: 'Average SOS response' },
-  { value: '10', suffix: '+', label: 'Family contacts per account' },
-  { value: '99', suffix: '%', label: 'Platform uptime' },
-];
 
 const AnimatedCounter = ({ value, suffix }: { value: string; suffix: string }) => {
   const [count, setCount] = useState(0);
@@ -52,7 +46,15 @@ const AnimatedCounter = ({ value, suffix }: { value: string; suffix: string }) =
   );
 };
 
+const stats: StatItem[] = [
+  { value: '24', suffix: '/7', labelKey: 'stats.claraAvailability' },
+  { value: '3', suffix: 's', labelKey: 'stats.avgSosResponse' },
+  { value: '10', suffix: '+', labelKey: 'stats.familyContacts' },
+  { value: '99', suffix: '%', labelKey: 'stats.platformUptime' },
+];
+
 const StatsBar: React.FC = () => {
+  const { t } = useTranslation();
   return (
     <section className="py-12 bg-white border-y border-gray-100">
       <div className="container mx-auto px-4">
@@ -60,7 +62,7 @@ const StatsBar: React.FC = () => {
           {stats.map((stat, i) => (
             <div key={i} className="space-y-2">
               <AnimatedCounter value={stat.value} suffix={stat.suffix} />
-              <p className="text-sm text-gray-500 font-medium">{stat.label}</p>
+              <p className="text-sm text-gray-500 font-medium">{t(stat.labelKey)}</p>
             </div>
           ))}
         </div>

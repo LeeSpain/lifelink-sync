@@ -13,12 +13,14 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from 'react-i18next';
 import PersonalInformationSection from "@/components/dashboard/profile/PersonalInformationSection";
 import ProtectionServicesSection from "@/components/dashboard/profile/ProtectionServicesSection";
 import EnhancedEmergencyContactsSection from "@/components/dashboard/profile/EnhancedEmergencyContactsSection";
 import HealthProfileSection from "@/components/dashboard/profile/HealthProfileSection";
 
 export default function EnhancedProfilePage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { toast } = useToast();
   const [profile, setProfile] = useState<any>(null);
@@ -105,9 +107,9 @@ export default function EnhancedProfilePage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Profile & Protection</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t('profile.profileAndProtection')}</h1>
           <p className="text-muted-foreground">
-            Manage your personal information and emergency preparedness
+            {t('profile.managePersonalInfo')}
           </p>
         </div>
       </div>
@@ -117,19 +119,19 @@ export default function EnhancedProfilePage() {
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="personal" className="flex items-center gap-2">
             <User className="h-4 w-4" />
-            Personal
+            {t('profile.personal')}
           </TabsTrigger>
           <TabsTrigger value="protection" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
-            Protection
+            {t('profile.protection')}
           </TabsTrigger>
           <TabsTrigger value="emergency" className="flex items-center gap-2">
             <Phone className="h-4 w-4" />
-            Emergency
+            {t('profile.emergency')}
           </TabsTrigger>
           <TabsTrigger value="health" className="flex items-center gap-2">
             <Heart className="h-4 w-4" />
-            Health
+            {t('profile.health')}
           </TabsTrigger>
         </TabsList>
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from 'react-i18next';
 
 interface EnhancedSOSButtonProps {
   onTrigger: () => void;
@@ -11,6 +12,7 @@ export const EnhancedSOSButton: React.FC<EnhancedSOSButtonProps> = ({
   onTrigger,
   isTriggering
 }) => {
+  const { t } = useTranslation();
   return (
     <div className="relative flex items-center justify-center">
       {/* Outer glow ring */}
@@ -46,7 +48,7 @@ export const EnhancedSOSButton: React.FC<EnhancedSOSButtonProps> = ({
         {isTriggering ? (
           <div className="flex flex-col items-center space-y-1">
             <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            <span className="text-xs font-bold text-white">CALLING</span>
+            <span className="text-xs font-bold text-white">{t('enhancedSos.calling')}</span>
           </div>
         ) : (
           <div className="flex flex-col items-center space-y-1">
@@ -64,10 +66,10 @@ export const EnhancedSOSButton: React.FC<EnhancedSOSButtonProps> = ({
       {/* Status text */}
       <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 text-center">
         <p className="text-lg font-bold text-red-700 tracking-wide">
-          {isTriggering ? 'ACTIVATING EMERGENCY...' : 'EMERGENCY SOS'}
+          {isTriggering ? t('enhancedSos.activatingEmergency') : t('enhancedSos.emergencySos')}
         </p>
         <p className="text-sm text-gray-600 mt-1">
-          Tap to alert emergency contacts
+          {t('enhancedSos.tapToAlert')}
         </p>
       </div>
     </div>

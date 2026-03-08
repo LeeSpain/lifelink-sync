@@ -232,7 +232,8 @@ const AuthPage = () => {
               </p>
             </div>
 
-            {/* Dev Quick Links — bypass auth with ?dev=1 */}
+            {/* Dev Quick Links — only visible in development or when dev bypass is active */}
+            {(import.meta.env.DEV || localStorage.getItem('dev_bypass') === '1') && (
             <div className="mt-8 border-t pt-6">
               <h3 className="text-sm font-semibold text-muted-foreground mb-4 text-center uppercase tracking-wide">{t('auth.quickLinksDev')}</h3>
 
@@ -270,6 +271,7 @@ const AuthPage = () => {
                 </div>
               </div>
             </div>
+            )}
           </CardContent>
         </Card>
       </div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -12,6 +13,7 @@ interface PaymentVerificationProps {
 }
 
 export const PaymentVerification = ({ sessionId, onVerificationComplete }: PaymentVerificationProps) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [status, setStatus] = useState<'loading' | 'success' | 'failed'>('loading');
   const [details, setDetails] = useState<string>('');
@@ -20,7 +22,7 @@ export const PaymentVerification = ({ sessionId, onVerificationComplete }: Payme
   useEffect(() => {
     if (!sessionId) {
       setStatus('failed');
-      setDetails('No payment session found');
+      setDetails(t('payment.noSessionFound'));
       onVerificationComplete(false);
       return;
     }
@@ -41,21 +43,21 @@ export const PaymentVerification = ({ sessionId, onVerificationComplete }: Payme
 
       if (data.subscribed) {
         setStatus('success');
-        setDetails(`Successfully subscribed to ${data.subscription_tier} plan`);
+        setDetails(t('payment.subscribedToPlan', { plan: data.subscription_tier }));
         onVerificationComplete(true);
-        
+
         toast({
-          title: "Payment Successful!",
-          description: `Your ${data.subscription_tier} subscription is now active.`,
+          title: t('payment.paymentSuccessful'),
+          description: t('payment.subscriptionNowActive', { plan: data.subscription_tier }),
         });
       } else {
         setStatus('failed');
-        setDetails('Payment verification failed');
+        setDetails(t('payment.verificationFailed'));
         onVerificationComplete(false);
-        
+
         toast({
-          title: "Payment Verification Failed",
-          description: "Please contact support if payment was processed.",
+          title: t('payment.verificationFailedTitle'),
+          description: t('payment.contactSupportIfCharged'),
           variant: "destructive",
         });
       }
@@ -66,8 +68,8 @@ export const PaymentVerification = ({ sessionId, onVerificationComplete }: Payme
       onVerificationComplete(false);
       
       toast({
-        title: "Verification Error",
-        description: "Could not verify payment status. Please contact support.",
+        title: t('payment.verificationError'),
+        description: t('payment.couldNotVerify'),
         variant: "destructive",
       });
     }
@@ -85,9 +87,9 @@ export const PaymentVerification = ({ sessionId, onVerificationComplete }: Payme
           {status === 'success' && <CheckCircle className="w-5 h-5 text-green-500" />}
           {status === 'failed' && <XCircle className="w-5 h-5 text-destructive" />}
           
-          {status === 'loading' && 'Verifying Payment...'}
-          {status === 'success' && 'Payment Confirmed'}
-          {status === 'failed' && 'Verification Failed'}
+          {status === 'loading' && t('payment.verifyingPayment')}
+          {status === 'success' && t('payment.paymentConfirmed')}
+          {status === 'failed' && t('payment.verificationFailedTitle')}
         </CardTitle>
       </CardHeader>
       
@@ -97,14 +99,14 @@ export const PaymentVerification = ({ sessionId, onVerificationComplete }: Payme
         {status === 'failed' && (
           <div className="space-y-2">
             <Button onClick={retryVerification} variant="outline" className="w-full">
-              Retry Verification
+              {t('payment.retryVerification')}
             </Button>
             <Button 
               onClick={() => navigate('/contact')} 
               variant="ghost" 
               className="w-full"
             >
-              Contact Support
+              {t('payment.contactSupport')}
             </Button>
           </div>
         )}
@@ -114,7 +116,7 @@ export const PaymentVerification = ({ sessionId, onVerificationComplete }: Payme
             onClick={() => navigate('/member-dashboard')} 
             className="w-full"
           >
-            Go to Dashboard
+            {t('payment.goToDashboard')}
           </Button>
         )}
       </CardContent>

@@ -26,9 +26,11 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from 'react-i18next';
 import { supabase } from "@/integrations/supabase/client";
 
 export function SupportPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -89,8 +91,8 @@ export function SupportPage() {
     } catch (error) {
       console.error('Error sending message:', error);
       toast({
-        title: "Connection Error",
-        description: "Unable to connect to Clara. Please try again.",
+        title: t('supportPage.connectionError'),
+        description: t('supportPage.unableToConnectClara'),
         variant: "destructive"
       });
       
@@ -116,8 +118,8 @@ export function SupportPage() {
   const handleSubmitTicket = async () => {
     if (!ticketForm.subject || !ticketForm.category || !ticketForm.message) {
       toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields before submitting.",
+        title: t('supportPage.missingInformation'),
+        description: t('supportPage.fillRequiredFields'),
         variant: "destructive",
       });
       return;
@@ -130,15 +132,15 @@ export function SupportPage() {
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       toast({
-        title: "Ticket Submitted",
-        description: "Your support ticket has been submitted successfully. We'll respond within 24 hours.",
+        title: t('supportPage.ticketSubmitted'),
+        description: t('supportPage.ticketSubmittedDescription'),
       });
       
       setTicketForm({ subject: "", category: "", priority: "", message: "" });
     } catch (error) {
       toast({
-        title: "Submission Failed",
-        description: "There was an error submitting your ticket. Please try again.",
+        title: t('supportPage.submissionFailed'),
+        description: t('supportPage.errorSubmittingTicket'),
         variant: "destructive",
       });
     } finally {
@@ -147,20 +149,20 @@ export function SupportPage() {
   };
 
   const categories = [
-    { value: "technical", label: "Technical Issue" },
-    { value: "billing", label: "Billing & Subscription" },
-    { value: "account", label: "Account Management" },
-    { value: "device", label: "Device Setup" },
-    { value: "emergency", label: "Emergency Services" },
-    { value: "feature", label: "Feature Request" },
-    { value: "other", label: "Other" }
+    { value: "technical", label: t('supportPage.catTechnical') },
+    { value: "billing", label: t('supportPage.catBilling') },
+    { value: "account", label: t('supportPage.catAccount') },
+    { value: "device", label: t('supportPage.catDevice') },
+    { value: "emergency", label: t('supportPage.catEmergency') },
+    { value: "feature", label: t('supportPage.catFeature') },
+    { value: "other", label: t('supportPage.catOther') }
   ];
 
   const priorities = [
-    { value: "low", label: "Low", color: "text-muted-foreground" },
-    { value: "medium", label: "Medium", color: "text-foreground" },
-    { value: "high", label: "High", color: "text-foreground" },
-    { value: "urgent", label: "Urgent", color: "text-destructive" }
+    { value: "low", label: t('supportPage.priorityLow'), color: "text-muted-foreground" },
+    { value: "medium", label: t('supportPage.priorityMedium'), color: "text-foreground" },
+    { value: "high", label: t('supportPage.priorityHigh'), color: "text-foreground" },
+    { value: "urgent", label: t('supportPage.priorityUrgent'), color: "text-destructive" }
   ];
 
   // No support tickets - this will be replaced with real data from database in the future
@@ -279,8 +281,8 @@ export function SupportPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Support</h1>
-        <p className="text-muted-foreground">Get help with your account, devices, and emergency services</p>
+        <h1 className="text-2xl font-bold tracking-tight">{t('supportPage.title')}</h1>
+        <p className="text-muted-foreground">{t('supportPage.subtitle')}</p>
       </div>
 
       {/* Clara AI Assistant - Embedded Chat */}
@@ -288,10 +290,10 @@ export function SupportPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Bot className="h-5 w-5 text-primary" />
-            Chat with Clara AI Assistant
+            {t('supportPage.chatWithClara')}
           </CardTitle>
           <CardDescription>
-            Get instant help from Clara, our AI assistant specialized in emergency protection and account support
+            {t('supportPage.chatWithClaraDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -324,7 +326,7 @@ export function SupportPage() {
                 <div className="flex justify-start">
                   <div className="bg-muted p-3 rounded-lg flex items-center space-x-2 max-w-[85%]">
                     <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-                    <span className="text-xs">Clara is thinking...</span>
+                    <span className="text-xs">{t('supportPage.claraThinking')}</span>
                   </div>
                 </div>
               )}
@@ -337,7 +339,7 @@ export function SupportPage() {
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Ask Clara about emergency protection, account settings, or any questions..."
+                  placeholder={t('supportPage.askClaraPlaceholder')}
                   disabled={isChatLoading}
                   className="flex-1"
                 />
@@ -351,7 +353,7 @@ export function SupportPage() {
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground mt-2 text-center">
-                Clara can help with emergency procedures, account management, device setup, and more
+                {t('supportPage.claraCanHelp')}
               </p>
             </div>
           </div>
@@ -363,31 +365,31 @@ export function SupportPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
-            Submit Support Ticket
+            {t('supportPage.submitTicket')}
           </CardTitle>
           <CardDescription>
-            Create a support ticket for detailed assistance with your issue
+            {t('supportPage.submitTicketDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-medium mb-2 block">Subject *</label>
+              <label className="text-xs font-medium mb-2 block">{t('supportPage.subject')} *</label>
               <Input
-                placeholder="Brief description of your issue"
+                placeholder={t('supportPage.subjectPlaceholder')}
                 value={ticketForm.subject}
                 onChange={(e) => setTicketForm({...ticketForm, subject: e.target.value})}
               />
             </div>
             
             <div>
-              <label className="text-xs font-medium mb-2 block">Category *</label>
+              <label className="text-xs font-medium mb-2 block">{t('supportPage.category')} *</label>
               <Select
                 value={ticketForm.category}
                 onValueChange={(value) => setTicketForm({...ticketForm, category: value})}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
+                  <SelectValue placeholder={t('supportPage.selectCategory')} />
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((category) => (
@@ -401,13 +403,13 @@ export function SupportPage() {
           </div>
 
           <div className="md:w-1/2">
-            <label className="text-xs font-medium mb-2 block">Priority</label>
+            <label className="text-xs font-medium mb-2 block">{t('supportPage.priority')}</label>
             <Select
               value={ticketForm.priority}
               onValueChange={(value) => setTicketForm({...ticketForm, priority: value})}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select priority" />
+                <SelectValue placeholder={t('supportPage.selectPriority')} />
               </SelectTrigger>
               <SelectContent>
                 {priorities.map((priority) => (
@@ -420,9 +422,9 @@ export function SupportPage() {
           </div>
 
           <div>
-            <label className="text-xs font-medium mb-2 block">Message *</label>
+            <label className="text-xs font-medium mb-2 block">{t('supportPage.message')} *</label>
             <Textarea
-              placeholder="Describe your issue in detail..."
+              placeholder={t('supportPage.messagePlaceholder')}
               rows={5}
               value={ticketForm.message}
               onChange={(e) => setTicketForm({...ticketForm, message: e.target.value})}
@@ -437,12 +439,12 @@ export function SupportPage() {
             {isSubmitting ? (
               <>
                 <Save className="h-4 w-4 animate-spin" />
-                Submitting...
+                {t('supportPage.submitting')}
               </>
             ) : (
               <>
                 <Send className="h-4 w-4" />
-                Submit Ticket
+                {t('supportPage.submitTicketButton')}
               </>
             )}
           </Button>
@@ -453,9 +455,9 @@ export function SupportPage() {
       {supportTickets.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Your Support Tickets</CardTitle>
+            <CardTitle>{t('supportPage.yourTickets')}</CardTitle>
             <CardDescription>
-              Track the status of your recent support requests
+              {t('supportPage.trackTickets')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -473,7 +475,7 @@ export function SupportPage() {
                   <div className="text-right">
                     {getStatusBadge(ticket.status)}
                     <Button variant="ghost" size="sm" className="mt-2">
-                      View Details
+                      {t('supportPage.viewDetails')}
                     </Button>
                   </div>
                 </div>
@@ -488,10 +490,10 @@ export function SupportPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <HelpCircle className="h-5 w-5" />
-            Frequently Asked Questions
+            {t('supportPage.faq')}
           </CardTitle>
           <CardDescription>
-            Quick answers to common questions
+            {t('supportPage.faqDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -499,7 +501,7 @@ export function SupportPage() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
-              placeholder="Search FAQ..."
+              placeholder={t('supportPage.searchFaq')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -527,9 +529,9 @@ export function SupportPage() {
           {filteredFAQ.length === 0 && (
           <div className="text-center py-8">
             <Search className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-sm font-semibold mb-2">No results found</h3>
+            <h3 className="text-sm font-semibold mb-2">{t('supportPage.noResults')}</h3>
             <p className="text-xs text-muted-foreground">
-              Try adjusting your search terms or browse all questions above
+              {t('supportPage.tryAdjustingSearch')}
             </p>
           </div>
           )}
@@ -541,10 +543,10 @@ export function SupportPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Book className="h-5 w-5" />
-            Knowledge Base
+            {t('supportPage.knowledgeBase')}
           </CardTitle>
           <CardDescription>
-            Comprehensive guides and documentation
+            {t('supportPage.knowledgeBaseDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -588,18 +590,18 @@ export function SupportPage() {
             <div className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
               <Phone className="h-5 w-5 text-primary" />
               <div>
-                <h3 className="text-sm font-semibold">Emergency Line</h3>
+                <h3 className="text-sm font-semibold">{t('supportPage.emergencyLine')}</h3>
                 <p className="text-xs text-muted-foreground">1-800-LIFELINK</p>
-                <p className="text-xs text-muted-foreground">Available 24/7 for emergencies</p>
+                <p className="text-xs text-muted-foreground">{t('supportPage.available247')}</p>
               </div>
             </div>
             
             <div className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
               <Mail className="h-5 w-5 text-primary" />
               <div>
-                <h3 className="text-sm font-semibold">Email Support</h3>
+                <h3 className="text-sm font-semibold">{t('supportPage.emailSupport')}</h3>
                 <p className="text-xs text-muted-foreground">support@icesurvival.com</p>
-                <p className="text-xs text-muted-foreground">Response within 24 hours</p>
+                <p className="text-xs text-muted-foreground">{t('supportPage.responseWithin24h')}</p>
               </div>
             </div>
           </div>

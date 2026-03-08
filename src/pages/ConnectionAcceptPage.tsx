@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 export const ConnectionAcceptPage = () => {
+  const { t } = useTranslation();
   const { token } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -39,11 +41,11 @@ export const ConnectionAcceptPage = () => {
       if (data.valid) {
         setInvitation(data);
       } else {
-        setError('Invalid or expired invitation');
+        setError(t('family.invalidInvitation'));
       }
     } catch (error) {
       console.error('Error checking invitation:', error);
-      setError('Failed to load invitation');
+      setError(t('family.failedToLoadInvite'));
     } finally {
       setLoading(false);
     }
@@ -66,8 +68,8 @@ export const ConnectionAcceptPage = () => {
       if (error) throw error;
 
       toast({
-        title: "Invitation accepted!",
-        description: `You've successfully joined as a ${data.connection.type.replace('_', ' ')}.`,
+        title: t('family.invitationAcceptedTitle'),
+        description: t('family.invitationAcceptedDescription', { type: data.connection.type.replace('_', ' ') }),
       });
 
       // Redirect based on connection type
@@ -76,8 +78,8 @@ export const ConnectionAcceptPage = () => {
     } catch (error) {
       console.error('Error accepting invitation:', error);
       toast({
-        title: "Error",
-        description: "Failed to accept invitation. Please try again.",
+        title: t('family.errorTitle'),
+        description: t('family.failedToAcceptInvitation'),
         variant: "destructive",
       });
     } finally {
@@ -91,7 +93,7 @@ export const ConnectionAcceptPage = () => {
         <Card className="w-full max-w-md">
           <CardContent className="py-8 text-center">
             <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-            <p className="text-muted-foreground">Loading invitation...</p>
+            <p className="text-muted-foreground">{t('family.loadingInvitation')}</p>
           </CardContent>
         </Card>
       </div>
@@ -104,10 +106,10 @@ export const ConnectionAcceptPage = () => {
         <Card className="w-full max-w-md">
           <CardContent className="py-8 text-center">
             <AlertTriangle className="h-12 w-12 text-destructive mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Invalid Invitation</h3>
+            <h3 className="text-lg font-semibold mb-2">{t('family.invalidInvitation')}</h3>
             <p className="text-muted-foreground mb-4">{error}</p>
             <Button onClick={() => navigate('/')} variant="outline">
-              Go to Homepage
+              {t('family.goToHomepage')}
             </Button>
           </CardContent>
         </Card>
@@ -124,15 +126,15 @@ export const ConnectionAcceptPage = () => {
   };
 
   const getTitle = () => {
-    return invitation?.connection.type === 'family_circle' 
-      ? 'Family Circle Invitation' 
-      : 'Trusted Contact Invitation';
+    return invitation?.connection.type === 'family_circle'
+      ? t('family.familyCircleInvitation')
+      : t('family.trustedContactInvitation');
   };
 
   const getDescription = () => {
     return invitation?.connection.type === 'family_circle'
-      ? 'You\'ve been invited to join a family circle with full access to emergency dashboard and history.'
-      : 'You\'ve been invited as a trusted contact to receive notifications during emergency situations only.';
+      ? t('family.familyCircleDescription')
+      : t('family.trustedContactDescription');
   };
 
   return (
@@ -151,19 +153,19 @@ export const ConnectionAcceptPage = () => {
           {/* Invitation Details */}
           <div className="space-y-3 p-4 rounded-lg border bg-muted/50">
             <div>
-              <p className="text-sm font-medium">Invited as:</p>
+              <p className="text-sm font-medium">{t('family.invitedAs')}</p>
               <p className="text-sm text-muted-foreground">
-                {invitation?.connection.relationship || 'Family member'}
+                {invitation?.connection.relationship || t('family.familyMember')}
               </p>
             </div>
             <div>
-              <p className="text-sm font-medium">Email:</p>
+              <p className="text-sm font-medium">{t('family.email')}</p>
               <p className="text-sm text-muted-foreground">
                 {invitation?.connection.invite_email}
               </p>
             </div>
             <div>
-              <p className="text-sm font-medium">Invited on:</p>
+              <p className="text-sm font-medium">{t('family.invitedOn')}</p>
               <p className="text-sm text-muted-foreground">
                 {new Date(invitation?.connection.invited_at).toLocaleDateString()}
               </p>
@@ -174,9 +176,9 @@ export const ConnectionAcceptPage = () => {
           <Alert>
             <Check className="h-4 w-4" />
             <AlertDescription>
-              {invitation?.connection.type === 'family_circle' 
-                ? 'As a family member, you\'ll have access to the full emergency dashboard, location history, and real-time updates.'
-                : 'As a trusted contact, you\'ll receive notifications and temporary access during active emergency situations only.'
+              {invitation?.connection.type === 'family_circle'
+                ? t('family.familyCircleAccess')
+                : t('family.trustedContactAccess')
               }
             </AlertDescription>
           </Alert>
@@ -186,13 +188,13 @@ export const ConnectionAcceptPage = () => {
             <div className="space-y-3 p-4 rounded-lg border bg-muted/50">
               <Label className="flex items-center gap-2 font-medium">
                 <MapPin className="h-4 w-4 text-primary" />
-                Location Sharing
+                {t('family.locationSharingTitle')}
               </Label>
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <p className="text-sm font-medium">Share my location</p>
+                  <p className="text-sm font-medium">{t('family.shareMyLocation')}</p>
                   <p className="text-xs text-muted-foreground">
-                    Allow this person to see your location when you're active
+                    {t('family.shareMyLocationDescription')}
                   </p>
                 </div>
                 <Switch
@@ -201,7 +203,7 @@ export const ConnectionAcceptPage = () => {
                 />
               </div>
               <p className="text-xs text-muted-foreground">
-                You can change this at any time in your circle settings. The person who invited you has independently chosen whether to share their location with you.
+                {t('family.locationSharingNote')}
               </p>
             </div>
           )}
@@ -211,7 +213,7 @@ export const ConnectionAcceptPage = () => {
             <Alert>
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
-                You need to sign in or create an account to accept this invitation.
+                {t('family.signInRequired')}
               </AlertDescription>
             </Alert>
           )}
@@ -225,21 +227,21 @@ export const ConnectionAcceptPage = () => {
             {accepting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Accepting...
+                {t('family.accepting')}
               </>
             ) : user ? (
-              'Accept Invitation'
+              t('family.acceptInvitation')
             ) : (
-              'Sign In to Accept'
+              t('family.signInToAccept')
             )}
           </Button>
 
-          <Button 
-            onClick={() => navigate('/')} 
+          <Button
+            onClick={() => navigate('/')}
             variant="outline"
             className="w-full"
           >
-            Decline
+            {t('family.decline')}
           </Button>
         </CardContent>
       </Card>

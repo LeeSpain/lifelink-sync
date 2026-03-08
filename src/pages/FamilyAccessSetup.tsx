@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +11,7 @@ import SetupFamilyProducts from "@/components/dashboard/family/SetupFamilyProduc
 import TestFamilySOSSystem from "@/components/dashboard/family/TestFamilySOSSystem";
 
 const FamilyAccessSetupPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [setupStage, setSetupStage] = useState<'initial' | 'products' | 'testing' | 'complete'>('initial');
   const [isLoading, setIsLoading] = useState(false);
@@ -26,15 +28,15 @@ const FamilyAccessSetupPage = () => {
 
       setSetupStage('products');
       toast({
-        title: "Stripe Products Created",
-        description: "Family Access products are now available in your Stripe dashboard!"
+        title: t('family.stripeProductsCreatedTitle'),
+        description: t('family.stripeProductsCreatedDescription')
       });
 
     } catch (error) {
       console.error('Error setting up Stripe products:', error);
       toast({
-        title: "Setup Error",
-        description: error instanceof Error ? error.message : "Failed to set up Stripe products",
+        title: t('family.setupErrorTitle'),
+        description: error instanceof Error ? error.message : t('family.setupErrorTitle'),
         variant: "destructive"
       });
     } finally {
@@ -66,15 +68,15 @@ const FamilyAccessSetupPage = () => {
 
       setSetupStage('testing');
       toast({
-        title: "Invite Test Successful",
-        description: "Family invitation system is working correctly!"
+        title: t('family.inviteTestSuccessTitle'),
+        description: t('family.inviteTestSuccessDescription')
       });
 
     } catch (error) {
       console.error('Error testing invite flow:', error);
       toast({
-        title: "Test Error",
-        description: error instanceof Error ? error.message : "Failed to test invite flow",
+        title: t('family.testErrorTitle'),
+        description: error instanceof Error ? error.message : t('family.testErrorTitle'),
         variant: "destructive"
       });
     } finally {
@@ -85,8 +87,8 @@ const FamilyAccessSetupPage = () => {
   const completeSetup = () => {
     setSetupStage('complete');
     toast({
-      title: "Setup Complete",
-      description: "Family Access system is fully operational!"
+      title: t('family.setupCompleteToastTitle'),
+      description: t('family.setupCompleteToastDescription')
     });
   };
 
@@ -103,13 +105,13 @@ const FamilyAccessSetupPage = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'completed':
-        return <Badge variant="default" className="gap-1"><CheckCircle className="h-3 w-3" />Complete</Badge>;
+        return <Badge variant="default" className="gap-1"><CheckCircle className="h-3 w-3" />{t('family.complete')}</Badge>;
       case 'active':
-        return <Badge variant="secondary" className="gap-1"><AlertCircle className="h-3 w-3" />Active</Badge>;
+        return <Badge variant="secondary" className="gap-1"><AlertCircle className="h-3 w-3" />{t('family.active')}</Badge>;
       case 'pending':
-        return <Badge variant="outline">Pending</Badge>;
+        return <Badge variant="outline">{t('family.pending')}</Badge>;
       default:
-        return <Badge variant="outline">Unknown</Badge>;
+        return <Badge variant="outline">{t('family.pending')}</Badge>;
     }
   };
 
@@ -119,10 +121,10 @@ const FamilyAccessSetupPage = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-6 w-6 text-primary" />
-            Family Access System Setup
+            {t('family.setupTitle')}
           </CardTitle>
           <p className="text-muted-foreground">
-            Complete setup and testing of the comprehensive Family Access system
+            {t('family.setupDescription')}
           </p>
         </CardHeader>
         <CardContent>
@@ -131,22 +133,22 @@ const FamilyAccessSetupPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="flex flex-col items-center gap-2 p-4 border rounded-lg">
                 <Package className="h-8 w-8 text-primary" />
-                <span className="font-medium">Stripe Products</span>
+                <span className="font-medium">{t('family.stripeProducts')}</span>
                 {getStatusBadge(getStageStatus('products'))}
               </div>
               <div className="flex flex-col items-center gap-2 p-4 border rounded-lg">
                 <Users className="h-8 w-8 text-primary" />
-                <span className="font-medium">Invite System</span>
+                <span className="font-medium">{t('family.inviteSystem')}</span>
                 {getStatusBadge(getStageStatus('testing'))}
               </div>
               <div className="flex flex-col items-center gap-2 p-4 border rounded-lg">
                 <AlertCircle className="h-8 w-8 text-primary" />
-                <span className="font-medium">SOS System</span>
+                <span className="font-medium">{t('family.sosSystem')}</span>
                 {getStatusBadge(getStageStatus('complete'))}
               </div>
               <div className="flex flex-col items-center gap-2 p-4 border rounded-lg">
                 <CheckCircle className="h-8 w-8 text-primary" />
-                <span className="font-medium">Real-time</span>
+                <span className="font-medium">{t('family.realTime')}</span>
                 {getStatusBadge(getStageStatus('complete'))}
               </div>
             </div>
@@ -155,35 +157,35 @@ const FamilyAccessSetupPage = () => {
             <div className="space-y-4">
               {setupStage === 'initial' && (
                 <div className="bg-blue-50 p-4 rounded-lg border-blue-200 border">
-                  <h4 className="font-medium mb-2">Step 1: Setup Stripe Products</h4>
+                  <h4 className="font-medium mb-2">{t('family.step1Title')}</h4>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Create the Family Access subscription products (€2.99/month per seat) in your Stripe account.
+                    {t('family.step1Description')}
                   </p>
                   <Button onClick={runStripeSetup} disabled={isLoading}>
-                    {isLoading ? "Setting up..." : "Create Stripe Products"}
+                    {isLoading ? t('family.settingUp') : t('family.createStripeProducts')}
                   </Button>
                 </div>
               )}
 
               {setupStage === 'products' && (
                 <div className="bg-green-50 p-4 rounded-lg border-green-200 border">
-                  <h4 className="font-medium mb-2">Step 2: Test Family Invitation Flow</h4>
+                  <h4 className="font-medium mb-2">{t('family.step2Title')}</h4>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Test the family invitation system to ensure it's working correctly.
+                    {t('family.step2Description')}
                   </p>
                   <Button onClick={testInviteFlow} disabled={isLoading}>
-                    {isLoading ? "Testing..." : "Test Invite System"}
+                    {isLoading ? t('family.testing') : t('family.testInviteSystem')}
                   </Button>
                 </div>
               )}
 
               {setupStage === 'testing' && testResults && (
                 <div className="bg-yellow-50 p-4 rounded-lg border-yellow-200 border">
-                  <h4 className="font-medium mb-2">Step 3: Review Test Results</h4>
+                  <h4 className="font-medium mb-2">{t('family.step3Title')}</h4>
                   <div className="space-y-2 text-sm mb-4">
                     <div className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4 text-green-500" />
-                      <span>Family invite created successfully</span>
+                      <span>{t('family.inviteCreatedSuccess')}</span>
                     </div>
                     <div className="bg-white p-2 rounded border">
                       <p className="font-mono text-xs break-all">
@@ -197,7 +199,7 @@ const FamilyAccessSetupPage = () => {
                     </div>
                   </div>
                   <Button onClick={completeSetup}>
-                    Complete Setup
+                    {t('family.completeSetup')}
                   </Button>
                 </div>
               )}
@@ -206,24 +208,24 @@ const FamilyAccessSetupPage = () => {
                 <div className="bg-green-50 p-4 rounded-lg border-green-200 border">
                   <div className="flex items-center gap-2 mb-2">
                     <CheckCircle className="h-5 w-5 text-green-500" />
-                    <h4 className="font-medium">Setup Complete!</h4>
+                    <h4 className="font-medium">{t('family.setupCompleteTitle')}</h4>
                   </div>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Family Access system is fully operational. You can now:
+                    {t('family.setupCompleteDescription')}
                   </p>
                   <ul className="text-sm space-y-1 mb-4">
-                    <li>• Create family invites with owner-paid or invitee-paid billing</li>
-                    <li>• Manage emergency contacts (call-only vs family access)</li>
-                    <li>• Send SOS alerts to family members with live maps</li>
-                    <li>• Receive "Received & On It" acknowledgments</li>
-                    <li>• Privacy-first: location only during active SOS</li>
+                    <li>• {t('family.setupFeature1')}</li>
+                    <li>• {t('family.setupFeature2')}</li>
+                    <li>• {t('family.setupFeature3')}</li>
+                    <li>• {t('family.setupFeature4')}</li>
+                    <li>• {t('family.setupFeature5')}</li>
                   </ul>
                   <div className="flex gap-2">
                     <Button onClick={() => navigate('/member-dashboard/emergency')}>
-                      Go to Emergency Contacts
+                      {t('family.goToEmergencyContacts')}
                     </Button>
                     <Button variant="outline" onClick={() => navigate('/member-dashboard')}>
-                      Back to Dashboard
+                      {t('family.backToDashboard')}
                     </Button>
                   </div>
                 </div>
@@ -239,26 +241,26 @@ const FamilyAccessSetupPage = () => {
       {/* Additional Setup Info */}
       <Card>
         <CardHeader>
-          <CardTitle>System Features Overview</CardTitle>
+          <CardTitle>{t('family.systemFeaturesOverview')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h4 className="font-medium mb-3">Emergency Contacts (Call-only)</h4>
+              <h4 className="font-medium mb-3">{t('family.callOnlyContacts')}</h4>
               <ul className="text-sm space-y-1 text-muted-foreground">
-                <li>• Up to 5 contacts included</li>
-                <li>• Sequential dialing during SOS</li>
-                <li>• No alerts, no login required</li>
-                <li>• Phone numbers only</li>
+                <li>• {t('family.callOnlyFeature1')}</li>
+                <li>• {t('family.callOnlyFeature2')}</li>
+                <li>• {t('family.callOnlyFeature3')}</li>
+                <li>• {t('family.callOnlyFeature4')}</li>
               </ul>
             </div>
             <div>
-              <h4 className="font-medium mb-3">Family Access (€2.99/month)</h4>
+              <h4 className="font-medium mb-3">{t('family.familyAccessPricing')}</h4>
               <ul className="text-sm space-y-1 text-muted-foreground">
-                <li>• Live SOS alerts and maps</li>
-                <li>• "Received & On It" acknowledgments</li>
-                <li>• Incident summaries and PDFs</li>
-                <li>• Privacy-focused (location only during SOS)</li>
+                <li>• {t('family.familyAccessFeature1')}</li>
+                <li>• {t('family.familyAccessFeature2')}</li>
+                <li>• {t('family.familyAccessFeature3')}</li>
+                <li>• {t('family.familyAccessFeature4')}</li>
               </ul>
             </div>
           </div>

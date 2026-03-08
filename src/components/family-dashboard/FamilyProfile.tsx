@@ -21,8 +21,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { useOptimizedAuth } from '@/hooks/useOptimizedAuth';
 import { useFamilyRole } from '@/hooks/useFamilyRole';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 
 const FamilyProfile = () => {
+  const { t } = useTranslation();
   const { user } = useOptimizedAuth();
   const { data: familyRole } = useFamilyRole();
   const { toast } = useToast();
@@ -154,8 +156,8 @@ const FamilyProfile = () => {
     } catch (error) {
       console.error('Error loading profile data:', error);
       toast({
-        title: "Error",
-        description: "Failed to load emergency information",
+        title: t('familyDashboard.error'),
+        description: t('familyDashboard.failedLoadEmergency'),
         variant: "destructive"
       });
     } finally {
@@ -185,8 +187,8 @@ const FamilyProfile = () => {
       if (error) throw error;
 
       toast({
-        title: "Profile Updated",
-        description: "Your family profile has been saved successfully"
+        title: t('familyDashboard.profileUpdated'),
+        description: t('familyDashboard.profileSavedSuccess')
       });
 
       loadProfileData();
@@ -194,8 +196,8 @@ const FamilyProfile = () => {
     } catch (error) {
       console.error('Error saving profile:', error);
       toast({
-        title: "Error",
-        description: "Failed to save profile changes",
+        title: t('familyDashboard.error'),
+        description: t('familyDashboard.failedSaveProfile'),
         variant: "destructive"
       });
     } finally {
@@ -225,29 +227,29 @@ const FamilyProfile = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">
-            {familyRole?.role === 'owner' ? 'My Emergency Information' : 
-             ownerProfile ? `${ownerProfile.first_name}'s Emergency Information` : 
-             'Emergency Information'}
+            {familyRole?.role === 'owner' ? t('familyDashboard.myEmergencyInfo') :
+             ownerProfile ? t('familyDashboard.memberEmergencyInfo', { name: ownerProfile.first_name }) :
+             t('familyDashboard.emergencyInformation')}
           </h1>
           <p className="text-muted-foreground">
-            {familyRole?.role === 'owner' 
-              ? 'Manage your emergency information and medical details'
+            {familyRole?.role === 'owner'
+              ? t('familyDashboard.manageEmergencyInfo')
               : familyRole?.role === 'none' || !familyRole?.familyGroupId
-                ? 'Basic profile information - no family emergency access'
-                : `View emergency contact and medical information for ${ownerProfile?.first_name || 'your family member'}`
+                ? t('familyDashboard.basicProfileInfo')
+                : t('familyDashboard.viewEmergencyInfo', { name: ownerProfile?.first_name || t('familyDashboard.familyMember') })
             }
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Badge variant="outline" className="gap-2">
             <Heart className="h-3 w-3" />
-            {familyRole?.role === 'owner' ? 'Account Owner' : 
-             familyRole?.role === 'none' ? 'No Access' : 'Family Access'}
+            {familyRole?.role === 'owner' ? t('familyDashboard.accountOwnerBadge') :
+             familyRole?.role === 'none' ? t('familyDashboard.noAccess') : t('familyDashboard.familyAccess')}
           </Badge>
           {ownerProfile && familyRole?.role !== 'owner' && (
             <Badge variant="secondary" className="gap-2">
               <Shield className="h-3 w-3" />
-              Connected to {ownerProfile.first_name}'s Plan
+              {t('familyDashboard.connectedToPlan', { name: ownerProfile.first_name })}
             </Badge>
           )}
         </div>
@@ -260,7 +262,7 @@ const FamilyProfile = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Shield className="h-5 w-5" />
-                {ownerProfile.first_name}'s Emergency Information
+                {t('familyDashboard.memberEmergencyInfo', { name: ownerProfile.first_name })}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -275,9 +277,9 @@ const FamilyProfile = () => {
                   <h3 className="font-semibold text-lg">
                     {ownerProfile.first_name} {ownerProfile.last_name}
                   </h3>
-                  <p className="text-sm text-muted-foreground">Emergency Account Owner</p>
+                  <p className="text-sm text-muted-foreground">{t('familyDashboard.emergencyAccountOwner')}</p>
                   <Badge variant="default" className="mt-1">
-                    Primary Emergency Contact
+                    {t('familyDashboard.primaryEmergencyContact')}
                   </Badge>
                 </div>
               </div>
@@ -285,15 +287,15 @@ const FamilyProfile = () => {
               {/* Owner Contact Details */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Phone Number</Label>
+                  <Label>{t('familyDashboard.phoneNumber')}</Label>
                   <div className="p-3 bg-muted rounded-md">
-                    <p className="font-medium">{ownerProfile.phone || 'Not provided'}</p>
+                    <p className="font-medium">{ownerProfile.phone || t('familyDashboard.notProvided')}</p>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Address</Label>
+                  <Label>{t('familyDashboard.address')}</Label>
                   <div className="p-3 bg-muted rounded-md">
-                    <p className="font-medium">{ownerProfile.address || 'Not provided'}</p>
+                    <p className="font-medium">{ownerProfile.address || t('familyDashboard.notProvided')}</p>
                   </div>
                 </div>
               </div>
@@ -301,11 +303,11 @@ const FamilyProfile = () => {
               {/* Medical Information */}
               {(ownerProfile.medical_conditions?.length > 0 || ownerProfile.allergies?.length > 0) && (
                 <div className="space-y-4">
-                  <h4 className="font-semibold">Medical Information</h4>
+                  <h4 className="font-semibold">{t('familyDashboard.medicalInformation')}</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {ownerProfile.medical_conditions?.length > 0 && (
                       <div className="space-y-2">
-                        <Label>Medical Conditions</Label>
+                        <Label>{t('familyDashboard.medicalConditions')}</Label>
                         <div className="p-3 bg-muted rounded-md">
                           <p className="text-sm">{ownerProfile.medical_conditions.join(', ')}</p>
                         </div>
@@ -313,7 +315,7 @@ const FamilyProfile = () => {
                     )}
                     {ownerProfile.allergies?.length > 0 && (
                       <div className="space-y-2">
-                        <Label>Allergies</Label>
+                        <Label>{t('familyDashboard.allergies')}</Label>
                         <div className="p-3 bg-muted rounded-md">
                           <p className="text-sm">{ownerProfile.allergies.join(', ')}</p>
                         </div>
@@ -326,7 +328,7 @@ const FamilyProfile = () => {
               {/* Emergency Contacts */}
               {ownerEmergencyContacts.length > 0 && (
                 <div className="space-y-4">
-                  <h4 className="font-semibold">Emergency Contacts</h4>
+                  <h4 className="font-semibold">{t('familyDashboard.emergencyContacts')}</h4>
                   <div className="space-y-3">
                     {ownerEmergencyContacts.map((contact, index) => (
                       <div key={contact.id} className="p-3 bg-muted rounded-md">
@@ -338,7 +340,7 @@ const FamilyProfile = () => {
                             {contact.email && <p className="text-sm">{contact.email}</p>}
                           </div>
                           <Badge variant="outline" className="text-xs">
-                            Priority {contact.priority}
+                            {t('familyDashboard.priority', { number: contact.priority })}
                           </Badge>
                         </div>
                       </div>
@@ -352,13 +354,13 @@ const FamilyProfile = () => {
                 <Button variant="outline" className="gap-2" asChild>
                   <a href={`tel:${ownerProfile.phone}`}>
                     <Phone className="h-4 w-4" />
-                    Call {ownerProfile.first_name}
+                    {t('familyDashboard.callPerson', { name: ownerProfile.first_name })}
                   </a>
                 </Button>
                 <Button variant="outline" className="gap-2" asChild>
                   <a href="/family-dashboard/emergency-map">
                     <MapPin className="h-4 w-4" />
-                    View Location
+                    {t('familyDashboard.viewLocation')}
                   </a>
                 </Button>
               </div>
@@ -372,7 +374,7 @@ const FamilyProfile = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <User className="h-5 w-5" />
-                Personal Information
+                {t('familyDashboard.personalInformation')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -389,7 +391,7 @@ const FamilyProfile = () => {
                   </h3>
                   <p className="text-sm text-muted-foreground">{user?.email}</p>
                   <Badge variant="default" className="mt-1">
-                    Emergency Account Owner
+                    {t('familyDashboard.emergencyAccountOwner')}
                   </Badge>
                 </div>
               </div>
@@ -397,43 +399,43 @@ const FamilyProfile = () => {
               {/* Personal Details Form */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="first_name">First Name</Label>
+                  <Label htmlFor="first_name">{t('familyDashboard.firstName')}</Label>
                   <Input
                     id="first_name"
                     value={profileData.first_name}
                     onChange={(e) => setProfileData(prev => ({ ...prev, first_name: e.target.value }))}
-                    placeholder="Enter first name"
+                    placeholder={t('familyDashboard.enterFirstName')}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="last_name">Last Name</Label>
+                  <Label htmlFor="last_name">{t('familyDashboard.lastName')}</Label>
                   <Input
                     id="last_name"
                     value={profileData.last_name}
                     onChange={(e) => setProfileData(prev => ({ ...prev, last_name: e.target.value }))}
-                    placeholder="Enter last name"
+                    placeholder={t('familyDashboard.enterLastName')}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
+                  <Label htmlFor="phone">{t('familyDashboard.phoneNumber')}</Label>
                   <Input
                     id="phone"
                     value={profileData.phone}
                     onChange={(e) => setProfileData(prev => ({ ...prev, phone: e.target.value }))}
-                    placeholder="Enter phone number"
+                    placeholder={t('familyDashboard.enterPhoneNumber')}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="address">Address</Label>
+                  <Label htmlFor="address">{t('familyDashboard.address')}</Label>
                   <Input
                     id="address"
                     value={profileData.address}
                     onChange={(e) => setProfileData(prev => ({ ...prev, address: e.target.value }))}
-                    placeholder="Home address"
+                    placeholder={t('familyDashboard.homeAddress')}
                   />
                 </div>
                 <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="date_of_birth">Date of Birth</Label>
+                  <Label htmlFor="date_of_birth">{t('familyDashboard.dateOfBirth')}</Label>
                   <Input
                     id="date_of_birth"
                     type="date"
@@ -445,13 +447,13 @@ const FamilyProfile = () => {
 
 
               {/* Save Button */}
-              <Button 
+              <Button
                 onClick={handleSaveProfile}
                 disabled={isSaving}
                 className="w-full"
               >
                 <Save className="h-4 w-4 mr-2" />
-                {isSaving ? 'Saving...' : 'Save Profile'}
+                {isSaving ? t('familyDashboard.saving') : t('familyDashboard.saveProfile')}
               </Button>
             </CardContent>
           </Card>
@@ -463,7 +465,7 @@ const FamilyProfile = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <User className="h-5 w-5" />
-                Your Family Access Information
+                {t('familyDashboard.yourFamilyAccessInfo')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -480,7 +482,7 @@ const FamilyProfile = () => {
                   </h3>
                   <p className="text-sm text-muted-foreground">{user?.email}</p>
                   <Badge variant="outline" className="mt-1">
-                    {familyMembership?.relationship || 'Family Member'}
+                    {familyMembership?.relationship || t('familyDashboard.familyMember')}
                   </Badge>
                 </div>
               </div>
@@ -488,42 +490,42 @@ const FamilyProfile = () => {
               {/* Personal Details Form */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="first_name">First Name</Label>
+                  <Label htmlFor="first_name">{t('familyDashboard.firstName')}</Label>
                   <Input
                     id="first_name"
                     value={profileData.first_name}
                     onChange={(e) => setProfileData(prev => ({ ...prev, first_name: e.target.value }))}
-                    placeholder="Enter first name"
+                    placeholder={t('familyDashboard.enterFirstName')}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="last_name">Last Name</Label>
+                  <Label htmlFor="last_name">{t('familyDashboard.lastName')}</Label>
                   <Input
                     id="last_name"
                     value={profileData.last_name}
                     onChange={(e) => setProfileData(prev => ({ ...prev, last_name: e.target.value }))}
-                    placeholder="Enter last name"
+                    placeholder={t('familyDashboard.enterLastName')}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
+                  <Label htmlFor="phone">{t('familyDashboard.phoneNumber')}</Label>
                   <Input
                     id="phone"
                     value={profileData.phone}
                     onChange={(e) => setProfileData(prev => ({ ...prev, phone: e.target.value }))}
-                    placeholder="Enter phone number"
+                    placeholder={t('familyDashboard.enterPhoneNumber')}
                   />
                 </div>
               </div>
 
               {/* Save Button */}
-              <Button 
+              <Button
                 onClick={handleSaveProfile}
                 disabled={isSaving}
                 className="w-full"
               >
                 <Save className="h-4 w-4 mr-2" />
-                {isSaving ? 'Saving...' : 'Save Your Information'}
+                {isSaving ? t('familyDashboard.savingInfo') : t('familyDashboard.saveYourInfo')}
               </Button>
             </CardContent>
           </Card>
@@ -535,32 +537,32 @@ const FamilyProfile = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Shield className="h-5 w-5" />
-                Privacy & Security
+                {t('familyDashboard.privacySecurity')}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
               <div className="flex items-start gap-3">
                 <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
                 <div>
-                  <p className="font-medium">Location Privacy</p>
-                  <p className="text-muted-foreground">Live location is shared continuously with family members. Emergency contacts only receive location when SOS is activated.</p>
+                  <p className="font-medium">{t('familyDashboard.locationPrivacy')}</p>
+                  <p className="text-muted-foreground">{t('familyDashboard.locationPrivacyDesc')}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                 <div>
-                  <p className="font-medium">Data Protection</p>
-                  <p className="text-muted-foreground">All emergency data is encrypted and securely stored.</p>
+                  <p className="font-medium">{t('familyDashboard.dataProtection')}</p>
+                  <p className="text-muted-foreground">{t('familyDashboard.dataProtectionDesc')}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <div className="w-2 h-2 bg-purple-500 rounded-full mt-2"></div>
                 <div>
-                  <p className="font-medium">Family Connection</p>
+                  <p className="font-medium">{t('familyDashboard.familyConnection')}</p>
                   <p className="text-muted-foreground">
-                    {familyRole?.role === 'owner' 
-                      ? 'You control who has access to your emergency information.'
-                      : `You have secure access to ${ownerProfile?.first_name || 'your family member'}'s emergency status.`
+                    {familyRole?.role === 'owner'
+                      ? t('familyDashboard.ownerControlAccess')
+                      : t('familyDashboard.memberSecureAccess', { name: ownerProfile?.first_name || t('familyDashboard.familyMember') })
                     }
                   </p>
                 </div>
