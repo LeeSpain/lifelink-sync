@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Navigate, useSearchParams, Link, useNavigate } from 'react-router-dom';
@@ -116,19 +116,6 @@ const AuthPage = () => {
     }
   }, [email, password, isRateLimited, getRemainingTime, recordAttempt, resetRateLimit]);
 
-  // Toggle dev bypass mode
-  const toggleDevBypass = useCallback(() => {
-    const newState = !devBypassEnabled;
-    setDevBypassEnabled(newState);
-    if (newState) {
-      localStorage.setItem('dev_bypass', '1');
-    } else {
-      localStorage.removeItem('dev_bypass');
-    }
-    // Reload to apply changes
-    window.location.reload();
-  }, [devBypassEnabled]);
-
   console.log('🔐 AuthPage render:', { 
     hasUser: !!user, 
     userEmail: user?.email,
@@ -137,6 +124,8 @@ const AuthPage = () => {
     path: window.location.pathname,
     href: window.location.href
   });
+
+  const [showDevPopup, setShowDevPopup] = useState(false);
 
   // NOW do conditional returns AFTER all hooks
   if (loading) {
@@ -150,8 +139,8 @@ const AuthPage = () => {
     );
   }
 
-  // Redirect logged-in users to dashboard
-  if (user) {
+  // Redirect logged-in users to dashboard (but NOT dev mock users)
+  if (user && user.id !== 'dev-test-user-00000000') {
     return <Navigate to="/dashboard" replace />;
   }
 
@@ -183,9 +172,16 @@ const AuthPage = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={toggleDevBypass}
+                onClick={() => {
+                  // Enable dev bypass if not already, then show popup
+                  if (!devBypassEnabled) {
+                    localStorage.setItem('dev_bypass', '1');
+                    setDevBypassEnabled(true);
+                  }
+                  setShowDevPopup(true);
+                }}
                 className={`h-8 w-8 p-0 ${devBypassEnabled ? 'text-primary' : 'text-muted-foreground'} hover:text-foreground`}
-                title={devBypassEnabled ? 'Disable Development Mode' : 'Enable Development Mode'}
+                title="Open Dev Quick Links"
               >
                 <Settings className="h-4 w-4" />
               </Button>
@@ -258,49 +254,76 @@ const AuthPage = () => {
               </p>
             </div>
 
-            {/* Dev Quick Links — only visible in development or when dev bypass is active */}
-            {(import.meta.env.DEV || devBypassEnabled) && (
-            <div className="mt-8 border-t pt-6">
-              <h3 className="text-sm font-semibold text-muted-foreground mb-4 text-center uppercase tracking-wide">{t('auth.quickLinksDev')}</h3>
-
-              <div className="space-y-4">
-                {/* Dashboards */}
-                <div>
-                  <p className="text-xs font-semibold text-foreground mb-2">{t('auth.dashboards')}</p>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {[
-                      { label: 'Member', href: '/member-dashboard?dev=1' },
-                      { label: 'Family', href: '/family-dashboard?dev=1' },
-                      { label: 'Admin', href: '/admin-dashboard?dev=1' },
-                    ].map(link => (
-                      <Button key={link.href} asChild variant="default" size="sm" className="min-h-[44px] text-xs w-full">
-                        <Link to={link.href}>{link.label}</Link>
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Apps */}
-                <div>
-                  <p className="text-xs font-semibold text-foreground mb-2">{t('auth.apps')}</p>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {[
-                      { label: 'SOS App', href: '/sos-app?dev=1' },
-                      { label: 'Family App', href: '/family-app?dev=1' },
-                      { label: 'Mobile App', href: '/mobile-app?dev=1' },
-                    ].map(link => (
-                      <Button key={link.href} asChild variant="default" size="sm" className="min-h-[44px] text-xs w-full">
-                        <Link to={link.href}>{link.label}</Link>
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-            )}
           </CardContent>
         </Card>
       </div>
+
+      {/* Dev Quick Links Popup */}
+      {showDevPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowDevPopup(false)}>
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-sm mx-4 p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Dev Quick Links</h3>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => setShowDevPopup(false)}>
+                &times;
+              </Button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Dashboards */}
+              <div>
+                <p className="text-xs font-semibold text-foreground mb-2">Dashboards</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { label: 'Member', href: '/member-dashboard?dev=1' },
+                    { label: 'Family', href: '/family-dashboard?dev=1' },
+                    { label: 'Admin', href: '/admin-dashboard?dev=1' },
+                  ].map(link => (
+                    <Button key={link.href} asChild variant="default" size="sm" className="min-h-[44px] text-xs w-full">
+                      <Link to={link.href}>{link.label}</Link>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Apps */}
+              <div>
+                <p className="text-xs font-semibold text-foreground mb-2">Apps</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { label: 'SOS App', href: '/sos-app?dev=1' },
+                    { label: 'Family App', href: '/family-app?dev=1' },
+                    { label: 'Mobile App', href: '/mobile-app?dev=1' },
+                  ].map(link => (
+                    <Button key={link.href} asChild variant="default" size="sm" className="min-h-[44px] text-xs w-full">
+                      <Link to={link.href}>{link.label}</Link>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Disable dev mode */}
+              {devBypassEnabled && (
+                <div className="border-t pt-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full text-xs"
+                    onClick={() => {
+                      localStorage.removeItem('dev_bypass');
+                      setDevBypassEnabled(false);
+                      setShowDevPopup(false);
+                      window.location.reload();
+                    }}
+                  >
+                    Disable Dev Mode
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
