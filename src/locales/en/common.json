@@ -2722,5 +2722,26 @@
     "shipping": "+ €4.99 shipping",
     "cta": "View Pendant Details",
     "oneTime": "One-time purchase · No monthly fees"
+  },
+  "tablet": {
+    "kiosk": {
+      "title": "Lock Screen to This App",
+      "description": "For a truly always-on experience, enable screen pinning so the tablet stays on this dashboard permanently.",
+      "android": {
+        "step1Title": "Enable Screen Pinning",
+        "step1Desc": "Go to Settings → Security → Screen Pinning and turn it on",
+        "step2Title": "Pin this app",
+        "step2Desc": "Open Recent Apps (square button), tap the app icon at the top, and select \"Pin\"",
+        "step3Title": "Disable screen timeout",
+        "step3Desc": "Go to Settings → Display → Screen timeout → set to \"30 minutes\" or use Developer Options to set \"Stay awake while charging\"",
+        "tip": "Keep the tablet plugged in and it will stay on indefinitely with these settings."
+      },
+      "ipad": {
+        "title": "iPad / Other devices",
+        "desc": "Go to Settings → Display & Brightness → Auto-Lock → set to \"Never\". For iPad, also enable Guided Access in Settings → Accessibility → Guided Access for kiosk mode."
+      },
+      "laterButton": "I'll do this later",
+      "doneButton": "Done, go fullscreen"
+    }
   }
 }

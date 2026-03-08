@@ -66,6 +66,14 @@ export const ClaraPresenceIndicator = ({
       {/* Mic toggle */}
       <button
         onClick={onToggleListening}
+        aria-label={
+          noPermission
+            ? 'Microphone permission denied'
+            : isListening
+              ? 'Disable voice commands'
+              : 'Enable voice commands'
+        }
+        aria-pressed={isListening}
         className={`p-1.5 rounded-full transition-colors ${
           noPermission
             ? 'text-red-400 hover:bg-red-400/10'
@@ -91,6 +99,8 @@ export const ClaraPresenceIndicator = ({
       {/* Mute/unmute TTS */}
       <button
         onClick={onToggleMute}
+        aria-label={isMuted ? 'Unmute Clara' : 'Mute Clara'}
+        aria-pressed={isMuted}
         className={`p-1.5 rounded-full transition-colors ${
           isMuted
             ? 'text-red-400 hover:bg-red-400/10'

@@ -13,6 +13,7 @@ import { ReminderCard, type Reminder } from '@/components/tablet/ReminderCard';
 import { QuickInfoCards } from '@/components/tablet/QuickInfoCards';
 import type { FamilyMessage } from '@/components/tablet/FamilyMessagesCard';
 import { useToast } from '@/hooks/use-toast';
+import { KioskSetupGuide } from '@/components/tablet/KioskSetupGuide';
 
 function getGreeting(): string {
   const h = new Date().getHours();
@@ -257,6 +258,9 @@ const TabletDashboard = () => {
           </div>
         </div>
       )}
+
+      {/* Kiosk mode setup guide — shown after install, not during browser visit */}
+      {isInstalled && <KioskSetupGuide />}
 
       {/* Status Bar */}
       <TabletStatusBar

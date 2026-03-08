@@ -75,7 +75,10 @@ export function useTextToSpeech({
 
       utterance.onstart = () => setIsSpeaking(true);
       utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = () => setIsSpeaking(false);
+      utterance.onerror = (e) => {
+        console.error('TTS error:', e.error);
+        setIsSpeaking(false);
+      };
 
       speechSynthesis.speak(utterance);
     },

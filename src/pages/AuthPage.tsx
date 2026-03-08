@@ -117,15 +117,6 @@ const AuthPage = () => {
     }
   }, [email, password, isRateLimited, getRemainingTime, recordAttempt, resetRateLimit]);
 
-  console.log('🔐 AuthPage render:', { 
-    hasUser: !!user, 
-    userEmail: user?.email,
-    loading, 
-    isSubmitting,
-    path: window.location.pathname,
-    href: window.location.href
-  });
-
   // NOW do conditional returns AFTER all hooks
   if (loading) {
     return (

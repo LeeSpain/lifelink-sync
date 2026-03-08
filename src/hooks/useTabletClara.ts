@@ -92,31 +92,20 @@ export function useTabletClara({
     if (tts.isSpeaking && voice.isListening) {
       voice.stopListening();
       wasPausedForSpeech.current = true;
-    } else if (!tts.isSpeaking && wasPausedForSpeech.current && voiceEnabled) {
+    } else if (!tts.isSpeaking && wasPausedForSpeech.current && voiceEnabled && !voice.isListening) {
       // Resume after a short delay to avoid picking up tail-end audio
       const timer = setTimeout(() => {
-        voice.startListening();
-        wasPausedForSpeech.current = false;
+        if (wasPausedForSpeech.current) {
+          voice.startListening();
+          wasPausedForSpeech.current = false;
+        }
       }, 500);
       return () => clearTimeout(timer);
     }
   }, [tts.isSpeaking, voice.isListening, voiceEnabled]);
 
   // Speak an incoming alert (called from TabletDashboard subscription callback)
-  const speakAlertRef = useRef(
-    (type: 'reminder' | 'message', fromName: string, message: string) => {
-      // Store for "read that" command
-      lastAlertRef.current = { type, fromName, message };
-
-      // Don't speak during quiet hours
-      if (isQuietHours(quietHoursStart, quietHoursEnd)) return;
-
-      const prefix = type === 'reminder' ? 'Reminder' : 'Message';
-      ttsRef.current.speak(`${prefix} from ${fromName}: ${message}`);
-    }
-  );
-
-  // Keep the ref function up to date with current quiet hours
+  const speakAlertRef = useRef<(type: 'reminder' | 'message', fromName: string, message: string) => void>(null!);
   speakAlertRef.current = (type, fromName, message) => {
     lastAlertRef.current = { type, fromName, message };
     if (isQuietHours(quietHoursStart, quietHoursEnd)) return;

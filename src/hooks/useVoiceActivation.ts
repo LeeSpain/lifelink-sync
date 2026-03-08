@@ -33,6 +33,7 @@ export const useVoiceActivation = (config: VoiceActivationInput) => {
   const [transcript, setTranscript] = useState('');
   const [lastMatchedCommand, setLastMatchedCommand] = useState<string | null>(null);
   const recognition = useRef<SpeechRecognition | null>(null);
+  const restartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { isEnabled, sensitivity = 0.8 } = config;
 
@@ -120,9 +121,15 @@ export const useVoiceActivation = (config: VoiceActivationInput) => {
 
       recognition.current.onend = () => {
         setIsListening(false);
+        // Clear any pending restart timer before scheduling a new one
+        if (restartTimerRef.current) {
+          clearTimeout(restartTimerRef.current);
+          restartTimerRef.current = null;
+        }
         // Auto-restart if still enabled
         if (isEnabledRef.current && hasPermissionRef.current) {
-          setTimeout(() => {
+          restartTimerRef.current = setTimeout(() => {
+            restartTimerRef.current = null;
             startListening();
           }, 1000);
         }
@@ -136,6 +143,10 @@ export const useVoiceActivation = (config: VoiceActivationInput) => {
   }, []); // Stable — uses refs for all dynamic values
 
   const stopListening = useCallback(() => {
+    if (restartTimerRef.current) {
+      clearTimeout(restartTimerRef.current);
+      restartTimerRef.current = null;
+    }
     if (recognition.current) {
       recognition.current.stop();
       recognition.current = null;
