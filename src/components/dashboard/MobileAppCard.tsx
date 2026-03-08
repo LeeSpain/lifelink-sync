@@ -230,6 +230,20 @@ const MobileAppCard = () => {
               ))}
             </div>
           </div>
+          {/* Tablet Dashboard Section */}
+          <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
+            <h4 className="font-medium text-purple-900 mb-1">
+              {t("mobileApp.tabletTitle", "Tablet Home Dashboard")}
+            </h4>
+            <p className="text-sm text-purple-700 mb-3">
+              {t("mobileApp.tabletDesc", "Set up a tablet as an always-on display — perfect for elderly care. Shows time, reminders from family, SOS button, and more.")}
+            </p>
+            <Button asChild variant="outline" size="sm" className="border-purple-300 text-purple-700 hover:bg-purple-100">
+              <a href="/tablet-dashboard">
+                {t("mobileApp.tabletOpen", "Open Tablet Dashboard")}
+              </a>
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>
