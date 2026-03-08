@@ -72,6 +72,8 @@
     "addOnsTitle": "Customise with Add-Ons",
     "addOnsSubtitle": "Enhance your protection with modular add-ons. Add or remove anytime.",
     "callCentreNote": "Professional call centre support (Spain only) is available as a separate add-on via our regional partner. Not included in any plan by default.",
+    "pendantNote": "Need hands-free protection?",
+    "pendantLink": "Add the Bluetooth Pendant for €59.99",
     "basePlan": {
       "badge": "Base Plan",
       "name": "Individual",
@@ -2651,5 +2653,17 @@
     "unitedKingdom": "United Kingdom",
     "unitedStates": "United States",
     "australia": "Australia"
+  },
+  "pendantPromo": {
+    "badge": "Optional Add-On",
+    "title": "LifeLink Sync Bluetooth Pendant",
+    "subtitle": "Hands-free emergency protection. One press calls all your emergency contacts instantly — no phone needed.",
+    "feature1": "Bluetooth 5.0",
+    "feature2": "IP67 Waterproof",
+    "feature3": "7+ Day Battery",
+    "price": "€59.99",
+    "shipping": "+ €4.99 shipping",
+    "cta": "View Pendant Details",
+    "oneTime": "One-time purchase · No monthly fees"
   }
 }

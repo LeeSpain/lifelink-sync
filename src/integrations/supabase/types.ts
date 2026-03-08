@@ -173,6 +173,138 @@ export type Database = {
         }
         Relationships: []
       }
+      clara_conversation_memory: {
+        Row: {
+          id: string
+          user_id: string
+          session_id: string | null
+          memory_type: string
+          content: string
+          embedding: string | null
+          importance_score: number | null
+          metadata: Json | null
+          expires_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          session_id?: string | null
+          memory_type: string
+          content: string
+          embedding?: string | null
+          importance_score?: number | null
+          metadata?: Json | null
+          expires_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          session_id?: string | null
+          memory_type?: string
+          content?: string
+          embedding?: string | null
+          importance_score?: number | null
+          metadata?: Json | null
+          expires_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      clara_learning_queue: {
+        Row: {
+          id: string
+          session_id: string
+          user_message: string
+          ai_response: string
+          extracted_question: string | null
+          extracted_answer: string | null
+          suggested_category: string | null
+          suggested_tags: string[] | null
+          confidence: number | null
+          status: string
+          reviewed_by: string | null
+          reviewed_at: string | null
+          promoted_training_id: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          session_id: string
+          user_message: string
+          ai_response: string
+          extracted_question?: string | null
+          extracted_answer?: string | null
+          suggested_category?: string | null
+          suggested_tags?: string[] | null
+          confidence?: number | null
+          status?: string
+          reviewed_by?: string | null
+          reviewed_at?: string | null
+          promoted_training_id?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          session_id?: string
+          user_message?: string
+          ai_response?: string
+          extracted_question?: string | null
+          extracted_answer?: string | null
+          suggested_category?: string | null
+          suggested_tags?: string[] | null
+          confidence?: number | null
+          status?: string
+          reviewed_by?: string | null
+          reviewed_at?: string | null
+          promoted_training_id?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      clara_embedding_jobs: {
+        Row: {
+          id: string
+          job_type: string
+          total_items: number | null
+          processed_items: number | null
+          failed_items: number | null
+          status: string | null
+          error_message: string | null
+          started_at: string | null
+          completed_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          job_type: string
+          total_items?: number | null
+          processed_items?: number | null
+          failed_items?: number | null
+          status?: string | null
+          error_message?: string | null
+          started_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          job_type?: string
+          total_items?: number | null
+          processed_items?: number | null
+          failed_items?: number | null
+          status?: string | null
+          error_message?: string | null
+          started_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       ai_model_settings: {
         Row: {
           created_at: string
@@ -5030,6 +5162,8 @@ export type Database = {
           confidence_score: number | null
           created_at: string
           created_by: string | null
+          embedding: string | null
+          embedding_updated_at: string | null
           id: string
           last_used_at: string | null
           question: string
@@ -5045,6 +5179,8 @@ export type Database = {
           confidence_score?: number | null
           created_at?: string
           created_by?: string | null
+          embedding?: string | null
+          embedding_updated_at?: string | null
           id?: string
           last_used_at?: string | null
           question: string
@@ -5060,6 +5196,8 @@ export type Database = {
           confidence_score?: number | null
           created_at?: string
           created_by?: string | null
+          embedding?: string | null
+          embedding_updated_at?: string | null
           id?: string
           last_used_at?: string | null
           question?: string

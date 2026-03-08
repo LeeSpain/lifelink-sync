@@ -24,6 +24,8 @@ interface TrainingData {
   created_by?: string;
   audience?: string;
   tags?: string[];
+  embedding?: string | null;
+  embedding_updated_at?: string | null;
 }
 
 interface TrainingManagerProps {
@@ -300,6 +302,7 @@ export const TrainingManager: React.FC<TrainingManagerProps> = ({ title = "Clara
             <TableHeader>
               <TableRow>
                 <TableHead>Status</TableHead>
+                <TableHead>Embed</TableHead>
                 <TableHead>Question</TableHead>
                 <TableHead>Answer</TableHead>
                 <TableHead>Category</TableHead>
@@ -312,13 +315,13 @@ export const TrainingManager: React.FC<TrainingManagerProps> = ({ title = "Clara
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={8}>
+                  <TableCell colSpan={9}>
                     <div className="text-center text-muted-foreground py-6">Loading training data...</div>
                   </TableCell>
                 </TableRow>
               ) : filteredData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8}>
+                  <TableCell colSpan={9}>
                     <div className="text-center text-muted-foreground py-6">
                       {trainingData.length === 0 ? "No training data yet. Add your first example above." : "No data matches the current filter."}
                     </div>
@@ -334,6 +337,9 @@ export const TrainingManager: React.FC<TrainingManagerProps> = ({ title = "Clara
                           <option value="active">Active</option>
                           <option value="disabled">Disabled</option>
                         </select>
+                      </TableCell>
+                      <TableCell>
+                        <div className={`h-3 w-3 rounded-full ${item.embedding ? 'bg-green-500' : 'bg-red-400'}`} title={item.embedding ? `Embedded ${item.embedding_updated_at ? new Date(item.embedding_updated_at).toLocaleDateString() : ''}` : 'No embedding'} />
                       </TableCell>
                       <TableCell>
                         <Input value={editQuestion} onChange={(e) => setEditQuestion(e.target.value)} className="min-w-[200px]" />
@@ -399,6 +405,9 @@ export const TrainingManager: React.FC<TrainingManagerProps> = ({ title = "Clara
                             {item.status}
                           </Badge>
                         </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className={`h-3 w-3 rounded-full ${item.embedding ? 'bg-green-500' : 'bg-red-400'}`} title={item.embedding ? `Embedded ${item.embedding_updated_at ? new Date(item.embedding_updated_at).toLocaleDateString() : ''}` : 'No embedding'} />
                       </TableCell>
                       <TableCell>
                         <div className="max-w-xs">

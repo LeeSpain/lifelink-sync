@@ -65,7 +65,22 @@
       "Bash(for id in a02ab40a7da324eb3 a4c2de609b76026d3 aeddd980ee01beceb a4887d0bda3f7cd7a)",
       "Bash(do echo \"=== $id ===\")",
       "Read(//private/tmp/claude-501/-Users-leewakeman-lifelink-sync-lifelink-sync/tasks/**)",
-      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d.get\\(''type'',''?''\\), d.get\\(''timestamp'',''?''\\)[:19]\\)\")"
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d.get\\(''type'',''?''\\), d.get\\(''timestamp'',''?''\\)[:19]\\)\")",
+      "Bash(grep -E \"\\\\.\\(sql|ts|tsx\\)$\")",
+      "Bash(git add src/pages/AuthPage.tsx)",
+      "Bash(git push)",
+      "Bash(grep -l \"CREATE TABLE.*products\\\\|CREATE TABLE.*subscription\" /Users/leewakeman/lifelink-sync/lifelink-sync/supabase/migrations/*.sql)",
+      "Bash(grep -l \"regional_services\" /Users/leewakeman/lifelink-sync/lifelink-sync/supabase/migrations/*.sql)",
+      "Bash(grep -B5 -A20 \"CREATE TABLE.*regional_services\" /Users/leewakeman/lifelink-sync/lifelink-sync/supabase/migrations/*.sql)",
+      "Bash(grep -l \"CREATE TABLE.*\\\\\\(orders\\\\|customer_subscriptions\\\\|customer_products\\\\|subscriptions\\\\\\)\" /Users/leewakeman/lifelink-sync/lifelink-sync/supabase/migrations/*.sql)",
+      "Bash(grep -r \"customer_subscriptions\\\\|customer_products\" /Users/leewakeman/lifelink-sync/lifelink-sync/supabase/migrations/*.sql)",
+      "Bash(grep \"CREATE TABLE\" /Users/leewakeman/lifelink-sync/lifelink-sync/supabase/migrations/*.sql)",
+      "Bash(grep -B2 -A30 \"CREATE TABLE IF NOT EXISTS public.subscription_history\" /Users/leewakeman/lifelink-sync/lifelink-sync/supabase/migrations/*.sql)",
+      "Bash(git add src/components/GlobalClaraChat.tsx src/components/admin/OptimizedComponentLoader.tsx src/components/admin/pages/AIAgentPage.tsx src/integrations/supabase/types.ts supabase/functions/ai-chat/index.ts src/hooks/useClaraVisibility.ts supabase/migrations/20260308100001_clara_admin_controls.sql)",
+      "Bash(grep -l \"ai_model_settings\\\\|training_data\" /Users/leewakeman/lifelink-sync/lifelink-sync/supabase/migrations/*.sql)",
+      "Bash(ls -la /Users/leewakeman/lifelink-sync/lifelink-sync/public/manifest.* /Users/leewakeman/lifelink-sync/lifelink-sync/dist/manifest.*)",
+      "Bash(grep -E \"\\\\.\\(tsx|ts\\)$\")",
+      "Bash(git add src/components/admin/TrainingManager.tsx src/components/admin/pages/AIAgentPage.tsx src/integrations/supabase/types.ts supabase/functions/ai-chat/index.ts supabase/functions/generate-embeddings/index.ts supabase/migrations/20260308100002_clara_rag_memory.sql src/components/Pricing.tsx src/components/PendantPromo.tsx src/components/dashboard/MobileAppCard.tsx src/hooks/usePWAFeatures.ts src/locales/en/common.json src/locales/es/common.json src/locales/nl/common.json src/pages/Index.tsx .claude/settings.json)"
     ],
     "additionalDirectories": [
       "/Users/leewakeman/lifelink-sync/lifelink-sync/.claude",

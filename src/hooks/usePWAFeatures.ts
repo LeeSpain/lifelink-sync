@@ -32,8 +32,8 @@ export function usePWAFeatures() {
       setIsInstallable(false);
       setDeferredPrompt(null);
       toast({
-        title: "App Installed! 📱",
-        description: "Family Tracker has been added to your home screen"
+        title: "App Installed!",
+        description: "LifeLink Sync has been added to your device"
       });
     };
 
@@ -56,7 +56,7 @@ export function usePWAFeatures() {
       if (outcome === 'accepted') {
         toast({
           title: "Installing App...",
-          description: "Family Tracker is being added to your device"
+          description: "LifeLink Sync is being added to your device"
         });
       }
       

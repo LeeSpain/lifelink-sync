@@ -8,6 +8,7 @@ import CallCentrePartner from "@/components/CallCentrePartner";
 import FamilySection from "@/components/FamilySection";
 import Pricing from "@/components/Pricing";
 import FinalCTA from "@/components/FinalCTA";
+import PendantPromo from "@/components/PendantPromo";
 import Footer from "@/components/Footer";
 import { useScrollToTop } from '@/hooks/useScrollToTop';
 import { PageSEO } from '@/components/PageSEO';
@@ -65,7 +66,10 @@ const Index = () => {
       {/* 8. CTA Banner */}
       <FinalCTA />
 
-      {/* 9. Footer */}
+      {/* 9. Pendant Promo */}
+      <PendantPromo />
+
+      {/* 10. Footer */}
       <Footer />
     </div>
   );

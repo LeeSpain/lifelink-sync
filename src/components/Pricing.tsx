@@ -165,6 +165,15 @@ const Pricing: React.FC = () => {
         <p className="text-center text-sm text-gray-500 max-w-2xl mx-auto">
           {t('pricing.callCentreNote')}
         </p>
+
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-500">
+            {t('pricing.pendantNote')}{' '}
+            <Link to="/devices/lifelink-sync-pendant" className="text-primary underline hover:text-primary/80 font-medium">
+              {t('pricing.pendantLink')}
+            </Link>
+          </p>
+        </div>
       </div>
     </section>
   );

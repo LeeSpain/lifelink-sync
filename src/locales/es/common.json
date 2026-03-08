@@ -64,6 +64,8 @@
     "addOnsTitle": "Personaliza con complementos",
     "addOnsSubtitle": "Mejora tu protección con complementos modulares. Añade o elimina en cualquier momento.",
     "callCentreNote": "El soporte profesional de centro de llamadas (solo España) está disponible como complemento separado a través de nuestro socio regional. No incluido en ningún plan por defecto.",
+    "pendantNote": "¿Necesitas protección manos libres?",
+    "pendantLink": "Añade el Colgante Bluetooth por €59.99",
     "basePlan": {
       "badge": "Plan base",
       "name": "Individual",
@@ -2498,5 +2500,17 @@
     "unitedKingdom": "Reino Unido",
     "unitedStates": "Estados Unidos",
     "australia": "Australia"
+  },
+  "pendantPromo": {
+    "badge": "Complemento Opcional",
+    "title": "Colgante Bluetooth LifeLink Sync",
+    "subtitle": "Protección de emergencia manos libres. Un solo toque llama a todos tus contactos de emergencia al instante — sin necesidad de teléfono.",
+    "feature1": "Bluetooth 5.0",
+    "feature2": "IP67 Resistente al Agua",
+    "feature3": "7+ Días de Batería",
+    "price": "€59.99",
+    "shipping": "+ €4.99 envío",
+    "cta": "Ver Detalles del Colgante",
+    "oneTime": "Compra única · Sin cuotas mensuales"
   }
 }

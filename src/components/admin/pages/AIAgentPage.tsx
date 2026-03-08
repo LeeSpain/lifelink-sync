@@ -35,7 +35,12 @@ import {
   Zap,
   AlertTriangle,
   RefreshCw,
-  TestTube
+  TestTube,
+  Database,
+  Search,
+  GraduationCap,
+  MemoryStick,
+  Loader2
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -101,6 +106,40 @@ interface ClaraMetrics {
   avgMessagesPerSession: number;
 }
 
+interface EmbeddingStats {
+  totalTrainingItems: number;
+  withEmbeddings: number;
+  withoutEmbeddings: number;
+}
+
+interface MemoryStats {
+  total: number;
+  byType: Record<string, number>;
+}
+
+interface LearningQueueItem {
+  id: string;
+  session_id: string;
+  user_message: string;
+  ai_response: string;
+  extracted_question: string | null;
+  extracted_answer: string | null;
+  suggested_category: string;
+  confidence: number;
+  status: string;
+  created_at: string;
+}
+
+interface EmbeddingJob {
+  id: string;
+  job_type: string;
+  total_items: number;
+  processed_items: number;
+  failed_items: number;
+  status: string;
+  completed_at: string | null;
+}
+
 // ============================================================
 // Component
 // ============================================================
@@ -156,6 +195,21 @@ const AIAgentPage: React.FC = () => {
   const [dailyStats, setDailyStats] = useState<Array<{ date: string; count: number }>>([]);
   const [topTrainingItems, setTopTrainingItems] = useState<Array<{ question: string; usage_count: number }>>([]);
 
+  // RAG & Memory state
+  const [embeddingStats, setEmbeddingStats] = useState<EmbeddingStats>({ totalTrainingItems: 0, withEmbeddings: 0, withoutEmbeddings: 0 });
+  const [memoryStats, setMemoryStats] = useState<MemoryStats>({ total: 0, byType: {} });
+  const [learningQueue, setLearningQueue] = useState<LearningQueueItem[]>([]);
+  const [learningFilter, setLearningFilter] = useState('pending');
+  const [latestJob, setLatestJob] = useState<EmbeddingJob | null>(null);
+  const [generatingEmbeddings, setGeneratingEmbeddings] = useState(false);
+  const [ragSettings, setRagSettings] = useState({
+    semanticMatchThreshold: 0.7,
+    semanticMatchCount: 8,
+    learningAutoApproveThreshold: 0.85,
+    memoryRetentionDays: 90,
+    maxMemoryPerUser: 50,
+  });
+
   // ============================================================
   // Data Loading
   // ============================================================
@@ -173,6 +227,7 @@ const AIAgentPage: React.FC = () => {
       loadRestrictedPatterns(),
       loadCurrencies(),
       loadPerformanceData(),
+      loadRAGData(),
     ]);
     setLoading(false);
   };
@@ -333,6 +388,136 @@ const AIAgentPage: React.FC = () => {
     } catch (error) {
       console.error('Error loading performance data:', error);
     }
+  };
+
+  const loadRAGData = async () => {
+    try {
+      // Embedding stats
+      const { count: totalItems } = await supabase.from('training_data').select('id', { count: 'exact', head: true }).eq('status', 'active');
+      const { count: withEmb } = await supabase.from('training_data').select('id', { count: 'exact', head: true }).eq('status', 'active').not('embedding', 'is', null);
+      setEmbeddingStats({
+        totalTrainingItems: totalItems || 0,
+        withEmbeddings: withEmb || 0,
+        withoutEmbeddings: (totalItems || 0) - (withEmb || 0),
+      });
+
+      // Memory stats
+      const { data: memData } = await supabase.from('clara_conversation_memory').select('memory_type');
+      if (memData) {
+        const byType: Record<string, number> = {};
+        memData.forEach((m: any) => { byType[m.memory_type] = (byType[m.memory_type] || 0) + 1; });
+        setMemoryStats({ total: memData.length, byType });
+      }
+
+      // Learning queue
+      const { data: queueData } = await supabase.from('clara_learning_queue').select('*').order('created_at', { ascending: false }).limit(100);
+      if (queueData) setLearningQueue(queueData);
+
+      // Latest embedding job
+      const { data: jobData } = await supabase.from('clara_embedding_jobs').select('*').order('created_at', { ascending: false }).limit(1);
+      if (jobData && jobData.length > 0) setLatestJob(jobData[0]);
+
+      // RAG settings
+      const ragKeys = ['semantic_match_threshold', 'semantic_match_count', 'learning_auto_approve_threshold', 'memory_retention_days', 'max_memory_per_user'];
+      const { data: ragSettingsData } = await supabase.from('ai_model_settings').select('setting_key, setting_value').in('setting_key', ragKeys);
+      if (ragSettingsData) {
+        const s: any = {};
+        ragSettingsData.forEach((r: any) => { s[r.setting_key] = r.setting_value; });
+        setRagSettings({
+          semanticMatchThreshold: Number(s.semantic_match_threshold) || 0.7,
+          semanticMatchCount: Number(s.semantic_match_count) || 8,
+          learningAutoApproveThreshold: Number(s.learning_auto_approve_threshold) || 0.85,
+          memoryRetentionDays: Number(s.memory_retention_days) || 90,
+          maxMemoryPerUser: Number(s.max_memory_per_user) || 50,
+        });
+      }
+    } catch (error) {
+      console.error('Error loading RAG data:', error);
+    }
+  };
+
+  // ============================================================
+  // RAG Handlers
+  // ============================================================
+
+  const generateAllEmbeddings = async () => {
+    try {
+      setGeneratingEmbeddings(true);
+      const { data, error } = await supabase.functions.invoke('generate-embeddings', {
+        body: { mode: 'batch', table: 'training_data' },
+      });
+      if (error) throw error;
+      toast({ title: 'Embedding Generation Started', description: `Processing ${data?.total || 0} items...` });
+      // Reload after a delay
+      setTimeout(() => { loadRAGData(); setGeneratingEmbeddings(false); }, 3000);
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to start embedding generation.', variant: 'destructive' });
+      setGeneratingEmbeddings(false);
+    }
+  };
+
+  const purgeExpiredMemories = async () => {
+    const { error } = await supabase.from('clara_conversation_memory').delete().lt('expires_at', new Date().toISOString()).not('expires_at', 'is', null);
+    if (!error) {
+      toast({ title: 'Purged', description: 'Expired memories removed.' });
+      loadRAGData();
+    }
+  };
+
+  const clearAllMemory = async () => {
+    const { error } = await supabase.from('clara_conversation_memory').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    if (!error) {
+      toast({ title: 'Cleared', description: 'All conversation memory deleted.' });
+      loadRAGData();
+    }
+  };
+
+  const approveLearningItem = async (item: LearningQueueItem) => {
+    // Promote to training_data
+    const { data: newTraining, error: insertError } = await supabase
+      .from('training_data')
+      .insert({
+        question: item.extracted_question || item.user_message,
+        answer: item.extracted_answer || item.ai_response,
+        category: item.suggested_category,
+        status: 'pending',
+        audience: 'customer',
+        confidence_score: item.confidence,
+      })
+      .select('id')
+      .single();
+
+    if (!insertError && newTraining) {
+      await supabase.from('clara_learning_queue').update({
+        status: 'promoted',
+        promoted_training_id: newTraining.id,
+        reviewed_at: new Date().toISOString(),
+      }).eq('id', item.id);
+      toast({ title: 'Approved', description: 'Item promoted to training data (pending activation).' });
+      loadRAGData();
+    }
+  };
+
+  const rejectLearningItem = async (id: string) => {
+    await supabase.from('clara_learning_queue').update({
+      status: 'rejected',
+      reviewed_at: new Date().toISOString(),
+    }).eq('id', id);
+    loadRAGData();
+  };
+
+  const saveRAGSettings = async () => {
+    const settings = [
+      { setting_key: 'semantic_match_threshold', setting_value: String(ragSettings.semanticMatchThreshold) },
+      { setting_key: 'semantic_match_count', setting_value: String(ragSettings.semanticMatchCount) },
+      { setting_key: 'learning_auto_approve_threshold', setting_value: String(ragSettings.learningAutoApproveThreshold) },
+      { setting_key: 'memory_retention_days', setting_value: String(ragSettings.memoryRetentionDays) },
+      { setting_key: 'max_memory_per_user', setting_value: String(ragSettings.maxMemoryPerUser) },
+    ];
+    for (const s of settings) {
+      await supabase.from('ai_model_settings').upsert(s, { onConflict: 'setting_key' });
+    }
+    toast({ title: 'Saved', description: 'RAG settings updated.' });
   };
 
   // ============================================================
@@ -621,7 +806,7 @@ const AIAgentPage: React.FC = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="settings">Model</TabsTrigger>
           <TabsTrigger value="training">Training</TabsTrigger>
@@ -629,6 +814,7 @@ const AIAgentPage: React.FC = () => {
           <TabsTrigger value="visibility">Visibility</TabsTrigger>
           <TabsTrigger value="currency">Currency</TabsTrigger>
           <TabsTrigger value="performance">Performance</TabsTrigger>
+          <TabsTrigger value="rag">RAG & Memory</TabsTrigger>
         </TabsList>
 
         {/* ============================================================ */}
@@ -1329,6 +1515,252 @@ const AIAgentPage: React.FC = () => {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        {/* ============================================================ */}
+        {/* TAB 8: RAG & Memory */}
+        {/* ============================================================ */}
+        <TabsContent value="rag" className="space-y-4">
+          {/* Embedding Status */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Search className="h-5 w-5" />
+                    Embedding Status
+                  </CardTitle>
+                  <CardDescription>Vector embeddings enable semantic search. Training items with embeddings are retrieved by relevance instead of dumping all items.</CardDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={generateAllEmbeddings}
+                  disabled={generatingEmbeddings}
+                >
+                  {generatingEmbeddings ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Database className="h-4 w-4 mr-1" />}
+                  {generatingEmbeddings ? 'Generating...' : 'Generate All Embeddings'}
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="text-center p-4 border rounded-lg">
+                  <p className="text-2xl font-bold">{embeddingStats.totalTrainingItems}</p>
+                  <p className="text-sm text-muted-foreground">Total Training Items</p>
+                </div>
+                <div className="text-center p-4 border rounded-lg bg-green-50">
+                  <p className="text-2xl font-bold text-green-700">{embeddingStats.withEmbeddings}</p>
+                  <p className="text-sm text-green-600">With Embeddings</p>
+                </div>
+                <div className="text-center p-4 border rounded-lg bg-orange-50">
+                  <p className="text-2xl font-bold text-orange-700">{embeddingStats.withoutEmbeddings}</p>
+                  <p className="text-sm text-orange-600">Without Embeddings</p>
+                </div>
+              </div>
+              {embeddingStats.totalTrainingItems > 0 && (
+                <div className="mt-4">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                    <span>Embedding Coverage</span>
+                    <span>{Math.round((embeddingStats.withEmbeddings / embeddingStats.totalTrainingItems) * 100)}%</span>
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-2">
+                    <div className="bg-green-500 h-2 rounded-full transition-all" style={{ width: `${(embeddingStats.withEmbeddings / embeddingStats.totalTrainingItems) * 100}%` }} />
+                  </div>
+                </div>
+              )}
+              {latestJob && (
+                <div className="mt-4 p-3 bg-muted/50 rounded-lg text-sm">
+                  <span className="font-medium">Last Job:</span>{' '}
+                  <Badge variant={latestJob.status === 'completed' ? 'default' : latestJob.status === 'running' ? 'secondary' : 'destructive'}>
+                    {latestJob.status}
+                  </Badge>
+                  {' '}{latestJob.processed_items}/{latestJob.total_items} processed
+                  {latestJob.failed_items > 0 && <span className="text-red-600"> ({latestJob.failed_items} failed)</span>}
+                  {latestJob.completed_at && <span className="text-muted-foreground"> - {new Date(latestJob.completed_at).toLocaleString()}</span>}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Memory Stats */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <MemoryStick className="h-5 w-5" />
+                    Conversation Memory
+                  </CardTitle>
+                  <CardDescription>Long-term memory stores session summaries and user facts across conversations.</CardDescription>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={purgeExpiredMemories}>
+                    Purge Expired
+                  </Button>
+                  <Button variant="destructive" size="sm" onClick={clearAllMemory}>
+                    Clear All
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div className="text-center p-3 border rounded-lg">
+                  <p className="text-xl font-bold">{memoryStats.total}</p>
+                  <p className="text-xs text-muted-foreground">Total Items</p>
+                </div>
+                {Object.entries(memoryStats.byType).map(([type, count]) => (
+                  <div key={type} className="text-center p-3 border rounded-lg">
+                    <p className="text-xl font-bold">{count}</p>
+                    <p className="text-xs text-muted-foreground">{type.replace('_', ' ')}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Learning Queue */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <GraduationCap className="h-5 w-5" />
+                    Learning Queue
+                  </CardTitle>
+                  <CardDescription>Auto-extracted Q&A pairs from conversations. Review and promote to training data.</CardDescription>
+                </div>
+                <Select value={learningFilter} onValueChange={setLearningFilter}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="promoted">Promoted</SelectItem>
+                    <SelectItem value="rejected">Rejected</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="max-h-[400px]">
+                <div className="space-y-2">
+                  {learningQueue
+                    .filter(item => learningFilter === 'all' || item.status === learningFilter)
+                    .map(item => (
+                      <div key={item.id} className="border rounded-lg p-3 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Badge variant={
+                              item.status === 'pending' ? 'secondary' :
+                              item.status === 'promoted' ? 'default' : 'destructive'
+                            }>{item.status}</Badge>
+                            <Badge variant="outline">{(item.confidence * 100).toFixed(0)}% confidence</Badge>
+                            <span className="text-xs text-muted-foreground">{item.suggested_category}</span>
+                          </div>
+                          {item.status === 'pending' && (
+                            <div className="flex gap-1">
+                              <Button variant="outline" size="sm" onClick={() => approveLearningItem(item)}>
+                                <CheckCircle className="h-3 w-3 mr-1" />
+                                Approve
+                              </Button>
+                              <Button variant="ghost" size="sm" onClick={() => rejectLearningItem(item.id)}>
+                                <Trash2 className="h-3 w-3 text-destructive" />
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div>
+                            <span className="text-xs font-medium text-muted-foreground">User:</span>
+                            <p className="truncate">{item.user_message}</p>
+                          </div>
+                          <div>
+                            <span className="text-xs font-medium text-muted-foreground">Clara:</span>
+                            <p className="truncate">{item.ai_response}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  {learningQueue.filter(item => learningFilter === 'all' || item.status === learningFilter).length === 0 && (
+                    <p className="text-center py-8 text-muted-foreground">
+                      No items in the learning queue. Enable Learning Mode in the Model tab to start auto-extracting.
+                    </p>
+                  )}
+                </div>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+
+          {/* RAG Settings */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                RAG Configuration
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <Label>Semantic Match Threshold: {ragSettings.semanticMatchThreshold}</Label>
+                  <Slider
+                    value={[ragSettings.semanticMatchThreshold]}
+                    onValueChange={([v]) => setRagSettings(s => ({ ...s, semanticMatchThreshold: v }))}
+                    min={0.5} max={0.95} step={0.05}
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-muted-foreground">Min cosine similarity for training data retrieval (higher = stricter)</p>
+                </div>
+                <div>
+                  <Label>Semantic Match Count</Label>
+                  <Input
+                    type="number"
+                    value={ragSettings.semanticMatchCount}
+                    onChange={(e) => setRagSettings(s => ({ ...s, semanticMatchCount: parseInt(e.target.value) || 8 }))}
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-muted-foreground">Max training items retrieved per query</p>
+                </div>
+                <div>
+                  <Label>Auto-Approve Threshold: {ragSettings.learningAutoApproveThreshold}</Label>
+                  <Slider
+                    value={[ragSettings.learningAutoApproveThreshold]}
+                    onValueChange={([v]) => setRagSettings(s => ({ ...s, learningAutoApproveThreshold: v }))}
+                    min={0.5} max={1.0} step={0.05}
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-muted-foreground">Learning items above this confidence are auto-promoted to training data</p>
+                </div>
+                <div>
+                  <Label>Memory Retention (days)</Label>
+                  <Input
+                    type="number"
+                    value={ragSettings.memoryRetentionDays}
+                    onChange={(e) => setRagSettings(s => ({ ...s, memoryRetentionDays: parseInt(e.target.value) || 90 }))}
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-muted-foreground">Session summaries expire after this many days</p>
+                </div>
+                <div>
+                  <Label>Max Memory Per User</Label>
+                  <Input
+                    type="number"
+                    value={ragSettings.maxMemoryPerUser}
+                    onChange={(e) => setRagSettings(s => ({ ...s, maxMemoryPerUser: parseInt(e.target.value) || 50 }))}
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-muted-foreground">Oldest low-importance items are pruned when exceeded</p>
+                </div>
+              </div>
+              <Button onClick={saveRAGSettings}>
+                <Save className="h-4 w-4 mr-2" />
+                Save RAG Settings
+              </Button>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>

@@ -64,6 +64,8 @@
     "addOnsTitle": "Pas aan met uitbreidingen",
     "addOnsSubtitle": "Verbeter je bescherming met modulaire uitbreidingen. Op elk moment toevoegen of verwijderen.",
     "callCentreNote": "Professioneel callcenter (alleen Spanje) is beschikbaar als aparte uitbreiding via onze regionale partner. Niet standaard inbegrepen in enig plan.",
+    "pendantNote": "Handsfree bescherming nodig?",
+    "pendantLink": "Voeg de Bluetooth Hanger toe voor €59.99",
     "basePlan": {
       "badge": "Basisplan",
       "name": "Individueel",
@@ -2298,5 +2300,17 @@
     "unitedKingdom": "Verenigd Koninkrijk",
     "unitedStates": "Verenigde Staten",
     "australia": "Australië"
+  },
+  "pendantPromo": {
+    "badge": "Optionele Add-On",
+    "title": "LifeLink Sync Bluetooth Hanger",
+    "subtitle": "Handsfree noodbescherming. Eén druk belt al je noodcontacten direct — geen telefoon nodig.",
+    "feature1": "Bluetooth 5.0",
+    "feature2": "IP67 Waterdicht",
+    "feature3": "7+ Dagen Batterij",
+    "price": "€59.99",
+    "shipping": "+ €4.99 verzending",
+    "cta": "Bekijk Hanger Details",
+    "oneTime": "Eenmalige aankoop · Geen maandelijkse kosten"
   }
 }
