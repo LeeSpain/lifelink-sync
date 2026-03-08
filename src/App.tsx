@@ -10,6 +10,7 @@ import OptimizedSuspense from '@/components/OptimizedSuspense';
 import EnhancedErrorBoundary from '@/components/EnhancedErrorBoundary';
 import { AnalyticsProvider } from '@/components/analytics/AnalyticsProvider';
 import { usePageTracking } from '@/hooks/usePageTracking';
+import DevModeBanner from '@/components/DevModeBanner';
 
 // Import all pages
 import Index from "./pages/Index";
@@ -86,10 +87,12 @@ import CookieConsent from "./components/CookieConsent";
 // Component to handle page tracking inside Router context
 function AppWithTracking() {
   usePageTracking();
-  
+  const devBypassEnabled = import.meta.env.DEV || localStorage.getItem('dev_bypass') === '1';
+
   return (
     <>
       <ScrollToTop />
+      {devBypassEnabled && <DevModeBanner />}
       <main id="main-content" className="min-h-screen bg-background text-foreground">
         <Routes>
           {/* Public Landing Page */}
