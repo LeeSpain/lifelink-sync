@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -15,17 +16,15 @@ interface InviteFamilyStepProps {
   onChange: (invites: FamilyInvite[]) => void;
 }
 
-const RELATIONSHIPS = [
-  { value: 'spouse', label: 'Spouse / Partner' },
-  { value: 'parent', label: 'Parent' },
-  { value: 'child', label: 'Son / Daughter' },
-  { value: 'sibling', label: 'Sibling' },
-  { value: 'grandparent', label: 'Grandparent' },
-  { value: 'caregiver', label: 'Caregiver' },
-  { value: 'other', label: 'Other' },
-];
+const RELATIONSHIP_VALUES = ['spouse', 'parent', 'child', 'sibling', 'grandparent', 'caregiver', 'other'];
 
 const InviteFamilyStep: React.FC<InviteFamilyStepProps> = ({ invites, onChange }) => {
+  const { t } = useTranslation();
+
+  const RELATIONSHIPS = RELATIONSHIP_VALUES.map(value => ({
+    value,
+    label: t(`registration.contacts.relationships.${value}`),
+  }));
 
   const updateInvite = (index: number, field: keyof FamilyInvite, value: string) => {
     const updated = [...invites];
@@ -49,16 +48,16 @@ const InviteFamilyStep: React.FC<InviteFamilyStepProps> = ({ invites, onChange }
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-primary/10">
           <Users className="h-7 w-7 text-primary" />
         </div>
-        <h2 className="text-2xl font-poppins font-bold text-foreground">Invite Family Members</h2>
+        <h2 className="text-2xl font-poppins font-bold text-foreground">{t('registration.family.title')}</h2>
         <p className="text-sm text-muted-foreground">
-          Invite loved ones to join your safety circle. They'll receive an email with a link to connect.
+          {t('registration.family.subtitle')}
         </p>
       </div>
 
       {/* Skip option */}
       <div className="p-3 rounded-lg bg-muted/50 text-center">
         <p className="text-xs text-muted-foreground">
-          This step is optional. You can always invite family members later from your dashboard.
+          {t('registration.family.optionalNote')}
         </p>
       </div>
 
@@ -72,13 +71,13 @@ const InviteFamilyStep: React.FC<InviteFamilyStepProps> = ({ invites, onChange }
                   type="email"
                   value={invite.email}
                   onChange={(e) => updateInvite(index, 'email', e.target.value)}
-                  placeholder="Family member's email"
+                  placeholder={t('registration.family.emailPlaceholder')}
                   className="pl-10 h-9 text-sm"
                 />
               </div>
               <Select value={invite.relationship} onValueChange={(v) => updateInvite(index, 'relationship', v)}>
                 <SelectTrigger className="h-9 text-sm">
-                  <SelectValue placeholder="Relationship" />
+                  <SelectValue placeholder={t('registration.family.relationshipPlaceholder')} />
                 </SelectTrigger>
                 <SelectContent>
                   {RELATIONSHIPS.map((r) => (
@@ -108,7 +107,7 @@ const InviteFamilyStep: React.FC<InviteFamilyStepProps> = ({ invites, onChange }
           className="w-full border-dashed"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Add Family Member
+          {t('registration.family.addMember')}
         </Button>
       )}
     </div>

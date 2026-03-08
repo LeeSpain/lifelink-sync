@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -42,16 +43,7 @@ interface WizardData {
 
 const STORAGE_KEY = 'lifelink_registration_wizard';
 
-const STEPS = [
-  { id: 'welcome', label: 'Welcome' },
-  { id: 'account', label: 'Account' },
-  { id: 'profile', label: 'Profile' },
-  { id: 'plan', label: 'Plan' },
-  { id: 'contacts', label: 'Contacts' },
-  { id: 'family', label: 'Family' },
-  { id: 'payment', label: 'Payment' },
-  { id: 'complete', label: 'Complete' },
-];
+const STEP_IDS = ['welcome', 'account', 'profile', 'plan', 'contacts', 'family', 'payment', 'complete'] as const;
 
 const initialData: WizardData = {
   email: '',
@@ -72,6 +64,7 @@ const initialData: WizardData = {
 };
 
 const RegistrationWizard: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
@@ -90,6 +83,8 @@ const RegistrationWizard: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [accountError, setAccountError] = useState('');
   const [accountCreated, setAccountCreated] = useState(false);
+
+  const STEPS = STEP_IDS.map(id => ({ id, label: t(`registration.steps.${id}`) }));
 
   // Pre-select trial if coming from /trial-signup
   useEffect(() => {
@@ -128,38 +123,38 @@ const RegistrationWizard: React.FC = () => {
     switch (currentStepId) {
       case 'account': {
         if (!data.firstName.trim() || !data.lastName.trim()) {
-          toast({ title: 'Name Required', description: 'Please enter your first and last name.', variant: 'destructive' });
+          toast({ title: t('registration.validation.nameRequired'), description: t('registration.validation.nameRequiredDesc'), variant: 'destructive' });
           return false;
         }
         if (!isValidEmail(data.email)) {
-          toast({ title: 'Invalid Email', description: 'Please enter a valid email address.', variant: 'destructive' });
+          toast({ title: t('registration.validation.invalidEmail'), description: t('registration.validation.invalidEmailDesc'), variant: 'destructive' });
           return false;
         }
         const pwCheck = validatePasswordStrength(data.password);
         if (!pwCheck.isValid) {
-          toast({ title: 'Weak Password', description: pwCheck.errors[0], variant: 'destructive' });
+          toast({ title: t('registration.validation.weakPassword'), description: pwCheck.errors[0], variant: 'destructive' });
           return false;
         }
         if (!data.acceptTerms) {
-          toast({ title: 'Terms Required', description: 'You must accept the Terms of Service and Privacy Policy.', variant: 'destructive' });
+          toast({ title: t('registration.validation.termsRequired'), description: t('registration.validation.termsRequiredDesc'), variant: 'destructive' });
           return false;
         }
         return true;
       }
       case 'profile': {
         if (!data.phone.trim()) {
-          toast({ title: 'Phone Required', description: 'Please enter your phone number for emergency services.', variant: 'destructive' });
+          toast({ title: t('registration.validation.phoneRequired'), description: t('registration.validation.phoneRequiredDesc'), variant: 'destructive' });
           return false;
         }
         if (!data.city.trim() || !data.country) {
-          toast({ title: 'Location Required', description: 'Please enter your city and country.', variant: 'destructive' });
+          toast({ title: t('registration.validation.locationRequired'), description: t('registration.validation.locationRequiredDesc'), variant: 'destructive' });
           return false;
         }
         return true;
       }
       case 'plan': {
         if (!data.selectedPlanId && !data.isTrialSelected) {
-          toast({ title: 'Plan Required', description: 'Please select a plan or start a free trial.', variant: 'destructive' });
+          toast({ title: t('registration.validation.planRequired'), description: t('registration.validation.planRequiredDesc'), variant: 'destructive' });
           return false;
         }
         return true;
@@ -167,7 +162,7 @@ const RegistrationWizard: React.FC = () => {
       case 'contacts': {
         const validContacts = data.emergencyContacts.filter(c => c.name.trim() && c.phone.trim());
         if (validContacts.length === 0) {
-          toast({ title: 'Contact Required', description: 'Please add at least one emergency contact with name and phone number.', variant: 'destructive' });
+          toast({ title: t('registration.validation.contactRequired'), description: t('registration.validation.contactRequiredDesc'), variant: 'destructive' });
           return false;
         }
         return true;
@@ -200,7 +195,7 @@ const RegistrationWizard: React.FC = () => {
             password: data.password,
           });
           if (signInError) {
-            setAccountError('An account with this email already exists. Please sign in instead.');
+            setAccountError(t('registration.errors.accountExists'));
             return false;
           }
           setAccountCreated(true);
@@ -213,7 +208,7 @@ const RegistrationWizard: React.FC = () => {
       setAccountCreated(true);
       return true;
     } catch (err) {
-      setAccountError('Failed to create account. Please try again.');
+      setAccountError(t('registration.errors.createFailed'));
       return false;
     } finally {
       setIsProcessing(false);
@@ -393,7 +388,7 @@ const RegistrationWizard: React.FC = () => {
           <div className="mb-6 space-y-3">
             <div className="flex items-center justify-between text-sm">
               <span className="text-white/80 font-medium">
-                Step {currentStep} of {visibleSteps.length - 2}
+                {t('registration.stepOf', { current: currentStep, total: visibleSteps.length - 2 })}
               </span>
               <span className="text-white/60">
                 {visibleSteps[currentStep]?.label}
@@ -419,7 +414,7 @@ const RegistrationWizard: React.FC = () => {
                     className="text-muted-foreground"
                   >
                     <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back
+                    {t('registration.back')}
                   </Button>
                 ) : <div />}
 
@@ -432,16 +427,16 @@ const RegistrationWizard: React.FC = () => {
                     {isProcessing ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Processing...
+                        {t('registration.processing')}
                       </>
                     ) : currentStepId === 'family' && data.isTrialSelected ? (
                       <>
-                        Start Trial
+                        {t('registration.startTrial')}
                         <ArrowRight className="h-4 w-4 ml-2" />
                       </>
                     ) : (
                       <>
-                        Continue
+                        {t('registration.continue')}
                         <ArrowRight className="h-4 w-4 ml-2" />
                       </>
                     )}
@@ -456,12 +451,12 @@ const RegistrationWizard: React.FC = () => {
         {currentStepId !== 'complete' && (
           <div className="text-center mt-4">
             <p className="text-xs text-white/60">
-              Already have an account?{' '}
+              {t('registration.alreadyHaveAccount')}{' '}
               <button
                 onClick={() => navigate('/auth')}
                 className="text-white hover:underline font-medium"
               >
-                Sign in
+                {t('registration.signIn')}
               </button>
             </p>
           </div>

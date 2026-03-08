@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import EmbeddedPayment from '@/components/EmbeddedPayment';
 import { Shield } from 'lucide-react';
 
@@ -20,6 +21,7 @@ interface PaymentStepProps {
 }
 
 const PaymentStep: React.FC<PaymentStepProps> = ({ data, onSuccess, onBack }) => {
+  const { t } = useTranslation();
   const plans = data.selectedPlanId ? [data.selectedPlanId] : [];
 
   return (
@@ -28,8 +30,8 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ data, onSuccess, onBack }) =>
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-primary/10">
           <Shield className="h-7 w-7 text-primary" />
         </div>
-        <h2 className="text-2xl font-poppins font-bold text-foreground">Complete Payment</h2>
-        <p className="text-sm text-muted-foreground">Secure payment powered by Stripe</p>
+        <h2 className="text-2xl font-poppins font-bold text-foreground">{t('registration.payment.title')}</h2>
+        <p className="text-sm text-muted-foreground">{t('registration.payment.subtitle')}</p>
       </div>
 
       <EmbeddedPayment

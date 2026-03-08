@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -8,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { PageSEO } from '@/components/PageSEO';
 
 const CheckoutSuccessPage = () => {
+  const { t } = useTranslation();
   const { user, loading: authLoading } = useAuth();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -28,8 +30,8 @@ const CheckoutSuccessPage = () => {
 
       if (!sessionId) {
         toast({
-          title: "Payment Error",
-          description: "No session found. Please contact support if you were charged.",
+          title: t('checkout.paymentError'),
+          description: t('checkout.noSessionFound'),
           variant: "destructive"
         });
         navigate('/');
@@ -47,8 +49,8 @@ const CheckoutSuccessPage = () => {
 
         // Show success toast
         toast({
-          title: "Payment Successful! 🎉",
-          description: "Welcome to LifeLink Sync! Let's complete your setup.",
+          title: t('checkout.paymentSuccessful'),
+          description: t('checkout.welcomeCompleteSetup'),
         });
 
         // Short delay to show success state, then redirect to onboarding
@@ -61,8 +63,8 @@ const CheckoutSuccessPage = () => {
         // Even if verification fails, redirect to onboarding
         // The webhook should have processed the payment
         toast({
-          title: "Welcome!",
-          description: "Your account is being set up. Let's complete your profile.",
+          title: t('checkout.welcome'),
+          description: t('checkout.accountBeingSetUp'),
         });
         navigate('/dashboard/onboarding');
       }
@@ -77,7 +79,7 @@ const CheckoutSuccessPage = () => {
       <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
         <div className="text-white text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p>Loading...</p>
+          <p>{t('checkout.loading')}</p>
         </div>
       </div>
     );
@@ -92,9 +94,9 @@ const CheckoutSuccessPage = () => {
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
               <CheckCircle className="h-8 w-8 text-green-600" />
             </div>
-            <CardTitle className="text-xl text-green-700">Payment Successful!</CardTitle>
+            <CardTitle className="text-xl text-green-700">{t('checkout.paymentSuccessful')}</CardTitle>
             <CardDescription>
-              Your subscription is now active
+              {t('checkout.subscriptionNowActive')}
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center">
@@ -102,7 +104,7 @@ const CheckoutSuccessPage = () => {
               <>
                 <Loader2 className="h-6 w-6 animate-spin mx-auto mb-3 text-primary" />
                 <p className="text-sm text-muted-foreground">
-                  Setting up your account...
+                  {t('checkout.settingUpAccount')}
                 </p>
               </>
             )}

@@ -10,9 +10,11 @@ import { EmergencyDisclaimerModal } from "@/components/emergency/EmergencyDiscla
 import { EmergencyStatusBanner } from "@/components/emergency/EmergencyStatusBanner";
 import { EnhancedSOSButton } from "@/components/sos/EnhancedSOSButton";
 import { useInteractionTracking } from "@/hooks/useInteractionTracking";
+import { useTranslation } from 'react-i18next';
 
 
 const SosButton = () => {
+  const { t } = useTranslation();
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const { triggerEmergencySOS, isTriggering, locationPermissionGranted, locationPermissionDenied } = useEmergencySOS();
   const { toast } = useToast();
@@ -71,8 +73,8 @@ const SosButton = () => {
     if (!hasPermission && !voiceEnabled) {
       trackSOSAction('voice_permission_denied');
       toast({
-        title: "Microphone Permission Required",
-        description: "Please allow microphone access to enable voice activation for emergency calls.",
+        title: t('sos.micPermissionRequired'),
+        description: t('sos.micPermissionDescription'),
         variant: "destructive"
       });
       return;
@@ -83,8 +85,8 @@ const SosButton = () => {
   useEffect(() => {
     if (voiceEnabled && isListening) {
       toast({
-        title: "🎤 Voice Activation Enabled",
-        description: "Say 'Help Help Help' to trigger emergency SOS",
+        title: t('sos.voiceActivationEnabled'),
+        description: t('sos.sayHelpToTrigger'),
         duration: 3000
       });
     }

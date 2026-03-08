@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import Navigation from '@/components/Navigation';
@@ -22,6 +23,7 @@ interface WelcomeData {
 }
 
 const PaymentSuccess = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [welcomeData, setWelcomeData] = useState<WelcomeData | null>(null);
@@ -126,7 +128,7 @@ const PaymentSuccess = () => {
       <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
         <div className="text-white text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4"></div>
-          <p>Loading your welcome page...</p>
+          <p>{t('checkout.loadingWelcomePage')}</p>
         </div>
       </div>
     );
@@ -192,16 +194,16 @@ const PaymentSuccess = () => {
             </div>
             
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              Welcome {welcomeData.firstName}!
+              {t('checkout.welcomeName', { name: welcomeData.firstName })}
             </h1>
-            
+
             <p className="text-xl text-white/90 mb-2">
-              Your LifeLink Sync Protection is Now Active
+              {t('checkout.protectionNowActive')}
             </p>
-            
+
             <Badge variant="secondary" className="bg-emergency/20 text-emergency border-emergency/30 px-4 py-2 text-lg">
               <Shield className="w-5 h-5 mr-2" />
-              Account Activated Successfully
+              {t('checkout.accountActivatedSuccessfully')}
             </Badge>
           </div>
 
@@ -211,28 +213,28 @@ const PaymentSuccess = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-foreground">
                   <CheckCircle className="w-6 h-6 text-emergency" />
-                  Purchase Confirmation
+                  {t('checkout.purchaseConfirmation')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Customer Information */}
                 <div>
-                  <h4 className="font-semibold text-foreground mb-2">Customer Information:</h4>
+                  <h4 className="font-semibold text-foreground mb-2">{t('checkout.customerInformation')}</h4>
                   <div className="text-sm space-y-1 text-foreground">
-                    <p><strong>Name:</strong> {welcomeData.firstName} {welcomeData.lastName}</p>
-                    <p><strong>Email:</strong> {welcomeData.email}</p>
+                    <p><strong>{t('checkout.name')}:</strong> {welcomeData.firstName} {welcomeData.lastName}</p>
+                    <p><strong>{t('checkout.email')}:</strong> {welcomeData.email}</p>
                   </div>
                 </div>
 
                 {/* Monthly Subscriptions */}
                 {(welcomeData.subscriptionPlans?.length ?? 0) > 0 && (
                   <div>
-                    <h5 className="text-sm font-medium text-muted-foreground mb-2">Monthly Subscriptions:</h5>
+                    <h5 className="text-sm font-medium text-muted-foreground mb-2">{t('checkout.monthlySubscriptions')}</h5>
                     <ul className="space-y-2">
                       {welcomeData.subscriptionPlans.map(plan => (
                         <li key={plan.id} className="flex justify-between p-2 bg-secondary rounded border">
                           <span className="font-medium text-foreground">{plan.name}</span>
-                          <span className="text-foreground">€{(plan?.price != null ? Number(plan.price) : 0).toFixed(2)}/month</span>
+                          <span className="text-foreground">€{(plan?.price != null ? Number(plan.price) : 0).toFixed(2)}/{t('checkout.month')}</span>
                         </li>
                       ))}
                     </ul>
@@ -242,7 +244,7 @@ const PaymentSuccess = () => {
                 {/* Regional Services */}
                 {(welcomeData.regionalServices?.length ?? 0) > 0 && (
                   <div>
-                    <h5 className="text-sm font-medium text-muted-foreground mb-2">Regional Services:</h5>
+                    <h5 className="text-sm font-medium text-muted-foreground mb-2">{t('checkout.regionalServices')}</h5>
                     <ul className="space-y-2">
                       {welcomeData.regionalServices.map(service => {
                         const netPrice = service?.price != null ? Number(service.price) : 0;
@@ -251,7 +253,7 @@ const PaymentSuccess = () => {
                           <li key={service.id} className="p-2 bg-secondary rounded border">
                             <div className="flex justify-between items-start">
                               <span className="font-medium text-foreground">{service.name} ({service.region})</span>
-                              <span className="font-bold text-foreground">€{totalPrice.toFixed(2)}/month</span>
+                              <span className="font-bold text-foreground">€{totalPrice.toFixed(2)}/{t('checkout.month')}</span>
                             </div>
                           </li>
                         );
@@ -263,7 +265,7 @@ const PaymentSuccess = () => {
                 {/* Safety Products */}
                 {(welcomeData.products?.length ?? 0) > 0 && (
                   <div>
-                    <h5 className="text-sm font-medium text-muted-foreground mb-2">Safety Products (One-time):</h5>
+                    <h5 className="text-sm font-medium text-muted-foreground mb-2">{t('checkout.safetyProductsOneTime')}</h5>
                     <ul className="space-y-2">
                       {welcomeData.products.map(product => {
                         const netPrice = product?.price != null ? Number(product.price) : 0;
@@ -285,18 +287,18 @@ const PaymentSuccess = () => {
                 <div className="border-t pt-4 space-y-2">
                   {subscriptionTotal > 0 && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Monthly Subscription:</span>
-                      <span className="font-medium text-foreground">€{subscriptionTotal.toFixed(2)}/month</span>
+                      <span className="text-muted-foreground">{t('checkout.monthlySubscription')}:</span>
+                      <span className="font-medium text-foreground">€{subscriptionTotal.toFixed(2)}/{t('checkout.month')}</span>
                     </div>
                   )}
                   {productTotal > 0 && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">One-time Products:</span>
+                      <span className="text-muted-foreground">{t('checkout.oneTimeProducts')}:</span>
                       <span className="font-medium text-foreground">€{productTotal.toFixed(2)}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-lg font-bold border-t pt-2">
-                    <span className="text-foreground">Total Payment:</span>
+                    <span className="text-foreground">{t('checkout.totalPayment')}:</span>
                     <span className="text-emergency">€{grandTotal.toFixed(2)}</span>
                   </div>
                 </div>
@@ -308,7 +310,7 @@ const PaymentSuccess = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-foreground">
                   <UserCircle className="w-6 h-6 text-primary" />
-                  What's Next?
+                  {t('checkout.whatsNext')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -317,9 +319,9 @@ const PaymentSuccess = () => {
                   <div className="flex items-start gap-3">
                     <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">1</div>
                     <div>
-                      <h4 className="font-semibold text-foreground">Access Your Dashboard</h4>
+                      <h4 className="font-semibold text-foreground">{t('checkout.accessYourDashboard')}</h4>
                       <p className="text-sm text-muted-foreground mb-3">
-                        Complete your profile and configure your emergency settings
+                        {t('checkout.completeProfileEmergency')}
                       </p>
                       <Button 
                         onClick={handleDashboardAccess}
@@ -327,7 +329,7 @@ const PaymentSuccess = () => {
                         size="lg"
                       >
                         <UserCircle className="w-5 h-5 mr-2" />
-                        Open Your Dashboard
+                        {t('checkout.openYourDashboard')}
                       </Button>
                     </div>
                   </div>
@@ -338,24 +340,24 @@ const PaymentSuccess = () => {
                   <div className="flex items-start gap-3">
                     <div className="w-8 h-8 rounded-full bg-emergency text-white flex items-center justify-center font-bold text-sm">2</div>
                     <div className="flex-1">
-                      <h4 className="font-semibold text-foreground">Download Mobile App</h4>
+                      <h4 className="font-semibold text-foreground">{t('checkout.downloadMobileApp')}</h4>
                       <p className="text-sm text-muted-foreground mb-3">
-                        Get instant access to emergency features on your phone
+                        {t('checkout.getInstantAccessEmergency')}
                       </p>
                       
                       {/* QR Codes */}
                       <div className="grid grid-cols-2 gap-4 mb-4">
                         <div className="text-center">
                           <div className="bg-white p-3 rounded-lg shadow-sm border">
-                            {iosQRCode && <img src={iosQRCode} alt="iOS QR Code" className="w-24 h-24 mx-auto" loading="lazy" decoding="async" />}
+                            {iosQRCode && <img src={iosQRCode} alt={t('checkout.iosQRCode')} className="w-24 h-24 mx-auto" loading="lazy" decoding="async" />}
                           </div>
-                          <p className="text-xs text-muted-foreground mt-2">iOS App Store</p>
+                          <p className="text-xs text-muted-foreground mt-2">{t('checkout.iosAppStore')}</p>
                         </div>
                         <div className="text-center">
                           <div className="bg-white p-3 rounded-lg shadow-sm border">
-                            {androidQRCode && <img src={androidQRCode} alt="Android QR Code" className="w-24 h-24 mx-auto" loading="lazy" decoding="async" />}
+                            {androidQRCode && <img src={androidQRCode} alt={t('checkout.androidQRCode')} className="w-24 h-24 mx-auto" loading="lazy" decoding="async" />}
                           </div>
-                          <p className="text-xs text-muted-foreground mt-2">Google Play</p>
+                          <p className="text-xs text-muted-foreground mt-2">{t('checkout.googlePlay')}</p>
                         </div>
                       </div>
 
@@ -368,7 +370,7 @@ const PaymentSuccess = () => {
                           size="sm"
                         >
                           <Smartphone className="w-4 h-4 mr-2" />
-                          Download for iOS
+                          {t('checkout.downloadForIos')}
                         </Button>
                         <Button 
                           onClick={() => handleDirectDownload(androidPlayStoreUrl)}
@@ -377,7 +379,7 @@ const PaymentSuccess = () => {
                           size="sm"
                         >
                           <Download className="w-4 h-4 mr-2" />
-                          Download for Android
+                          {t('checkout.downloadForAndroid')}
                         </Button>
                       </div>
                     </div>
@@ -386,11 +388,11 @@ const PaymentSuccess = () => {
 
                 {/* Support Information */}
                 <div className="bg-muted p-4 rounded-lg">
-                  <h4 className="font-semibold text-foreground mb-2">Need Help?</h4>
+                  <h4 className="font-semibold text-foreground mb-2">{t('checkout.needHelp')}</h4>
                   <div className="text-sm text-muted-foreground space-y-1">
-                    <p><strong>Email:</strong> support@lifelink-sync.com</p>
-                    <p><strong>Phone:</strong> +34 900 123 456</p>
-                    <p><strong>Live Chat:</strong> Available 24/7 in your dashboard</p>
+                    <p><strong>{t('checkout.email')}:</strong> support@lifelink-sync.com</p>
+                    <p><strong>{t('checkout.phone')}:</strong> +34 900 123 456</p>
+                    <p><strong>{t('checkout.liveChat')}:</strong> {t('checkout.available247')}</p>
                   </div>
                 </div>
               </CardContent>
@@ -400,9 +402,9 @@ const PaymentSuccess = () => {
           {/* Additional Information */}
           <div className="mt-8 text-center">
             <p className="text-white/80 text-sm">
-              Your subscription will begin immediately and you'll receive a confirmation email shortly.
+              {t('checkout.subscriptionBeginsImmediately')}
               <br />
-              For any questions, our support team is available 24/7.
+              {t('checkout.supportAvailable247')}
             </p>
           </div>
         </div>

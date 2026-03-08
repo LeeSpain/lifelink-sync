@@ -21,12 +21,12 @@ const FamilyCarerAccess = () => {
   const billingInterval = t('common.perMonth');
 
   const features = [
-    'Trusted family contacts & emergency coordination',
-    'Professional care coordination with medical teams',
-    'Privacy controls for family access levels',
-    'Real-time updates during emergency situations',
-    'Multi-generational family support plans',
-    'Secure family communication channels'
+    t('familyCarerAccess.features.trustedContacts'),
+    t('familyCarerAccess.features.careCoordination'),
+    t('familyCarerAccess.features.privacyControls'),
+    t('familyCarerAccess.features.realTimeUpdates'),
+    t('familyCarerAccess.features.multiGenerational'),
+    t('familyCarerAccess.features.secureCommunication')
   ];
 
   return (

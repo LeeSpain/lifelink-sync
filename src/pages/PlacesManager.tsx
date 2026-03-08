@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from 'react-i18next';
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -44,6 +45,7 @@ export default function PlacesManager() {
   
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const loadFamilyGroups = async () => {
     if (!user) return;
@@ -100,8 +102,8 @@ export default function PlacesManager() {
     } catch (error) {
       console.error("Error loading places:", error);
       toast({
-        title: "Error",
-        description: "Failed to load places",
+        title: t('places.error'),
+        description: t('places.failedToLoadPlaces'),
         variant: "destructive"
       });
     } finally {
@@ -148,8 +150,8 @@ export default function PlacesManager() {
   const handleSave = async () => {
     if (!selectedGroupId || !formData.name || !formData.lat || !formData.lng) {
       toast({
-        title: "Error",
-        description: "Please fill in all required fields",
+        title: t('places.error'),
+        description: t('places.fillRequiredFields'),
         variant: "destructive"
       });
       return;
@@ -160,8 +162,8 @@ export default function PlacesManager() {
 
     if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
       toast({
-        title: "Error",
-        description: "Please enter valid latitude (-90 to 90) and longitude (-180 to 180)",
+        title: t('places.error'),
+        description: t('places.invalidCoordinates'),
         variant: "destructive"
       });
       return;
@@ -180,7 +182,7 @@ export default function PlacesManager() {
           .eq("id", editing.id);
 
         if (error) throw error;
-        toast({ title: "Success", description: "Place updated successfully" });
+        toast({ title: t('places.success'), description: t('places.placeUpdated') });
       } else {
         const { error } = await supabase
           .from("places")
@@ -194,7 +196,7 @@ export default function PlacesManager() {
           });
 
         if (error) throw error;
-        toast({ title: "Success", description: "Place created successfully" });
+        toast({ title: t('places.success'), description: t('places.placeCreated') });
       }
 
       setDialogOpen(false);
@@ -203,15 +205,15 @@ export default function PlacesManager() {
     } catch (error) {
       console.error("Error saving place:", error);
       toast({
-        title: "Error",
-        description: "Failed to save place",
+        title: t('places.error'),
+        description: t('places.failedToSavePlace'),
         variant: "destructive"
       });
     }
   };
 
   const handleDelete = async (place: Place) => {
-    if (!confirm(`Are you sure you want to delete "${place.name}"?`)) return;
+    if (!confirm(t('places.confirmDelete', { name: place.name }))) return;
 
     try {
       const { error } = await supabase
@@ -221,13 +223,13 @@ export default function PlacesManager() {
 
       if (error) throw error;
       
-      toast({ title: "Success", description: "Place deleted successfully" });
+      toast({ title: t('places.success'), description: t('places.placeDeleted') });
       loadPlaces();
     } catch (error) {
       console.error("Error deleting place:", error);
       toast({
-        title: "Error",
-        description: "Failed to delete place",
+        title: t('places.error'),
+        description: t('places.failedToDeletePlace'),
         variant: "destructive"
       });
     }
@@ -255,8 +257,8 @@ export default function PlacesManager() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Places & Geofences</h1>
-          <p className="text-muted-foreground">Manage important locations for your family circle</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t('places.title')}</h1>
+          <p className="text-muted-foreground">{t('places.subtitle')}</p>
         </div>
         
         <div className="flex items-center gap-3">
@@ -276,29 +278,29 @@ export default function PlacesManager() {
             <DialogTrigger asChild>
               <Button onClick={openCreateDialog} className="flex items-center gap-2">
                 <Plus className="w-4 h-4" />
-                Add Place
+                {t('places.addPlace')}
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
                 <DialogTitle>
-                  {editing ? "Edit Place" : "Add New Place"}
+                  {editing ? t('places.editPlace') : t('places.addNewPlace')}
                 </DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="name">Place Name</Label>
+                  <Label htmlFor="name">{t('places.placeName')}</Label>
                   <Input
                     id="name"
                     value={formData.name}
                     onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder="e.g., Home, School, Office"
+                    placeholder={t('places.placeNamePlaceholder')}
                   />
                 </div>
                 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <Label htmlFor="lat">Latitude</Label>
+                    <Label htmlFor="lat">{t('places.latitude')}</Label>
                     <Input
                       id="lat"
                       value={formData.lat}
@@ -309,7 +311,7 @@ export default function PlacesManager() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="lng">Longitude</Label>
+                    <Label htmlFor="lng">{t('places.longitude')}</Label>
                     <Input
                       id="lng"
                       value={formData.lng}
@@ -322,7 +324,7 @@ export default function PlacesManager() {
                 </div>
                 
                 <div>
-                  <Label>Radius: {formData.radius_m} meters</Label>
+                  <Label>{t('places.radius', { meters: formData.radius_m })}</Label>
                   <Slider
                     value={[formData.radius_m]}
                     onValueChange={([value]) => setFormData(prev => ({ ...prev, radius_m: value }))}
@@ -339,10 +341,10 @@ export default function PlacesManager() {
                 
                 <div className="flex justify-end gap-2 pt-4">
                   <Button variant="outline" onClick={() => setDialogOpen(false)}>
-                    Cancel
+                    {t('places.cancel')}
                   </Button>
                   <Button onClick={handleSave}>
-                    {editing ? "Update" : "Create"}
+                    {editing ? t('places.update') : t('places.create')}
                   </Button>
                 </div>
               </div>
@@ -361,7 +363,7 @@ export default function PlacesManager() {
                   {place.name}
                 </CardTitle>
                 <Badge variant="outline">
-                  {place.radius_m}m radius
+                  {t('places.radiusBadge', { meters: place.radius_m })}
                 </Badge>
               </div>
             </CardHeader>
@@ -370,7 +372,7 @@ export default function PlacesManager() {
                 <div className="text-sm text-muted-foreground space-y-1">
                   <div>📍 {place.lat.toFixed(6)}, {place.lng.toFixed(6)}</div>
                   <div className="text-xs">
-                    Created {new Date(place.created_at).toLocaleDateString()}
+                    {t('places.created', { date: new Date(place.created_at).toLocaleDateString() })}
                   </div>
                 </div>
                 
@@ -382,7 +384,7 @@ export default function PlacesManager() {
                     className="flex items-center gap-1"
                   >
                     <Navigation className="w-3 h-3" />
-                    Open
+                    {t('places.open')}
                   </Button>
                   <Button 
                     variant="outline" 
@@ -391,7 +393,7 @@ export default function PlacesManager() {
                     className="flex items-center gap-1"
                   >
                     <Edit className="w-3 h-3" />
-                    Edit
+                    {t('places.edit')}
                   </Button>
                   <Button 
                     variant="outline" 
@@ -400,7 +402,7 @@ export default function PlacesManager() {
                     className="flex items-center gap-1 hover:bg-destructive hover:text-destructive-foreground"
                   >
                     <Trash2 className="w-3 h-3" />
-                    Delete
+                    {t('places.delete')}
                   </Button>
                 </div>
               </div>
@@ -413,14 +415,14 @@ export default function PlacesManager() {
             <div className="space-y-4">
               <MapPin className="w-12 h-12 text-muted-foreground mx-auto" />
               <div>
-                <h3 className="text-lg font-semibold">No Places Yet</h3>
+                <h3 className="text-lg font-semibold">{t('places.noPlacesYet')}</h3>
                 <p className="text-muted-foreground">
-                  Add important locations like home, school, or work to get notifications when family members arrive or leave.
+                  {t('places.noPlacesDescription')}
                 </p>
               </div>
               <Button onClick={openCreateDialog} className="flex items-center gap-2">
                 <Plus className="w-4 h-4" />
-                Add Your First Place
+                {t('places.addFirstPlace')}
               </Button>
             </div>
           </Card>

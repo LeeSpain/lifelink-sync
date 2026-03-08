@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
+import {
   Package,
   CreditCard,
   ShoppingCart,
@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from 'react-i18next';
 
 interface MyProductsWidgetProps {
   profile: any;
@@ -19,6 +20,7 @@ interface MyProductsWidgetProps {
 
 const MyProductsWidget = ({ profile }: MyProductsWidgetProps) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [userProducts, setUserProducts] = useState<any[]>([]);
   const [subscription, setSubscription] = useState<any>(null);
   const [availableProducts, setAvailableProducts] = useState<any[]>([]);
@@ -226,15 +228,15 @@ const MyProductsWidget = ({ profile }: MyProductsWidgetProps) => {
       if (data.url) {
         window.open(data.url, '_blank');
         toast({
-          title: "Redirecting to payment",
-          description: "Please complete your purchase in the new tab.",
+          title: t('myProducts.redirectingToPayment'),
+          description: t('myProducts.completePurchaseNewTab'),
         });
       }
     } catch (error) {
       console.error('Error creating payment:', error);
       toast({
-        title: "Payment Error",
-        description: "Unable to process payment. Please try again.",
+        title: t('myProducts.paymentError'),
+        description: t('myProducts.unableToProcessPayment'),
         variant: "destructive",
       });
     } finally {
@@ -260,15 +262,15 @@ const MyProductsWidget = ({ profile }: MyProductsWidgetProps) => {
       if (data.url) {
         window.open(data.url, '_blank');
         toast({
-          title: "Redirecting to checkout",
-          description: "Please complete your subscription in the new tab.",
+          title: t('myProducts.redirectingToCheckout'),
+          description: t('myProducts.completeSubscriptionNewTab'),
         });
       }
     } catch (error) {
       console.error('Error creating checkout:', error);
       toast({
-        title: "Checkout Error",
-        description: "Unable to process checkout. Please try again.",
+        title: t('myProducts.checkoutError'),
+        description: t('myProducts.unableToProcessCheckout'),
         variant: "destructive",
       });
     } finally {
@@ -291,17 +293,17 @@ const MyProductsWidget = ({ profile }: MyProductsWidgetProps) => {
       if (error) throw error;
       if (data?.url) {
         window.open(data.url, '_blank');
-        toast({ 
-          title: 'Redirecting to checkout', 
-          description: 'Complete your family plan purchase in the new tab.' 
+        toast({
+          title: t('myProducts.redirectingToCheckout'),
+          description: t('myProducts.completeFamilyPlanNewTab')
         });
       }
     } catch (error) {
       console.error('Error starting checkout:', error);
-      toast({ 
-        title: 'Checkout Error', 
-        description: 'Unable to start checkout. Please try again.', 
-        variant: 'destructive' 
+      toast({
+        title: t('myProducts.checkoutError'),
+        description: t('myProducts.unableToStartCheckout'),
+        variant: 'destructive'
       });
     } finally {
       setPurchaseLoading(null);
@@ -320,8 +322,8 @@ const MyProductsWidget = ({ profile }: MyProductsWidgetProps) => {
     } catch (error) {
       console.error('Error opening customer portal:', error);
       toast({
-        title: "Error",
-        description: "Unable to open subscription management. Please try again.",
+        title: t('myProducts.error'),
+        description: t('myProducts.unableToOpenPortal'),
         variant: "destructive",
       });
     }
@@ -329,9 +331,9 @@ const MyProductsWidget = ({ profile }: MyProductsWidgetProps) => {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'connected': return <Badge className="bg-emergency/10 text-emergency">Connected</Badge>;
-      case 'disconnected': return <Badge variant="destructive">Disconnected</Badge>;
-      default: return <Badge variant="secondary">Unknown</Badge>;
+      case 'connected': return <Badge className="bg-emergency/10 text-emergency">{t('myProducts.connected')}</Badge>;
+      case 'disconnected': return <Badge variant="destructive">{t('myProducts.disconnected')}</Badge>;
+      default: return <Badge variant="secondary">{t('myProducts.unknown')}</Badge>;
     }
   };
 
@@ -391,28 +393,28 @@ const MyProductsWidget = ({ profile }: MyProductsWidgetProps) => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Package className="h-5 w-5" />
-          My Products & Subscription
+          {t('myProducts.title')}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Connected Products & Subscriptions */}
         <div className="space-y-2">
-          <h4 className="font-medium">Connected Products & Subscriptions</h4>
+          <h4 className="font-medium">{t('myProducts.connectedProductsSubscriptions')}</h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-              <span className="text-sm">Premium Protection</span>
+              <span className="text-sm">{t('myProducts.premiumProtection')}</span>
               {getStatusBadge(hasPremiumActive ? 'connected' : 'disconnected')}
             </div>
             <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-              <span className="text-sm">Family Connection</span>
+              <span className="text-sm">{t('myProducts.familyConnection')}</span>
               {getStatusBadge(hasFamilyConnection ? 'connected' : 'disconnected')}
             </div>
             <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-              <span className="text-sm">Call Centre (Spain)</span>
+              <span className="text-sm">{t('myProducts.callCentreSpain')}</span>
               {getStatusBadge(hasSpainCallCentre ? 'connected' : 'disconnected')}
             </div>
             <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-              <span className="text-sm">Flic 2 Devices</span>
+              <span className="text-sm">{t('myProducts.flic2Devices')}</span>
               <div className="flex items-center gap-2">
                 {getStatusBadge(hasFlicConnected ? 'connected' : 'disconnected')}
                 {!hasFlicConnected ? (
@@ -421,7 +423,7 @@ const MyProductsWidget = ({ profile }: MyProductsWidgetProps) => {
                     variant="outline"
                     onClick={() => window.dispatchEvent(new Event('open-device-settings'))}
                   >
-                    Add
+                    {t('myProducts.add')}
                   </Button>
                 ) : (
                   <Button
@@ -429,7 +431,7 @@ const MyProductsWidget = ({ profile }: MyProductsWidgetProps) => {
                     variant="outline"
                     onClick={() => window.location.href = '/member-dashboard/mobile-dashboard'}
                   >
-                    Manage
+                    {t('myProducts.manage')}
                   </Button>
                 )}
               </div>
@@ -443,14 +445,14 @@ const MyProductsWidget = ({ profile }: MyProductsWidgetProps) => {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-semibold text-lg">
-                  {subscription.plans?.[0]?.name || subscription.subscription_tier || 'Active Plan'}
+                  {subscription.plans?.[0]?.name || subscription.subscription_tier || t('myProducts.activePlan')}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  {subscription.plans?.[0]?.price ? `€${subscription.plans[0].price} per ${subscription.plans[0].billing_interval}` : 'Active subscription'}
+                  {subscription.plans?.[0]?.price ? `€${subscription.plans[0].price} per ${subscription.plans[0].billing_interval}` : t('myProducts.activeSubscription')}
                 </p>
               </div>
               <Badge className="bg-emergency text-black">
-                ✓ Active
+                {t('myProducts.active')}
               </Badge>
             </div>
           </div>
@@ -458,15 +460,15 @@ const MyProductsWidget = ({ profile }: MyProductsWidgetProps) => {
           <div className="p-4 bg-muted/50 rounded-lg border">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-semibold text-lg">No Active Subscription</h3>
-                <p className="text-sm text-muted-foreground">Subscribe to activate emergency protection</p>
+                <h3 className="font-semibold text-lg">{t('myProducts.noActiveSubscription')}</h3>
+                <p className="text-sm text-muted-foreground">{t('myProducts.subscribeToActivate')}</p>
               </div>
-              <Button 
-                size="sm" 
+              <Button
+                size="sm"
                 onClick={() => navigate('/member-dashboard/subscription')}
                 className="bg-emergency text-black hover:bg-emergency/90"
               >
-                Subscribe
+                {t('myProducts.subscribe')}
               </Button>
             </div>
           </div>
@@ -481,9 +483,9 @@ const MyProductsWidget = ({ profile }: MyProductsWidgetProps) => {
                   <CheckCircle className="h-3 w-3 text-white" />
                 </div>
                 <div className="flex-1">
-                  <h5 className="font-medium text-sm mb-1">Family Connection</h5>
+                  <h5 className="font-medium text-sm mb-1">{t('myProducts.familyConnection')}</h5>
                   <p className="text-xs text-muted-foreground mb-2">
-                    Invite a trusted family member or carer to your dashboard for secure monitoring and support.
+                    {t('myProducts.familyConnectionDesc')}
                   </p>
                   <div className="flex items-center gap-4 text-xs text-muted-foreground">
                     <span className="font-semibold text-primary">
@@ -503,7 +505,7 @@ const MyProductsWidget = ({ profile }: MyProductsWidgetProps) => {
                 disabled={purchaseLoading === 'family-plan'}
                 className="ml-3"
               >
-                {purchaseLoading === 'family-plan' ? 'Processing...' : 'Add Family Member'}
+                {purchaseLoading === 'family-plan' ? t('myProducts.processing') : t('myProducts.addFamilyMember')}
               </Button>
             </div>
           </div>
@@ -512,7 +514,7 @@ const MyProductsWidget = ({ profile }: MyProductsWidgetProps) => {
         {/* Products Overview */}
         {userProducts.length > 0 ? (
           <div className="space-y-3">
-            <h4 className="font-medium">Your Products</h4>
+            <h4 className="font-medium">{t('myProducts.yourProducts')}</h4>
             {userProducts.map((product, index) => (
               <div key={index} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                 <div className="flex items-center gap-3">
@@ -534,9 +536,9 @@ const MyProductsWidget = ({ profile }: MyProductsWidgetProps) => {
             {availableProducts.length > 0 && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-medium">Available Products</h4>
+                  <h4 className="font-medium">{t('myProducts.availableProducts')}</h4>
                   <Badge variant="outline" className="text-xs">
-                    {availableProducts.length} products
+                    {t('myProducts.productsCount', { count: availableProducts.length })}
                   </Badge>
                 </div>
                 {availableProducts.slice(0, 3).map((product) => (
@@ -575,8 +577,8 @@ const MyProductsWidget = ({ profile }: MyProductsWidgetProps) => {
                         disabled={purchaseLoading === product.id || product.inventory_count === 0}
                         className="ml-3"
                       >
-                        {purchaseLoading === product.id ? 'Processing...' : 
-                         product.inventory_count === 0 ? 'Out of Stock' : 'Purchase'}
+                        {purchaseLoading === product.id ? t('myProducts.processing') :
+                         product.inventory_count === 0 ? t('myProducts.outOfStock') : t('myProducts.purchase')}
                       </Button>
                     </div>
                   </div>
@@ -588,7 +590,7 @@ const MyProductsWidget = ({ profile }: MyProductsWidgetProps) => {
                     className="w-full"
                     onClick={() => window.location.href = '/products'}
                   >
-                    View All {availableProducts.length} Products
+                    {t('myProducts.viewAllProducts', { count: availableProducts.length })}
                   </Button>
                 )}
               </div>
@@ -598,9 +600,9 @@ const MyProductsWidget = ({ profile }: MyProductsWidgetProps) => {
             {regionalServices.length > 0 && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-medium">Regional Services</h4>
+                  <h4 className="font-medium">{t('myProducts.regionalServices')}</h4>
                   <Badge variant="outline" className="text-xs">
-                    {regionalServices.length} services
+                    {t('myProducts.servicesCount', { count: regionalServices.length })}
                   </Badge>
                 </div>
                 {regionalServices.slice(0, 2).map((service) => (
@@ -635,7 +637,7 @@ const MyProductsWidget = ({ profile }: MyProductsWidgetProps) => {
                         disabled={purchaseLoading === service.id}
                         className="ml-3"
                       >
-                        {purchaseLoading === service.id ? 'Processing...' : 'Subscribe'}
+                        {purchaseLoading === service.id ? t('myProducts.processing') : t('myProducts.subscribe')}
                       </Button>
                     </div>
                   </div>

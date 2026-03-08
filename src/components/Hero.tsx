@@ -1,12 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Shield, Check, MapPin, Users, Activity, Wifi } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 
 interface HeroProps {
   onClaraClick?: () => void;
 }
 
 const HeroPhoneMockup = () => {
+  const { t } = useTranslation();
   return (
     <div className="mx-auto w-full max-w-xs">
       <div className="relative mx-auto w-full rounded-[2.5rem] border-[6px] border-gray-900 bg-white shadow-2xl overflow-hidden">
@@ -32,7 +34,7 @@ const HeroPhoneMockup = () => {
               </div>
               <span className="text-sm font-bold text-gray-900">LifeLink <span className="text-primary">Sync</span></span>
             </div>
-            <p className="text-[10px] text-gray-400">Always There. Always Ready.</p>
+            <p className="text-[10px] text-gray-400">{t('hero.alwaysThereReady')}</p>
           </div>
 
           {/* SOS Button */}
@@ -46,7 +48,7 @@ const HeroPhoneMockup = () => {
                 <span className="text-white text-sm font-bold">SOS</span>
               </div>
             </div>
-            <p className="text-[10px] text-gray-400 mt-2">Press & hold for emergency</p>
+            <p className="text-[10px] text-gray-400 mt-2">{t('hero.pressAndHold')}</p>
           </div>
 
           {/* Status cards */}
@@ -57,7 +59,7 @@ const HeroPhoneMockup = () => {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-xs font-medium text-gray-900">Clara AI</div>
-                <div className="text-[10px] text-gray-400">Listening & ready</div>
+                <div className="text-[10px] text-gray-400">{t('hero.listeningReady')}</div>
               </div>
               <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
             </div>
@@ -67,8 +69,8 @@ const HeroPhoneMockup = () => {
                 <MapPin className="h-4 w-4 text-blue-600" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-xs font-medium text-gray-900">GPS Location</div>
-                <div className="text-[10px] text-gray-400">Live tracking active</div>
+                <div className="text-xs font-medium text-gray-900">{t('hero.gpsLocation')}</div>
+                <div className="text-[10px] text-gray-400">{t('hero.liveTrackingActive')}</div>
               </div>
               <div className="w-2 h-2 rounded-full bg-blue-500" />
             </div>
@@ -78,8 +80,8 @@ const HeroPhoneMockup = () => {
                 <Users className="h-4 w-4 text-purple-600" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-xs font-medium text-gray-900">Family Circle</div>
-                <div className="text-[10px] text-gray-400">3 members connected</div>
+                <div className="text-xs font-medium text-gray-900">{t('hero.familyCircle')}</div>
+                <div className="text-[10px] text-gray-400">{t('hero.membersConnected')}</div>
               </div>
               <div className="w-2 h-2 rounded-full bg-purple-500" />
             </div>
@@ -96,6 +98,7 @@ const HeroPhoneMockup = () => {
 };
 
 const Hero = ({ onClaraClick }: HeroProps) => {
+  const { t } = useTranslation();
   return (
     <section className="relative min-h-[100dvh] sm:min-h-[85vh] flex items-center justify-center overflow-hidden bg-[#FAFAF9] pt-20 sm:pt-16">
       {/* Subtle background texture */}
@@ -111,13 +114,12 @@ const Hero = ({ onClaraClick }: HeroProps) => {
           {/* Content */}
           <div className="text-center lg:text-left">
             <h1 className="text-4xl md:text-6xl font-bold font-poppins mb-6 leading-tight text-[hsl(215,25%,27%)]">
-              Always There.{' '}
-              <span className="text-primary">Always Ready.</span>
+              {t('hero.alwaysThere')}{' '}
+              <span className="text-primary">{t('hero.alwaysReady')}</span>
             </h1>
 
             <p className="text-xl md:text-2xl mb-8 text-gray-600 leading-relaxed font-inter">
-              One-touch SOS. Clara answers instantly. Your family coordinated.
-              Protection for everyone, at every age.
+              {t('hero.subtitle')}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8">
@@ -128,7 +130,7 @@ const Hero = ({ onClaraClick }: HeroProps) => {
               >
                 <Link to="/register">
                   <Shield className="h-5 w-5 mr-2" />
-                  Start Free Trial
+                  {t('hero.startFreeTrial')}
                 </Link>
               </Button>
 
@@ -140,7 +142,7 @@ const Hero = ({ onClaraClick }: HeroProps) => {
                   document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
                 }}
               >
-                See How It Works
+                {t('hero.seeHowItWorks')}
               </Button>
             </div>
 
@@ -148,15 +150,15 @@ const Hero = ({ onClaraClick }: HeroProps) => {
             <div className="flex flex-wrap gap-6 justify-center lg:justify-start text-sm text-gray-500">
               <div className="flex items-center gap-1.5">
                 <Check className="h-4 w-4 text-wellness" />
-                <span>14-day free trial</span>
+                <span>{t('hero.freeTrial')}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <Check className="h-4 w-4 text-wellness" />
-                <span>No contract</span>
+                <span>{t('hero.noContract')}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <Check className="h-4 w-4 text-wellness" />
-                <span>Cancel anytime</span>
+                <span>{t('hero.cancelAnytime')}</span>
               </div>
             </div>
           </div>

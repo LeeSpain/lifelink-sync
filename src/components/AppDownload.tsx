@@ -83,7 +83,7 @@ const AppDownload = () => {
                       </div>
                       <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl rounded-tl-sm p-3 max-w-[200px] shadow-sm border border-primary/20">
                         <p className="text-xs font-medium text-primary mb-1">Clara AI</p>
-                        <p className="text-sm text-gray-800">👋 Hi! I'm Clara, your intelligent AI assistant. I'm here to help with emergency setup, family connections, and answer any questions!</p>
+                        <p className="text-sm text-gray-800">{t('appDownload.welcomeMessage')}</p>
                         <p className="text-xs text-gray-500 mt-2">{t('common.justNow')}</p>
                       </div>
                     </div>
@@ -94,19 +94,19 @@ const AppDownload = () => {
                         <Zap className="h-3 w-3 text-white" />
                       </div>
                       <div className="bg-gradient-to-r from-secondary/10 to-wellness/10 rounded-2xl rounded-tl-sm p-3 max-w-[200px] shadow-sm border border-secondary/20">
-                        <p className="text-xs font-medium text-secondary mb-1">Smart Features</p>
+                        <p className="text-xs font-medium text-secondary mb-1">{t('appDownload.smartFeatures')}</p>
                         <div className="space-y-2">
                           <div className="flex items-center gap-2 text-xs">
                             <Shield className="h-3 w-3 text-primary" />
-                            <span>Emergency Setup</span>
+                            <span>{t('appDownload.emergencySetup')}</span>
                           </div>
                           <div className="flex items-center gap-2 text-xs">
                             <Users className="h-3 w-3 text-secondary" />
-                            <span>Family Management</span>
+                            <span>{t('appDownload.familyManagement')}</span>
                           </div>
                           <div className="flex items-center gap-2 text-xs">
                             <MessageCircle className="h-3 w-3 text-wellness" />
-                            <span>24/7 Support</span>
+                            <span>{t('appDownload.support247')}</span>
                           </div>
                         </div>
                         <p className="text-xs text-gray-500 mt-2">{t('common.justNow')}</p>
@@ -116,7 +116,7 @@ const AppDownload = () => {
                     {/* User Message */}
                     <div className="flex justify-end">
                       <div className="bg-gradient-to-r from-primary to-secondary text-white rounded-2xl rounded-tr-sm p-3 max-w-[180px] shadow-sm">
-                        <p className="text-sm">How do I set up family members?</p>
+                        <p className="text-sm">{t('appDownload.userQuestion')}</p>
                         <p className="text-xs text-white/80 mt-1">{t('common.justNow')}</p>
                       </div>
                     </div>
@@ -128,7 +128,7 @@ const AppDownload = () => {
                       </div>
                       <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl rounded-tl-sm p-3 max-w-[200px] shadow-sm border border-primary/20">
                         <p className="text-xs font-medium text-primary mb-1">Clara AI</p>
-                        <p className="text-sm text-gray-800">I'll guide you through adding family members step by step. It's really simple! 🚀</p>
+                        <p className="text-sm text-gray-800">{t('appDownload.claraResponse')}</p>
                         <div className="mt-3 flex space-x-1">
                           <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce"></div>
                           <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
@@ -158,17 +158,17 @@ const AppDownload = () => {
               <div className="absolute -left-8 top-20 bg-white rounded-xl p-4 shadow-xl border border-primary/20 max-w-48">
                 <div className="flex items-center mb-2">
                   <MessageCircle className="h-4 w-4 text-primary mr-2" />
-                  <span className="font-semibold text-sm">Natural Language</span>
+                  <span className="font-semibold text-sm">{t('appDownload.naturalLanguage')}</span>
                 </div>
-                <p className="text-xs text-gray-600">Speaks your language naturally</p>
+                <p className="text-xs text-gray-600">{t('appDownload.naturalLanguageDesc')}</p>
               </div>
 
               <div className="absolute -right-8 bottom-32 bg-white rounded-xl p-4 shadow-xl border border-secondary/20 max-w-48">
                 <div className="flex items-center mb-2">
                   <Zap className="h-4 w-4 text-secondary mr-2" />
-                  <span className="font-semibold text-sm">Instant Response</span>
+                  <span className="font-semibold text-sm">{t('appDownload.instantResponseLabel')}</span>
                 </div>
-                <p className="text-xs text-gray-600">24/7 immediate assistance</p>
+                <p className="text-xs text-gray-600">{t('appDownload.instantResponseDesc')}</p>
               </div>
             </div>
 

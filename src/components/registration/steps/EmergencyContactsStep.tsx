@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -19,27 +20,29 @@ interface EmergencyContactsStepProps {
   onChange: (contacts: EmergencyContact[]) => void;
 }
 
-const CHANNEL_OPTIONS = [
-  { id: 'app', label: 'App Notification', icon: Bell, description: 'In-app push notification' },
-  { id: 'sms', label: 'SMS / Text', icon: MessageSquare, description: 'Text message alert' },
-  { id: 'email', label: 'Email', icon: Mail, description: 'Email notification' },
-  { id: 'call', label: 'Phone Call', icon: PhoneCall, description: 'Automated phone call' },
-  { id: 'whatsapp', label: 'WhatsApp', icon: MessageCircle, description: 'WhatsApp message' },
+const CHANNEL_ICONS = [
+  { id: 'app', icon: Bell },
+  { id: 'sms', icon: MessageSquare },
+  { id: 'email', icon: Mail },
+  { id: 'call', icon: PhoneCall },
+  { id: 'whatsapp', icon: MessageCircle },
 ];
 
-const RELATIONSHIPS = [
-  { value: 'spouse', label: 'Spouse / Partner' },
-  { value: 'parent', label: 'Parent' },
-  { value: 'child', label: 'Son / Daughter' },
-  { value: 'sibling', label: 'Sibling' },
-  { value: 'grandparent', label: 'Grandparent' },
-  { value: 'friend', label: 'Friend' },
-  { value: 'neighbor', label: 'Neighbour' },
-  { value: 'caregiver', label: 'Caregiver' },
-  { value: 'other', label: 'Other' },
-];
+const RELATIONSHIP_VALUES = ['spouse', 'parent', 'child', 'sibling', 'grandparent', 'friend', 'neighbor', 'caregiver', 'other'];
 
 const EmergencyContactsStep: React.FC<EmergencyContactsStepProps> = ({ contacts, onChange }) => {
+  const { t } = useTranslation();
+
+  const CHANNEL_OPTIONS = CHANNEL_ICONS.map(({ id, icon }) => ({
+    id,
+    icon,
+    label: t(`registration.contacts.channels.${id}`),
+  }));
+
+  const RELATIONSHIPS = RELATIONSHIP_VALUES.map(value => ({
+    value,
+    label: t(`registration.contacts.relationships.${value}`),
+  }));
 
   const updateContact = (index: number, field: keyof EmergencyContact, value: any) => {
     const updated = [...contacts];
@@ -76,9 +79,9 @@ const EmergencyContactsStep: React.FC<EmergencyContactsStepProps> = ({ contacts,
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-primary/10">
           <Phone className="h-7 w-7 text-primary" />
         </div>
-        <h2 className="text-2xl font-poppins font-bold text-foreground">Emergency Contacts</h2>
+        <h2 className="text-2xl font-poppins font-bold text-foreground">{t('registration.contacts.title')}</h2>
         <p className="text-sm text-muted-foreground">
-          Add people who should be notified during an emergency. Choose how each contact is reached.
+          {t('registration.contacts.subtitle')}
         </p>
       </div>
 
@@ -86,7 +89,7 @@ const EmergencyContactsStep: React.FC<EmergencyContactsStepProps> = ({ contacts,
         {contacts.map((contact, index) => (
           <div key={index} className="p-4 rounded-xl border bg-card space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-foreground">Contact {index + 1}</h3>
+              <h3 className="text-sm font-semibold text-foreground">{t('registration.contacts.contactNumber', { number: index + 1 })}</h3>
               {contacts.length > 1 && (
                 <Button
                   type="button"
@@ -103,13 +106,13 @@ const EmergencyContactsStep: React.FC<EmergencyContactsStepProps> = ({ contacts,
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {/* Name */}
               <div className="space-y-1.5">
-                <Label className="text-xs">Full Name</Label>
+                <Label className="text-xs">{t('registration.contacts.fullName')}</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     value={contact.name}
                     onChange={(e) => updateContact(index, 'name', e.target.value)}
-                    placeholder="Contact name"
+                    placeholder={t('registration.contacts.namePlaceholder')}
                     className="pl-10 h-9 text-sm"
                   />
                 </div>
@@ -117,10 +120,10 @@ const EmergencyContactsStep: React.FC<EmergencyContactsStepProps> = ({ contacts,
 
               {/* Relationship */}
               <div className="space-y-1.5">
-                <Label className="text-xs">Relationship</Label>
+                <Label className="text-xs">{t('registration.contacts.relationship')}</Label>
                 <Select value={contact.relationship} onValueChange={(v) => updateContact(index, 'relationship', v)}>
                   <SelectTrigger className="h-9 text-sm">
-                    <SelectValue placeholder="Select..." />
+                    <SelectValue placeholder={t('registration.contacts.selectPlaceholder')} />
                   </SelectTrigger>
                   <SelectContent>
                     {RELATIONSHIPS.map((r) => (
@@ -132,7 +135,7 @@ const EmergencyContactsStep: React.FC<EmergencyContactsStepProps> = ({ contacts,
 
               {/* Phone */}
               <div className="space-y-1.5">
-                <Label className="text-xs">Phone Number</Label>
+                <Label className="text-xs">{t('registration.contacts.phoneNumber')}</Label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -147,7 +150,7 @@ const EmergencyContactsStep: React.FC<EmergencyContactsStepProps> = ({ contacts,
 
               {/* Email */}
               <div className="space-y-1.5">
-                <Label className="text-xs">Email <span className="text-muted-foreground">(optional)</span></Label>
+                <Label className="text-xs">{t('registration.contacts.email')} <span className="text-muted-foreground">({t('registration.contacts.optional')})</span></Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -163,7 +166,7 @@ const EmergencyContactsStep: React.FC<EmergencyContactsStepProps> = ({ contacts,
 
             {/* Notification Channels */}
             <div className="space-y-2">
-              <Label className="text-xs font-semibold">How should we reach this contact?</Label>
+              <Label className="text-xs font-semibold">{t('registration.contacts.howToReach')}</Label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {CHANNEL_OPTIONS.map(({ id, label, icon: Icon }) => (
                   <div
@@ -206,14 +209,14 @@ const EmergencyContactsStep: React.FC<EmergencyContactsStepProps> = ({ contacts,
           className="w-full border-dashed"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Add Another Contact ({contacts.length}/5)
+          {t('registration.contacts.addAnother', { count: contacts.length })}
         </Button>
       )}
 
       {/* Tip */}
       <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
         <p className="text-xs text-blue-800">
-          <strong>Tip:</strong> Add at least 2-3 contacts for the best coverage. Choose people who live nearby and are usually available. Multiple notification channels increase the chance someone responds quickly.
+          <strong>{t('registration.contacts.tipLabel')}</strong> {t('registration.contacts.tipText')}
         </p>
       </div>
     </div>

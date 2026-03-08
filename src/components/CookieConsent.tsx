@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const CONSENT_KEY = 'cookie_consent';
 
@@ -15,6 +16,7 @@ function getConsent(): ConsentState {
 }
 
 export default function CookieConsent() {
+  const { t } = useTranslation();
   const [consent, setConsent] = useState<ConsentState>(() => getConsent());
 
   useEffect(() => {
@@ -41,18 +43,17 @@ export default function CookieConsent() {
     >
       <div className="container mx-auto flex flex-col sm:flex-row items-start sm:items-center gap-4">
         <p className="text-sm text-muted-foreground flex-1">
-          We use cookies to improve your experience and for analytics.
-          By continuing, you agree to our{' '}
+          {t('cookies.message')}{' '}
           <Link to="/privacy" className="text-primary underline">
-            Privacy Policy
+            {t('cookies.privacyPolicy')}
           </Link>.
         </p>
         <div className="flex gap-2 shrink-0">
           <Button variant="outline" size="sm" onClick={reject}>
-            Decline
+            {t('cookies.decline')}
           </Button>
           <Button size="sm" onClick={accept}>
-            Accept
+            {t('cookies.accept')}
           </Button>
         </div>
       </div>

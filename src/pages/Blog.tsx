@@ -3,9 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { 
-  Clock, 
-  Search, 
+import {
+  Clock,
+  Search,
   Calendar,
   ArrowRight,
   BookOpen,
@@ -15,6 +15,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { PageSEO } from '@/components/PageSEO';
@@ -49,6 +50,7 @@ const Blog = () => {
   const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>([]);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     loadBlogPosts();
@@ -119,8 +121,8 @@ const Blog = () => {
     } catch (error) {
       console.error('Error loading blog posts:', error);
       toast({
-        title: "Error",
-        description: "Failed to load blog posts",
+        title: t('blog.errorTitle'),
+        description: t('blog.loadError'),
         variant: "destructive"
       });
     } finally {
@@ -176,14 +178,14 @@ const Blog = () => {
           <div className="text-center max-w-4xl mx-auto">
             <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm text-primary px-6 py-3 rounded-full text-sm font-medium mb-8 shadow-lg">
               <BookOpen className="h-4 w-4" />
-              Safety & Emergency Response Blog
+              {t('blog.heroBadge')}
             </div>
             <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
-              Safety Insights &<br />
-              <span className="text-primary">Expert Guidance</span>
+              {t('blog.heroTitle1')}<br />
+              <span className="text-primary">{t('blog.heroTitle2')}</span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-              Stay informed with the latest safety tips, emergency response guidance, and family protection insights from our AI-powered content creation system.
+              {t('blog.heroDescription')}
             </p>
             
             {/* Enhanced Search Bar */}
@@ -193,7 +195,7 @@ const Blog = () => {
                 <Search className="absolute left-4 top-4 h-5 w-5 text-muted-foreground" />
                 <Input
                   type="text"
-                  placeholder="Search articles, tips, and guides..."
+                  placeholder={t('blog.searchPlaceholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-12 pr-4 py-6 text-lg border-0 focus:ring-2 focus:ring-primary/20 rounded-lg"
@@ -210,7 +212,7 @@ const Blog = () => {
           <section className="mb-20">
             <div className="flex items-center gap-2 mb-6">
               <Star className="h-6 w-6 text-yellow-500" />
-              <h2 className="text-2xl font-bold">Featured Article</h2>
+              <h2 className="text-2xl font-bold">{t('blog.featuredArticle')}</h2>
             </div>
             <Card className="overflow-hidden border-0 shadow-xl bg-gradient-to-br from-white to-primary/5">
               <CardContent className="p-0">
@@ -218,22 +220,22 @@ const Blog = () => {
                   <div className="lg:col-span-2 p-10">
                     <div className="flex items-center gap-4 mb-6">
                       <Badge className="bg-gradient-to-r from-primary to-primary/80 text-white px-4 py-2 text-sm">
-                        Featured
+                        {t('blog.featured')}
                       </Badge>
                       {featuredPost.reading_time && (
                         <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted px-3 py-1 rounded-full">
                           <Clock className="h-4 w-4" />
-                          {featuredPost.reading_time} min read
+                          {t('blog.minRead', { count: featuredPost.reading_time })}
                         </div>
                       )}
                       {featuredPost.seo_score && featuredPost.seo_score >= 80 && (
                         <Badge className="bg-green-500/10 text-green-700 border-green-200">
-                          SEO Optimized
+                          {t('blog.seoOptimized')}
                         </Badge>
                       )}
                     </div>
                     <h3 className="text-3xl font-bold mb-6 text-foreground leading-tight">
-                      {featuredPost.seo_title || featuredPost.title || 'Untitled Post'}
+                      {featuredPost.seo_title || featuredPost.title || t('blog.untitledPost')}
                     </h3>
                     <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
                       {featuredPost.meta_description || getExcerpt(featuredPost.body_text || '', 200)}
@@ -248,7 +250,7 @@ const Blog = () => {
                         className="group"
                         onClick={() => handleReadMore(featuredPost)}
                       >
-                        Read Full Article
+                        {t('blog.readFullArticle')}
                         <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
                       </Button>
                     </div>
@@ -259,10 +261,10 @@ const Blog = () => {
                         <BookOpen className="h-12 w-12 text-primary" />
                       </div>
                       <p className="text-sm font-medium text-muted-foreground">
-                        AI-Generated Safety Content
+                        {t('blog.aiGeneratedContent')}
                       </p>
                       <p className="text-xs text-muted-foreground mt-2">
-                        Powered by Riven AI Marketing System
+                        {t('blog.poweredByRiven')}
                       </p>
                     </div>
                   </div>
@@ -277,15 +279,15 @@ const Blog = () => {
           <section className="space-y-10">
             <div className="flex items-center justify-between border-b border-border pb-4">
               <h2 className="text-3xl font-bold">
-                {searchTerm ? `Search Results` : 'Latest Articles'}
+                {searchTerm ? t('blog.searchResults') : t('blog.latestArticles')}
               </h2>
               <div className="flex items-center gap-4">
                 <div className="text-sm text-muted-foreground bg-muted px-3 py-1 rounded-full">
-                  {filteredPosts.length} article{filteredPosts.length !== 1 ? 's' : ''}
+                  {t('blog.articleCount', { count: filteredPosts.length })}
                 </div>
                 {searchTerm && (
                   <Button variant="outline" size="sm" onClick={() => setSearchTerm('')}>
-                    Clear Search
+                    {t('blog.clearSearch')}
                   </Button>
                 )}
               </div>
@@ -307,7 +309,7 @@ const Blog = () => {
                         {post.seo_score && post.seo_score >= 80 && (
                           <Badge className="bg-green-50 text-green-700 border-green-200 font-medium text-xs px-3 py-1">
                             <Star className="h-3 w-3 mr-1" />
-                            SEO Optimized
+                            {t('blog.seoOptimized')}
                           </Badge>
                         )}
                       </div>
@@ -321,7 +323,7 @@ const Blog = () => {
                     
                     {/* Title */}
                     <CardTitle className="group-hover:text-primary transition-colors duration-300 text-xl font-bold leading-tight line-clamp-2 mb-3 min-h-[3.5rem] flex items-start">
-                      {post.seo_title || post.title || 'Untitled Post'}
+                      {post.seo_title || post.title || t('blog.untitledPost')}
                     </CardTitle>
                   </CardHeader>
                   
@@ -341,7 +343,7 @@ const Blog = () => {
                         ))}
                         {post.keywords.length > 3 && (
                           <Badge variant="outline" className="text-xs text-muted-foreground px-2.5 py-1">
-                            +{post.keywords.length - 3} more
+                            {t('blog.moreKeywords', { count: post.keywords.length - 3 })}
                           </Badge>
                         )}
                       </div>
@@ -359,7 +361,7 @@ const Blog = () => {
                         className="group/btn hover:bg-primary/10 hover:text-primary text-sm font-medium px-4 py-2 h-auto"
                         onClick={() => handleReadMore(post)}
                       >
-                        Read Article
+                        {t('blog.readArticle')}
                         <ArrowRight className="h-4 w-4 ml-2 group-hover/btn:translate-x-1 transition-transform duration-300" />
                       </Button>
                     </div>
@@ -377,24 +379,24 @@ const Blog = () => {
                   <BookOpen className="h-10 w-10 text-primary" />
                 </div>
                 <h3 className="text-2xl font-bold mb-4">
-                  {searchTerm ? 'No articles found' : 'No Published Content Yet'}
+                  {searchTerm ? t('blog.noArticlesFound') : t('blog.noPublishedContent')}
                 </h3>
                 <p className="text-muted-foreground mb-8 max-w-md mx-auto leading-relaxed">
-                  {searchTerm 
-                    ? `No articles match "${searchTerm}". Try adjusting your search terms.`
-                    : 'Published content from your Riven AI Marketing System will appear here automatically.'
+                  {searchTerm
+                    ? t('blog.noArticlesMatch', { term: searchTerm })
+                    : t('blog.noPublishedContentDesc')
                   }
                 </p>
                 {searchTerm && (
                   <Button variant="outline" onClick={() => setSearchTerm('')}>
                     <Search className="h-4 w-4 mr-2" />
-                    Clear Search
+                    {t('blog.clearSearch')}
                   </Button>
                 )}
                 {!searchTerm && (
                   <div className="text-sm text-muted-foreground mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200 max-w-md mx-auto">
-                    <p className="font-semibold text-blue-800 mb-1">💡 How to publish content:</p>
-                    <p className="text-blue-700">Go to Admin Dashboard → Riven Marketing → Create & publish content</p>
+                    <p className="font-semibold text-blue-800 mb-1">{t('blog.howToPublishTitle')}</p>
+                    <p className="text-blue-700">{t('blog.howToPublishDesc')}</p>
                   </div>
                 )}
               </CardContent>
@@ -410,33 +412,31 @@ const Blog = () => {
                 <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center mb-6 mx-auto shadow-lg">
                   <Star className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold mb-6">AI-Powered Safety Content</h3>
+                <h3 className="text-2xl font-bold mb-6">{t('blog.aiPoweredTitle')}</h3>
                 <p className="text-muted-foreground mb-10 text-lg leading-relaxed">
-                  Our blog articles are created by Riven, our advanced AI marketing assistant, to provide you with 
-                  the latest insights on emergency response, family safety, and protection technology. All content 
-                  is automatically optimized for SEO and readability.
+                  {t('blog.aiPoweredDesc')}
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   <div className="flex flex-col items-center gap-3 p-6 bg-white/60 rounded-xl">
                     <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
                       <BookOpen className="h-6 w-6 text-blue-600" />
                     </div>
-                    <span className="font-semibold">Expert Content</span>
-                    <span className="text-sm text-muted-foreground text-center">Researched and verified safety information</span>
+                    <span className="font-semibold">{t('blog.expertContent')}</span>
+                    <span className="text-sm text-muted-foreground text-center">{t('blog.expertContentDesc')}</span>
                   </div>
                   <div className="flex flex-col items-center gap-3 p-6 bg-white/60 rounded-xl">
                     <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
                       <Star className="h-6 w-6 text-yellow-600" />
                     </div>
-                    <span className="font-semibold">SEO Optimized</span>
-                    <span className="text-sm text-muted-foreground text-center">Maximum visibility and reach</span>
+                    <span className="font-semibold">{t('blog.seoOptimized')}</span>
+                    <span className="text-sm text-muted-foreground text-center">{t('blog.seoOptimizedDesc')}</span>
                   </div>
                   <div className="flex flex-col items-center gap-3 p-6 bg-white/60 rounded-xl">
                     <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
                       <Eye className="h-6 w-6 text-green-600" />
                     </div>
-                    <span className="font-semibold">Live Updates</span>
-                    <span className="text-sm text-muted-foreground text-center">Fresh content published regularly</span>
+                    <span className="font-semibold">{t('blog.liveUpdates')}</span>
+                    <span className="text-sm text-muted-foreground text-center">{t('blog.liveUpdatesDesc')}</span>
                   </div>
                 </div>
               </div>

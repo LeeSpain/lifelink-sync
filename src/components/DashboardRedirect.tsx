@@ -3,9 +3,11 @@ import { useOptimizedAuth } from '@/hooks/useOptimizedAuth';
 import { Navigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useFamilyRole } from '@/hooks/useFamilyRole';
+import { useTranslation } from 'react-i18next';
 
 const DashboardRedirect = () => {
   const { user, loading, isAdmin, role } = useOptimizedAuth();
+  const { t } = useTranslation();
   const { data: familyRole, isLoading: familyRoleLoading } = useFamilyRole();
   const [onboardingChecked, setOnboardingChecked] = useState(false);
   const [needsOnboarding, setNeedsOnboarding] = useState(false);
@@ -68,7 +70,7 @@ const DashboardRedirect = () => {
       <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
         <div className="text-white text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4"></div>
-          <p>Checking access level...</p>
+          <p>{t('dashboardRedirect.checkingAccess')}</p>
         </div>
       </div>
     );

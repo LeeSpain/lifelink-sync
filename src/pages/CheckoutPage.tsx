@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -9,6 +10,7 @@ import { Loader2, AlertCircle, ArrowLeft, CreditCard } from 'lucide-react';
 import { PageSEO } from '@/components/PageSEO';
 
 const CheckoutPage = () => {
+  const { t } = useTranslation();
   const { user, loading: authLoading } = useAuth();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -30,7 +32,7 @@ const CheckoutPage = () => {
       }
 
       if (!planId) {
-        setError('No plan selected. Please choose a plan from the pricing page.');
+        setError(t('checkout.noPlanSelected'));
         setIsProcessing(false);
         return;
       }
@@ -79,7 +81,7 @@ const CheckoutPage = () => {
       <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
         <div className="text-white text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p>Checking authentication...</p>
+          <p>{t('checkout.checkingAuth')}</p>
         </div>
       </div>
     );
@@ -96,15 +98,15 @@ const CheckoutPage = () => {
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
                 <CreditCard className="h-8 w-8 text-primary animate-pulse" />
               </div>
-              <CardTitle className="text-xl">Preparing Checkout</CardTitle>
+              <CardTitle className="text-xl">{t('checkout.preparingCheckout')}</CardTitle>
               <CardDescription>
-                {planName ? `Setting up ${planName}...` : 'Setting up your subscription...'}
+                {planName ? t('checkout.settingUpPlan', { plan: planName }) : t('checkout.settingUpSubscription')}
               </CardDescription>
             </CardHeader>
             <CardContent className="text-center">
               <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
               <p className="text-sm text-muted-foreground">
-                Redirecting to secure payment...
+                {t('checkout.redirectingToPayment')}
               </p>
             </CardContent>
           </Card>
@@ -123,9 +125,9 @@ const CheckoutPage = () => {
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
               <AlertCircle className="h-8 w-8 text-destructive" />
             </div>
-            <CardTitle className="text-xl">Checkout Error</CardTitle>
+            <CardTitle className="text-xl">{t('checkout.checkoutError')}</CardTitle>
             <CardDescription>
-              We couldn't start the checkout process
+              {t('checkout.couldNotStartCheckout')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -143,7 +145,7 @@ const CheckoutPage = () => {
                 }}
                 className="w-full"
               >
-                Try Again
+                {t('checkout.tryAgain')}
               </Button>
               
               <Button 
@@ -153,7 +155,7 @@ const CheckoutPage = () => {
               >
                 <Link to="/#pricing">
                   <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Pricing
+                  {t('checkout.backToPricing')}
                 </Link>
               </Button>
             </div>

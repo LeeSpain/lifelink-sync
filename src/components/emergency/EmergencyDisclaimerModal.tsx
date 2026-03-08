@@ -12,6 +12,7 @@ import { AlertTriangle, Phone, Shield, Crown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { useTranslation } from 'react-i18next';
 
 interface EmergencyDisclaimerModalProps {
   isOpen: boolean;
@@ -26,6 +27,7 @@ export const EmergencyDisclaimerModal: React.FC<EmergencyDisclaimerModalProps> =
   onCancel,
   subscriptionTier
 }) => {
+  const { t } = useTranslation();
   const [hasAccepted, setHasAccepted] = useState(false);
 
   const handleAccept = () => {
@@ -43,10 +45,10 @@ export const EmergencyDisclaimerModal: React.FC<EmergencyDisclaimerModalProps> =
             </div>
           </div>
           <DialogTitle className="text-2xl font-bold text-center text-emergency">
-            🚨 Emergency SOS Disclaimer
+            {t('emergency.disclaimerTitle')}
           </DialogTitle>
           <DialogDescription className="text-center text-muted-foreground">
-            Please read carefully before using Emergency SOS
+            {t('emergency.disclaimerSubtitle')}
           </DialogDescription>
         </DialogHeader>
 
@@ -54,16 +56,16 @@ export const EmergencyDisclaimerModal: React.FC<EmergencyDisclaimerModalProps> =
           {/* Subscription Tier Status */}
           <div className="bg-muted/50 rounded-lg p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-sm">Your Current Plan:</span>
+              <span className="font-semibold text-sm">{t('emergency.yourCurrentPlan')}:</span>
               {subscriptionTier === 'call_centre' ? (
                 <Badge variant="default" className="bg-wellness text-white">
                   <Crown className="w-3 h-3 mr-1" />
-                  Call Centre Plan
+                  {t('emergency.callCentrePlan')}
                 </Badge>
               ) : (
                 <Badge variant="outline">
                   <Shield className="w-3 h-3 mr-1" />
-                  Basic Plan
+                  {t('emergency.basicPlan')}
                 </Badge>
               )}
             </div>
@@ -74,11 +76,11 @@ export const EmergencyDisclaimerModal: React.FC<EmergencyDisclaimerModalProps> =
             <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
               <Shield className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
               <div className="space-y-1">
-                <h4 className="font-semibold text-blue-900">BASIC PLAN: Emergency Contacts Only</h4>
+                <h4 className="font-semibold text-blue-900">{t('emergency.basicPlanTitle')}</h4>
                 <ul className="text-sm text-blue-800 space-y-1">
-                  <li>• Contacts called one-by-one until someone answers (15-second intervals)</li>
-                  <li>• Email alerts sent simultaneously with location</li>
-                  <li>• You are responsible for ensuring contacts respond</li>
+                  <li>• {t('emergency.basicPlanItem1')}</li>
+                  <li>• {t('emergency.basicPlanItem2')}</li>
+                  <li>• {t('emergency.basicPlanItem3')}</li>
                 </ul>
               </div>
             </div>
@@ -97,18 +99,18 @@ export const EmergencyDisclaimerModal: React.FC<EmergencyDisclaimerModalProps> =
                   <h4 className={`font-semibold ${
                     subscriptionTier === 'call_centre' ? 'text-wellness' : 'text-gray-600'
                   }`}>
-                    CALL CENTRE PLAN: Direct Professional Response
+                    {t('emergency.callCentrePlanTitle')}
                   </h4>
                   <ul className={`text-sm space-y-1 ${
                     subscriptionTier === 'call_centre' ? 'text-wellness' : 'text-gray-500'
                   }`}>
-                    <li>• Immediate connection to Spain Emergency Call Centre</li>
-                    <li>• Professional emergency response coordination</li>
-                    <li>• Backup contact alerts still sent as additional layer</li>
+                    <li>• {t('emergency.callCentrePlanItem1')}</li>
+                    <li>• {t('emergency.callCentrePlanItem2')}</li>
+                    <li>• {t('emergency.callCentrePlanItem3')}</li>
                   </ul>
                   {subscriptionTier !== 'call_centre' && (
                     <p className="text-xs text-muted-foreground mt-2">
-                      Upgrade to access professional emergency response
+                      {t('emergency.upgradeToAccess')}
                     </p>
                   )}
                 </div>
@@ -121,12 +123,12 @@ export const EmergencyDisclaimerModal: React.FC<EmergencyDisclaimerModalProps> =
             <div className="flex items-start gap-3">
               <Phone className="w-5 h-5 text-emergency mt-0.5 flex-shrink-0" />
               <div className="space-y-2">
-                <h4 className="font-bold text-emergency">⚠️ CRITICAL WARNING</h4>
+                <h4 className="font-bold text-emergency">{t('emergency.criticalWarning')}</h4>
                 <p className="text-sm text-emergency font-medium">
-                  This service is NOT a replacement for official emergency services.
+                  {t('emergency.notReplacement')}
                 </p>
                 <p className="text-sm text-gray-700">
-                  <strong>Always call 112 (EU) / 911 (US) first</strong> for life-threatening emergencies.
+                  <strong>{t('emergency.alwaysCall112')}</strong> {t('emergency.forLifeThreatening')}
                 </p>
               </div>
             </div>
@@ -135,21 +137,20 @@ export const EmergencyDisclaimerModal: React.FC<EmergencyDisclaimerModalProps> =
           {/* Acknowledgment */}
           <div className="bg-muted/30 rounded-lg p-4">
             <p className="text-sm text-center text-muted-foreground leading-relaxed">
-              By using Emergency SOS, you acknowledge this service supplements but does not replace official emergency services.
-              You understand the limitations of your current plan and accept responsibility for your emergency preparedness.
+              {t('emergency.acknowledgment')}
             </p>
           </div>
         </div>
 
         <DialogFooter className="flex-col sm:flex-row gap-2">
           <Button variant="outline" onClick={onCancel} className="w-full sm:w-auto">
-            Cancel
+            {t('emergency.cancel')}
           </Button>
           <Button 
             onClick={handleAccept} 
             className="w-full sm:w-auto bg-emergency hover:bg-emergency/90"
           >
-            I Understand & Accept
+            {t('emergency.iUnderstandAccept')}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Users, Shield } from "lucide-react";
@@ -7,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 const FamilyCheckoutSuccess = () => {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -19,8 +21,8 @@ const FamilyCheckoutSuccess = () => {
     const processSuccessfulPayment = async () => {
       if (!sessionId) {
         toast({
-          title: "Error",
-          description: "No payment session found",
+          title: t('checkout.error'),
+          description: t('checkout.noPaymentSessionFound'),
           variant: "destructive"
         });
         navigate('/dashboard');
@@ -39,14 +41,14 @@ const FamilyCheckoutSuccess = () => {
         setInviteDetails(data);
         
         toast({
-          title: "Payment Successful!",
-          description: "Your family access has been activated. All dashboards will be updated shortly.",
+          title: t('checkout.paymentSuccessful'),
+          description: t('checkout.familyAccessActivated'),
         });
       } catch (error) {
         console.error('Error processing payment:', error);
         toast({
-          title: "Processing Error",
-          description: "Payment was successful but there was an issue updating your account. Please contact support.",
+          title: t('checkout.processingError'),
+          description: t('checkout.paymentSuccessButError'),
           variant: "destructive"
         });
       } finally {
@@ -63,7 +65,7 @@ const FamilyCheckoutSuccess = () => {
         <Card className="w-full max-w-md">
           <CardContent className="p-6 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p>Processing your payment...</p>
+            <p>{t('checkout.processingPayment')}</p>
           </CardContent>
         </Card>
       </div>
@@ -78,17 +80,17 @@ const FamilyCheckoutSuccess = () => {
             <CheckCircle className="h-8 w-8 text-green-600" />
           </div>
           <CardTitle className="text-2xl font-bold text-green-600">
-            Payment Successful!
+            {t('checkout.paymentSuccessful')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="text-center space-y-2">
             <p className="text-muted-foreground">
-              Welcome to Family Access! Your subscription is now active.
+              {t('checkout.welcomeToFamilyAccess')}
             </p>
             {inviteDetails?.family_member_name && (
               <p className="font-medium">
-                You've joined {inviteDetails.family_member_name}'s family group.
+                {t('checkout.joinedFamilyGroup', { name: inviteDetails.family_member_name })}
               </p>
             )}
           </div>
@@ -97,37 +99,37 @@ const FamilyCheckoutSuccess = () => {
             <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
               <Users className="h-5 w-5 text-primary" />
               <div>
-                <p className="font-medium">Family SOS Alerts</p>
+                <p className="font-medium">{t('checkout.familySosAlerts')}</p>
                 <p className="text-sm text-muted-foreground">
-                  Receive emergency alerts from family members
+                  {t('checkout.receiveEmergencyAlerts')}
                 </p>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
               <Shield className="h-5 w-5 text-primary" />
               <div>
-                <p className="font-medium">Live Emergency Map</p>
+                <p className="font-medium">{t('checkout.liveEmergencyMap')}</p>
                 <p className="text-sm text-muted-foreground">
-                  See real-time location during SOS events
+                  {t('checkout.seeRealtimeLocation')}
                 </p>
               </div>
             </div>
           </div>
 
           <div className="space-y-3">
-            <Button 
-              onClick={() => navigate('/dashboard')} 
+            <Button
+              onClick={() => navigate('/dashboard')}
               className="w-full"
             >
-              Go to Dashboard
+              {t('checkout.goToDashboard')}
             </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => navigate('/family-dashboard')} 
+            <Button
+              variant="outline"
+              onClick={() => navigate('/family-dashboard')}
               className="w-full"
             >
-              View Family Settings
+              {t('checkout.viewFamilySettings')}
             </Button>
           </div>
         </CardContent>

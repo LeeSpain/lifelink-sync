@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -48,6 +49,7 @@ interface PlanStepProps {
 }
 
 const PlanStep: React.FC<PlanStepProps> = ({ data, onChange }) => {
+  const { t } = useTranslation();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [services, setServices] = useState<RegionalService[]>([]);
@@ -120,7 +122,7 @@ const PlanStep: React.FC<PlanStepProps> = ({ data, onChange }) => {
     return (
       <div className="flex items-center justify-center py-16">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-3 text-muted-foreground">Loading plans...</span>
+        <span className="ml-3 text-muted-foreground">{t('registration.plan.loading')}</span>
       </div>
     );
   }
@@ -131,8 +133,8 @@ const PlanStep: React.FC<PlanStepProps> = ({ data, onChange }) => {
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-primary/10">
           <Shield className="h-7 w-7 text-primary" />
         </div>
-        <h2 className="text-2xl font-poppins font-bold text-foreground">Choose Your Plan</h2>
-        <p className="text-sm text-muted-foreground">Select the protection level that's right for you</p>
+        <h2 className="text-2xl font-poppins font-bold text-foreground">{t('registration.plan.title')}</h2>
+        <p className="text-sm text-muted-foreground">{t('registration.plan.subtitle')}</p>
       </div>
 
       {/* Free Trial Option */}
@@ -150,11 +152,11 @@ const PlanStep: React.FC<PlanStepProps> = ({ data, onChange }) => {
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <h3 className="font-semibold text-foreground">7-Day Free Trial</h3>
-              <Badge className="bg-wellness/10 text-wellness border-wellness/20">No card required</Badge>
+              <h3 className="font-semibold text-foreground">{t('registration.plan.freeTrialTitle')}</h3>
+              <Badge className="bg-wellness/10 text-wellness border-wellness/20">{t('registration.plan.noCardRequired')}</Badge>
             </div>
             <p className="text-sm text-muted-foreground mt-1">
-              Try LifeLink Sync free for 7 days. Includes SOS, Clara AI, location sharing, 1 emergency contact, and 1 family link.
+              {t('registration.plan.freeTrialDesc')}
             </p>
           </div>
           <div className="flex-shrink-0">
@@ -186,7 +188,7 @@ const PlanStep: React.FC<PlanStepProps> = ({ data, onChange }) => {
                     <h3 className="font-semibold text-foreground">{plan.name}</h3>
                     {plan.is_popular && (
                       <Badge className="bg-primary/10 text-primary border-primary/20">
-                        <Star className="h-3 w-3 mr-1" /> Popular
+                        <Star className="h-3 w-3 mr-1" /> {t('registration.plan.popular')}
                       </Badge>
                     )}
                   </div>
@@ -201,7 +203,7 @@ const PlanStep: React.FC<PlanStepProps> = ({ data, onChange }) => {
 
               <div className="text-2xl font-bold text-foreground">
                 {plan.currency === 'EUR' ? '\u20AC' : '$'}{plan.price}
-                <span className="text-sm font-normal text-muted-foreground">/month</span>
+                <span className="text-sm font-normal text-muted-foreground">/{t('registration.plan.month')}</span>
               </div>
 
               {plan.features.length > 0 && (
@@ -222,7 +224,7 @@ const PlanStep: React.FC<PlanStepProps> = ({ data, onChange }) => {
       {/* Products (Optional) */}
       {products.length > 0 && (
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-foreground">Optional Safety Products</h3>
+          <h3 className="text-sm font-semibold text-foreground">{t('registration.plan.optionalProducts')}</h3>
           <div className="space-y-2">
             {products.map((product) => (
               <div key={product.id} className="flex items-center gap-3 p-3 rounded-lg border bg-card">
@@ -237,7 +239,7 @@ const PlanStep: React.FC<PlanStepProps> = ({ data, onChange }) => {
                     <div>
                       <span className="text-sm font-medium">{product.name}</span>
                       {product.status === 'coming_soon' && (
-                        <Badge variant="outline" className="ml-2 text-xs">Coming Soon</Badge>
+                        <Badge variant="outline" className="ml-2 text-xs">{t('registration.plan.comingSoon')}</Badge>
                       )}
                     </div>
                     <span className="text-sm font-semibold">{product.currency === 'EUR' ? '\u20AC' : '$'}{product.price}</span>
@@ -253,7 +255,7 @@ const PlanStep: React.FC<PlanStepProps> = ({ data, onChange }) => {
       {/* Regional Services (Optional) */}
       {services.length > 0 && (
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-foreground">Regional Services</h3>
+          <h3 className="text-sm font-semibold text-foreground">{t('registration.plan.regionalServices')}</h3>
           <div className="space-y-2">
             {services.map((service) => (
               <div key={service.id} className="flex items-center gap-3 p-3 rounded-lg border bg-card">

@@ -6,6 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send, MessageCircle, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 interface Message {
   id: string;
@@ -19,14 +20,16 @@ interface ContactChatWidgetProps {
   placeholder?: string;
 }
 
-const ContactChatWidget: React.FC<ContactChatWidgetProps> = ({ 
+const ContactChatWidget: React.FC<ContactChatWidgetProps> = ({
   className = "",
-  placeholder = "Ask Clara about LifeLink Sync..."
+  placeholder
 }) => {
+  const { t } = useTranslation();
+  const resolvedPlaceholder = placeholder ?? t('chat.placeholder');
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      content: `👋 Hi there! I'm Clara, your LifeLink Sync AI assistant. I'm here to help answer questions about our emergency protection services, features, pricing, and anything else you'd like to know. How can I assist you today?`,
+      content: t('chat.welcomeMessage'),
       isUser: false,
       timestamp: new Date()
     }
@@ -72,7 +75,7 @@ const ContactChatWidget: React.FC<ContactChatWidgetProps> = ({
 
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: data.response || "I'm sorry, I couldn't process that request. Please try again or use the contact form for more detailed assistance.",
+        content: data.response || t('chat.fallbackResponse'),
         isUser: false,
         timestamp: new Date()
       };
@@ -80,11 +83,11 @@ const ContactChatWidget: React.FC<ContactChatWidgetProps> = ({
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
       console.error('Error sending message:', error);
-      toast.error("Unable to connect to Clara. Please try again or use the contact form.");
-      
+      toast.error(t('chat.connectionError'));
+
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: "I apologize, but I'm having trouble connecting right now. Please try again in a moment, or feel free to use the contact form for assistance.",
+        content: t('chat.errorMessage'),
         isUser: false,
         timestamp: new Date()
       };
@@ -109,8 +112,8 @@ const ContactChatWidget: React.FC<ContactChatWidgetProps> = ({
             <MessageCircle className="h-4 w-4" />
           </div>
           <div>
-            <h3 className="font-semibold">Clara AI Assistant</h3>
-            <p className="text-xs text-white/80">Live Support Chat</p>
+            <h3 className="font-semibold">{t('chat.title')}</h3>
+            <p className="text-xs text-white/80">{t('chat.subtitle')}</p>
           </div>
         </div>
       </div>
@@ -150,7 +153,7 @@ const ContactChatWidget: React.FC<ContactChatWidgetProps> = ({
               <div className="flex justify-start">
                 <div className="bg-muted p-3 rounded-lg flex items-center space-x-2 max-w-[85%]">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  <span className="text-sm">Clara is thinking...</span>
+                  <span className="text-sm">{t('chat.thinking')}</span>
                 </div>
               </div>
             )}
@@ -164,7 +167,7 @@ const ContactChatWidget: React.FC<ContactChatWidgetProps> = ({
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder={placeholder}
+              placeholder={resolvedPlaceholder}
               disabled={isLoading}
               className="flex-1 min-w-0"
             />
@@ -178,7 +181,7 @@ const ContactChatWidget: React.FC<ContactChatWidgetProps> = ({
             </Button>
           </div>
           <p className="text-xs text-muted-foreground mt-2 text-center">
-            Clara can help with features, pricing, account questions, and more
+            {t('chat.helpText')}
           </p>
         </div>
       </div>

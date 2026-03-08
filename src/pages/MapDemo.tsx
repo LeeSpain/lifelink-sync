@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +23,7 @@ interface Presence {
 
 // Demo-only sandbox: clearly not production data
 export default function MapDemo() {
+  const { t } = useTranslation();
   const [selectedMember, setSelectedMember] = React.useState<Presence | null>(null);
 
   const demoPresences: Presence[] = [
@@ -57,16 +59,16 @@ export default function MapDemo() {
       <NavigationComponent />
       <div className="max-w-6xl mx-auto p-6 space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Live Map Demo</h1>
-          <p className="text-muted-foreground">Interactive family location tracking with MapLibre (demo data)</p>
-          <Badge variant="secondary" className="mt-2">Demo Only - Not Production Data</Badge>
+          <h1 className="text-3xl font-bold text-foreground">{t('map.liveMapDemo')}</h1>
+          <p className="text-muted-foreground">{t('map.demoSubtitle')}</p>
+          <Badge variant="secondary" className="mt-2">{t('map.demoOnly')}</Badge>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2"><MapPin className="w-5 h-5" />Family Locations</CardTitle>
+                <CardTitle className="flex items-center gap-2"><MapPin className="w-5 h-5" />{t('map.familyLocations')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="h-96 w-full rounded-lg overflow-hidden border">
@@ -80,7 +82,7 @@ export default function MapDemo() {
 
           <div className="space-y-4">
             <Card>
-              <CardHeader><CardTitle className="flex items-center gap-2"><Clock className="w-5 h-5" />Family Members</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="flex items-center gap-2"><Clock className="w-5 h-5" />{t('map.familyMembers')}</CardTitle></CardHeader>
               <CardContent className="space-y-3">
                 {demoPresences.map(member => {
                   const status = getStatusFromPresence(member.last_seen, member.is_paused);
@@ -92,7 +94,7 @@ export default function MapDemo() {
                             {member.user_id.slice(-1)}
                           </div>
                           <div>
-                            <div className="font-medium">Family Member {member.user_id.slice(-1)}</div>
+                            <div className="font-medium">{t('map.familyMemberNumber', { number: member.user_id.slice(-1) })}</div>
                             <div className="text-sm text-muted-foreground">{member.last_seen && formatDistanceToNow(new Date(member.last_seen), { addSuffix: true })}</div>
                           </div>
                         </div>
@@ -106,18 +108,18 @@ export default function MapDemo() {
 
             {selectedMember && (
               <Card>
-                <CardHeader><CardTitle className="text-lg">Member Actions</CardTitle></CardHeader>
+                <CardHeader><CardTitle className="text-lg">{t('map.memberActions')}</CardTitle></CardHeader>
                 <CardContent className="space-y-3">
                   <div className="grid grid-cols-2 gap-2">
-                    <Button variant="outline" size="sm" onClick={() => handleMemberAction("message", selectedMember)} className="flex items-center gap-2"><MessageCircle className="w-4 h-4" />Message</Button>
-                    <Button variant="outline" size="sm" onClick={() => handleMemberAction("call", selectedMember)} className="flex items-center gap-2"><Phone className="w-4 h-4" />Call</Button>
-                    <Button variant="outline" size="sm" onClick={() => handleMemberAction("navigate", selectedMember)} className="flex items-center gap-2"><Navigation className="w-4 h-4" />Navigate</Button>
-                    <Button variant="destructive" size="sm" onClick={() => handleMemberAction("emergency", selectedMember)} className="flex items-center gap-2"><AlertTriangle className="w-4 h-4" />Emergency</Button>
+                    <Button variant="outline" size="sm" onClick={() => handleMemberAction("message", selectedMember)} className="flex items-center gap-2"><MessageCircle className="w-4 h-4" />{t('map.message')}</Button>
+                    <Button variant="outline" size="sm" onClick={() => handleMemberAction("call", selectedMember)} className="flex items-center gap-2"><Phone className="w-4 h-4" />{t('map.call')}</Button>
+                    <Button variant="outline" size="sm" onClick={() => handleMemberAction("navigate", selectedMember)} className="flex items-center gap-2"><Navigation className="w-4 h-4" />{t('map.navigate')}</Button>
+                    <Button variant="destructive" size="sm" onClick={() => handleMemberAction("emergency", selectedMember)} className="flex items-center gap-2"><AlertTriangle className="w-4 h-4" />{t('map.emergency')}</Button>
                   </div>
                   <div className="pt-3 border-t text-sm space-y-1">
                     <div>{selectedMember.lat.toFixed(6)}, {selectedMember.lng.toFixed(6)}</div>
                     {selectedMember.battery && <div className="flex items-center gap-1"><Battery className="w-3 h-3" />{selectedMember.battery}%</div>}
-                    {selectedMember.is_paused && <div className="text-amber-600 text-xs">Location sharing paused</div>}
+                    {selectedMember.is_paused && <div className="text-amber-600 text-xs">{t('map.locationSharingPaused')}</div>}
                   </div>
                 </CardContent>
               </Card>

@@ -1,9 +1,11 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { XCircle, ArrowLeft } from "lucide-react";
 
 const FamilyCheckoutCanceled = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   return (
@@ -14,30 +16,30 @@ const FamilyCheckoutCanceled = () => {
             <XCircle className="h-8 w-8 text-red-600" />
           </div>
           <CardTitle className="text-2xl font-bold text-red-600">
-            Payment Canceled
+            {t('checkout.paymentCanceled')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="text-center space-y-2">
             <p className="text-muted-foreground">
-              Your family access subscription was not completed. You can try again anytime.
+              {t('checkout.familySubscriptionNotCompleted')}
             </p>
           </div>
 
           <div className="space-y-3">
-            <Button 
-              onClick={() => navigate('/family-dashboard')} 
+            <Button
+              onClick={() => navigate('/family-dashboard')}
               className="w-full"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Family Settings
+              {t('checkout.backToFamilySettings')}
             </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => navigate('/dashboard')} 
+            <Button
+              variant="outline"
+              onClick={() => navigate('/dashboard')}
               className="w-full"
             >
-              Go to Dashboard
+              {t('checkout.goToDashboard')}
             </Button>
           </div>
         </CardContent>

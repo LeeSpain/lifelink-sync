@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useState, useEffect, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFamilyMembers } from '@/hooks/useFamilyMembers';
 import { useFamilyRole } from '@/hooks/useFamilyRole';
@@ -32,6 +33,7 @@ import { cn } from '@/lib/utils';
 import { MapEntity, getStatusFromPresence } from '@/types/map';
 
 const FamilyAppPage = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { data: familyRole } = useFamilyRole();
   const { data: familyData, isLoading } = useFamilyMembers(familyRole?.familyGroupId);
@@ -178,9 +180,9 @@ const FamilyAppPage = () => {
       await supabase.functions.invoke('family-sos-alerts', {
         body: { alert_type: 'family_check_in', message: 'Family member has checked in safely', user_name: user?.user_metadata?.first_name || 'Family Member' }
       });
-      toast({ title: "Check-in Sent", description: "Your family has been notified you're safe" });
+      toast({ title: t('family.checkInSentTitle'), description: t('family.checkInSentDescription') });
     } catch {
-      toast({ title: "Check-in Failed", description: "Could not send check-in notification", variant: "destructive" });
+      toast({ title: t('family.checkInFailedTitle'), description: t('family.checkInFailedDescription'), variant: "destructive" });
     }
   };
 
@@ -196,7 +198,7 @@ const FamilyAppPage = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <SEO title="Family App" description="Stay connected with your family circle" />
+      <SEO title={t('family.seoTitle')} description={t('family.seoDescription')} />
 
       {/* ─── HEADER ─── */}
       <div className="bg-background border-b px-4 pt-4 pb-3">
@@ -207,15 +209,15 @@ const FamilyAppPage = () => {
                 <Heart className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h1 className="text-lg font-semibold tracking-tight">LifeLink Family</h1>
+                <h1 className="text-lg font-semibold tracking-tight">{t('family.appTitle')}</h1>
                 <p className="text-xs text-muted-foreground">
                   {onlineFamilyCount > 0 ? (
                     <span className="flex items-center gap-1">
                       <span className="w-1.5 h-1.5 bg-green-500 rounded-full inline-block" />
-                      {onlineFamilyCount} member{onlineFamilyCount !== 1 ? 's' : ''} online
+                      {t('family.membersOnline', { count: onlineFamilyCount })}
                     </span>
                   ) : (
-                    'No members online'
+                    t('family.noMembersOnline')
                   )}
                 </p>
               </div>
@@ -224,7 +226,7 @@ const FamilyAppPage = () => {
               {locationState.isTracking && (
                 <div className="flex items-center gap-1.5 text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 px-2.5 py-1 rounded-full">
                   <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-                  <span className="text-xs font-medium">Live</span>
+                  <span className="text-xs font-medium">{t('family.live')}</span>
                 </div>
               )}
               <Button variant="ghost" size="sm" onClick={refreshLocation} className="h-8 w-8 p-0">
@@ -261,10 +263,10 @@ const FamilyAppPage = () => {
                     <div className="flex items-center gap-2 text-sm">
                       <Navigation className="h-4 w-4 text-primary" />
                       <span className="font-medium">
-                        {currentLocation ? 'Location active' : (locationError || 'Getting location...')}
+                        {currentLocation ? t('family.locationActive') : (locationError || t('family.gettingLocation'))}
                       </span>
                     </div>
-                    <span className="text-xs text-muted-foreground">{mapEntities.length} on map</span>
+                    <span className="text-xs text-muted-foreground">{t('family.onMap', { count: mapEntities.length })}</span>
                   </div>
                 </div>
               </div>
@@ -276,7 +278,7 @@ const FamilyAppPage = () => {
                   onClick={handleCheckIn}
                 >
                   <CheckCircle2 className="h-4 w-4 mr-2" />
-                  I'm Safe
+                  {t('family.imSafe')}
                 </Button>
                 <Button
                   className="flex-1 h-11 bg-red-600 hover:bg-red-700 text-white rounded-xl shadow-sm"
@@ -284,15 +286,15 @@ const FamilyAppPage = () => {
                   disabled={isTriggering}
                 >
                   <AlertTriangle className="h-4 w-4 mr-2" />
-                  {isTriggering ? 'Sending...' : 'SOS'}
+                  {isTriggering ? t('family.sending') : t('family.sos')}
                 </Button>
               </div>
 
               {/* Family member list */}
               <div className="px-4 pb-4">
                 <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Your Circle</h2>
-                  <span className="text-xs text-muted-foreground">{activeFamilyMembers.length} member{activeFamilyMembers.length !== 1 ? 's' : ''}</span>
+                  <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">{t('family.yourCircle')}</h2>
+                  <span className="text-xs text-muted-foreground">{t('family.members', { count: activeFamilyMembers.length })}</span>
                 </div>
 
                 {isLoading ? (
@@ -309,8 +311,8 @@ const FamilyAppPage = () => {
                     <div className="h-14 w-14 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-3">
                       <Users className="h-7 w-7 text-muted-foreground/50" />
                     </div>
-                    <p className="text-sm font-medium text-foreground mb-1">No family members yet</p>
-                    <p className="text-xs text-muted-foreground">Ask a LifeLink member to add you to their circle</p>
+                    <p className="text-sm font-medium text-foreground mb-1">{t('family.noFamilyMembersYet')}</p>
+                    <p className="text-xs text-muted-foreground">{t('family.askToAddYou')}</p>
                   </div>
                 ) : (
                   <div className="space-y-1.5">
@@ -346,9 +348,9 @@ const FamilyAppPage = () => {
                             <p className="text-sm font-medium truncate">{member.name || member.email.split('@')[0]}</p>
                             <p className="text-xs text-muted-foreground">
                               {isOnline ? (
-                                <span className="text-green-600 dark:text-green-400">Online now</span>
+                                <span className="text-green-600 dark:text-green-400">{t('family.onlineNow')}</span>
                               ) : (
-                                'Offline'
+                                t('family.offline')
                               )}
                               {memberLocation?.battery_level != null && (
                                 <span className="ml-2 inline-flex items-center gap-0.5">
@@ -360,7 +362,7 @@ const FamilyAppPage = () => {
                           {isSelected && (
                             <div className="flex items-center gap-1">
                               <Eye className="h-4 w-4 text-primary" />
-                              <span className="text-xs text-primary font-medium">Viewing</span>
+                              <span className="text-xs text-primary font-medium">{t('family.viewing')}</span>
                             </div>
                           )}
                         </div>
@@ -384,21 +386,21 @@ const FamilyAppPage = () => {
                     <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold">Quick Check-in</h3>
-                    <p className="text-xs text-muted-foreground">Let your family know you're safe</p>
+                    <h3 className="text-sm font-semibold">{t('family.quickCheckIn')}</h3>
+                    <p className="text-xs text-muted-foreground">{t('family.letFamilyKnowSafe')}</p>
                   </div>
                 </div>
                 <Button className="w-full" variant="outline" onClick={handleCheckIn}>
-                  <CheckCircle2 className="h-4 w-4 mr-2" />Send Check-in
+                  <CheckCircle2 className="h-4 w-4 mr-2" />{t('family.sendCheckIn')}
                 </Button>
               </div>
 
               {/* Alerts section */}
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Alerts</h2>
+                  <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">{t('family.alerts')}</h2>
                   {unreadNotifications > 0 && (
-                    <Badge variant="destructive" className="text-xs">{unreadNotifications} new</Badge>
+                    <Badge variant="destructive" className="text-xs">{unreadNotifications} {t('family.new')}</Badge>
                   )}
                 </div>
 
@@ -407,8 +409,8 @@ const FamilyAppPage = () => {
                     <div className="h-14 w-14 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-3">
                       <Bell className="h-7 w-7 text-muted-foreground/40" />
                     </div>
-                    <p className="text-sm font-medium text-foreground mb-1">All caught up</p>
-                    <p className="text-xs text-muted-foreground">No new alerts from your family circle</p>
+                    <p className="text-sm font-medium text-foreground mb-1">{t('family.allCaughtUp')}</p>
+                    <p className="text-xs text-muted-foreground">{t('family.noNewAlerts')}</p>
                   </div>
                 ) : (
                   <div className="rounded-xl border bg-card p-4">
@@ -417,8 +419,8 @@ const FamilyAppPage = () => {
                         <Bell className="h-5 w-5 text-primary" />
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm font-medium">{unreadNotifications} unread alert{unreadNotifications !== 1 ? 's' : ''}</p>
-                        <p className="text-xs text-muted-foreground">Tap to view your notifications</p>
+                        <p className="text-sm font-medium">{t('family.unreadAlerts', { count: unreadNotifications })}</p>
+                        <p className="text-xs text-muted-foreground">{t('family.tapToView')}</p>
                       </div>
                       <ChevronRight className="h-4 w-4 text-muted-foreground" />
                     </div>
@@ -429,7 +431,7 @@ const FamilyAppPage = () => {
               {/* Emergency contacts */}
               {contacts.length > 0 && (
                 <div>
-                  <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Emergency Contacts</h2>
+                  <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">{t('family.emergencyContacts')}</h2>
                   <div className="space-y-1.5">
                     {contacts.slice(0, 4).map((contact, index) => (
                       <div key={contact.id || index} className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted/50 transition-colors">
@@ -472,31 +474,31 @@ const FamilyAppPage = () => {
               <div className="rounded-xl border bg-card p-4 space-y-3">
                 <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2">
                   <Shield className="h-4 w-4" />
-                  System Status
+                  {t('family.systemStatus')}
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
                   <StatusItem
                     icon={<MapPin className="h-4 w-4" />}
-                    label="Location"
-                    value={systemStatus.location ? 'Active' : 'Disabled'}
+                    label={t('family.location')}
+                    value={systemStatus.location ? t('family.locationActiveStatus') : t('family.locationDisabled')}
                     isActive={systemStatus.location}
                     pulse={locationState.isTracking}
                   />
                   <StatusItem
                     icon={<Users className="h-4 w-4" />}
-                    label="Contacts"
-                    value={`${systemStatus.contacts} saved`}
+                    label={t('family.contacts')}
+                    value={t('family.contactsSaved', { count: systemStatus.contacts })}
                     isActive={systemStatus.contacts > 0}
                   />
                   <StatusItem
                     icon={<Wifi className="h-4 w-4" />}
-                    label="Network"
-                    value={systemStatus.network ? 'Connected' : 'Offline'}
+                    label={t('family.network')}
+                    value={systemStatus.network ? t('family.connected') : t('family.offline')}
                     isActive={systemStatus.network}
                   />
                   <StatusItem
                     icon={<Battery className="h-4 w-4" />}
-                    label="Battery"
+                    label={t('family.battery')}
                     value={`${systemStatus.battery}%`}
                     isActive={systemStatus.battery > 20}
                   />
@@ -511,7 +513,7 @@ const FamilyAppPage = () => {
               {/* Emergency contacts */}
               {contacts.length > 0 && (
                 <div>
-                  <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Emergency Contacts</h2>
+                  <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">{t('family.emergencyContacts')}</h2>
                   <div className="space-y-1.5">
                     {contacts.slice(0, 3).map((contact, index) => (
                       <div key={contact.id || index} className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted/50 transition-colors">
@@ -543,14 +545,14 @@ const FamilyAppPage = () => {
 
               {/* Location sharing controls */}
               <div>
-                <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Location Sharing</h2>
+                <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">{t('family.locationSharing')}</h2>
                 <div className="rounded-xl border bg-card p-4">
                   <p className="text-xs text-muted-foreground mb-3">
-                    Choose who can see your location. Each person controls their own sharing independently.
+                    {t('family.locationSharingDescription')}
                   </p>
 
                   {familyConnections.filter(c => c.status === 'active').length === 0 ? (
-                    <p className="text-sm text-muted-foreground py-2">No active connections yet.</p>
+                    <p className="text-sm text-muted-foreground py-2">{t('family.noActiveConnections')}</p>
                   ) : (
                     <div className="space-y-3">
                       {familyConnections.filter(c => c.status === 'active').map(connection => (
@@ -563,17 +565,17 @@ const FamilyAppPage = () => {
                               )}
                               {connection.contact_share_location ? (
                                 <span className="text-xs text-green-600 dark:text-green-400 flex items-center gap-0.5">
-                                  <MapPin className="h-3 w-3" />Sharing with you
+                                  <MapPin className="h-3 w-3" />{t('family.sharingWithYou')}
                                 </span>
                               ) : (
                                 <span className="text-xs text-muted-foreground flex items-center gap-0.5">
-                                  <MapPinOff className="h-3 w-3" />Not sharing
+                                  <MapPinOff className="h-3 w-3" />{t('family.notSharing')}
                                 </span>
                               )}
                             </div>
                           </div>
                           <div className="flex items-center gap-2 ml-3">
-                            <span className="text-xs text-muted-foreground whitespace-nowrap">Share mine</span>
+                            <span className="text-xs text-muted-foreground whitespace-nowrap">{t('family.shareMine')}</span>
                             <Switch
                               checked={connection.share_my_location}
                               onCheckedChange={(checked) =>
@@ -591,8 +593,8 @@ const FamilyAppPage = () => {
               {/* Family members list */}
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Members</h2>
-                  <span className="text-xs text-muted-foreground">{activeFamilyMembers.length} active</span>
+                  <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">{t('family.membersTitle')}</h2>
+                  <span className="text-xs text-muted-foreground">{activeFamilyMembers.length} {t('family.active')}</span>
                 </div>
 
                 {activeFamilyMembers.length === 0 ? (
@@ -600,8 +602,8 @@ const FamilyAppPage = () => {
                     <div className="h-14 w-14 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-3">
                       <Users className="h-7 w-7 text-muted-foreground/50" />
                     </div>
-                    <p className="text-sm font-medium text-foreground mb-1">No members in your circle</p>
-                    <p className="text-xs text-muted-foreground">A LifeLink member can add you to their circle from the Member Dashboard</p>
+                    <p className="text-sm font-medium text-foreground mb-1">{t('family.noMembersInCircle')}</p>
+                    <p className="text-xs text-muted-foreground">{t('family.addFromDashboard')}</p>
                   </div>
                 ) : (
                   <div className="space-y-1.5">
@@ -628,7 +630,7 @@ const FamilyAppPage = () => {
                             <p className="text-xs text-muted-foreground">{member.email}</p>
                           </div>
                           <Badge variant={isOnline ? 'default' : 'secondary'} className="text-xs">
-                            {isOnline ? 'Online' : 'Offline'}
+                            {isOnline ? t('family.online') : t('family.offline')}
                           </Badge>
                         </div>
                       );
@@ -644,12 +646,12 @@ const FamilyAppPage = () => {
                     <ArrowUpCircle className="h-5 w-5 text-primary" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-sm font-semibold mb-1">Upgrade to Member</h3>
+                    <h3 className="text-sm font-semibold mb-1">{t('family.upgradeToMember')}</h3>
                     <p className="text-xs text-muted-foreground mb-3">
-                      Get full LifeLink benefits — create your own circle, manage emergency contacts, access professional monitoring, and more.
+                      {t('family.upgradeDescription')}
                     </p>
                     <Button size="sm" className="w-full" onClick={() => navigate('/pricing')}>
-                      View Plans
+                      {t('family.viewPlans')}
                       <ChevronRight className="h-4 w-4 ml-1" />
                     </Button>
                   </div>
@@ -664,10 +666,10 @@ const FamilyAppPage = () => {
       <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-sm border-t">
         <div className="flex items-center justify-around py-1.5 max-w-lg mx-auto">
           {[
-            { id: 'location', icon: MapPin, label: 'Location' },
-            { id: 'alerts', icon: Bell, label: 'Alerts', badge: unreadNotifications },
-            { id: 'safety', icon: Shield, label: 'Safety' },
-            { id: 'circle', icon: Users, label: 'Circle' },
+            { id: 'location', icon: MapPin, label: t('family.locationTab') },
+            { id: 'alerts', icon: Bell, label: t('family.alertsTab'), badge: unreadNotifications },
+            { id: 'safety', icon: Shield, label: t('family.safetyTab') },
+            { id: 'circle', icon: Users, label: t('family.circleTab') },
           ].map(tab => (
             <button
               key={tab.id}

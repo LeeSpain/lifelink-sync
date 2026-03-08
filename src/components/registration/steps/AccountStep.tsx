@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -23,6 +24,7 @@ interface AccountStepProps {
 }
 
 const AccountStep: React.FC<AccountStepProps> = ({ data, onChange, error }) => {
+  const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
@@ -30,11 +32,11 @@ const AccountStep: React.FC<AccountStepProps> = ({ data, onChange, error }) => {
   const passwordCheck = data.password ? validatePasswordStrength(data.password) : null;
 
   const passwordRules = [
-    { label: '8+ characters', met: data.password.length >= 8 },
-    { label: 'Uppercase letter', met: /[A-Z]/.test(data.password) },
-    { label: 'Lowercase letter', met: /[a-z]/.test(data.password) },
-    { label: 'Number', met: /[0-9]/.test(data.password) },
-    { label: 'Special character', met: /[!@#$%^&*(),.?":{}|<>]/.test(data.password) },
+    { label: t('registration.account.password8chars'), met: data.password.length >= 8 },
+    { label: t('registration.account.passwordUppercase'), met: /[A-Z]/.test(data.password) },
+    { label: t('registration.account.passwordLowercase'), met: /[a-z]/.test(data.password) },
+    { label: t('registration.account.passwordNumber'), met: /[0-9]/.test(data.password) },
+    { label: t('registration.account.passwordSpecial'), met: /[!@#$%^&*(),.?":{}|<>]/.test(data.password) },
   ];
 
   return (
@@ -43,8 +45,8 @@ const AccountStep: React.FC<AccountStepProps> = ({ data, onChange, error }) => {
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-primary/10">
           <User className="h-7 w-7 text-primary" />
         </div>
-        <h2 className="text-2xl font-poppins font-bold text-foreground">Create Your Account</h2>
-        <p className="text-sm text-muted-foreground">Your credentials for accessing LifeLink Sync</p>
+        <h2 className="text-2xl font-poppins font-bold text-foreground">{t('registration.account.title')}</h2>
+        <p className="text-sm text-muted-foreground">{t('registration.account.subtitle')}</p>
       </div>
 
       {error && (
@@ -57,32 +59,32 @@ const AccountStep: React.FC<AccountStepProps> = ({ data, onChange, error }) => {
         {/* Name fields */}
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-2">
-            <Label htmlFor="firstName">First Name</Label>
+            <Label htmlFor="firstName">{t('registration.account.firstName')}</Label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 id="firstName"
                 value={data.firstName}
                 onChange={(e) => onChange('firstName', e.target.value)}
-                placeholder="First name"
+                placeholder={t('registration.account.firstNamePlaceholder')}
                 className="pl-10"
               />
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="lastName">Last Name</Label>
+            <Label htmlFor="lastName">{t('registration.account.lastName')}</Label>
             <Input
               id="lastName"
               value={data.lastName}
               onChange={(e) => onChange('lastName', e.target.value)}
-              placeholder="Last name"
+              placeholder={t('registration.account.lastNamePlaceholder')}
             />
           </div>
         </div>
 
         {/* Email */}
         <div className="space-y-2">
-          <Label htmlFor="email">Email Address</Label>
+          <Label htmlFor="email">{t('registration.account.emailAddress')}</Label>
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -95,13 +97,13 @@ const AccountStep: React.FC<AccountStepProps> = ({ data, onChange, error }) => {
             />
           </div>
           {data.email && !isValidEmail(data.email) && (
-            <p className="text-xs text-destructive">Please enter a valid email address</p>
+            <p className="text-xs text-destructive">{t('registration.account.invalidEmail')}</p>
           )}
         </div>
 
         {/* Password */}
         <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">{t('registration.account.password')}</Label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -109,7 +111,7 @@ const AccountStep: React.FC<AccountStepProps> = ({ data, onChange, error }) => {
               type={showPassword ? 'text' : 'password'}
               value={data.password}
               onChange={(e) => onChange('password', e.target.value)}
-              placeholder="Create a strong password"
+              placeholder={t('registration.account.passwordPlaceholder')}
               className="pl-10 pr-10"
             />
             <button
@@ -147,21 +149,21 @@ const AccountStep: React.FC<AccountStepProps> = ({ data, onChange, error }) => {
             className="mt-0.5"
           />
           <Label htmlFor="acceptTerms" className="text-sm leading-relaxed cursor-pointer">
-            I agree to the{' '}
+            {t('registration.account.agreeToThe')}{' '}
             <button
               type="button"
               onClick={() => setShowTerms(true)}
               className="text-primary hover:underline font-medium"
             >
-              Terms of Service
+              {t('registration.account.termsOfService')}
             </button>{' '}
-            and{' '}
+            {t('registration.account.and')}{' '}
             <button
               type="button"
               onClick={() => setShowPrivacy(true)}
               className="text-primary hover:underline font-medium"
             >
-              Privacy Policy
+              {t('registration.account.privacyPolicy')}
             </button>
           </Label>
         </div>

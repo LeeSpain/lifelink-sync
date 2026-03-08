@@ -16,6 +16,7 @@ import {
   Shield
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 interface EmergencyStatusProps {
   location: boolean;
@@ -41,6 +42,7 @@ export const EmergencyStatus: React.FC<EmergencyStatusProps> = ({
   battery,
   lastUpdated = new Date()
 }) => {
+  const { t } = useTranslation();
   const getOverallStatus = () => {
     if (!location || contacts === 0) return 'warning';
     if (!network || battery < 20) return 'error';
@@ -55,21 +57,21 @@ export const EmergencyStatus: React.FC<EmergencyStatusProps> = ({
       bg: 'bg-green-500/10',
       border: 'border-green-500/20',
       icon: CheckCircle2,
-      text: 'System Ready'
+      text: t('emergency.systemReady')
     },
     warning: {
       color: 'text-yellow-500',
       bg: 'bg-yellow-500/10',
       border: 'border-yellow-500/20',
       icon: AlertTriangle,
-      text: 'Needs Attention'
+      text: t('emergency.needsAttention')
     },
     error: {
       color: 'text-red-500',
       bg: 'bg-red-500/10',
       border: 'border-red-500/20',
       icon: AlertTriangle,
-      text: 'Critical Issues'
+      text: t('emergency.criticalIssues')
     }
   };
 
@@ -81,7 +83,7 @@ export const EmergencyStatus: React.FC<EmergencyStatusProps> = ({
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5" />
-            Emergency System Status
+            {t('emergency.systemStatusTitle')}
           </CardTitle>
           <div className={cn("flex items-center gap-2", statusConfig[status].color)}>
             <StatusIcon className="h-5 w-5" />
@@ -96,10 +98,10 @@ export const EmergencyStatus: React.FC<EmergencyStatusProps> = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4" />
-                <span className="text-sm">Location Services</span>
+                <span className="text-sm">{t('emergency.locationServices')}</span>
               </div>
               <Badge variant={location ? 'default' : 'destructive'} className="text-xs">
-                {location ? 'Active' : 'Disabled'}
+                {location ? t('sos.active') : t('sos.disabled')}
               </Badge>
             </div>
 
@@ -107,10 +109,10 @@ export const EmergencyStatus: React.FC<EmergencyStatusProps> = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Users className="h-4 w-4" />
-                <span className="text-sm">Emergency Contacts</span>
+                <span className="text-sm">{t('sos.emergencyContacts')}</span>
               </div>
               <Badge variant={contacts > 0 ? 'default' : 'secondary'} className="text-xs">
-                {contacts} configured
+                {contacts} {t('emergency.configured')}
               </Badge>
             </div>
           </div>
@@ -120,10 +122,10 @@ export const EmergencyStatus: React.FC<EmergencyStatusProps> = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Wifi className="h-4 w-4" />
-                <span className="text-sm">Network</span>
+                <span className="text-sm">{t('sos.network')}</span>
               </div>
               <Badge variant={network ? 'default' : 'destructive'} className="text-xs">
-                {network ? 'Connected' : 'Offline'}
+                {network ? t('sos.connected') : t('sos.offline')}
               </Badge>
             </div>
 
@@ -132,7 +134,7 @@ export const EmergencyStatus: React.FC<EmergencyStatusProps> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Battery className="h-4 w-4" />
-                  <span className="text-sm">Battery</span>
+                  <span className="text-sm">{t('sos.battery')}</span>
                 </div>
                 <span className="text-xs font-medium">{battery}%</span>
               </div>
@@ -149,10 +151,10 @@ export const EmergencyStatus: React.FC<EmergencyStatusProps> = ({
 
         <div className="mt-4 pt-3 border-t border-border">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>Last system check: {lastUpdated.toLocaleTimeString()}</span>
+            <span>{t('emergency.lastSystemCheck')}: {lastUpdated.toLocaleTimeString()}</span>
             <div className="flex items-center gap-1">
               <Signal className="h-3 w-3" />
-              <span>Live monitoring</span>
+              <span>{t('emergency.liveMonitoring')}</span>
             </div>
           </div>
         </div>
@@ -162,6 +164,7 @@ export const EmergencyStatus: React.FC<EmergencyStatusProps> = ({
 };
 
 export const ActiveIncidentPanel: React.FC<{ incident: ActiveIncidentProps }> = ({ incident }) => {
+  const { t } = useTranslation();
   const [elapsedTime, setElapsedTime] = useState(0);
 
   useEffect(() => {
@@ -192,7 +195,7 @@ export const ActiveIncidentPanel: React.FC<{ incident: ActiveIncidentProps }> = 
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-lg">
             <AlertTriangle className={cn("h-6 w-6", config.color)} />
-            ACTIVE EMERGENCY
+            {t('sos.activeEmergency')}
           </CardTitle>
           <Badge variant="destructive" className="animate-pulse">
             {incident.status.toUpperCase()}
@@ -204,22 +207,22 @@ export const ActiveIncidentPanel: React.FC<{ incident: ActiveIncidentProps }> = 
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm">
               <Clock className="h-4 w-4" />
-              <span>Duration: {formatElapsedTime(elapsedTime)}</span>
+              <span>{t('emergency.duration')}: {formatElapsedTime(elapsedTime)}</span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               <Users className="h-4 w-4" />
-              <span>{incident.contactsNotified} contacts notified</span>
+              <span>{incident.contactsNotified} {t('emergency.contactsNotified')}</span>
             </div>
           </div>
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm">
               <MapPin className="h-4 w-4" />
-              <span>Location shared</span>
+              <span>{t('emergency.locationShared')}</span>
             </div>
             {incident.responseTime && (
               <div className="flex items-center gap-2 text-sm">
                 <Phone className="h-4 w-4" />
-                <span>Avg response: {incident.responseTime}s</span>
+                <span>{t('emergency.avgResponse')}: {incident.responseTime}s</span>
               </div>
             )}
           </div>
@@ -227,10 +230,10 @@ export const ActiveIncidentPanel: React.FC<{ incident: ActiveIncidentProps }> = 
         
         <div className="mt-4 flex gap-2">
           <Button variant="outline" size="sm" className="flex-1">
-            View Details
+            {t('emergency.viewDetails')}
           </Button>
           <Button variant="destructive" size="sm" className="flex-1">
-            Update Status
+            {t('emergency.updateStatus')}
           </Button>
         </div>
       </CardContent>
@@ -239,9 +242,10 @@ export const ActiveIncidentPanel: React.FC<{ incident: ActiveIncidentProps }> = 
 };
 
 const EmergencyCommandCenter: React.FC = () => {
+  const { t } = useTranslation();
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-center text-white">Emergency Command Center</h2>
+      <h2 className="text-2xl font-bold text-center text-white">{t('emergency.commandCenterTitle')}</h2>
       
       <EmergencyStatus
         location={true}

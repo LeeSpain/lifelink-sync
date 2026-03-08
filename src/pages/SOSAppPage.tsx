@@ -15,6 +15,7 @@ import {
   History, Navigation, RefreshCw
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import SEO from '@/components/SEO';
 import MapLibreMap from '@/components/maplibre/MapLibreMap';
 import { MapMemberLayer } from '@/components/maplibre/layers/MapMemberLayer';
@@ -45,6 +46,7 @@ interface ActiveIncident {
 }
 
 const SOSAppPage = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { contacts, loading: contactsLoading } = useEmergencyContacts();
   const { permissionState } = useLocationServices();
@@ -115,7 +117,7 @@ const SOSAppPage = () => {
       };
       setActiveIncident(incident);
       await triggerEmergencySOS();
-      toast({ title: "Emergency SOS Activated", description: "Emergency contacts and family have been notified" });
+      toast({ title: t('sos.activated'), description: t('sos.activatedDescription') });
     } catch (error) {
       console.error('Emergency SOS failed:', error);
     }
@@ -206,7 +208,7 @@ const SOSAppPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-950 via-red-900 to-orange-900">
-      <SEO title="Emergency SOS Command Center" description="Advanced emergency response system with real-time monitoring and one-touch SOS activation" />
+      <SEO title={t('sos.seoTitle')} description={t('sos.seoDescription')} />
 
       {/* Header */}
       <div className="relative z-10 px-4 pt-6 pb-4">
@@ -218,8 +220,8 @@ const SOSAppPage = () => {
                 <div className={cn("absolute -top-1 -right-1 w-3 h-3 rounded-full", getStatusColor(emergencyStatus.overall))}></div>
               </div>
               <div>
-                <h1 className="text-xl font-bold">Emergency SOS</h1>
-                <p className="text-white/70 text-sm">Command Center</p>
+                <h1 className="text-xl font-bold">{t('sos.title')}</h1>
+                <p className="text-white/70 text-sm">{t('sos.commandCenter')}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -229,7 +231,7 @@ const SOSAppPage = () => {
               {locationState.isTracking && (
                 <div className="flex items-center gap-1 text-emerald-400">
                   <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                  <span className="text-xs">Live</span>
+                  <span className="text-xs">{t('sos.live')}</span>
                 </div>
               )}
             </div>
@@ -238,7 +240,7 @@ const SOSAppPage = () => {
           {/* System Status Bar */}
           <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 mb-6 border border-white/20">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-white font-medium">System Status</span>
+              <span className="text-white font-medium">{t('sos.systemStatus')}</span>
               <div className="flex items-center gap-2">
                 {getStatusIcon(emergencyStatus.overall)}
                 <Button variant="ghost" size="sm" onClick={refreshLocation} className="text-white/70 hover:text-white h-8 w-8 p-0">
@@ -249,12 +251,12 @@ const SOSAppPage = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
               <div className="flex items-center gap-2 text-white/80">
                 <MapPin className="h-4 w-4" />
-                <span>Location: {emergencyStatus.location ? 'Active' : 'Disabled'}</span>
+                <span>{t('sos.location')}: {emergencyStatus.location ? t('sos.active') : t('sos.disabled')}</span>
                 {locationState.isTracking && <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse ml-1"></div>}
               </div>
-              <div className="flex items-center gap-2 text-white/80"><Users className="h-4 w-4" /><span>Contacts: {emergencyStatus.contacts}</span></div>
-              <div className="flex items-center gap-2 text-white/80"><Wifi className="h-4 w-4" /><span>Network: {emergencyStatus.network ? 'Connected' : 'Offline'}</span></div>
-              <div className="flex items-center gap-2 text-white/80"><Battery className="h-4 w-4" /><span>Battery: {emergencyStatus.battery}%</span></div>
+              <div className="flex items-center gap-2 text-white/80"><Users className="h-4 w-4" /><span>{t('sos.contacts')}: {emergencyStatus.contacts}</span></div>
+              <div className="flex items-center gap-2 text-white/80"><Wifi className="h-4 w-4" /><span>{t('sos.network')}: {emergencyStatus.network ? t('sos.connected') : t('sos.offline')}</span></div>
+              <div className="flex items-center gap-2 text-white/80"><Battery className="h-4 w-4" /><span>{t('sos.battery')}: {emergencyStatus.battery}%</span></div>
             </div>
             {locationError && (
               <div className="mt-3 p-2 bg-yellow-500/20 border border-yellow-500/30 rounded text-yellow-200 text-xs">{locationError}</div>
@@ -262,9 +264,9 @@ const SOSAppPage = () => {
             {locationState.isTracking && metrics.totalUpdates > 0 && (
               <div className="mt-3 text-xs text-white/60">
                 <div className="flex justify-between">
-                  <span>Updates: {metrics.totalUpdates}</span>
-                  <span>Success: {metrics.successRate}%</span>
-                  <span>Avg Accuracy: &plusmn;{metrics.averageAccuracy}m</span>
+                  <span>{t('sos.updates')}: {metrics.totalUpdates}</span>
+                  <span>{t('sos.success')}: {metrics.successRate}%</span>
+                  <span>{t('sos.avgAccuracy')}: &plusmn;{metrics.averageAccuracy}m</span>
                 </div>
               </div>
             )}
@@ -279,14 +281,14 @@ const SOSAppPage = () => {
             <div className="bg-red-600 rounded-xl p-4 border border-red-500 animate-pulse">
               <div className="flex items-center gap-3 text-white mb-3">
                 <AlertTriangle className="h-5 w-5" />
-                <span className="font-bold">ACTIVE EMERGENCY</span>
+                <span className="font-bold">{t('sos.activeEmergency')}</span>
                 <Badge variant="destructive" className="bg-red-800">{activeIncident.status.toUpperCase()}</Badge>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-white/90">
-                <div>Started: {activeIncident.startTime.toLocaleTimeString()}</div>
-                <div>Contacts: {activeIncident.contactsNotified} notified</div>
-                <div>Location: {activeIncident.locationShared ? 'Shared' : 'Pending'}</div>
-                <div>Family: {activeIncident.familyAlerted ? 'Alerted' : 'Pending'}</div>
+                <div>{t('sos.started')}: {activeIncident.startTime.toLocaleTimeString()}</div>
+                <div>{t('sos.contacts')}: {activeIncident.contactsNotified} {t('sos.notified')}</div>
+                <div>{t('sos.location')}: {activeIncident.locationShared ? t('sos.shared') : t('sos.pending')}</div>
+                <div>{t('sos.family')}: {activeIncident.familyAlerted ? t('sos.alerted') : t('sos.pending')}</div>
               </div>
             </div>
           </div>
@@ -301,11 +303,11 @@ const SOSAppPage = () => {
               <div className="flex justify-center mb-8"><EmergencyButton /></div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                <Button className="h-16 bg-blue-600/20 border border-blue-500/30 text-white hover:bg-blue-600/30" onClick={() => toast({ title: "Photo Capture", description: "Emergency photo capture feature activated" })}>
-                  <div className="flex flex-col items-center gap-2"><Camera className="h-6 w-6" /><span className="text-sm">Photo</span></div>
+                <Button className="h-16 bg-blue-600/20 border border-blue-500/30 text-white hover:bg-blue-600/30" onClick={() => toast({ title: t('sos.photoCapture'), description: t('sos.photoCaptureDescription') })}>
+                  <div className="flex flex-col items-center gap-2"><Camera className="h-6 w-6" /><span className="text-sm">{t('sos.photo')}</span></div>
                 </Button>
-                <Button className="h-16 bg-purple-600/20 border border-purple-500/30 text-white hover:bg-purple-600/30" onClick={() => toast({ title: "Voice Memo", description: "Emergency voice recording started" })}>
-                  <div className="flex flex-col items-center gap-2"><Mic className="h-6 w-6" /><span className="text-sm">Voice</span></div>
+                <Button className="h-16 bg-purple-600/20 border border-purple-500/30 text-white hover:bg-purple-600/30" onClick={() => toast({ title: t('sos.voiceMemo'), description: t('sos.voiceMemoDescription') })}>
+                  <div className="flex flex-col items-center gap-2"><Mic className="h-6 w-6" /><span className="text-sm">{t('sos.voice')}</span></div>
                 </Button>
               </div>
 
@@ -313,12 +315,12 @@ const SOSAppPage = () => {
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                 <div className="flex items-center gap-2 mb-3 text-white">
                   <Navigation className="h-5 w-5" />
-                  <span className="font-medium">Live Location</span>
+                  <span className="font-medium">{t('sos.liveLocation')}</span>
                   <div className="flex items-center gap-1 ml-auto">
                     {locationState.isTracking ? (
-                      <><div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div><span className="text-xs">Live ({locationState.updateInterval / 1000}s)</span></>
+                      <><div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div><span className="text-xs">{t('sos.live')} ({locationState.updateInterval / 1000}s)</span></>
                     ) : (
-                      <><div className="w-2 h-2 bg-gray-500 rounded-full"></div><span className="text-xs">Offline</span></>
+                      <><div className="w-2 h-2 bg-gray-500 rounded-full"></div><span className="text-xs">{t('sos.offline')}</span></>
                     )}
                   </div>
                 </div>
@@ -333,19 +335,19 @@ const SOSAppPage = () => {
                   </MapLibreMap>
                 </div>
                 <div className="mt-3 text-sm text-white/70 flex justify-between">
-                  <span>{currentLocation ? `Accuracy: \u00b1${currentLocation.accuracy || 5}m` : `${locationError || 'Getting location...'}`}</span>
-                  <span>{currentLocation?.last_seen ? `Updated: ${new Date(currentLocation.last_seen).toLocaleTimeString()}` : 'Waiting for GPS...'}</span>
+                  <span>{currentLocation ? `${t('sos.accuracy')}: \u00b1${currentLocation.accuracy || 5}m` : `${locationError || t('sos.gettingLocation')}`}</span>
+                  <span>{currentLocation?.last_seen ? `${t('sos.updated')}: ${new Date(currentLocation.last_seen).toLocaleTimeString()}` : t('sos.waitingForGPS')}</span>
                 </div>
                 <div className="mt-3 p-2 bg-black/20 rounded-lg">
                   <div className="flex items-center justify-between text-xs text-white/80">
-                    <span>Family Connected:</span>
+                    <span>{t('sos.familyConnected')}:</span>
                     <div className="flex items-center gap-1">
                       <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></div>
-                      <span>{Math.max(1, Array.from(new Set(liveLocations.filter(l => l.status === 'online').map(l => l.user_id))).length)} members online</span>
+                      <span>{Math.max(1, Array.from(new Set(liveLocations.filter(l => l.status === 'online').map(l => l.user_id))).length)} {t('sos.membersOnline')}</span>
                     </div>
                   </div>
                   {locationState.isTracking && (
-                    <div className="mt-1 text-xs text-white/60">High-precision mode &bull; {locationState.highAccuracyMode ? 'GPS' : 'Network'} tracking</div>
+                    <div className="mt-1 text-xs text-white/60">{t('sos.highPrecisionMode')} &bull; {locationState.highAccuracyMode ? 'GPS' : t('sos.network')} {t('sos.tracking')}</div>
                   )}
                 </div>
               </div>
@@ -353,8 +355,8 @@ const SOSAppPage = () => {
               {contacts.length > 0 && (
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                   <div className="flex items-center justify-between mb-3 text-white">
-                    <span className="font-medium">Emergency Contacts</span>
-                    <Badge variant="secondary" className="bg-white/20 text-white">{contacts.length} active</Badge>
+                    <span className="font-medium">{t('sos.emergencyContacts')}</span>
+                    <Badge variant="secondary" className="bg-white/20 text-white">{contacts.length} {t('sos.active')}</Badge>
                   </div>
                   <div className="space-y-3">
                     {contacts.slice(0, 3).map((contact, index) => (
@@ -373,7 +375,7 @@ const SOSAppPage = () => {
                       </div>
                     ))}
                     {contacts.length > 3 && (
-                      <div className="text-center"><Button variant="ghost" className="text-white/70 hover:text-white text-sm">+{contacts.length - 3} more contacts</Button></div>
+                      <div className="text-center"><Button variant="ghost" className="text-white/70 hover:text-white text-sm">+{contacts.length - 3} {t('sos.moreContacts')}</Button></div>
                     )}
                   </div>
                 </div>
@@ -385,8 +387,8 @@ const SOSAppPage = () => {
             <div className="space-y-6">
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                 <div className="flex items-center justify-between mb-4 text-white">
-                  <span className="font-medium">Family Members</span>
-                  <Badge variant="secondary" className="bg-white/20 text-white">{liveLocations.filter(l => l.user_id !== user?.id).length} online</Badge>
+                  <span className="font-medium">{t('sos.familyMembers')}</span>
+                  <Badge variant="secondary" className="bg-white/20 text-white">{liveLocations.filter(l => l.user_id !== user?.id).length} {t('sos.online')}</Badge>
                 </div>
                 <div className="space-y-3">
                   {liveLocations.filter(l => l.user_id !== user?.id).map((location, index) => (
@@ -395,18 +397,18 @@ const SOSAppPage = () => {
                         <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm">{`M${index + 1}`}</AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
-                        <div className="text-white font-medium text-sm">Family Member {index + 1}</div>
+                        <div className="text-white font-medium text-sm">{t('sos.familyMember')} {index + 1}</div>
                         <div className="text-white/60 text-xs">{location.status}</div>
                       </div>
                       <Button size="sm" onClick={() => { setSelectedFamilyMember(selectedFamilyMember === location.user_id ? null : location.user_id); setSelectedTab('status'); }}
                         className={cn("h-8 px-3 text-xs", selectedFamilyMember === location.user_id ? "bg-blue-600 text-white" : "bg-white/20 text-white hover:bg-white/30")}
                       >
-                        {selectedFamilyMember === location.user_id ? 'Hide' : 'Show on Map'}
+                        {selectedFamilyMember === location.user_id ? t('sos.hide') : t('sos.showOnMap')}
                       </Button>
                     </div>
                   ))}
                   {liveLocations.filter(l => l.user_id !== user?.id).length === 0 && (
-                    <div className="text-center text-white/60 py-4">No family members online</div>
+                    <div className="text-center text-white/60 py-4">{t('sos.noFamilyOnline')}</div>
                   )}
                 </div>
               </div>
@@ -419,10 +421,10 @@ const SOSAppPage = () => {
       <div className="fixed bottom-0 left-0 right-0 z-30 bg-black/30 backdrop-blur-lg border-t border-white/10">
         <div className="flex items-center justify-around py-3 max-w-md mx-auto">
           {[
-            { id: 'status', icon: Shield, label: 'Status' },
-            { id: 'family', icon: Users, label: 'Family' },
-            { id: 'contacts', icon: Phone, label: 'Contacts' },
-            { id: 'settings', icon: Settings, label: 'Settings' },
+            { id: 'status', icon: Shield, label: t('sos.tabStatus') },
+            { id: 'family', icon: Users, label: t('sos.tabFamily') },
+            { id: 'contacts', icon: Phone, label: t('sos.tabContacts') },
+            { id: 'settings', icon: Settings, label: t('sos.tabSettings') },
           ].map((tab) => (
             <button key={tab.id} onClick={() => handleTabNavigation(tab.id)}
               className={cn("flex flex-col items-center py-2 px-3 rounded-lg transition-colors min-w-0", selectedTab === tab.id ? "text-white bg-white/20" : "text-white/60 hover:text-white/80")}

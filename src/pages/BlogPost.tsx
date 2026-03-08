@@ -3,9 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
-  Clock, 
-  Calendar, 
+import {
+  Clock,
+  Calendar,
   ArrowLeft,
   Tag,
   User,
@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
@@ -45,6 +46,7 @@ const BlogPost = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
 
   useEffect(() => {
@@ -117,8 +119,8 @@ const BlogPost = () => {
     } catch (error) {
       console.error('Error loading blog post:', error);
       toast({
-        title: "Error",
-        description: "Failed to load blog post",
+        title: t('blog.errorTitle'),
+        description: t('blog.loadPostError'),
         variant: "destructive"
       });
       setNotFound(true);
@@ -137,7 +139,7 @@ const BlogPost = () => {
 
   const handleShare = async () => {
     const url = window.location.href;
-    const title = blogPost?.seo_title || blogPost?.title || 'Blog Post';
+    const title = blogPost?.seo_title || blogPost?.title || t('blog.blogPost');
     
     if (navigator.share) {
       try {
@@ -152,8 +154,8 @@ const BlogPost = () => {
       // Fallback to copying URL to clipboard
       await navigator.clipboard.writeText(url);
       toast({
-        title: "Success",
-        description: "Link copied to clipboard!",
+        title: t('blog.successTitle'),
+        description: t('blog.linkCopied'),
       });
     }
   };
@@ -175,26 +177,26 @@ const BlogPost = () => {
   if (notFound || !blogPost) {
     return (
       <div className="min-h-screen bg-background">
-        <SEO 
-          title="Blog Post Not Found"
-          description="The requested blog post could not be found."
+        <SEO
+          title={t('blog.postNotFoundTitle')}
+          description={t('blog.postNotFoundDesc')}
         />
         <Navigation />
         <div className="container mx-auto px-4 py-16">
           <Card className="max-w-2xl mx-auto text-center">
             <CardContent className="py-20">
               <BookOpen className="h-16 w-16 mx-auto mb-6 text-muted-foreground" />
-              <h1 className="text-2xl font-bold mb-4">Blog Post Not Found</h1>
+              <h1 className="text-2xl font-bold mb-4">{t('blog.postNotFoundTitle')}</h1>
               <p className="text-muted-foreground mb-8">
-                The blog post you're looking for doesn't exist or has been moved.
+                {t('blog.postNotFoundMessage')}
               </p>
               <div className="flex gap-4 justify-center">
                 <Button onClick={() => navigate('/blog')} variant="outline">
                   <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Blog
+                  {t('blog.backToBlog')}
                 </Button>
                 <Button onClick={() => navigate('/')}>
-                  Go Home
+                  {t('blog.goHome')}
                 </Button>
               </div>
             </CardContent>
@@ -208,8 +210,8 @@ const BlogPost = () => {
   return (
     <div className="min-h-screen bg-background">
       <SEO 
-        title={blogPost.seo_title || blogPost.title || 'Blog Post'}
-        description={blogPost.meta_description || 'Read our latest blog post on safety and emergency response.'}
+        title={blogPost.seo_title || blogPost.title || t('blog.blogPost')}
+        description={blogPost.meta_description || t('blog.defaultMetaDescription')}
         keywords={blogPost.keywords || ['blog', 'safety', 'emergency response']}
         structuredData={{
           "@context": "https://schema.org",
@@ -244,10 +246,10 @@ const BlogPost = () => {
                   className="hover:text-primary transition-colors flex items-center gap-2 font-medium"
                 >
                   <ArrowLeft className="h-4 w-4" />
-                  Back to Articles
+                  {t('blog.backToArticles')}
                 </button>
                 <span className="text-slate-300">/</span>
-                <span className="text-foreground font-medium">Emergency Safety</span>
+                <span className="text-foreground font-medium">{t('blog.emergencySafety')}</span>
               </nav>
 
               {/* Article Category & Metadata */}
@@ -258,20 +260,20 @@ const BlogPost = () => {
                 {blogPost.reading_time && (
                   <div className="flex items-center gap-2 text-sm text-muted-foreground bg-white dark:bg-slate-800 px-4 py-2 rounded-full border shadow-sm">
                     <Clock className="h-4 w-4" />
-                    <span className="font-medium">{blogPost.reading_time} min read</span>
+                    <span className="font-medium">{t('blog.minRead', { count: blogPost.reading_time })}</span>
                   </div>
                 )}
                 {blogPost.seo_score && blogPost.seo_score >= 80 && (
                   <Badge variant="secondary" className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 px-4 py-2 shadow-sm">
                     <Star className="h-4 w-4 mr-2" />
-                    SEO Optimized
+                    {t('blog.seoOptimized')}
                   </Badge>
                 )}
               </div>
 
               {/* Main Headline */}
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-8 text-slate-900 dark:text-slate-100 tracking-tight max-w-4xl">
-                {blogPost.seo_title || blogPost.title || 'Untitled Article'}
+                {blogPost.seo_title || blogPost.title || t('blog.untitledArticle')}
               </h1>
 
               {/* Subheadline */}
@@ -289,8 +291,8 @@ const BlogPost = () => {
                       <User className="h-6 w-6 text-white" />
                     </div>
                     <div>
-                      <div className="font-semibold text-foreground text-base">Riven AI</div>
-                      <div className="text-sm text-muted-foreground">Emergency Safety Specialist</div>
+                      <div className="font-semibold text-foreground text-base">{t('blog.rivenAI')}</div>
+                      <div className="text-sm text-muted-foreground">{t('blog.emergencySafetySpecialist')}</div>
                     </div>
                   </div>
                   <div className="h-8 w-px bg-slate-300 dark:bg-slate-600"></div>
@@ -304,7 +306,7 @@ const BlogPost = () => {
                 </div>
                 <Button variant="outline" size="default" onClick={handleShare} className="bg-white dark:bg-background border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 shadow-sm">
                   <Share2 className="h-4 w-4 mr-2" />
-                  Share Article
+                  {t('blog.shareArticle')}
                 </Button>
               </div>
             </div>
@@ -362,7 +364,7 @@ const BlogPost = () => {
                 ) : (
                   <div className="text-center py-20">
                     <BookOpen className="h-16 w-16 mx-auto mb-6 text-muted-foreground" />
-                    <p className="text-muted-foreground italic text-xl">Article content is currently being prepared...</p>
+                    <p className="text-muted-foreground italic text-xl">{t('blog.contentBeingPrepared')}</p>
                   </div>
                 )}
               </div>
@@ -370,7 +372,7 @@ const BlogPost = () => {
               {/* Article Tags */}
               {blogPost.keywords && blogPost.keywords.length > 0 && (
                 <footer className="mt-16 pt-8 border-t border-slate-200 dark:border-slate-700">
-                  <h3 className="text-lg font-bold mb-6 text-slate-900 dark:text-slate-100">Related Topics</h3>
+                  <h3 className="text-lg font-bold mb-6 text-slate-900 dark:text-slate-100">{t('blog.relatedTopics')}</h3>
                   <div className="flex flex-wrap gap-3">
                     {blogPost.keywords.map((keyword, index) => (
                       <Badge 
@@ -395,15 +397,13 @@ const BlogPost = () => {
                         <Star className="h-6 w-6 text-white" />
                       </div>
                       <div>
-                        <h3 className="text-lg font-bold mb-3 text-slate-900 dark:text-slate-100">AI-Generated Content</h3>
+                        <h3 className="text-lg font-bold mb-3 text-slate-900 dark:text-slate-100">{t('blog.aiGeneratedContentTitle')}</h3>
                         <p className="text-slate-600 dark:text-slate-300 text-base leading-relaxed">
-                          This article was authored by <strong>Riven AI</strong>, our specialized artificial intelligence 
-                          system for emergency response protocols and family safety strategies. Content is backed by 
-                          current research and industry best practices.
+                          {t('blog.aiGeneratedContentDesc')}
                         </p>
                         <div className="mt-4 pt-4 border-t border-blue-200 dark:border-blue-700">
                           <div className="text-sm text-slate-500 dark:text-slate-400">
-                            <strong>Reviewed by:</strong> LifeLink Sync Editorial Team
+                            <strong>{t('blog.reviewedBy')}</strong> {t('blog.editorialTeam')}
                           </div>
                         </div>
                       </div>
@@ -422,7 +422,7 @@ const BlogPost = () => {
                     className="w-full sm:w-auto bg-white dark:bg-background hover:bg-slate-50 dark:hover:bg-slate-800 border-slate-300 dark:border-slate-600 shadow-sm"
                   >
                     <ArrowLeft className="h-4 w-4 mr-2" />
-                    Browse All Articles
+                    {t('blog.browseAllArticles')}
                   </Button>
                   <div className="flex gap-3">
                     <Button 
@@ -432,7 +432,7 @@ const BlogPost = () => {
                       className="bg-primary hover:bg-primary/90 shadow-lg"
                     >
                       <Share2 className="h-4 w-4 mr-2" />
-                      Share Article
+                      {t('blog.shareArticle')}
                     </Button>
                   </div>
                 </div>

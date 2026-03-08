@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState, useRef, useCallback } from "react";
+import { useTranslation } from 'react-i18next';
 import { CircleSwitcher } from "@/components/map/CircleSwitcher";
 import { MemberSheet } from "@/components/map/MemberSheet";
 import { useLocationServices } from "@/hooks/useLocationServices";
@@ -28,6 +29,7 @@ type Presence = {
 };
 
 export default function MapScreen() {
+  const { t } = useTranslation();
   const [activeCircleId, setActiveCircleId] = useState<string | null>(null);
   const [selectedMember, setSelectedMember] = useState<Presence | null>(null);
   const [locationEnabled, setLocationEnabled] = useState(false);
@@ -123,8 +125,8 @@ export default function MapScreen() {
       const { triggerEmergencySOS } = useEmergencySOS();
       await triggerEmergencySOS();
       toast({
-        title: "Family SOS Triggered",
-        description: "Emergency alert sent to your family circle with current location.",
+        title: t('map.sosTriggered'),
+        description: t('map.sosDescription'),
         variant: "destructive"
       });
     } catch (error) {

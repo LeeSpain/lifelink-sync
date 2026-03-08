@@ -2,8 +2,9 @@ import React, { Component, ReactNode } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { withTranslation, WithTranslation } from 'react-i18next';
 
-interface Props {
+interface Props extends WithTranslation {
   children: ReactNode;
   fallback?: ReactNode;
   onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
@@ -90,43 +91,43 @@ class EnhancedErrorBoundary extends Component<Props, State> {
               <div className="flex justify-center mb-4">
                 <AlertTriangle className="h-12 w-12 text-destructive" />
               </div>
-              <CardTitle className="text-xl">Oops! Something went wrong</CardTitle>
+              <CardTitle className="text-xl">{this.props.t('errorBoundary.title')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-sm text-muted-foreground text-center">
-                {this.state.error?.message?.includes('Loading chunk') 
-                  ? 'Failed to load page component. This might be due to a network issue.'
-                  : 'An unexpected error occurred. Please try again.'}
+                {this.state.error?.message?.includes('Loading chunk')
+                  ? this.props.t('errorBoundary.chunkError')
+                  : this.props.t('errorBoundary.genericError')}
               </p>
-              
+
               {this.state.retryCount > 0 && (
                 <p className="text-xs text-muted-foreground text-center">
-                  Retry attempt: {this.state.retryCount}/3
+                  {this.props.t('errorBoundary.retryAttempt', { count: this.state.retryCount })}
                 </p>
               )}
 
               <div className="flex flex-col sm:flex-row gap-2">
-                <Button 
+                <Button
                   onClick={this.handleRetry}
                   className="flex-1"
                   variant="default"
                 >
                   <RefreshCw className="h-4 w-4 mr-2" />
-                  Try Again
+                  {this.props.t('errorBoundary.tryAgain')}
                 </Button>
-                <Button 
+                <Button
                   onClick={this.handleReload}
                   className="flex-1"
                   variant="outline"
                 >
-                  Reload Page
+                  {this.props.t('errorBoundary.reloadPage')}
                 </Button>
               </div>
 
               {process.env.NODE_ENV === 'development' && (
                 <details className="mt-4">
                   <summary className="text-xs text-muted-foreground cursor-pointer">
-                    Error Details (Development)
+                    {this.props.t('errorBoundary.errorDetails')}
                   </summary>
                   <pre className="mt-2 text-xs bg-muted p-2 rounded overflow-auto">
                     {this.state.error?.stack}
@@ -143,4 +144,4 @@ class EnhancedErrorBoundary extends Component<Props, State> {
   }
 }
 
-export default EnhancedErrorBoundary;
+export default withTranslation()(EnhancedErrorBoundary);

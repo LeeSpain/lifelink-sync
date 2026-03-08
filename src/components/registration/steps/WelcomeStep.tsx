@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Shield, Heart, MapPin, Users, Phone, Zap } from 'lucide-react';
@@ -7,16 +8,18 @@ interface WelcomeStepProps {
   onNext: () => void;
 }
 
-const features = [
-  { icon: Shield, label: 'SOS Emergency Alerts', desc: 'One-tap emergency activation' },
-  { icon: Users, label: 'Family Safety Circles', desc: 'Keep your loved ones connected' },
-  { icon: MapPin, label: 'Real-Time Location', desc: 'Know where your family is' },
-  { icon: Phone, label: 'Emergency Contacts', desc: 'Instant notification network' },
-  { icon: Heart, label: 'Health & Wellness', desc: 'Medical profile for responders' },
-  { icon: Zap, label: 'Clara AI Assistant', desc: 'Intelligent safety companion' },
-];
+const FEATURE_ICONS = [Shield, Users, MapPin, Phone, Heart, Zap];
+const FEATURE_KEYS = ['sosAlerts', 'familyCircles', 'realTimeLocation', 'emergencyContacts', 'healthWellness', 'claraAI'];
 
 const WelcomeStep: React.FC<WelcomeStepProps> = ({ onNext }) => {
+  const { t } = useTranslation();
+
+  const features = FEATURE_KEYS.map((key, i) => ({
+    icon: FEATURE_ICONS[i],
+    label: t(`registration.welcome.features.${key}.label`),
+    desc: t(`registration.welcome.features.${key}.desc`),
+  }));
+
   return (
     <div className="text-center space-y-8">
       {/* Hero */}
@@ -25,10 +28,10 @@ const WelcomeStep: React.FC<WelcomeStepProps> = ({ onNext }) => {
           <Shield className="h-10 w-10 text-white" />
         </div>
         <h2 className="text-3xl sm:text-4xl font-poppins font-bold text-foreground">
-          Welcome to LifeLink Sync
+          {t('registration.welcome.title')}
         </h2>
         <p className="text-lg text-muted-foreground max-w-lg mx-auto">
-          Your personal safety ecosystem. Set up your protection profile in just a few minutes.
+          {t('registration.welcome.subtitle')}
         </p>
       </div>
 
@@ -50,19 +53,19 @@ const WelcomeStep: React.FC<WelcomeStepProps> = ({ onNext }) => {
       {/* Trust badges */}
       <div className="flex flex-wrap justify-center gap-2">
         <Badge variant="secondary" className="bg-wellness/10 text-wellness border-wellness/20">
-          24/7 Protection
+          {t('registration.welcome.badge247')}
         </Badge>
         <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
-          GDPR Compliant
+          {t('registration.welcome.badgeGdpr')}
         </Badge>
         <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-blue-200">
-          End-to-End Encrypted
+          {t('registration.welcome.badgeEncrypted')}
         </Badge>
       </div>
 
       {/* CTA */}
       <Button onClick={onNext} size="lg" className="px-10">
-        Get Started
+        {t('registration.welcome.getStarted')}
       </Button>
     </div>
   );

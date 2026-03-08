@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +10,7 @@ import QRCode from 'qrcode';
 import SEO from '@/components/SEO';
 
 const RegistrationSuccess = () => {
+  const { t } = useTranslation();
   const [iosQR, setIosQR] = useState('');
   const [androidQR, setAndroidQR] = useState('');
 
@@ -91,24 +93,23 @@ const RegistrationSuccess = () => {
               </div>
               
               <CardTitle className="text-4xl font-bold text-foreground mb-4">
-                🎉 Welcome to the LifeLink Sync Family!
+                {t('checkout.welcomeToFamily')}
               </CardTitle>
-              
+
               <p className="text-xl text-muted-foreground mb-6 max-w-2xl mx-auto">
-                Your registration is complete! Clara has successfully set up your personalized safety profile. 
-                You're now protected by our advanced emergency response system.
+                {t('checkout.registrationComplete')}
               </p>
-              
+
               <div className="flex flex-wrap justify-center gap-3">
                 <Badge variant="secondary" className="bg-emerald-100 text-emerald-800 px-4 py-2">
                   <Shield className="h-4 w-4 mr-2" />
-                  Account Activated
+                  {t('checkout.accountActivated')}
                 </Badge>
                 <Badge variant="secondary" className="bg-blue-100 text-blue-800 px-4 py-2">
-                  Payment Processed
+                  {t('checkout.paymentProcessed')}
                 </Badge>
                 <Badge variant="secondary" className="bg-purple-100 text-purple-800 px-4 py-2">
-                  Profile Complete
+                  {t('checkout.profileComplete')}
                 </Badge>
               </div>
             </CardHeader>
@@ -119,10 +120,10 @@ const RegistrationSuccess = () => {
             <CardHeader className="text-center">
               <CardTitle className="text-2xl font-bold flex items-center justify-center gap-3">
                 <Smartphone className="h-8 w-8 text-primary" />
-                Download Your LifeLink Sync App
+                {t('checkout.downloadYourApp')}
               </CardTitle>
               <p className="text-muted-foreground text-lg">
-                Get instant access to your emergency protection system
+                {t('checkout.getInstantAccessProtection')}
               </p>
             </CardHeader>
             
@@ -133,10 +134,10 @@ const RegistrationSuccess = () => {
                   <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl border-2 border-gray-200 hover:border-primary/30 transition-colors">
                     <div className="mb-4">
                       <h3 className="text-xl font-semibold mb-2 flex items-center justify-center gap-2">
-                        📱 iOS (iPhone/iPad)
+                        {t('checkout.iosIphoneIpad')}
                       </h3>
                       <p className="text-sm text-muted-foreground">
-                        Requires iOS 14.0 or later
+                        {t('checkout.requiresIos')}
                       </p>
                     </div>
                     
@@ -144,13 +145,13 @@ const RegistrationSuccess = () => {
                       <div className="mb-6">
                         <img 
                           src={iosQR} 
-                          alt="iOS App Store QR Code"
+                          alt={t('checkout.iosQRCode')}
                           className="mx-auto rounded-lg shadow-md"
                           loading="lazy"
                           decoding="async"
                         />
                         <p className="text-xs text-muted-foreground mt-2">
-                          Scan with your iPhone camera
+                          {t('checkout.scanWithIphone')}
                         </p>
                       </div>
                     )}
@@ -161,7 +162,7 @@ const RegistrationSuccess = () => {
                     >
                       <a href={iosAppStoreUrl} target="_blank" rel="noopener noreferrer">
                         <Download className="h-4 w-4 mr-2" />
-                        Download from App Store
+                        {t('checkout.downloadFromAppStore')}
                       </a>
                     </Button>
                   </div>
@@ -172,10 +173,10 @@ const RegistrationSuccess = () => {
                   <div className="p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl border-2 border-green-200 hover:border-primary/30 transition-colors">
                     <div className="mb-4">
                       <h3 className="text-xl font-semibold mb-2 flex items-center justify-center gap-2">
-                        🤖 Android
+                        {t('checkout.android')}
                       </h3>
                       <p className="text-sm text-muted-foreground">
-                        Requires Android 8.0 or later
+                        {t('checkout.requiresAndroid')}
                       </p>
                     </div>
                     
@@ -183,13 +184,13 @@ const RegistrationSuccess = () => {
                       <div className="mb-6">
                         <img 
                           src={androidQR} 
-                          alt="Google Play Store QR Code"
+                          alt={t('checkout.androidQRCode')}
                           className="mx-auto rounded-lg shadow-md"
                           loading="lazy"
                           decoding="async"
                         />
                         <p className="text-xs text-muted-foreground mt-2">
-                          Scan with your Android camera
+                          {t('checkout.scanWithAndroid')}
                         </p>
                       </div>
                     )}
@@ -200,7 +201,7 @@ const RegistrationSuccess = () => {
                     >
                       <a href={androidPlayStoreUrl} target="_blank" rel="noopener noreferrer">
                         <Download className="h-4 w-4 mr-2" />
-                        Get it on Google Play
+                        {t('checkout.getItOnGooglePlay')}
                       </a>
                     </Button>
                   </div>
@@ -211,17 +212,17 @@ const RegistrationSuccess = () => {
               <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
                 <h4 className="font-semibold text-center mb-4 flex items-center justify-center gap-2">
                   <QrCode className="h-5 w-5" />
-                  Can't scan QR codes?
+                  {t('checkout.cantScanQR')}
                 </h4>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button variant="outline" asChild>
                     <a href={`sms:?body=Download LifeLink Sync: ${iosAppStoreUrl}`}>
-                      📲 Text iOS link to phone
+                      {t('checkout.textIosLink')}
                     </a>
                   </Button>
                   <Button variant="outline" asChild>
                     <a href={`sms:?body=Download LifeLink Sync: ${androidPlayStoreUrl}`}>
-                      📲 Text Android link to phone
+                      {t('checkout.textAndroidLink')}
                     </a>
                   </Button>
                 </div>
@@ -233,7 +234,7 @@ const RegistrationSuccess = () => {
           <Card className="bg-white/95 backdrop-blur-sm shadow-2xl border-0">
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-center">
-                What Happens Next?
+                {t('checkout.whatHappensNext')}
               </CardTitle>
             </CardHeader>
             
@@ -243,9 +244,9 @@ const RegistrationSuccess = () => {
                   <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
                     <span className="text-xl font-bold text-primary">1</span>
                   </div>
-                  <h3 className="font-semibold mb-2">Download & Install</h3>
+                  <h3 className="font-semibold mb-2">{t('checkout.downloadAndInstall')}</h3>
                   <p className="text-sm text-muted-foreground">
-                    Install the app on your device and sign in with your registered email
+                    {t('checkout.installAppSignIn')}
                   </p>
                 </div>
                 
@@ -253,9 +254,9 @@ const RegistrationSuccess = () => {
                   <div className="w-12 h-12 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                     <span className="text-xl font-bold text-emerald-600">2</span>
                   </div>
-                  <h3 className="font-semibold mb-2">Setup Complete</h3>
+                  <h3 className="font-semibold mb-2">{t('checkout.setupComplete')}</h3>
                   <p className="text-sm text-muted-foreground">
-                    Your profile is ready! Test the emergency features in safe mode
+                    {t('checkout.profileReadyTestFeatures')}
                   </p>
                 </div>
                 
@@ -263,9 +264,9 @@ const RegistrationSuccess = () => {
                   <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                     <span className="text-xl font-bold text-orange-600">3</span>
                   </div>
-                  <h3 className="font-semibold mb-2">Stay Protected</h3>
+                  <h3 className="font-semibold mb-2">{t('checkout.stayProtected')}</h3>
                   <p className="text-sm text-muted-foreground">
-                    You're now protected 24/7 by our advanced emergency system
+                    {t('checkout.nowProtected247')}
                   </p>
                 </div>
               </div>
@@ -273,7 +274,7 @@ const RegistrationSuccess = () => {
               <div className="text-center mt-8">
                 <Button asChild size="lg" className="bg-primary hover:bg-primary/90">
                   <Link to="/member-dashboard">
-                    Access Your Dashboard
+                    {t('checkout.accessYourDashboard')}
                     <ArrowRight className="h-4 w-4 ml-2" />
                   </Link>
                 </Button>
@@ -284,7 +285,7 @@ const RegistrationSuccess = () => {
           {/* Support Info */}
           <div className="text-center mt-8 p-6 bg-white/80 rounded-xl">
             <p className="text-muted-foreground mb-2">
-              Need help? Our support team is available 24/7
+              {t('checkout.needHelpSupport247')}
             </p>
             <div className="flex flex-wrap justify-center gap-4 text-sm">
               <a href="mailto:support@lifelink-sync.com" className="text-primary hover:underline">

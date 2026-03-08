@@ -1,10 +1,12 @@
 import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
+import { useTranslation } from ‘react-i18next’;
 import SEO from "@/components/SEO";
 
 
 const NotFound = () => {
   const location = useLocation();
+  const { t } = useTranslation();
 
   useEffect(() => {
     console.error(
@@ -15,12 +17,12 @@ const NotFound = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <SEO title="404 Not Found – LifeLink Sync" description="The page you’re looking for doesn’t exist." />
+      <SEO title={t(‘notFound.seoTitle’)} description={t(‘notFound.seoDescription’)} />
       <div className="text-center">
         <h1 className="text-4xl font-bold mb-4">404</h1>
-        <p className="text-xl text-gray-600 mb-4">Oops! Page not found</p>
+        <p className="text-xl text-gray-600 mb-4">{t(‘notFound.message’)}</p>
         <Link to="/" className="text-blue-500 hover:text-blue-700 underline">
-          Return to Home
+          {t(‘notFound.returnHome’)}
         </Link>
       </div>
     </div>

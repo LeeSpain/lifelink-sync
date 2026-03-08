@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useOptimizedSubscription } from '@/hooks/useOptimizedSubscription';
 
 const TrialSignupPage: React.FC = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -30,15 +32,15 @@ const TrialSignupPage: React.FC = () => {
       if (data?.error) throw new Error(data.error);
 
       toast({
-        title: 'Trial Activated!',
-        description: data.message || 'Your 7-day free trial is now active.',
+        title: t('checkout.trialActivated'),
+        description: data.message || t('checkout.trialNowActive'),
       });
 
       navigate('/dashboard');
     } catch (err: any) {
       toast({
-        title: 'Trial Activation Failed',
-        description: err.message || 'Could not activate your trial. Please try again.',
+        title: t('checkout.trialActivationFailed'),
+        description: err.message || t('checkout.couldNotActivateTrial'),
         variant: 'destructive',
       });
     } finally {
@@ -53,13 +55,13 @@ const TrialSignupPage: React.FC = () => {
         <Card className="max-w-md w-full">
           <CardContent className="pt-6 text-center">
             <Check className="h-12 w-12 mx-auto mb-4 text-green-500" />
-            <h2 className="text-xl font-bold mb-2">You're Already Protected</h2>
+            <h2 className="text-xl font-bold mb-2">{t('checkout.alreadyProtected')}</h2>
             <p className="text-muted-foreground mb-4">
               {subscription.is_trialing
-                ? 'Your free trial is currently active.'
-                : 'You have an active subscription.'}
+                ? t('checkout.trialCurrentlyActive')
+                : t('checkout.activeSubscription')}
             </p>
-            <Button onClick={() => navigate('/dashboard')}>Go to Dashboard</Button>
+            <Button onClick={() => navigate('/dashboard')}>{t('checkout.goToDashboard')}</Button>
           </CardContent>
         </Card>
       </div>
@@ -67,12 +69,12 @@ const TrialSignupPage: React.FC = () => {
   }
 
   const trialFeatures = [
-    'SOS activation (app)',
-    'Clara AI 24/7',
-    'Live location sharing',
-    '1 emergency contact',
-    'Incident log',
-    '1 free Family Link',
+    t('checkout.trialFeatureSos'),
+    t('checkout.trialFeatureClara'),
+    t('checkout.trialFeatureLocation'),
+    t('checkout.trialFeatureContact'),
+    t('checkout.trialFeatureIncident'),
+    t('checkout.trialFeatureFamily'),
   ];
 
   return (
@@ -81,13 +83,13 @@ const TrialSignupPage: React.FC = () => {
         <div className="text-center">
           <Badge className="bg-primary/10 text-primary border-primary/20 mb-4">
             <Sparkles className="h-3 w-3 mr-1" />
-            No Credit Card Required
+            {t('checkout.noCreditCardRequired')}
           </Badge>
           <h1 className="text-3xl font-bold font-poppins mb-2 text-[hsl(215,25%,27%)]">
-            Start Your Free Trial
+            {t('checkout.startYourFreeTrial')}
           </h1>
           <p className="text-gray-600">
-            Get 7 days of full access to LifeLink Sync protection features.
+            {t('checkout.get7DaysAccess')}
           </p>
         </div>
 
@@ -96,14 +98,14 @@ const TrialSignupPage: React.FC = () => {
             <CardTitle className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Shield className="h-5 w-5 text-primary" />
-                Individual Plan
+                {t('checkout.individualPlan')}
               </div>
               <div className="text-right">
                 <div className="flex items-center gap-1">
                   <Clock className="h-4 w-4 text-primary" />
-                  <span className="text-sm text-primary font-medium">7 days free</span>
+                  <span className="text-sm text-primary font-medium">{t('checkout.sevenDaysFree')}</span>
                 </div>
-                <p className="text-xs text-muted-foreground">then &euro;9.99/month</p>
+                <p className="text-xs text-muted-foreground">{t('checkout.thenPricePerMonth')}</p>
               </div>
             </CardTitle>
           </CardHeader>
@@ -123,20 +125,20 @@ const TrialSignupPage: React.FC = () => {
               className="w-full py-6 font-semibold text-lg"
             >
               <Shield className="h-5 w-5 mr-2" />
-              {isActivating ? 'Activating...' : 'Start 7-Day Free Trial'}
+              {isActivating ? t('checkout.activating') : t('checkout.startSevenDayTrial')}
             </Button>
 
             {!user && (
               <p className="text-center text-sm text-muted-foreground">
                 <Button variant="link" className="p-0" onClick={() => navigate('/register')}>
-                  Create an account
+                  {t('checkout.createAnAccount')}
                 </Button>
-                {' '}first to start your trial.
+                {' '}{t('checkout.firstToStartTrial')}
               </p>
             )}
 
             <p className="text-center text-xs text-muted-foreground">
-              No payment required. Cancel anytime. After 7 days, subscribe for &euro;9.99/month to continue.
+              {t('checkout.noPaymentRequired')}
             </p>
           </CardContent>
         </Card>

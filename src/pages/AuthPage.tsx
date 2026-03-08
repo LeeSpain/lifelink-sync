@@ -43,11 +43,11 @@ const AuthPage = () => {
     const emailTrimmed = email.trim();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(emailTrimmed)) {
-      setError('Please enter a valid email address.');
+      setError(t('auth.invalidEmail'));
       return;
     }
     if (password.length < 8) {
-      setError('Password must be at least 8 characters.');
+      setError(t('auth.passwordTooShort'));
       return;
     }
 
@@ -101,14 +101,14 @@ const AuthPage = () => {
             redirectTo += `${nextUrl.includes('?') ? '&' : '?'}plan=${planParam}`;
           }
         }
-        setSuccess('Sign in successful! Redirecting...');
+        setSuccess(t('auth.signInSuccess'));
         setTimeout(() => {
           navigate(redirectTo);
         }, 500);
       }
     } catch (error: any) {
       console.error('Sign in error:', error);
-      setError(error.message || 'Failed to sign in');
+      setError(error.message || t('auth.signInFailed'));
     } finally {
       setIsSubmitting(false);
     }
@@ -129,7 +129,7 @@ const AuthPage = () => {
       <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
         <div className="text-white text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4"></div>
-          <p>Loading...</p>
+          <p>{t('auth.loading')}</p>
         </div>
       </div>
     );
@@ -166,18 +166,18 @@ const AuthPage = () => {
           <CardHeader className="text-center px-4 sm:px-6">
             <div className="mb-2">
               <Button asChild variant="ghost" size="sm" className="min-h-[44px] text-muted-foreground hover:text-foreground">
-                <Link to="/">&larr; Back to Homepage</Link>
+                <Link to="/">&larr; {t('auth.backToHomepage')}</Link>
               </Button>
             </div>
-            <CardTitle className="text-xl sm:text-2xl font-bold">Welcome</CardTitle>
-            <CardDescription>Sign in to your account</CardDescription>
+            <CardTitle className="text-xl sm:text-2xl font-bold">{t('auth.welcome')}</CardTitle>
+            <CardDescription>{t('auth.signInToAccount')}</CardDescription>
           </CardHeader>
           <CardContent className="px-4 sm:px-6">
             <form onSubmit={handleSignIn} className="space-y-3 sm:space-y-4">
               <div className="space-y-2">
                 <Input
                   type="email"
-                  placeholder="Email"
+                  placeholder={t('auth.emailPlaceholder')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -187,7 +187,7 @@ const AuthPage = () => {
               <div className="space-y-2">
                 <Input
                   type="password"
-                  placeholder="Password"
+                  placeholder={t('auth.passwordPlaceholder')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -212,12 +212,12 @@ const AuthPage = () => {
                 className="w-full min-h-[44px]"
                 disabled={isSubmitting || isRateLimited()}
               >
-                {isSubmitting ? 'Signing In...' : 'Sign In'}
+                {isSubmitting ? t('auth.signingIn') : t('auth.signIn')}
               </Button>
               
               {isRateLimited() && (
                 <p className="text-sm text-muted-foreground text-center">
-                  Too many attempts. Try again in {getRemainingTime()} seconds.
+                  {t('auth.tooManyAttemptsShort', { seconds: getRemainingTime() })}
                 </p>
               )}
             </form>
@@ -225,21 +225,21 @@ const AuthPage = () => {
             {/* Link to registration */}
             <div className="mt-6 text-center">
               <p className="text-sm text-muted-foreground">
-                Don't have an account?{" "}
+                {t('auth.noAccount')}{" "}
                 <Button asChild variant="link" className="p-0 h-auto font-medium">
-                  <Link to="/register">Register here</Link>
+                  <Link to="/register">{t('auth.registerHere')}</Link>
                 </Button>
               </p>
             </div>
 
             {/* Dev Quick Links — bypass auth with ?dev=1 */}
             <div className="mt-8 border-t pt-6">
-              <h3 className="text-sm font-semibold text-muted-foreground mb-4 text-center uppercase tracking-wide">Quick Links (Dev)</h3>
+              <h3 className="text-sm font-semibold text-muted-foreground mb-4 text-center uppercase tracking-wide">{t('auth.quickLinksDev')}</h3>
 
               <div className="space-y-4">
                 {/* Dashboards */}
                 <div>
-                  <p className="text-xs font-semibold text-foreground mb-2">Dashboards</p>
+                  <p className="text-xs font-semibold text-foreground mb-2">{t('auth.dashboards')}</p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {[
                       { label: 'Member', href: '/member-dashboard?dev=1' },
@@ -255,7 +255,7 @@ const AuthPage = () => {
 
                 {/* Apps */}
                 <div>
-                  <p className="text-xs font-semibold text-foreground mb-2">Apps</p>
+                  <p className="text-xs font-semibold text-foreground mb-2">{t('auth.apps')}</p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {[
                       { label: 'SOS App', href: '/sos-app?dev=1' },

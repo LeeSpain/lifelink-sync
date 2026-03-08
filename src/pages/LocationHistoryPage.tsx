@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from 'react-i18next';
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,6 +40,7 @@ export default function LocationHistoryPage() {
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const loadFamilyMembers = async () => {
     if (!user) return;
@@ -82,12 +84,12 @@ export default function LocationHistoryPage() {
         id: e.id,
         event: e.event as 'enter' | 'exit',
         occurred_at: e.occurred_at,
-        place: { name: e.places?.name || "Unknown Place" }
+        place: { name: e.places?.name || t('locationHistory.unknownPlace') }
       })) || [];
       setPlaceEvents(events);
     } catch (error) {
       console.error("Error loading location history:", error);
-      toast({ title: "Error", description: "Failed to load location history", variant: "destructive" });
+      toast({ title: t('locationHistory.error'), description: t('locationHistory.failedToLoad'), variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -109,25 +111,25 @@ export default function LocationHistoryPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Location History</h1>
-          <p className="text-muted-foreground">View location tracking history for family members (last 30 days)</p>
+          <h1 className="text-2xl font-bold tracking-tight">{t('locationHistory.title')}</h1>
+          <p className="text-muted-foreground">{t('locationHistory.subtitle')}</p>
         </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><Calendar className="w-5 h-5" />Select Date & Member</CardTitle>
+          <CardTitle className="flex items-center gap-2"><Calendar className="w-5 h-5" />{t('locationHistory.selectDateMember')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="date">Date</Label>
+              <Label htmlFor="date">{t('locationHistory.date')}</Label>
               <Input id="date" type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} max={new Date().toISOString().slice(0, 10)} min={new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)} />
             </div>
             <div>
-              <Label htmlFor="member">Family Member</Label>
+              <Label htmlFor="member">{t('locationHistory.familyMember')}</Label>
               <select id="member" value={selectedUserId} onChange={(e) => setSelectedUserId(e.target.value)} className="w-full px-3 py-2 border border-input rounded-md bg-background">
-                <option value="">Select a member</option>
+                <option value="">{t('locationHistory.selectMember')}</option>
                 {familyMembers.map(member => (<option key={member.user_id} value={member.user_id}>{member.name}</option>))}
               </select>
             </div>
@@ -137,21 +139,21 @@ export default function LocationHistoryPage() {
 
       {selectedMember && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card><CardContent className="p-4"><div className="text-2xl font-bold">{points.length}</div><div className="text-sm text-muted-foreground">Location Points</div></CardContent></Card>
-          <Card><CardContent className="p-4"><div className="text-2xl font-bold">{placeEvents.length}</div><div className="text-sm text-muted-foreground">Place Events</div></CardContent></Card>
-          <Card><CardContent className="p-4"><div className="text-2xl font-bold">{points.length > 0 ? `${Math.round((new Date(points[points.length - 1].captured_at).getTime() - new Date(points[0].captured_at).getTime()) / (1000 * 60 * 60))}h` : '0h'}</div><div className="text-sm text-muted-foreground">Time Span</div></CardContent></Card>
-          <Card><CardContent className="p-4"><div className="text-2xl font-bold">{points.filter(p => p.battery != null).length > 0 ? `${Math.round(points.filter(p => p.battery != null).reduce((sum, p) => sum + (p.battery || 0), 0) / points.filter(p => p.battery != null).length)}%` : 'N/A'}</div><div className="text-sm text-muted-foreground">Avg Battery</div></CardContent></Card>
+          <Card><CardContent className="p-4"><div className="text-2xl font-bold">{points.length}</div><div className="text-sm text-muted-foreground">{t('locationHistory.locationPoints')}</div></CardContent></Card>
+          <Card><CardContent className="p-4"><div className="text-2xl font-bold">{placeEvents.length}</div><div className="text-sm text-muted-foreground">{t('locationHistory.placeEvents')}</div></CardContent></Card>
+          <Card><CardContent className="p-4"><div className="text-2xl font-bold">{points.length > 0 ? `${Math.round((new Date(points[points.length - 1].captured_at).getTime() - new Date(points[0].captured_at).getTime()) / (1000 * 60 * 60))}h` : '0h'}</div><div className="text-sm text-muted-foreground">{t('locationHistory.timeSpan')}</div></CardContent></Card>
+          <Card><CardContent className="p-4"><div className="text-2xl font-bold">{points.filter(p => p.battery != null).length > 0 ? `${Math.round(points.filter(p => p.battery != null).reduce((sum, p) => sum + (p.battery || 0), 0) / points.filter(p => p.battery != null).length)}%` : 'N/A'}</div><div className="text-sm text-muted-foreground">{t('locationHistory.avgBattery')}</div></CardContent></Card>
         </div>
       )}
 
       {loading ? (
-        <Card><CardContent className="p-8 text-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div><p>Loading location history...</p></CardContent></Card>
+        <Card><CardContent className="p-8 text-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div><p>{t('locationHistory.loading')}</p></CardContent></Card>
       ) : selectedMember ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Route Map - Now with real MapLibre visualization */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><MapPin className="w-5 h-5" />Route Map</CardTitle>
+              <CardTitle className="flex items-center gap-2"><MapPin className="w-5 h-5" />{t('locationHistory.routeMap')}</CardTitle>
             </CardHeader>
             <CardContent>
               {points.length >= 2 ? (
@@ -164,8 +166,8 @@ export default function LocationHistoryPage() {
                 <div className="h-96 bg-gradient-to-br from-emerald-50 to-blue-50 dark:from-emerald-950 dark:to-blue-950 rounded-lg flex items-center justify-center">
                   <div className="text-center text-muted-foreground">
                     <MapPin className="w-12 h-12 mx-auto mb-2" />
-                    <p>{points.length === 0 ? 'No location data for this date' : 'Need at least 2 points to draw a route'}</p>
-                    <p className="text-sm">({points.length} location point{points.length !== 1 ? 's' : ''} found)</p>
+                    <p>{points.length === 0 ? t('locationHistory.noLocationData') : t('locationHistory.needMorePoints')}</p>
+                    <p className="text-sm">({t('locationHistory.pointsFound', { count: points.length })})</p>
                   </div>
                 </div>
               )}
@@ -175,7 +177,7 @@ export default function LocationHistoryPage() {
           {/* Timeline */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Clock className="w-5 h-5" />Timeline for {selectedMember.name}</CardTitle>
+              <CardTitle className="flex items-center gap-2"><Clock className="w-5 h-5" />{t('locationHistory.timelineFor', { name: selectedMember.name })}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4 max-h-96 overflow-y-auto">
@@ -193,7 +195,7 @@ export default function LocationHistoryPage() {
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
                               {item.data.event === 'enter' ? <ArrowRight className="w-4 h-4 text-emerald-500" /> : <ArrowLeft className="w-4 h-4 text-orange-500" />}
-                              <span className="font-medium">{item.data.event === 'enter' ? 'Arrived at' : 'Left'} {item.data.place.name}</span>
+                              <span className="font-medium">{item.data.event === 'enter' ? t('locationHistory.arrivedAt') : t('locationHistory.left')} {item.data.place.name}</span>
                             </div>
                             <div className="text-sm text-muted-foreground">{formatTime(item.data.occurred_at)}</div>
                           </div>
@@ -204,7 +206,7 @@ export default function LocationHistoryPage() {
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
                               <MapPin className="w-4 h-4 text-blue-500" />
-                              <span className="font-medium">Location Update</span>
+                              <span className="font-medium">{t('locationHistory.locationUpdate')}</span>
                               {item.data.battery && <Badge variant="outline" className="text-xs">{item.data.battery}%</Badge>}
                             </div>
                             <div className="text-sm text-muted-foreground">
@@ -219,8 +221,8 @@ export default function LocationHistoryPage() {
                 {points.length === 0 && placeEvents.length === 0 && (
                   <div className="text-center text-muted-foreground py-8">
                     <Clock className="w-12 h-12 mx-auto mb-2" />
-                    <p>No location data available for this date</p>
-                    <p className="text-sm">Location tracking may not have been active</p>
+                    <p>{t('locationHistory.noDataAvailable')}</p>
+                    <p className="text-sm">{t('locationHistory.trackingMayNotBeActive')}</p>
                   </div>
                 )}
               </div>
@@ -231,8 +233,8 @@ export default function LocationHistoryPage() {
         <Card>
           <CardContent className="p-8 text-center">
             <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Select Date and Member</h3>
-            <p className="text-muted-foreground">Choose a date and family member to view their location history</p>
+            <h3 className="text-lg font-semibold mb-2">{t('locationHistory.selectDateAndMember')}</h3>
+            <p className="text-muted-foreground">{t('locationHistory.chooseDateAndMember')}</p>
           </CardContent>
         </Card>
       )}

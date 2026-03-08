@@ -5,8 +5,10 @@ import { Mail, CheckCircle, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 const EmailVerificationBanner = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [isResending, setIsResending] = useState(false);
 
@@ -27,12 +29,12 @@ const EmailVerificationBanner = () => {
       });
 
       if (error) {
-        toast.error(`Failed to resend verification email: ${error.message}`);
+        toast.error(t('emailVerification.resendError', { message: error.message }));
       } else {
-        toast.success('Verification email sent! Please check your inbox.');
+        toast.success(t('emailVerification.resendSuccess'));
       }
     } catch (error) {
-      toast.error('An unexpected error occurred. Please try again.');
+      toast.error(t('emailVerification.unexpectedError'));
     } finally {
       setIsResending(false);
     }
@@ -44,7 +46,7 @@ const EmailVerificationBanner = () => {
       <AlertDescription className="flex items-center justify-between">
         <div className="flex-1">
           <span className="text-amber-800">
-            Please verify your email address to access all features. Check your inbox for a confirmation link.
+            {t('emailVerification.message')}
           </span>
         </div>
         <Button
@@ -54,7 +56,7 @@ const EmailVerificationBanner = () => {
           disabled={isResending}
           className="ml-4 border-amber-300 text-amber-700 hover:bg-amber-100"
         >
-          {isResending ? 'Sending...' : 'Resend Email'}
+          {isResending ? t('emailVerification.sending') : t('emailVerification.resendEmail')}
         </Button>
       </AlertDescription>
     </Alert>

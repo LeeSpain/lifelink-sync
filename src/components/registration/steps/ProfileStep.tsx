@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -31,20 +32,22 @@ const countries = [
 ];
 
 const ProfileStep: React.FC<ProfileStepProps> = ({ data, onChange }) => {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-6 max-w-md mx-auto">
       <div className="text-center space-y-2">
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-primary/10">
           <MapPin className="h-7 w-7 text-primary" />
         </div>
-        <h2 className="text-2xl font-poppins font-bold text-foreground">Your Profile</h2>
-        <p className="text-sm text-muted-foreground">Help us personalise your safety experience</p>
+        <h2 className="text-2xl font-poppins font-bold text-foreground">{t('registration.profile.title')}</h2>
+        <p className="text-sm text-muted-foreground">{t('registration.profile.subtitle')}</p>
       </div>
 
       <div className="space-y-4">
         {/* Phone */}
         <div className="space-y-2">
-          <Label htmlFor="phone">Phone Number</Label>
+          <Label htmlFor="phone">{t('registration.profile.phoneNumber')}</Label>
           <div className="relative">
             <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -56,19 +59,19 @@ const ProfileStep: React.FC<ProfileStepProps> = ({ data, onChange }) => {
               className="pl-10"
             />
           </div>
-          <p className="text-xs text-muted-foreground">Include country code for emergency services</p>
+          <p className="text-xs text-muted-foreground">{t('registration.profile.phoneHint')}</p>
         </div>
 
         {/* City */}
         <div className="space-y-2">
-          <Label htmlFor="city">City</Label>
+          <Label htmlFor="city">{t('registration.profile.city')}</Label>
           <div className="relative">
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               id="city"
               value={data.city}
               onChange={(e) => onChange('city', e.target.value)}
-              placeholder="Your city"
+              placeholder={t('registration.profile.cityPlaceholder')}
               className="pl-10"
             />
           </div>
@@ -76,12 +79,12 @@ const ProfileStep: React.FC<ProfileStepProps> = ({ data, onChange }) => {
 
         {/* Country */}
         <div className="space-y-2">
-          <Label>Country</Label>
+          <Label>{t('registration.profile.country')}</Label>
           <Select value={data.country} onValueChange={(v) => onChange('country', v)}>
             <SelectTrigger>
               <div className="flex items-center gap-2">
                 <Globe className="h-4 w-4 text-muted-foreground" />
-                <SelectValue placeholder="Select your country" />
+                <SelectValue placeholder={t('registration.profile.countryPlaceholder')} />
               </div>
             </SelectTrigger>
             <SelectContent>
@@ -94,7 +97,7 @@ const ProfileStep: React.FC<ProfileStepProps> = ({ data, onChange }) => {
 
         {/* Date of Birth */}
         <div className="space-y-2">
-          <Label htmlFor="dateOfBirth">Date of Birth <span className="text-muted-foreground">(optional)</span></Label>
+          <Label htmlFor="dateOfBirth">{t('registration.profile.dateOfBirth')} <span className="text-muted-foreground">({t('registration.profile.optional')})</span></Label>
           <div className="relative">
             <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -105,7 +108,7 @@ const ProfileStep: React.FC<ProfileStepProps> = ({ data, onChange }) => {
               className="pl-10"
             />
           </div>
-          <p className="text-xs text-muted-foreground">Helps medical responders provide appropriate care</p>
+          <p className="text-xs text-muted-foreground">{t('registration.profile.dobHint')}</p>
         </div>
       </div>
     </div>

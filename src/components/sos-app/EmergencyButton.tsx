@@ -3,10 +3,12 @@ import { Button } from '@/components/ui/button';
 import { AlertTriangle, Phone, Mic, MicOff } from 'lucide-react';
 import { useEmergencySOS } from '@/hooks/useEmergencySOS';
 import { useEmergencyDisclaimer } from '@/hooks/useEmergencyDisclaimer';
+import { useTranslation } from 'react-i18next';
 import { EmergencyDisclaimerModal } from '@/components/emergency/EmergencyDisclaimerModal';
 import { useToast } from '@/hooks/use-toast';
 
 const EmergencyButton = () => {
+  const { t } = useTranslation();
   const { triggerEmergencySOS, isTriggering } = useEmergencySOS();
   const { 
     showDisclaimer, 
@@ -55,8 +57,8 @@ const EmergencyButton = () => {
   const cancelCountdown = () => {
     setCountdown(null);
     toast({
-      title: "Emergency SOS Cancelled",
-      description: "SOS activation has been cancelled",
+      title: t('sos.cancelled'),
+      description: t('sos.cancelledDescription'),
     });
   };
 
@@ -68,8 +70,8 @@ const EmergencyButton = () => {
   const toggleVoiceActivation = () => {
     setVoiceActivated(!voiceActivated);
     toast({
-      title: voiceActivated ? "Voice Activation Disabled" : "Voice Activation Enabled",
-      description: voiceActivated ? "Voice commands disabled" : "Say 'Emergency Help' to activate SOS",
+      title: voiceActivated ? t('sos.voiceDisabled') : t('sos.voiceEnabled'),
+      description: voiceActivated ? t('sos.voiceCommandsDisabled') : t('sos.voiceCommandsEnabled'),
     });
   };
 
@@ -84,7 +86,7 @@ const EmergencyButton = () => {
           className="mb-4 text-white/70 hover:text-white hover:bg-white/10"
         >
           {voiceActivated ? <Mic className="h-4 w-4 mr-2" /> : <MicOff className="h-4 w-4 mr-2" />}
-          Voice {voiceActivated ? 'ON' : 'OFF'}
+          {t('sos.voice')} {voiceActivated ? t('sos.on') : t('sos.off')}
         </Button>
 
         {/* Multi-layer pulsing rings for emergency state */}
@@ -131,8 +133,8 @@ const EmergencyButton = () => {
               <>
                 <AlertTriangle className="h-14 w-14" />
                 <div className="text-center">
-                  <div className="text-xl font-black">TAP TO CANCEL</div>
-                  <div className="text-lg">Activating in {countdown}s</div>
+                  <div className="text-xl font-black">{t('sos.tapToCancel')}</div>
+                  <div className="text-lg">{t('sos.activatingIn', { seconds: countdown })}</div>
                 </div>
               </>
             ) : isTriggering ? (
@@ -144,16 +146,16 @@ const EmergencyButton = () => {
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-xl font-black">SENDING SOS...</div>
-                  <div className="text-sm">Notifying contacts</div>
+                  <div className="text-xl font-black">{t('sos.sendingSOS')}</div>
+                  <div className="text-sm">{t('sos.notifyingContacts')}</div>
                 </div>
               </>
             ) : (
               <>
                 <AlertTriangle className="h-14 w-14" />
                 <div className="text-center">
-                  <div className="text-2xl font-black">EMERGENCY</div>
-                  <div className="text-xl">SOS</div>
+                  <div className="text-2xl font-black">{t('sos.emergency')}</div>
+                  <div className="text-xl">{t('sos.sos')}</div>
                 </div>
               </>
             )}
@@ -164,20 +166,20 @@ const EmergencyButton = () => {
         <div className="mt-6 text-center text-white/80 max-w-xs">
           {countdown !== null ? (
             <div className="space-y-1">
-              <p className="text-sm font-bold text-yellow-400">Activating Emergency SOS</p>
-              <p className="text-xs">Tap button to cancel</p>
+              <p className="text-sm font-bold text-yellow-400">{t('sos.activatingEmergencySOS')}</p>
+              <p className="text-xs">{t('sos.tapButtonToCancel')}</p>
             </div>
           ) : isTriggering ? (
             <div className="space-y-1">
-              <p className="text-sm font-bold text-red-400">Emergency SOS Active</p>
-              <p className="text-xs">Contacts are being notified</p>
+              <p className="text-sm font-bold text-red-400">{t('sos.emergencySOSActive')}</p>
+              <p className="text-xs">{t('sos.contactsBeingNotified')}</p>
             </div>
           ) : (
             <div className="space-y-1 bg-black/30 backdrop-blur-sm rounded-lg p-3 border border-white/10">
-              <p className="text-sm font-medium">Hold for 3 seconds to activate</p>
-              <p className="text-xs text-white/60">Sends alerts to emergency contacts</p>
+              <p className="text-sm font-medium">{t('sos.holdToActivate')}</p>
+              <p className="text-xs text-white/60">{t('sos.sendsAlerts')}</p>
               {voiceActivated && (
-                <p className="text-xs text-blue-400">Voice: Say "Emergency Help"</p>
+                <p className="text-xs text-blue-400">{t('sos.voiceSayEmergency')}</p>
               )}
             </div>
           )}

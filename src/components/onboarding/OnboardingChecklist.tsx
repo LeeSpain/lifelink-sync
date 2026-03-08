@@ -5,19 +5,20 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useOnboardingProgress, OnboardingSteps } from '@/hooks/useOnboardingProgress';
-import { 
-  User, 
-  Phone, 
-  Shield, 
-  Users, 
-  Bell, 
-  TestTube, 
-  CheckCircle2, 
+import {
+  User,
+  Phone,
+  Shield,
+  Users,
+  Bell,
+  TestTube,
+  CheckCircle2,
   Circle,
   Loader2,
   PartyPopper
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 interface Step {
   key: keyof OnboardingSteps;
@@ -30,43 +31,43 @@ interface Step {
 const STEPS: Step[] = [
   {
     key: 'complete_profile',
-    title: 'Complete Your Profile',
-    description: 'Add your personal details and medical information',
+    title: 'onboarding.steps.completeProfile',
+    description: 'onboarding.steps.completeProfileDesc',
     icon: <User className="h-5 w-5" />,
     route: '/member-dashboard/profile',
   },
   {
     key: 'add_emergency_contacts',
-    title: 'Add Emergency Contacts',
-    description: 'Set up people to notify during emergencies',
+    title: 'onboarding.steps.addEmergencyContacts',
+    description: 'onboarding.steps.addEmergencyContactsDesc',
     icon: <Phone className="h-5 w-5" />,
     route: '/member-dashboard/profile',
   },
   {
     key: 'configure_sos_settings',
-    title: 'Configure SOS Settings',
-    description: 'Customize your emergency alert preferences',
+    title: 'onboarding.steps.configureSos',
+    description: 'onboarding.steps.configureSosDesc',
     icon: <Shield className="h-5 w-5" />,
     route: '/member-dashboard/family-sos',
   },
   {
     key: 'invite_family',
-    title: 'Invite Family Members',
-    description: 'Add family members to your safety circle',
+    title: 'onboarding.steps.inviteFamily',
+    description: 'onboarding.steps.inviteFamilyDesc',
     icon: <Users className="h-5 w-5" />,
     route: '/member-dashboard/family-setup',
   },
   {
     key: 'enable_notifications',
-    title: 'Enable Notifications',
-    description: 'Allow push notifications for real-time alerts',
+    title: 'onboarding.steps.enableNotifications',
+    description: 'onboarding.steps.enableNotificationsDesc',
     icon: <Bell className="h-5 w-5" />,
     route: '/member-dashboard/notifications',
   },
   {
     key: 'run_sos_test',
-    title: 'Run SOS Test Simulation',
-    description: 'Test your emergency setup with a practice alert',
+    title: 'onboarding.steps.runSosTest',
+    description: 'onboarding.steps.runSosTestDesc',
     icon: <TestTube className="h-5 w-5" />,
     route: '/member-dashboard/family-sos',
   },
@@ -74,6 +75,7 @@ const STEPS: Step[] = [
 
 export function OnboardingChecklist() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { progress, loading, updateStep, markComplete, progressPercentage } = useOnboardingProgress();
 
   if (loading) {
@@ -93,12 +95,12 @@ export function OnboardingChecklist() {
 
   const handleMarkDone = async (step: Step) => {
     await updateStep(step.key, true);
-    toast.success(`${step.title} marked as complete!`);
+    toast.success(`${t(step.title)} ${t('onboarding.markedComplete')}`);
   };
 
   const handleFinishSetup = async () => {
     await markComplete();
-    toast.success('🎉 Onboarding complete! Welcome to LifeLink Sync!');
+    toast.success(t('onboarding.onboardingComplete'));
     navigate('/member-dashboard');
   };
 
@@ -106,9 +108,9 @@ export function OnboardingChecklist() {
     <div className="max-w-2xl mx-auto p-6 space-y-6">
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Welcome to LifeLink Sync!</CardTitle>
+          <CardTitle className="text-2xl">{t('onboarding.welcome')}</CardTitle>
           <CardDescription>
-            Complete these steps to set up your emergency safety system
+            {t('onboarding.completeSteps')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -119,7 +121,7 @@ export function OnboardingChecklist() {
             </Badge>
           </div>
           <p className="text-sm text-muted-foreground text-center">
-            {completedCount} of 6 steps completed
+            {t('onboarding.stepsCompleted', { completed: completedCount, total: 6 })}
           </p>
         </CardContent>
       </Card>
@@ -127,50 +129,50 @@ export function OnboardingChecklist() {
       <div className="space-y-3">
         {STEPS.map((step) => {
           const isComplete = progress?.steps[step.key] ?? false;
-          
+
           return (
-            <Card 
-              key={step.key} 
+            <Card
+              key={step.key}
               className={isComplete ? 'border-green-500/50 bg-green-50/50 dark:bg-green-950/20' : ''}
             >
               <CardContent className="flex items-center gap-4 p-4">
                 <div className={`p-2 rounded-full ${isComplete ? 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400' : 'bg-muted text-muted-foreground'}`}>
                   {step.icon}
                 </div>
-                
+
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <h3 className="font-medium">{step.title}</h3>
+                    <h3 className="font-medium">{t(step.title)}</h3>
                     {isComplete && (
                       <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground">{step.description}</p>
+                  <p className="text-sm text-muted-foreground">{t(step.description)}</p>
                 </div>
 
                 <div className="flex gap-2">
                   {!isComplete && (
                     <>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         size="sm"
                         onClick={() => handleStart(step)}
                       >
-                        Start
+                        {t('onboarding.start')}
                       </Button>
-                      <Button 
-                        variant="ghost" 
+                      <Button
+                        variant="ghost"
                         size="sm"
                         onClick={() => handleMarkDone(step)}
                       >
-                        Mark Done
+                        {t('onboarding.markDone')}
                       </Button>
                     </>
                   )}
                   {isComplete && (
                     <Badge variant="outline" className="text-green-600 border-green-600">
                       <Circle className="h-2 w-2 fill-current mr-1" />
-                      Complete
+                      {t('onboarding.complete')}
                     </Badge>
                   )}
                 </div>
@@ -186,14 +188,14 @@ export function OnboardingChecklist() {
             <div className="flex items-center gap-3">
               <PartyPopper className="h-8 w-8 text-primary" />
               <div>
-                <h3 className="font-semibold">All Steps Complete!</h3>
+                <h3 className="font-semibold">{t('onboarding.allComplete')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  You're ready to use LifeLink Sync
+                  {t('onboarding.readyToUse')}
                 </p>
               </div>
             </div>
             <Button onClick={handleFinishSetup} size="lg">
-              Finish Setup
+              {t('onboarding.finishSetup')}
             </Button>
           </CardContent>
         </Card>
@@ -201,12 +203,12 @@ export function OnboardingChecklist() {
 
       {!allComplete && (
         <div className="text-center">
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             onClick={() => navigate('/member-dashboard')}
             className="text-muted-foreground"
           >
-            Skip for now
+            {t('onboarding.skipForNow')}
           </Button>
         </div>
       )}
