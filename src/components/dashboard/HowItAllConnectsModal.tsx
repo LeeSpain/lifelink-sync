@@ -206,9 +206,9 @@ const HowItAllConnectsModal: React.FC<HowItAllConnectsModalProps> = ({ isOpen, o
 
       {/* Popup container — 80vw × 80vh */}
       <div
-        className="w-[80vw] h-[80vh] max-sm:w-[95vw] max-sm:h-[90vh]"
         style={{
           position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+          width: '860px', maxWidth: '92vw', height: 'auto', maxHeight: '88vh', minHeight: '560px',
           zIndex: 9999, backgroundColor: '#ffffff', borderRadius: '20px',
           border: '1px solid rgba(0,0,0,0.08)',
           boxShadow: '0 0 0 1px rgba(0,0,0,0.04), 0 8px 16px rgba(0,0,0,0.06), 0 24px 48px rgba(0,0,0,0.10), 0 48px 80px rgba(0,0,0,0.08)',
@@ -252,7 +252,7 @@ const HowItAllConnectsModal: React.FC<HowItAllConnectsModalProps> = ({ isOpen, o
         <div
           ref={diagramRef}
           style={{
-            flex: 1, minHeight: 0,
+            height: '460px', flexShrink: 0,
             padding: '16px 32px',
             display: 'grid',
             gridTemplateColumns: '1fr 80px auto 80px 1fr',
