@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import StatsBar from "@/components/StatsBar";
 import HowItWorks from "@/components/HowItWorks";
 import Features from "@/components/Features";
-import EcosystemMapModal from "@/components/landing/EcosystemMapModal";
+import HowItAllConnectsModal from "@/components/dashboard/HowItAllConnectsModal";
 import CallCentrePartner from "@/components/CallCentrePartner";
 import FamilySection from "@/components/FamilySection";
 import Pricing from "@/components/Pricing";
@@ -27,6 +27,7 @@ const Index = () => {
   useScrollToTop();
   usePerformanceMonitoring();
   const { openClaraChat } = useClaraChat();
+  const [showEcosystem, setShowEcosystem] = useState(false);
 
   useEffect(() => {
     preloadCriticalImages();
@@ -58,9 +59,18 @@ const Index = () => {
       {/* 4b. Ecosystem Map */}
       <section className="py-12 bg-white">
         <div className="container mx-auto px-4 text-center">
-          <EcosystemMapModal />
+          <button
+            onClick={() => setShowEcosystem(true)}
+            className="border border-primary text-primary hover:bg-primary/5 font-semibold px-8 py-3 rounded-xl transition-all duration-300"
+          >
+            See How It All Connects
+          </button>
         </div>
       </section>
+      <HowItAllConnectsModal
+        isOpen={showEcosystem}
+        onClose={() => setShowEcosystem(false)}
+      />
 
       {/* 5. Call Centre Partner */}
       <CallCentrePartner />

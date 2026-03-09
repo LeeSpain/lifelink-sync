@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Shield, Check, MapPin, Users, Activity, Wifi } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
-import EcosystemMapModal from "@/components/landing/EcosystemMapModal";
+import HowItAllConnectsModal from "@/components/dashboard/HowItAllConnectsModal";
 
 interface HeroProps {
   onClaraClick?: () => void;
@@ -100,6 +101,7 @@ const HeroPhoneMockup = () => {
 
 const Hero = ({ onClaraClick }: HeroProps) => {
   const { t } = useTranslation();
+  const [showEcosystem, setShowEcosystem] = useState(false);
   return (
     <section className="relative min-h-[100dvh] sm:min-h-[85vh] flex items-center justify-center overflow-hidden bg-[#FAFAF9] pt-20 sm:pt-16">
       {/* Subtle background texture */}
@@ -135,16 +137,18 @@ const Hero = ({ onClaraClick }: HeroProps) => {
                 </Link>
               </Button>
 
-              <EcosystemMapModal
-                trigger={
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="border-primary text-primary hover:bg-primary/5 font-semibold text-lg px-8 py-6 rounded-xl transition-all duration-300"
-                  >
-                    {t('hero.seeHowItWorks')}
-                  </Button>
-                }
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-primary text-primary hover:bg-primary/5 font-semibold text-lg px-8 py-6 rounded-xl transition-all duration-300"
+                onClick={() => setShowEcosystem(true)}
+              >
+                {t('hero.seeHowItWorks')}
+              </Button>
+
+              <HowItAllConnectsModal
+                isOpen={showEcosystem}
+                onClose={() => setShowEcosystem(false)}
               />
             </div>
 
