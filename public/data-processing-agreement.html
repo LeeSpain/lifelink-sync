@@ -52,6 +52,7 @@
         <li>Our registered office is in Madrid, Spain.</li>
     </ul>
 
+    <!-- ⚠️ LEGAL REVIEW REQUIRED: Verify all legal basis claims in the processing scope table, especially vital interests justifications and Article 9 special category data processing -->
     <h2>3. Processing Scope</h2>
     <table>
         <thead>
@@ -116,6 +117,30 @@
                 <td>Contact data, preferences</td>
                 <td>Service and marketing</td>
                 <td>Art 6(1)(a) consent / Art 6(1)(f) legitimate interests</td>
+            </tr>
+            <tr>
+                <td>CLARA AI conversations</td>
+                <td>Conversation text, profile context, health data</td>
+                <td>Emergency detection, wellbeing monitoring, platform assistance</td>
+                <td>Art 6(1)(a) consent + Art 9(2)(a) explicit consent</td>
+            </tr>
+            <tr>
+                <td>Medication data processing</td>
+                <td>Medication names, dosages, schedules, adherence logs</td>
+                <td>Reminder service, emergency medical info, family notifications</td>
+                <td>Art 6(1)(a) + Art 9(2)(a) explicit consent</td>
+            </tr>
+            <tr>
+                <td>Wellbeing check data</td>
+                <td>Mood, sleep, pain, general wellbeing scores</td>
+                <td>Daily monitoring, family digest notifications, trend analysis</td>
+                <td>Art 6(1)(a) + Art 9(2)(a) explicit consent</td>
+            </tr>
+            <tr>
+                <td>Voice activation events</td>
+                <td>Event metadata (timestamp, trigger type)</td>
+                <td>Emergency triggering via tablet dashboard</td>
+                <td>Art 6(1)(d) vital interests + Art 6(1)(a) consent</td>
             </tr>
         </tbody>
     </table>
@@ -280,9 +305,30 @@
                 <td>2 years</td>
                 <td>Security compliance</td>
             </tr>
+            <tr>
+                <td>CLARA AI conversations</td>
+                <td>90 days rolling</td>
+                <td>Conversation context provision</td>
+            </tr>
+            <tr>
+                <td>Medication data</td>
+                <td>Account + 5 years</td>
+                <td>Health record continuity</td>
+            </tr>
+            <tr>
+                <td>Wellbeing check data</td>
+                <td>12 months rolling</td>
+                <td>Trend analysis and reporting</td>
+            </tr>
+            <tr>
+                <td>Voice activation events</td>
+                <td>30 days</td>
+                <td>Security audit and false positive analysis</td>
+            </tr>
         </tbody>
     </table>
 
+    <!-- ⚠️ LEGAL REVIEW REQUIRED: Verify all cross-border transfer mechanisms remain valid. SCCs must be the 2021 version (Commission Decision 2021/914). Transfer impact assessments must be current -->
     <h2>9. International Data Transfers</h2>
     <ul>
         <li><strong>Primary processing:</strong> EU/EEA (Supabase Frankfurt).</li>

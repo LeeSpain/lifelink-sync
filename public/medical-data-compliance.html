@@ -48,6 +48,8 @@
         <li>Daily wellbeing scores: mood, sleep quality, pain levels, general wellbeing (via Daily Wellbeing add-on)</li>
         <li>Medication schedules, dosages, and adherence logs (via Medication Reminder add-on)</li>
         <li>CLARA Complete weekly wellbeing reports (AI-generated)</li>
+        <li>CLARA AI conversation data containing health-related discussions (emergency context, wellbeing queries)</li>
+        <li>Voice activation event metadata from tablet dashboard mode (timestamp, trigger type — audio NOT stored)</li>
     </ul>
 
     <h3>What we do NOT collect:</h3>
@@ -60,6 +62,7 @@
         <li>Insurance or billing medical codes</li>
     </ul>
 
+    <!-- ⚠️ LEGAL REVIEW REQUIRED: All Article 9 health data processing claims must be verified. Explicit consent mechanism must meet GDPR requirements for special category data -->
     <h2>2. Legal Basis for Health Data Processing (GDPR Article 9)</h2>
 
     <p>Health data is "special category" data under GDPR. Our legal bases:</p>
@@ -113,6 +116,16 @@
                 <td>Vital interests</td>
                 <td>Art 9(2)(c)</td>
             </tr>
+            <tr>
+                <td>CLARA AI health conversations</td>
+                <td>Explicit consent (chat usage)</td>
+                <td>Art 9(2)(a)</td>
+            </tr>
+            <tr>
+                <td>Voice activation events (health context)</td>
+                <td>Vital interests + Consent</td>
+                <td>Art 9(2)(c) + Art 9(2)(a)</td>
+            </tr>
         </tbody>
     </table>
 
@@ -126,6 +139,14 @@
         <li>We do NOT check for drug interactions, contraindications, or dosage safety</li>
         <li>Member-entered data has NOT been verified by any healthcare professional</li>
         <li>Always consult your doctor, pharmacist, or healthcare provider for medical decisions</li>
+    </ul>
+
+    <h3>Voice Data and Health Monitoring</h3>
+    <ul>
+        <li>Voice activation on the tablet dashboard processes audio in real-time to detect emergency phrases</li>
+        <li>Audio data is NOT stored, recorded, or transmitted — only event metadata is retained</li>
+        <li>Voice patterns are NOT used for health assessment or wellness monitoring</li>
+        <li>Voice activation is an emergency trigger only — it does not analyse voice quality, tone, or emotional state</li>
     </ul>
 
     <h2>4. Data Accuracy &mdash; Your Responsibility</h2>
@@ -245,6 +266,7 @@
 
     <p>Contact <a href="mailto:medical-privacy@lifelink-sync.com">medical-privacy@lifelink-sync.com</a> to exercise any right. Response within 30 days.</p>
 
+    <!-- ⚠️ LEGAL REVIEW REQUIRED: Vital interests justification for emergency health data sharing. Verify this meets the threshold required by GDPR Article 9(2)(c) — "necessary to protect vital interests where data subject is physically or legally incapable of giving consent" -->
     <h2>9. Emergency Override</h2>
     <ul>
         <li>In situations where we reasonably believe there is a risk to life, we may share health data without additional consent</li>

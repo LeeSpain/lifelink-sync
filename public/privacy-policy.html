@@ -124,6 +124,8 @@
         <tr><td>Memory</td><td>Conversation memory and context (with expiration)</td></tr>
         <tr><td>Learning</td><td>CLARA learning queue items</td></tr>
         <tr><td>Knowledge base</td><td>CLARA knowledge base queries and vector embeddings for search</td></tr>
+        <tr><td>Voice activation events</td><td>Voice command trigger events, background audio analysis for emergency detection (tablet dashboard mode)</td></tr>
+        <tr><td>Voice data</td><td>Voice data is processed in real-time and NOT stored. Only event metadata (timestamp, trigger type) is retained.</td></tr>
     </table>
 
     <h3>Device &amp; Technical Data</h3>
@@ -133,6 +135,7 @@
         <tr><td>Device status</td><td>Battery level, network status</td></tr>
         <tr><td>Notifications</td><td>Push notification tokens</td></tr>
         <tr><td>Connections</td><td>Bluetooth device connections (if applicable)</td></tr>
+        <tr><td>SOS Pendant events</td><td>Button press timestamps, Bluetooth connection logs, battery status, pairing history</td></tr>
     </table>
 
     <h3>Analytics &amp; Security Data</h3>
@@ -145,6 +148,7 @@
     </table>
 
     <!-- ============================================================ -->
+    <!-- ⚠️ LEGAL REVIEW REQUIRED: Verify all legal basis claims, especially vital interests justifications for emergency health sharing and voice activation -->
     <h2>3. Legal Basis for Processing (GDPR Article 6 + Article 9)</h2>
 
     <p>We only process your personal data when we have a valid legal basis to do so. The table below sets out the legal basis for each type of data processing.</p>
@@ -159,6 +163,7 @@
         <tr><td>Family circle sharing</td><td>Explicit consent</td><td>Art 6(1)(a)</td></tr>
         <tr><td>Billing data</td><td>Contract + legal obligation</td><td>Art 6(1)(b), Art 6(1)(c)</td></tr>
         <tr><td>CLARA AI processing</td><td>Explicit consent</td><td>Art 6(1)(a) + Art 9(2)(a)</td></tr>
+        <tr><td>Voice activation events</td><td>Vital interests + Consent</td><td>Art 6(1)(d), Art 6(1)(a)</td></tr>
         <tr><td>Analytics</td><td>Legitimate interests</td><td>Art 6(1)(f)</td></tr>
         <tr><td>Security logs</td><td>Legitimate interests</td><td>Art 6(1)(f)</td></tr>
         <tr><td>Trial reminder emails</td><td>Legitimate interests (service communication)</td><td>Art 6(1)(f)</td></tr>
@@ -170,6 +175,7 @@
     <!-- ============================================================ -->
     <h2>4. Who We Share Data With</h2>
 
+    <!-- ⚠️ LEGAL REVIEW REQUIRED: Verify that the family circle data sharing consent mechanism meets GDPR requirements for granular consent -->
     <h3>Your Family Circle Members</h3>
     <p>With your <strong>explicit consent</strong>, we share the following data with members of your family circle:</p>
     <ul>
@@ -211,6 +217,7 @@
     <p>We will only disclose personal data to law enforcement authorities when we are legally required to do so (e.g., by court order or binding legal obligation). Where legally permitted, we will notify you before any such disclosure.</p>
 
     <!-- ============================================================ -->
+    <!-- ⚠️ LEGAL REVIEW REQUIRED: AI automated decision-making disclosures must comply with GDPR Article 22. Verify that CLARA's processing does not constitute automated decision-making with legal or significant effects -->
     <h2>5. CLARA AI and Automated Processing</h2>
 
     <p>CLARA is our AI assistant that helps with emergency protection, wellbeing check-ins, and medication reminders. This section explains how CLARA processes your data.</p>
@@ -220,6 +227,7 @@
         <li>Your profile data (name, age, medical information)</li>
         <li>Conversation messages you send to CLARA</li>
         <li>Health and wellbeing data (when the Daily Wellbeing or Medication Reminder add-ons are active)</li>
+        <li>Voice activation events on tablet dashboard (real-time processing only &mdash; audio is not stored)</li>
     </ul>
 
     <h3>How CLARA Uses Your Data</h3>
@@ -267,6 +275,7 @@
         <tr><td>Email delivery logs</td><td>12 months</td></tr>
         <tr><td>Security / audit logs</td><td>2 years</td></tr>
         <tr><td>Authentication failure logs</td><td>6 months</td></tr>
+        <tr><td>Voice activation event metadata</td><td>30 days rolling</td></tr>
     </table>
 
     <p>When a retention period expires, data is securely deleted or anonymised within 30 days. Rolling retention periods mean data older than the specified period is automatically purged.</p>
@@ -343,6 +352,7 @@
     </ul>
 
     <!-- ============================================================ -->
+    <!-- ⚠️ LEGAL REVIEW REQUIRED: Verify all cross-border data transfer mechanisms are current, especially SCCs post-Schrems II -->
     <h2>10. International Data Transfers</h2>
 
     <ul>

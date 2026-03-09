@@ -47,6 +47,7 @@
         <li>CLARA helps with: emergency protection guidance, daily wellbeing check-ins, medication reminders, and general platform assistance</li>
         <li>CLARA operates via text chat within the LifeLink Sync platform</li>
         <li>CLARA can also operate via voice for tablet dashboard users</li>
+        <li>Voice activation on the tablet dashboard processes audio in real-time to detect emergency phrases — audio is NOT stored</li>
         <li>CLARA is powered by large language model technology</li>
         <li>CLARA is NOT a human &mdash; all interactions are with an AI system</li>
     </ul>
@@ -96,6 +97,11 @@
                 <td>When answering questions about your circle</td>
                 <td>To provide accurate family status information</td>
             </tr>
+            <tr>
+                <td><strong>Voice activation events</strong></td>
+                <td>When tablet dashboard voice mode is active</td>
+                <td>To detect emergency phrases and trigger SOS alerts</td>
+            </tr>
         </tbody>
     </table>
 
@@ -108,6 +114,7 @@
         <li>After 90 days, conversation data is automatically deleted</li>
         <li>Memory types include: short-term (current session context) and long-term (recurring preferences)</li>
         <li>Memory has an expiration date set at creation &mdash; expired memory is purged automatically</li>
+        <li>Voice activation: audio is processed in real-time by on-device or edge processing and is NOT stored, recorded, or transmitted to our servers. Only event metadata (timestamp, trigger type, confidence score) is retained for 30 days</li>
     </ul>
 
     <h3>Knowledge Base</h3>
@@ -159,6 +166,7 @@
         <li>NOT used to train, fine-tune, or improve the provider's AI models</li>
     </ul>
 
+    <!-- ⚠️ LEGAL REVIEW REQUIRED: Verify with AI model provider that no data is retained or used for training. Obtain and maintain written confirmation from provider. This commitment must be reflected in the provider's DPA -->
     <h2>6. Your Data is NOT Used for AI Training</h2>
     <ul>
         <li><strong>We do not use your personal data, conversations, health data, or any other information to train AI models</strong></li>
@@ -167,6 +175,16 @@
         <li>This commitment applies to all data categories: conversations, health, medical, location, and personal</li>
     </ul>
 
+    <h2>6a. AI Emergency Detection and False Positives</h2>
+    <ul>
+        <li>CLARA may interpret certain phrases or patterns as emergency indicators</li>
+        <li>False positive detections (non-emergency events flagged as emergencies) are possible and may trigger alerts to your family circle</li>
+        <li>You can cancel a false alert immediately through the app</li>
+        <li>Repeated false positive patterns are logged to improve detection accuracy — these logs contain event metadata only, not conversation content</li>
+        <li>If you experience frequent false positives, contact <a href="mailto:support@lifelink-sync.com">support@lifelink-sync.com</a> for configuration adjustment</li>
+    </ul>
+
+    <!-- ⚠️ LEGAL REVIEW REQUIRED: AI automated decision-making disclosure. Verify that CLARA's emergency detection does not constitute "automated decision-making" with significant effects under GDPR Article 22. If CLARA triggers an SOS alert automatically, this may qualify as a decision with significant effects requiring explicit opt-in consent and right to human review -->
     <h2>7. GDPR Article 22 &mdash; Automated Decision Making</h2>
     <ul>
         <li>CLARA does NOT make decisions that produce legal effects concerning you</li>
