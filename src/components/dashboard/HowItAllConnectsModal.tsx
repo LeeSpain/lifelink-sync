@@ -56,24 +56,24 @@ const responseDotColors = [
   'rgba(16,185,129,0.6)',  // emerald — Callback
 ];
 
-/* ── SVG connecting lines with animated dots ── */
+/* ── SVG connecting lines — width: 80px, full height ── */
 const LeftLines: React.FC<{ height: number }> = ({ height }) => {
   if (height <= 0) return null;
-  const mid = height / 2;
-  const t1 = height * 0.17;
-  const t3 = height * 0.83;
+  const mid = height * 0.5;
+  const t1 = height * 0.1667;
+  const t3 = height * 0.8333;
   const paths = [
-    `M 0,${t1} C 40,${t1} 40,${mid} 60,${mid}`,
-    `M 0,${mid} L 60,${mid}`,
-    `M 0,${t3} C 40,${t3} 40,${mid} 60,${mid}`,
+    `M 0,${t1} C 40,${t1} 40,${mid} 80,${mid}`,
+    `M 0,${mid} L 80,${mid}`,
+    `M 0,${t3} C 40,${t3} 40,${mid} 80,${mid}`,
   ];
   const delays = ['0s', '0.6s', '1.2s'];
   return (
-    <svg width="60" height={height} style={{ display: 'block', overflow: 'visible' }}>
+    <svg width="80" height={height} style={{ display: 'block', overflow: 'visible', width: '100%', height: '100%' }} viewBox={`0 0 80 ${height}`} preserveAspectRatio="none">
       {paths.map((d, i) => (
         <React.Fragment key={i}>
-          <path d={d} fill="none" stroke="#e2e8f0" strokeWidth="1.5" />
-          <circle r="3" fill={triggerDotColors[i]}>
+          <path d={d} fill="none" stroke="#e2e8f0" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
+          <circle r="4" fill={triggerDotColors[i]}>
             <animateMotion dur="2s" repeatCount="indefinite" begin={delays[i]} path={d} />
             <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.2;0.8;1" dur="2s" repeatCount="indefinite" begin={delays[i]} />
           </circle>
@@ -85,18 +85,18 @@ const LeftLines: React.FC<{ height: number }> = ({ height }) => {
 
 const RightLines: React.FC<{ height: number }> = ({ height }) => {
   if (height <= 0) return null;
-  const mid = height / 2;
+  const mid = height * 0.5;
   const positions = [0.1, 0.3, 0.5, 0.7, 0.9].map(p => height * p);
   return (
-    <svg width="60" height={height} style={{ display: 'block', overflow: 'visible' }}>
+    <svg width="80" height={height} style={{ display: 'block', overflow: 'visible', width: '100%', height: '100%' }} viewBox={`0 0 80 ${height}`} preserveAspectRatio="none">
       {positions.map((y, i) => {
         const d = i === 2
-          ? `M 0,${mid} L 60,${y}`
-          : `M 0,${mid} C 20,${mid} 40,${y} 60,${y}`;
+          ? `M 0,${mid} L 80,${y}`
+          : `M 0,${mid} C 40,${mid} 40,${y} 80,${y}`;
         return (
           <React.Fragment key={i}>
-            <path d={d} fill="none" stroke="#e2e8f0" strokeWidth="1.5" />
-            <circle r="3" fill={responseDotColors[i]}>
+            <path d={d} fill="none" stroke="#e2e8f0" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
+            <circle r="4" fill={responseDotColors[i]}>
               <animateMotion dur="2s" repeatCount="indefinite" begin={`${i * 0.4}s`} path={d} />
               <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.2;0.8;1" dur="2s" repeatCount="indefinite" begin={`${i * 0.4}s`} />
             </circle>
@@ -145,33 +145,33 @@ const HowItAllConnectsModal: React.FC<HowItAllConnectsModalProps> = ({ isOpen, o
       icon: Smartphone,
       name: 'App SOS',
       sub: 'One tap',
-      bg: '#fff1f2',       // rose-50
-      border: '#fecdd3',   // rose-200
-      gradFrom: '#ffe4e6', // rose-100
-      gradTo: '#fecdd3',   // rose-200
-      iconColor: '#f43f5e', // rose-500
+      bg: '#fff1f2',
+      border: '#fecdd3',
+      gradFrom: '#ffe4e6',
+      gradTo: '#fecdd3',
+      iconColor: '#f43f5e',
       delay: 0,
     },
     {
       icon: Bluetooth,
       name: 'Pendant',
       sub: 'Press button',
-      bg: '#eef2ff',       // indigo-50
-      border: '#c7d2fe',   // indigo-200
-      gradFrom: '#e0e7ff', // indigo-100
-      gradTo: '#c7d2fe',   // indigo-200
-      iconColor: '#6366f1', // indigo-500
+      bg: '#eef2ff',
+      border: '#c7d2fe',
+      gradFrom: '#e0e7ff',
+      gradTo: '#c7d2fe',
+      iconColor: '#6366f1',
       delay: 60,
     },
     {
       icon: Mic,
       name: 'Voice',
       sub: '"CLARA, help me"',
-      bg: '#f0fdfa',       // teal-50
-      border: '#99f6e4',   // teal-200
-      gradFrom: '#ccfbf1', // teal-100
-      gradTo: '#99f6e4',   // teal-200
-      iconColor: '#0d9488', // teal-500
+      bg: '#f0fdfa',
+      border: '#99f6e4',
+      gradFrom: '#ccfbf1',
+      gradTo: '#99f6e4',
+      iconColor: '#0d9488',
       delay: 120,
     },
   ];
@@ -185,7 +185,7 @@ const HowItAllConnectsModal: React.FC<HowItAllConnectsModalProps> = ({ isOpen, o
     { num: 5, name: 'Instant Callback', sub: 'Real person calls you back', bg: '#ecfdf5', border: '#a7f3d0', color: '#10b981', delay: 320 },
   ];
 
-  /* ── Bottom chips: match parent colours ── */
+  /* ── Bottom chips ── */
   const chips = [
     { icon: Bot, label: 'CLARA AI', bg: '#fff1f2', border: '#fecdd3', iconColor: '#ef4444', textColor: '#0f172a' },
     { icon: Users, label: 'Family Network', bg: '#ecfeff', border: '#a5f3fc', iconColor: '#06b6d4', textColor: '#0f172a' },
@@ -248,50 +248,57 @@ const HowItAllConnectsModal: React.FC<HowItAllConnectsModalProps> = ({ isOpen, o
           </button>
         </div>
 
-        {/* ═══ ROW 2 — MAIN DIAGRAM (flex: 1) ═══ */}
+        {/* ═══ ROW 2 — MAIN DIAGRAM (fills all remaining space) ═══ */}
         <div
           ref={diagramRef}
           style={{
             flex: 1, minHeight: 0,
-            padding: '20px 24px',
+            padding: '16px 32px',
             display: 'grid',
-            gridTemplateColumns: '1fr 60px auto 60px 1fr',
+            gridTemplateColumns: '1fr 80px auto 80px 1fr',
             gap: 0,
-            alignItems: 'center',
+            alignItems: 'stretch',
             position: 'relative',
           }}
-          className="max-sm:flex max-sm:flex-col max-sm:gap-4 max-sm:overflow-y-auto"
+          className="max-sm:flex max-sm:flex-col max-sm:gap-4 max-sm:overflow-y-auto max-sm:!p-4"
         >
-          {/* LEFT COLUMN — 3 Triggers */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'flex-end' }} className="max-sm:flex-row max-sm:overflow-x-auto max-sm:items-stretch max-sm:gap-2">
+          {/* LEFT COLUMN — 3 Triggers (space-evenly, full height) */}
+          <div
+            style={{
+              display: 'flex', flexDirection: 'column',
+              justifyContent: 'space-evenly', alignItems: 'flex-end',
+              height: '100%', paddingRight: '8px',
+            }}
+            className="max-sm:flex-row max-sm:overflow-x-auto max-sm:items-stretch max-sm:gap-2 max-sm:!h-auto max-sm:!pr-0"
+          >
             {triggers.map((tr, i) => (
               <div
                 key={tr.name}
                 style={{
-                  display: 'flex', alignItems: 'center', gap: '10px',
-                  padding: '10px 14px',
+                  display: 'flex', alignItems: 'center', gap: '12px',
+                  padding: '14px 16px',
                   background: tr.bg, border: `1px solid ${tr.border}`,
-                  borderRadius: '12px', width: 'fit-content', cursor: 'default',
+                  borderRadius: '14px', width: '200px', cursor: 'default',
                   animation: `eco-triggerEnter 300ms cubic-bezier(0.16,1,0.3,1) ${tr.delay}ms both`,
                 }}
-                className="max-sm:min-w-[140px] max-sm:w-auto"
+                className="max-sm:!w-auto max-sm:min-w-[160px]"
               >
                 <div
                   style={{
-                    width: '32px', height: '32px', borderRadius: '50%', flexShrink: 0,
+                    width: '40px', height: '40px', borderRadius: '50%', flexShrink: 0,
                     background: `linear-gradient(135deg, ${tr.gradFrom}, ${tr.gradTo})`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}
                 >
-                  <tr.icon style={{ width: '16px', height: '16px', color: tr.iconColor }} />
+                  <tr.icon style={{ width: '20px', height: '20px', color: tr.iconColor }} />
                 </div>
-                <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#0f172a' }}>{tr.name}</div>
-                  <div style={{ fontSize: '0.6875rem', color: '#94a3b8', fontStyle: i === 2 ? 'italic' : undefined }}>{tr.sub}</div>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ fontSize: '0.9375rem', fontWeight: 700, color: '#0f172a' }}>{tr.name}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '3px', fontStyle: i === 2 ? 'italic' : undefined }}>{tr.sub}</div>
                 </div>
                 <div
                   style={{
-                    width: '6px', height: '6px', borderRadius: '50%', flexShrink: 0,
+                    width: '10px', height: '10px', borderRadius: '50%', flexShrink: 0,
                     background: '#22c55e', boxShadow: '0 0 0 2px rgba(34,197,94,0.2)',
                     animation: 'eco-livePulse 2s infinite',
                   }}
@@ -300,70 +307,77 @@ const HowItAllConnectsModal: React.FC<HowItAllConnectsModalProps> = ({ isOpen, o
             ))}
           </div>
 
-          {/* LEFT SVG LINES */}
-          <div className="max-sm:hidden" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <LeftLines height={diagramH > 0 ? diagramH - 40 : 0} />
+          {/* LEFT SVG LINES (full height) */}
+          <div className="max-sm:hidden" style={{ height: '100%', display: 'flex', alignItems: 'stretch' }}>
+            <LeftLines height={diagramH > 0 ? diagramH - 32 : 0} />
           </div>
 
-          {/* CENTRE — CLARA NODE */}
+          {/* CENTRE — CLARA NODE (full height, centred) */}
           <div
             style={{
-              flexShrink: 0, display: 'flex', flexDirection: 'column',
-              alignItems: 'center', justifyContent: 'center', zIndex: 2,
+              display: 'flex', flexDirection: 'column',
+              alignItems: 'center', justifyContent: 'center',
+              height: '100%', zIndex: 2, padding: '0 8px',
             }}
           >
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {/* Pulse rings */}
-              <div style={{ position: 'absolute', width: '112px', height: '112px', borderRadius: '50%', border: '1px solid rgba(239,68,68,0.15)', animation: 'eco-ringPulse 2.5s ease-out infinite', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
-              <div style={{ position: 'absolute', width: '96px', height: '96px', borderRadius: '50%', border: '1px solid rgba(239,68,68,0.2)', animation: 'eco-ringPulse 2.5s ease-out infinite', animationDelay: '0.4s', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
-              <div style={{ position: 'absolute', width: '80px', height: '80px', borderRadius: '50%', border: '1px solid rgba(239,68,68,0.25)', animation: 'eco-ringPulse 2.5s ease-out infinite', animationDelay: '0.8s', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
-              {/* Main circle */}
+              <div style={{ position: 'absolute', width: '144px', height: '144px', borderRadius: '50%', border: '1px solid rgba(239,68,68,0.15)', animation: 'eco-ringPulse 2.5s ease-out infinite', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
+              <div style={{ position: 'absolute', width: '128px', height: '128px', borderRadius: '50%', border: '1px solid rgba(239,68,68,0.2)', animation: 'eco-ringPulse 2.5s ease-out infinite', animationDelay: '0.4s', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
+              <div style={{ position: 'absolute', width: '112px', height: '112px', borderRadius: '50%', border: '1px solid rgba(239,68,68,0.25)', animation: 'eco-ringPulse 2.5s ease-out infinite', animationDelay: '0.8s', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
+              {/* Main circle — 96px */}
               <div
                 style={{
-                  width: '64px', height: '64px', borderRadius: '50%',
+                  width: '96px', height: '96px', borderRadius: '50%',
                   background: 'linear-gradient(135deg, #ef4444, #dc2626)',
                   boxShadow: '0 0 0 3px rgba(239,68,68,0.15), 0 4px 24px rgba(239,68,68,0.35), 0 8px 40px rgba(239,68,68,0.2)',
                   display: 'flex', flexDirection: 'column',
                   alignItems: 'center', justifyContent: 'center',
                   position: 'relative', zIndex: 1,
                 }}
-                className="max-sm:!w-12 max-sm:!h-12"
+                className="max-sm:!w-16 max-sm:!h-16"
               >
-                <Bot style={{ width: '24px', height: '24px', color: 'white' }} />
-                <span style={{ fontSize: '8px', fontWeight: 800, color: 'rgba(255,255,255,0.8)', letterSpacing: '0.1em' }}>AI</span>
+                <Bot style={{ width: '32px', height: '32px', color: 'white' }} />
+                <span style={{ fontSize: '9px', fontWeight: 800, color: 'rgba(255,255,255,0.8)', letterSpacing: '0.1em' }}>AI</span>
               </div>
             </div>
-            <div style={{ fontSize: '0.8125rem', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em', marginTop: '8px' }}>CLARA</div>
-            <div style={{ fontSize: '0.6875rem', color: '#94a3b8', marginTop: '2px' }}>Always watching</div>
+            <div style={{ fontSize: '1rem', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em', marginTop: '10px' }}>CLARA</div>
+            <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '2px' }}>Always watching</div>
           </div>
 
-          {/* RIGHT SVG LINES */}
-          <div className="max-sm:hidden" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <RightLines height={diagramH > 0 ? diagramH - 40 : 0} />
+          {/* RIGHT SVG LINES (full height) */}
+          <div className="max-sm:hidden" style={{ height: '100%', display: 'flex', alignItems: 'stretch' }}>
+            <RightLines height={diagramH > 0 ? diagramH - 32 : 0} />
           </div>
 
-          {/* RIGHT COLUMN — 5 Responses */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-start', justifyContent: 'center' }}>
+          {/* RIGHT COLUMN — 5 Responses (space-evenly, full height) */}
+          <div
+            style={{
+              display: 'flex', flexDirection: 'column',
+              justifyContent: 'space-evenly', alignItems: 'flex-start',
+              height: '100%', paddingLeft: '8px',
+            }}
+          >
             {responses.map((r) => (
               <div
                 key={r.num}
                 style={{
-                  display: 'flex', alignItems: 'center', gap: '8px',
+                  display: 'flex', alignItems: 'center', gap: '12px',
                   animation: `eco-responseEnter 300ms cubic-bezier(0.16,1,0.3,1) ${r.delay}ms both`,
                 }}
               >
                 <div
                   style={{
-                    width: '24px', height: '24px', borderRadius: '50%', flexShrink: 0,
+                    width: '32px', height: '32px', borderRadius: '50%', flexShrink: 0,
                     background: r.bg, border: `1px solid ${r.border}`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}
                 >
-                  <span style={{ fontSize: '9px', fontWeight: 800, color: r.color }}>{r.num}</span>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 800, color: r.color }}>{r.num}</span>
                 </div>
                 <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>{r.name}</div>
-                  <div style={{ fontSize: '0.6875rem', color: '#94a3b8' }}>{r.sub}</div>
+                  <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#0f172a' }}>{r.name}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '2px' }}>{r.sub}</div>
                 </div>
               </div>
             ))}
