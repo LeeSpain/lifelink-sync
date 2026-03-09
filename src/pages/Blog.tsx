@@ -167,7 +167,7 @@ const Blog = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <PageSEO pageType="videos" />
+      <PageSEO pageType="blog" />
       <Navigation />
       <SEOBreadcrumbs />
       

@@ -11,14 +11,14 @@ const generateOrganizationData = () => ({
   '@type': 'Organization',
   'name': 'LifeLink Sync',
   'description': 'Professional emergency response and family safety monitoring services with AI-powered protection',
-  'url': 'https://lifelinksync.com',
-  'logo': 'https://lifelinksync.com/logo.png',
+  'url': 'https://lifelink-sync.com',
+  'logo': 'https://lifelink-sync.com/logo.png',
   'foundingDate': '2024',
   'contactPoint': {
     '@type': 'ContactPoint',
     'telephone': '+34-900-000-000',
     'contactType': 'Customer Service',
-    'availableLanguage': ['English', 'Spanish'],
+    'availableLanguage': ['English', 'Spanish', 'Dutch'],
     'areaServed': ['ES', 'GB', 'NL']
   },
   'address': {

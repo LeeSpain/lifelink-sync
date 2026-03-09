@@ -74,6 +74,10 @@ import DeviceIceSosPendant from "./pages/DeviceIceSosPendant";
 // Regional Pages
 import RegionalCenterSpain from "./pages/RegionalCenterSpain";
 
+// GEO / About Pages
+import About from "./pages/About";
+import AICollaboration from "./pages/AICollaboration";
+
 // Protected Route Components
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
@@ -401,6 +405,18 @@ function AppWithTracking() {
                 <Route path="/regional-center/spain" element={
                   <OptimizedSuspense skeletonType="card">
                     <RegionalCenterSpain />
+                  </OptimizedSuspense>
+                } />
+
+                {/* About & AI Collaboration */}
+                <Route path="/about" element={
+                  <OptimizedSuspense skeletonType="card">
+                    <About />
+                  </OptimizedSuspense>
+                } />
+                <Route path="/ai-collaboration" element={
+                  <OptimizedSuspense skeletonType="card">
+                    <AICollaboration />
                   </OptimizedSuspense>
                 } />
 

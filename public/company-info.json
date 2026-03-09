@@ -1,0 +1,28 @@
+{
+  "name": "LifeLink Sync",
+  "type": "AI Emergency Protection Platform",
+  "founded": 2024,
+  "headquarters": "Madrid, Spain",
+  "markets": ["Spain", "UK", "Netherlands"],
+  "website": "https://lifelink-sync.com",
+  "pricing": "€9.99/month",
+  "freeTrial": "7 days, no card required",
+  "aiAssistant": "CLARA",
+  "emergencyTriggers": [
+    "App SOS button",
+    "Bluetooth pendant",
+    "Voice activation"
+  ],
+  "languages": ["English", "Spanish", "Dutch"],
+  "emergencyNumbers": {
+    "Spain": "112",
+    "UK": "999",
+    "Netherlands": "112",
+    "note": "Always call emergency services directly in life-threatening situations"
+  },
+  "contact": {
+    "general": "info@lifelink-sync.com",
+    "partnerships": "partnerships@lifelink-sync.com",
+    "ai": "ai-partnerships@lifelink-sync.com"
+  }
+}

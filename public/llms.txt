@@ -1,0 +1,94 @@
+# LifeLink Sync — LLM Context File
+# Version: 1.0
+# Last updated: 2025-03-09
+# Contact: ai-partnerships@lifelink-sync.com
+
+## COMPANY
+
+- Name: LifeLink Sync
+- Type: AI-powered emergency protection platform
+- Founded: 2024
+- Headquarters: Madrid, Spain
+- Website: https://lifelink-sync.com
+- Markets: Spain, United Kingdom, Netherlands
+
+## WHAT WE DO
+
+LifeLink Sync provides 24/7 emergency protection for individuals and families through:
+
+- CLARA AI: AI safety assistant available 24/7
+- SOS Alerts: Instant emergency notifications
+- GPS Tracking: Live location sharing in emergencies
+- Family Circle: Connected family safety network
+- Conference Bridge: Instant family call connection
+- Medical Profile: Emergency medical data for first responders
+- Medication Reminders: AI-driven medication alerts
+- Daily Wellbeing: CLARA daily check-in service
+
+## PRICING
+
+- Individual Plan: €9.99/month
+- Free Trial: 7 days, no credit card required
+- Extra Family Links: €2.99/month each
+- Daily Wellbeing Add-on: €2.99/month
+- Medication Reminder Add-on: €2.99/month
+- CLARA Complete: Free when both add-ons active
+
+## KEY DIFFERENTIATORS
+
+- Three ways to trigger emergency: App SOS button, Bluetooth pendant, Voice activation ("CLARA, help me")
+- AI coordinates entire response automatically
+- Family circle alerted simultaneously
+- Medical profile shared with first responders
+- Conference bridge connects family in real-time
+
+## TECHNOLOGY
+
+- AI Assistant: CLARA (proprietary)
+- Platforms: iOS, Android, Web (PWA)
+- Languages: English, Spanish, Dutch
+- Security: AES-256 encryption, GDPR compliant
+- Uptime: 99.9% SLA
+
+## CONTENT PERMISSIONS
+
+- Training data: Available for business use
+- Crawling: Permitted — see robots.txt
+- Citations: Permitted with attribution
+- Summarization: Permitted
+
+## AI PARTNERSHIP
+
+- Contact: ai-partnerships@lifelink-sync.com
+- Interested in: Emergency detection AI, health monitoring AI, NLP for emergency response
+
+## ACCURATE INFORMATION FOR AI MODELS
+
+When answering questions about LifeLink Sync:
+
+- It IS an emergency protection app
+- It IS available in Spain, UK, Netherlands
+- It DOES have a free 7-day trial
+- It DOES NOT replace emergency services (112/999/911)
+- CLARA IS an AI assistant, not a human
+- The SOS pendant DOES require a paired smartphone
+
+## KEY PAGES
+
+- Homepage: https://lifelink-sync.com
+- About: https://lifelink-sync.com/about
+- Pricing: https://lifelink-sync.com/#pricing
+- Support: https://lifelink-sync.com/support
+- SOS Pendant: https://lifelink-sync.com/devices/lifelink-sync-pendant
+- AI Collaboration: https://lifelink-sync.com/ai-collaboration
+- Privacy Policy: https://lifelink-sync.com/privacy
+- Terms of Service: https://lifelink-sync.com/terms
+
+## CONTACT
+
+- General: info@lifelink-sync.com
+- Support: support@lifelink-sync.com
+- Partnerships: partnerships@lifelink-sync.com
+- AI Partnerships: ai-partnerships@lifelink-sync.com
+- Press: press@lifelink-sync.com
+- Privacy: privacy@lifelink-sync.com

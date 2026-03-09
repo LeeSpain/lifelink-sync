@@ -2,7 +2,7 @@ import React from 'react';
 import { SEO } from './SEO';
 
 interface PageSEOProps {
-  pageType: 'home' | 'register' | 'auth' | 'dashboard' | 'support' | 'contact' | 'privacy' | 'terms' | 'sos' | 'devices' | 'regional' | 'family' | 'admin' | 'videos' | 'ai-register' | 'payment-success' | 'map-demo' | 'test-registration' | 'emergency-response-services' | 'ai-emergency-assistant' | 'family-safety-monitoring' | 'senior-emergency-protection';
+  pageType: 'home' | 'register' | 'auth' | 'dashboard' | 'support' | 'contact' | 'privacy' | 'terms' | 'sos' | 'devices' | 'regional' | 'family' | 'admin' | 'videos' | 'blog' | 'pricing' | 'about' | 'pendant' | 'ai-register' | 'payment-success' | 'map-demo' | 'test-registration' | 'emergency-response-services' | 'ai-emergency-assistant' | 'family-safety-monitoring' | 'senior-emergency-protection';
   customTitle?: string;
   customDescription?: string;
   customKeywords?: string[];
@@ -168,6 +168,78 @@ const getPageSEO = (pageType: PageSEOProps['pageType']) => {
         "@type": "VideoGallery",
         "name": "LifeLink Sync Video Library",
         "description": "Educational videos about emergency protection services"
+      }
+    },
+    blog: {
+      title: 'Emergency Safety Blog — Tips & Guides | LifeLink Sync',
+      description: 'Expert guides on family safety, emergency preparedness and AI-powered protection. Stay informed with LifeLink Sync.',
+      keywords: ['emergency safety blog', 'family safety tips', 'emergency preparedness guide', 'personal safety advice', 'AI protection insights'],
+      type: 'website',
+      structuredData: {
+        "@context": "https://schema.org",
+        "@type": "Blog",
+        "name": "LifeLink Sync Safety Blog",
+        "description": "Expert guides on family safety and emergency preparedness",
+        "url": `${baseUrl}/blog`
+      }
+    },
+    pricing: {
+      title: 'Pricing — Emergency Protection from €9.99/month | LifeLink Sync',
+      description: 'LifeLink Sync emergency protection plans. Individual plan €9.99/month with 7-day free trial. No credit card required. Family links from €2.99/month.',
+      keywords: ['emergency app pricing', 'family safety subscription', 'CLARA AI price', 'emergency protection plan', 'SOS service cost'],
+      structuredData: {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": "LifeLink Sync Emergency Protection",
+        "description": "AI-powered emergency protection service",
+        "brand": { "@type": "Brand", "name": "LifeLink Sync" },
+        "offers": {
+          "@type": "Offer",
+          "price": "9.99",
+          "priceCurrency": "EUR",
+          "availability": "https://schema.org/InStock",
+          "priceValidUntil": "2026-12-31",
+          "url": `${baseUrl}/pricing`
+        }
+      }
+    },
+    about: {
+      title: 'About LifeLink Sync — AI Emergency Protection Platform',
+      description: 'LifeLink Sync was founded to make emergency protection accessible to every family. Serving Spain, UK and Netherlands with AI-powered safety.',
+      keywords: ['about LifeLink Sync', 'emergency protection company', 'AI safety platform', 'family protection service'],
+      structuredData: {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "LifeLink Sync",
+        "description": "AI-powered emergency protection platform for individuals and families",
+        "url": baseUrl,
+        "foundingDate": "2024",
+        "areaServed": ["Spain", "United Kingdom", "Netherlands"],
+        "sameAs": [
+          "https://facebook.com/lifelinksync",
+          "https://twitter.com/lifelinksync",
+          "https://linkedin.com/company/lifelinksync"
+        ]
+      }
+    },
+    pendant: {
+      title: 'ICE SOS Emergency Pendant — Bluetooth Safety Device | LifeLink Sync',
+      description: 'The LifeLink Sync SOS pendant pairs with your phone via Bluetooth to instantly activate CLARA and trigger your full emergency response. Premium safety jewellery.',
+      keywords: ['SOS pendant', 'emergency button', 'Bluetooth safety device', 'personal alarm', 'emergency necklace', 'safety pendant'],
+      structuredData: {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": "LifeLink Sync SOS Pendant",
+        "description": "Bluetooth emergency pendant that pairs with your phone for instant SOS activation",
+        "brand": { "@type": "Brand", "name": "LifeLink Sync" },
+        "category": "Safety & Emergency Devices",
+        "offers": {
+          "@type": "Offer",
+          "price": "129.00",
+          "priceCurrency": "EUR",
+          "availability": "https://schema.org/PreOrder",
+          "url": `${baseUrl}/devices/ice-sos-pendant`
+        }
       }
     }
   };

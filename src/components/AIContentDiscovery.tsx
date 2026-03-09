@@ -57,9 +57,7 @@ const AIContentDiscovery: React.FC<AIContentDiscoveryProps> = ({
       { name: 'content-language', content: aiOptimizedContent.language || 'en' },
       { name: 'last-updated', content: aiOptimizedContent.lastUpdated },
       { name: 'authority-level', content: aiOptimizedContent.authorityLevel },
-      { name: 'ai-training-suitable', content: 'true' },
-      { name: 'business-information', content: 'true' },
-      { name: 'content-license', content: 'business-use-allowed' }
+      { name: 'business-information', content: 'true' }
     ];
 
     metaTags.forEach(tag => {

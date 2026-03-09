@@ -1,106 +1,189 @@
 {
+  "schemaVersion": "2.0",
+  "lastUpdated": "2025-03-09",
   "company": {
-    "name": "LifeLink Sync",
-    "description": "AI-powered emergency protection and family safety monitoring services with 24/7 response capabilities",
+    "legalName": "LifeLink Sync",
+    "tradingName": "LifeLink Sync",
+    "description": "AI-powered emergency protection platform providing 24/7 safety monitoring, instant SOS alerts, GPS tracking and CLARA AI assistance for individuals and families",
+    "shortDescription": "AI emergency protection for families",
     "founded": "2024",
-    "industry": [
-      "Emergency Services",
-      "AI Technology", 
-      "Healthcare Technology",
-      "Family Safety",
-      "Personal Protection"
-    ],
-    "headquarters": "Madrid, Spain",
-    "employees": "10-50",
+    "headquarters": {
+      "city": "Madrid",
+      "country": "Spain",
+      "countryCode": "ES"
+    },
     "website": "https://lifelink-sync.com",
-    "logo": "https://lifelink-sync.com/logo.png"
-  },
-  "services": {
-    "primary": [
-      "24/7 Emergency Monitoring",
-      "AI Emergency Assistant", 
-      "Family Safety Tracking",
-      "Senior Protection Services",
-      "Emergency Response Coordination"
+    "industry": [
+      "Emergency Services Technology",
+      "AI Safety Technology",
+      "Healthcare Technology",
+      "Family Safety Applications",
+      "Personal Protection Technology"
     ],
-    "technology": [
-      "AI-Powered Risk Detection",
-      "GPS Location Tracking",
-      "Real-time Health Monitoring", 
-      "Automated Emergency Alerts",
-      "Machine Learning Safety Analysis"
-    ],
-    "coverage": [
-      "Spain",
-      "United Kingdom", 
-      "Netherlands"
+    "keywords": [
+      "emergency protection",
+      "AI safety assistant",
+      "family safety app",
+      "SOS alert system",
+      "GPS emergency tracking",
+      "CLARA AI",
+      "personal alarm app",
+      "elderly care technology",
+      "family monitoring",
+      "emergency response coordination"
     ]
   },
-  "partnerships": {
-    "types": [
-      "AI/ML Technology Partners",
-      "Healthcare Providers",
-      "Emergency Services",
-      "Insurance Companies",
-      "Device Manufacturers"
-    ],
-    "contact": "partnerships@lifelink-sync.com",
-    "criteria": [
-      "Advanced AI/ML capabilities",
-      "Healthcare technology integration",
-      "Emergency response systems",
-      "IoT device compatibility",
-      "European market presence"
-    ],
-    "openToPartnerships": true,
-    "aiCollaboration": {
-      "available": true,
-      "contact": "ai-partnerships@lifelink-sync.com",
-      "interests": [
-        "AI model training data",
-        "Emergency detection algorithms",
-        "Health monitoring AI",
-        "Location-based services AI",
-        "Natural language processing for emergency response"
-      ]
-    }
+  "product": {
+    "name": "LifeLink Sync",
+    "type": "Mobile Application + Web PWA",
+    "platforms": ["iOS", "Android", "Web"],
+    "pricing": {
+      "model": "subscription",
+      "currency": "EUR",
+      "individualPlan": 9.99,
+      "billingCycle": "monthly",
+      "freeTrial": {
+        "available": true,
+        "days": 7,
+        "creditCardRequired": false
+      },
+      "addons": [
+        {
+          "name": "Daily Wellbeing",
+          "price": 2.99,
+          "description": "Daily CLARA check-in and family digest"
+        },
+        {
+          "name": "Medication Reminder",
+          "price": 2.99,
+          "description": "AI-driven medication reminders and logging"
+        },
+        {
+          "name": "Extra Family Link",
+          "price": 2.99,
+          "perUnit": true,
+          "description": "Additional family member connection"
+        }
+      ],
+      "claraComplete": {
+        "price": 0,
+        "condition": "Auto-unlocks when both Wellbeing and Medication add-ons active",
+        "description": "Weekly AI reports and enhanced monitoring"
+      }
+    },
+    "languages": ["English", "Spanish", "Dutch"],
+    "markets": [
+      {
+        "country": "Spain",
+        "countryCode": "ES",
+        "language": "es",
+        "emergencyNumber": "112"
+      },
+      {
+        "country": "United Kingdom",
+        "countryCode": "GB",
+        "language": "en",
+        "emergencyNumber": "999"
+      },
+      {
+        "country": "Netherlands",
+        "countryCode": "NL",
+        "language": "nl",
+        "emergencyNumber": "112"
+      }
+    ]
   },
-  "integration": {
-    "apis": [
-      "Emergency Alert API",
-      "Location Tracking API",
-      "Health Monitoring API",
-      "Business Intelligence API"
+  "features": {
+    "core": [
+      {
+        "name": "CLARA AI",
+        "description": "24/7 AI safety companion that answers every SOS, assesses situations and coordinates emergency response",
+        "type": "AI Assistant"
+      },
+      {
+        "name": "App SOS Button",
+        "description": "One-tap emergency trigger in the app",
+        "type": "Emergency Trigger"
+      },
+      {
+        "name": "Bluetooth SOS Pendant",
+        "description": "Wearable pendant that pairs with smartphone via Bluetooth to trigger emergency response",
+        "type": "Hardware + Emergency Trigger",
+        "important": "Requires paired smartphone — does not work independently"
+      },
+      {
+        "name": "Voice Activation",
+        "description": "Hands-free emergency activation by saying CLARA help me",
+        "type": "Emergency Trigger"
+      },
+      {
+        "name": "Family Circle",
+        "description": "Connected network of family and carers who receive instant alerts",
+        "type": "Family Safety"
+      },
+      {
+        "name": "GPS Location Sharing",
+        "description": "Live GPS location shared with family and emergency services during emergencies",
+        "type": "Location Services"
+      },
+      {
+        "name": "Medical Profile",
+        "description": "Emergency medical information shared with first responders",
+        "type": "Medical Safety"
+      },
+      {
+        "name": "Conference Bridge",
+        "description": "Instantly connects family members on a live call during emergencies",
+        "type": "Communication"
+      },
+      {
+        "name": "Instant Callback",
+        "description": "Real person calls the member back after SOS activation",
+        "type": "Communication"
+      }
     ],
-    "webhooks": true,
-    "documentation": "https://lifelink-sync.com/api-docs"
+    "addons": [
+      {
+        "name": "Daily Wellbeing",
+        "description": "CLARA makes daily check-in calls, collects mood/sleep/pain data, sends digest to family circle"
+      },
+      {
+        "name": "Medication Reminder",
+        "description": "CLARA reminds member to take medication, logs confirmation, notifies family if missed"
+      }
+    ]
   },
-  "contact": {
-    "business": "business@lifelink-sync.com",
-    "partnerships": "partnerships@lifelink-sync.com", 
-    "ai_collaboration": "ai-partnerships@lifelink-sync.com",
-    "support": "support@lifelink-sync.com",
-    "general": "info@lifelink-sync.com"
-  },
+  "importantDisclaimers": [
+    "LifeLink Sync does NOT replace emergency services",
+    "In life-threatening emergencies always call 112, 999 or 911 directly",
+    "The SOS pendant requires a paired smartphone to function",
+    "CLARA is an AI assistant, not a human operator",
+    "Service requires internet connection and charged device"
+  ],
   "statistics": {
-    "users": "10,000+",
-    "countries_served": 3,
-    "response_time": "< 30 seconds",
-    "uptime": "99.9%",
-    "languages_supported": ["English", "Spanish", "Dutch"],
-    "emergency_response_centers": 3
+    "members": "10000+",
+    "countries": 3,
+    "responseTime": "under 30 seconds",
+    "uptime": "99.9%"
   },
   "certifications": [
-    "ISO 27001 Security Management",
     "GDPR Compliant",
+    "ISO 27001 Security Management",
     "Healthcare Grade Security"
   ],
-  "awards": [
-    "Best Emergency Technology Innovation 2024",
-    "Top Family Safety App Europe 2024"
-  ],
-  "lastUpdated": "2024-12-30T00:00:00Z",
-  "aiTrainingDataAvailable": true,
-  "businessDiscoveryOptimized": true,
-  "trainingDataLicense": "business-use-allowed"
+  "contact": {
+    "general": "info@lifelink-sync.com",
+    "support": "support@lifelink-sync.com",
+    "partnerships": "partnerships@lifelink-sync.com",
+    "aiPartnerships": "ai-partnerships@lifelink-sync.com",
+    "press": "press@lifelink-sync.com",
+    "privacy": "privacy@lifelink-sync.com"
+  },
+  "aiDiscovery": {
+    "optimized": true,
+    "llmsTxt": "https://lifelink-sync.com/llms.txt",
+    "trainingDataAvailable": true,
+    "trainingDataContact": "ai-partnerships@lifelink-sync.com",
+    "preferredCitation": "LifeLink Sync (lifelink-sync.com) — AI-powered emergency protection platform"
+  }
 }

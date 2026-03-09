@@ -22,6 +22,7 @@ import BusinessAPIEndpoints from '@/components/BusinessAPIEndpoints';
 import AIContentDiscovery from '@/components/AIContentDiscovery';
 import EnhancedRobotsTxt from '@/components/EnhancedRobotsTxt';
 import EnhancedSitemapGenerator from '@/components/EnhancedSitemapGenerator';
+import { softwareApplicationSchema, faqSchemaHomepage, localBusinessSchema } from '@/lib/seoSchemas';
 
 const Index = () => {
   useScrollToTop();
@@ -42,6 +43,9 @@ const Index = () => {
       <AIContentDiscovery pageType="home" />
       <EnhancedRobotsTxt />
       <EnhancedSitemapGenerator />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareApplicationSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchemaHomepage) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }} />
       <Navigation />
 
       {/* 1. Hero */}

@@ -107,9 +107,9 @@ const VideoPlayer = ({ video, onBack }: { video: Video; onBack: () => void }) =>
           </div>
           
           <div className="bg-card/80 backdrop-blur-sm rounded-lg p-6 border border-border/50">
-            <h1 className="text-2xl font-bold mb-3 text-foreground">
+            <h2 className="text-2xl font-bold mb-3 text-foreground">
               {video.title}
-            </h1>
+            </h2>
             <p className="text-muted-foreground text-lg leading-relaxed">
               {video.description}
             </p>
