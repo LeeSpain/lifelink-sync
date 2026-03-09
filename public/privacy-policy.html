@@ -5,62 +5,411 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Privacy Policy - LifeLink Sync</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
-        h1, h2 { color: #ef4444; }
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; color: #333; }
+        h1, h2, h3 { color: #ef4444; }
+        .summary-box { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .warning-box { background: #fef2f2; border: 2px solid #ef4444; border-radius: 8px; padding: 16px; margin: 20px 0; }
         .contact { background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #f9fafb; }
+        tr:nth-child(even) { background: #f9fafb; }
+        a { color: #ef4444; }
     </style>
 </head>
 <body>
-    <h1>Privacy Policy - LifeLink Sync</h1>
-    <p><strong>Effective Date:</strong> January 29, 2025</p>
-    
-    <h2>1. Information We Collect</h2>
-    <p>We collect information necessary to provide emergency services:</p>
-    <ul>
-        <li><strong>Personal Information:</strong> Name, email, phone number, emergency contacts</li>
-        <li><strong>Location Data:</strong> GPS coordinates when emergency features are activated</li>
-        <li><strong>Medical Information:</strong> Emergency medical details you provide</li>
-        <li><strong>Device Information:</strong> Mobile device type, app usage analytics</li>
-    </ul>
 
-    <h2>2. How We Use Your Information</h2>
-    <ul>
-        <li>Provide emergency assistance and contact emergency services</li>
-        <li>Share location and medical information with first responders</li>
-        <li>Send notifications to your emergency contacts</li>
-        <li>Improve app functionality and user experience</li>
-    </ul>
+    <h1>Privacy Policy &mdash; LifeLink Sync</h1>
 
-    <h2>3. Information Sharing</h2>
-    <p>We share information only when necessary:</p>
-    <ul>
-        <li><strong>Emergency Services:</strong> Location and medical data during emergencies</li>
-        <li><strong>Emergency Contacts:</strong> Your status and location during emergencies</li>
-        <li><strong>Service Providers:</strong> Secure cloud storage and analytics providers</li>
-    </ul>
+    <p><strong>Effective Date:</strong> March 2026</p>
+    <p><strong>Last Updated:</strong> March 2026</p>
+    <p><strong>Next Review:</strong> September 2026</p>
+    <p>This policy is also available in <a href="/es/privacy-policy">Spanish (Espa&ntilde;ol)</a> and <a href="/nl/privacy-policy">Dutch (Nederlands)</a>.</p>
 
-    <h2>4. Data Security</h2>
-    <p>We implement industry-standard security measures including encryption, secure data transmission, and access controls.</p>
+    <div class="summary-box">
+        <h3>What This Policy Means &mdash; In Plain English</h3>
+        <ul>
+            <li>We collect your personal, medical, and location data to provide emergency protection for you and your family.</li>
+            <li>We share data with your family circle members only with your explicit consent &mdash; you control who sees what.</li>
+            <li>We use CLARA AI to process wellbeing and health data &mdash; you can opt out at any time.</li>
+            <li>We use trusted third-party services (listed below) to operate our platform securely and reliably.</li>
+            <li>You have full GDPR rights including access, deletion, and data portability &mdash; and we make it easy to exercise them.</li>
+        </ul>
+    </div>
 
-    <h2>5. Your Rights (GDPR Compliance)</h2>
-    <ul>
-        <li>Right to access your personal data</li>
-        <li>Right to rectify inaccurate information</li>
-        <li>Right to erase your data (with emergency service limitations)</li>
-        <li>Right to data portability</li>
-        <li>Right to object to processing</li>
-    </ul>
+    <!-- ============================================================ -->
+    <h2>1. Who We Are (Data Controller)</h2>
 
-    <h2>6. Data Retention</h2>
-    <p>We retain emergency data for legal and safety requirements. Non-emergency data is retained only as long as necessary.</p>
-
-    <h2>7. Children's Privacy</h2>
-    <p>Our service is not intended for children under 13 without parental consent.</p>
+    <p>LifeLink Sync is headquartered in Madrid, Spain. We are the data controller for all personal data processed through our platform, as defined under the General Data Protection Regulation (EU) 2016/679 ("GDPR").</p>
 
     <div class="contact">
-        <h2>Contact Us</h2>
-        <p>For privacy-related questions, contact us at: <strong>privacy@lifelink-sync.com</strong></p>
-        <p>Data Protection Officer: <strong>dpo@lifelink-sync.com</strong></p>
+        <p><strong>Data Protection Officer:</strong> <a href="mailto:dpo@lifelink-sync.com">dpo@lifelink-sync.com</a></p>
+        <p><strong>General Privacy Enquiries:</strong> <a href="mailto:privacy@lifelink-sync.com">privacy@lifelink-sync.com</a></p>
     </div>
+
+    <!-- ============================================================ -->
+    <h2>2. What Data We Collect</h2>
+
+    <p>We collect and process the following categories of personal data. Where a category is marked as <em>Special Category</em>, additional safeguards and explicit consent apply under GDPR Article 9.</p>
+
+    <h3>Account &amp; Profile Data</h3>
+    <table>
+        <tr><th>Field</th><th>Details</th></tr>
+        <tr><td>Identity</td><td>First name, last name, email address, phone number, password (hashed &mdash; never stored in plain text)</td></tr>
+        <tr><td>Demographics</td><td>Date of birth, address, city, country</td></tr>
+        <tr><td>Preferences</td><td>Profile photo, language preference, currency preference</td></tr>
+        <tr><td>Internal</td><td>Profile completion percentage</td></tr>
+    </table>
+
+    <h3>Health &amp; Medical Data <em>(GDPR Article 9 &mdash; Special Category)</em></h3>
+    <div class="warning-box">
+        <strong>Special Category Data:</strong> Health and medical data receive the highest level of protection under GDPR. We process this data only with your explicit consent.
+    </div>
+    <table>
+        <tr><th>Field</th><th>Details</th></tr>
+        <tr><td>Medical profile</td><td>Blood type, allergies, medical conditions, medications</td></tr>
+        <tr><td>Daily wellbeing scores</td><td>Mood, sleep quality, pain levels, general wellbeing (via CLARA Daily Wellbeing add-on)</td></tr>
+        <tr><td>Medication management</td><td>Medication schedules, dosages, adherence logs, missed dose records (via Medication Reminder add-on)</td></tr>
+        <tr><td>AI health reports</td><td>CLARA Complete weekly AI health reports</td></tr>
+    </table>
+
+    <h3>Emergency &amp; Safety Data</h3>
+    <table>
+        <tr><th>Field</th><th>Details</th></tr>
+        <tr><td>Emergency contacts</td><td>Names, phone numbers, email addresses, relationships, notification preferences</td></tr>
+        <tr><td>SOS incidents</td><td>Timestamp, status, location at time of incident, contacts notified</td></tr>
+        <tr><td>Acknowledgements</td><td>Emergency acknowledgements received from family members</td></tr>
+    </table>
+
+    <h3>Location Data</h3>
+    <table>
+        <tr><th>Field</th><th>Details</th></tr>
+        <tr><td>GPS coordinates</td><td>Latitude, longitude, accuracy, speed &mdash; when location features are active</td></tr>
+        <tr><td>Location pings</td><td>GPS coordinates with timestamps</td></tr>
+        <tr><td>Live presence</td><td>Online status, last seen timestamp</td></tr>
+        <tr><td>Geofences</td><td>Place definitions including name, coordinates, and radius</td></tr>
+        <tr><td>Place events</td><td>Arrival and departure timestamps at defined places</td></tr>
+    </table>
+
+    <h3>Family Circle Data</h3>
+    <table>
+        <tr><th>Field</th><th>Details</th></tr>
+        <tr><td>Memberships</td><td>Family group memberships and relationships</td></tr>
+        <tr><td>Permissions</td><td>Circle permissions (view location, view health, view devices)</td></tr>
+        <tr><td>Invitations</td><td>Family invitations (name, email, relationship, status)</td></tr>
+        <tr><td>Connections</td><td>Connections and trust relationships between members</td></tr>
+    </table>
+
+    <h3>Subscription &amp; Billing Data</h3>
+    <table>
+        <tr><th>Field</th><th>Details</th></tr>
+        <tr><td>Subscription</td><td>Plan type, subscription status, trial start and end dates</td></tr>
+        <tr><td>Payment</td><td>Stripe customer ID (payment card details are held by Stripe, not by us)</td></tr>
+        <tr><td>Add-ons</td><td>Add-on activations and deactivations</td></tr>
+        <tr><td>Financial records</td><td>Payment history, invoice records</td></tr>
+    </table>
+
+    <h3>Communication Data</h3>
+    <table>
+        <tr><th>Field</th><th>Details</th></tr>
+        <tr><td>Email logs</td><td>Delivery status (sent, delivered, opened, clicked, bounced)</td></tr>
+        <tr><td>Preferences</td><td>Communication channel preferences (email, WhatsApp), marketing opt-in/out</td></tr>
+        <tr><td>Submissions</td><td>Contact form submissions</td></tr>
+    </table>
+
+    <h3>CLARA AI Data</h3>
+    <table>
+        <tr><th>Field</th><th>Details</th></tr>
+        <tr><td>Conversations</td><td>Conversation history with CLARA (text messages)</td></tr>
+        <tr><td>Memory</td><td>Conversation memory and context (with expiration)</td></tr>
+        <tr><td>Learning</td><td>CLARA learning queue items</td></tr>
+        <tr><td>Knowledge base</td><td>CLARA knowledge base queries and vector embeddings for search</td></tr>
+    </table>
+
+    <h3>Device &amp; Technical Data</h3>
+    <table>
+        <tr><th>Field</th><th>Details</th></tr>
+        <tr><td>Device information</td><td>Device type, browser, operating system</td></tr>
+        <tr><td>Device status</td><td>Battery level, network status</td></tr>
+        <tr><td>Notifications</td><td>Push notification tokens</td></tr>
+        <tr><td>Connections</td><td>Bluetooth device connections (if applicable)</td></tr>
+    </table>
+
+    <h3>Analytics &amp; Security Data</h3>
+    <table>
+        <tr><th>Field</th><th>Details</th></tr>
+        <tr><td>Usage analytics</td><td>Page views and feature usage (anonymised via Google Analytics)</td></tr>
+        <tr><td>Error reports</td><td>Error reports and session traces (via Sentry, 10% sample rate)</td></tr>
+        <tr><td>Auth failures</td><td>Authentication failure logs (IP address, user agent, timestamp)</td></tr>
+        <tr><td>Audit trail</td><td>Security audit trail</td></tr>
+    </table>
+
+    <!-- ============================================================ -->
+    <h2>3. Legal Basis for Processing (GDPR Article 6 + Article 9)</h2>
+
+    <p>We only process your personal data when we have a valid legal basis to do so. The table below sets out the legal basis for each type of data processing.</p>
+
+    <table>
+        <tr><th>Data Type</th><th>Legal Basis</th><th>GDPR Article</th></tr>
+        <tr><td>Account data</td><td>Contract performance</td><td>Art 6(1)(b)</td></tr>
+        <tr><td>Health &amp; medical data</td><td>Explicit consent</td><td>Art 6(1)(a) + Art 9(2)(a)</td></tr>
+        <tr><td>Wellbeing &amp; medication data</td><td>Explicit consent</td><td>Art 6(1)(a) + Art 9(2)(a)</td></tr>
+        <tr><td>Emergency health sharing</td><td>Vital interests</td><td>Art 6(1)(d) + Art 9(2)(c)</td></tr>
+        <tr><td>Location data</td><td>Consent + vital interests in emergency</td><td>Art 6(1)(a), Art 6(1)(d)</td></tr>
+        <tr><td>Family circle sharing</td><td>Explicit consent</td><td>Art 6(1)(a)</td></tr>
+        <tr><td>Billing data</td><td>Contract + legal obligation</td><td>Art 6(1)(b), Art 6(1)(c)</td></tr>
+        <tr><td>CLARA AI processing</td><td>Explicit consent</td><td>Art 6(1)(a) + Art 9(2)(a)</td></tr>
+        <tr><td>Analytics</td><td>Legitimate interests</td><td>Art 6(1)(f)</td></tr>
+        <tr><td>Security logs</td><td>Legitimate interests</td><td>Art 6(1)(f)</td></tr>
+        <tr><td>Trial reminder emails</td><td>Legitimate interests (service communication)</td><td>Art 6(1)(f)</td></tr>
+        <tr><td>Marketing emails</td><td>Consent</td><td>Art 6(1)(a)</td></tr>
+    </table>
+
+    <p>Where we rely on <strong>legitimate interests</strong> (Art 6(1)(f)), we have carried out a balancing test to ensure that your interests, rights, and freedoms do not override our legitimate interests. You may request a copy of our legitimate interest assessments by contacting <a href="mailto:privacy@lifelink-sync.com">privacy@lifelink-sync.com</a>.</p>
+
+    <!-- ============================================================ -->
+    <h2>4. Who We Share Data With</h2>
+
+    <h3>Your Family Circle Members</h3>
+    <p>With your <strong>explicit consent</strong>, we share the following data with members of your family circle:</p>
+    <ul>
+        <li>Wellbeing digests (daily summaries of mood, sleep, pain, general wellbeing)</li>
+        <li>SOS alerts (emergency status and location)</li>
+        <li>Medication missed notifications</li>
+        <li>CLARA Complete weekly health reports</li>
+    </ul>
+    <p>You can withdraw sharing consent at any time from your account settings. Withdrawal takes effect immediately for future sharing.</p>
+
+    <h3>Emergency Services</h3>
+    <p>During an active SOS event, we may share your location and medical data with emergency services and your designated emergency contacts. This sharing is carried out under the <strong>vital interests</strong> legal basis (GDPR Art 6(1)(d) and Art 9(2)(c)).</p>
+
+    <h3>Service Providers (Data Processors)</h3>
+    <p>We use the following third-party service providers, each bound by a Data Processing Agreement (DPA) that meets GDPR requirements:</p>
+
+    <table>
+        <tr><th>Provider</th><th>Purpose</th><th>Data Processed</th><th>Location</th></tr>
+        <tr><td>Supabase Inc</td><td>Database, authentication, edge functions</td><td>All application data</td><td>EU (Frankfurt)</td></tr>
+        <tr><td>Stripe Inc</td><td>Payment processing</td><td>Billing data, customer ID</td><td>EU/US (SCCs in place)</td></tr>
+        <tr><td>Resend</td><td>Email delivery</td><td>Email addresses, message content</td><td>US (SCCs in place)</td></tr>
+        <tr><td>Twilio Inc</td><td>SMS, calls, WhatsApp (Spain regional)</td><td>Phone numbers, message content</td><td>US (SCCs in place)</td></tr>
+        <tr><td>Google LLC (Analytics)</td><td>Usage analytics</td><td>Anonymised usage data, IP (anonymised)</td><td>US (SCCs in place)</td></tr>
+        <tr><td>Sentry (Functional Software)</td><td>Error tracking</td><td>Error data, session traces (10% sample)</td><td>US (SCCs in place)</td></tr>
+        <tr><td>BigDataCloud</td><td>Reverse geocoding</td><td>Coordinates only (no personal data)</td><td>EU</td></tr>
+        <tr><td>Vercel Inc</td><td>Application hosting</td><td>Served content, access logs</td><td>Global CDN</td></tr>
+    </table>
+
+    <div class="warning-box">
+        <strong>We never:</strong>
+        <ul>
+            <li>Sell your personal data to anyone, for any reason</li>
+            <li>Share your data for advertising purposes</li>
+            <li>Transfer data to countries without adequate protection unless safeguarded by Standard Contractual Clauses (SCCs) or other approved mechanisms</li>
+        </ul>
+    </div>
+
+    <h3>Law Enforcement</h3>
+    <p>We will only disclose personal data to law enforcement authorities when we are legally required to do so (e.g., by court order or binding legal obligation). Where legally permitted, we will notify you before any such disclosure.</p>
+
+    <!-- ============================================================ -->
+    <h2>5. CLARA AI and Automated Processing</h2>
+
+    <p>CLARA is our AI assistant that helps with emergency protection, wellbeing check-ins, and medication reminders. This section explains how CLARA processes your data.</p>
+
+    <h3>What CLARA Processes</h3>
+    <ul>
+        <li>Your profile data (name, age, medical information)</li>
+        <li>Conversation messages you send to CLARA</li>
+        <li>Health and wellbeing data (when the Daily Wellbeing or Medication Reminder add-ons are active)</li>
+    </ul>
+
+    <h3>How CLARA Uses Your Data</h3>
+    <ul>
+        <li>Conversation memory is stored for up to <strong>90 days</strong> to provide relevant context in future conversations</li>
+        <li>CLARA learns from interactions to improve responses, stored in a knowledge base</li>
+        <li>Vector embeddings are created from your data to power search and retrieval functionality</li>
+    </ul>
+
+    <h3>Your Rights Regarding CLARA</h3>
+    <ul>
+        <li><strong>GDPR Article 22:</strong> CLARA does <strong>not</strong> make decisions that produce legal effects or similarly significantly affect you. All AI outputs are informational only.</li>
+        <li>You have the right to request <strong>human review</strong> of any CLARA output at any time</li>
+        <li>You can opt out of CLARA processing by not using the chat feature and deactivating any active add-ons</li>
+    </ul>
+
+    <div class="warning-box">
+        <strong>Important:</strong> CLARA Complete reports are AI-generated and are <strong>not</strong> reviewed by clinical professionals. They are intended for informational purposes only and should not be used as a substitute for professional medical advice.
+    </div>
+
+    <p><strong>Your data is not used to train external AI models.</strong></p>
+
+    <p>For complete details about how CLARA processes your data, please see our <a href="/ai-data-policy">AI Data Policy</a>.</p>
+
+    <!-- ============================================================ -->
+    <h2>6. Data Retention</h2>
+
+    <p>We retain your data only for as long as necessary to fulfil the purposes for which it was collected, or as required by law. The table below summarises our retention periods.</p>
+
+    <table>
+        <tr><th>Data Type</th><th>Retention Period</th></tr>
+        <tr><td>Account data</td><td>Duration of account + 2 years</td></tr>
+        <tr><td>Health &amp; medical data</td><td>Duration of account + 5 years</td></tr>
+        <tr><td>Daily wellbeing check-in logs</td><td>12 months rolling</td></tr>
+        <tr><td>Medication adherence logs</td><td>Duration of account + 5 years</td></tr>
+        <tr><td>CLARA conversation memory</td><td>90 days rolling</td></tr>
+        <tr><td>Emergency / SOS records</td><td>7 years (legal requirement)</td></tr>
+        <tr><td>Location pings</td><td>90 days rolling</td></tr>
+        <tr><td>Live presence data</td><td>30 days rolling</td></tr>
+        <tr><td>Geofence / place events</td><td>12 months rolling</td></tr>
+        <tr><td>Family circle records</td><td>Duration of account + 2 years</td></tr>
+        <tr><td>Subscription &amp; billing records</td><td>7 years (financial legal requirement)</td></tr>
+        <tr><td>Analytics data</td><td>25 months</td></tr>
+        <tr><td>Trial records</td><td>2 years</td></tr>
+        <tr><td>Email delivery logs</td><td>12 months</td></tr>
+        <tr><td>Security / audit logs</td><td>2 years</td></tr>
+        <tr><td>Authentication failure logs</td><td>6 months</td></tr>
+    </table>
+
+    <p>When a retention period expires, data is securely deleted or anonymised within 30 days. Rolling retention periods mean data older than the specified period is automatically purged.</p>
+
+    <!-- ============================================================ -->
+    <h2>7. Your Rights Under GDPR</h2>
+
+    <p>As a data subject, you have the following rights under the GDPR. We are committed to making it straightforward for you to exercise them.</p>
+
+    <h3>Right of Access (Article 15)</h3>
+    <p>You have the right to request a copy of all personal data we hold about you. We will provide this in a commonly used electronic format within 30 days.</p>
+
+    <h3>Right to Rectification (Article 16)</h3>
+    <p>You have the right to correct any inaccurate or incomplete personal data. You can update most information directly via your profile settings, or contact us for assistance.</p>
+
+    <h3>Right to Erasure (Article 17)</h3>
+    <p>You have the right to request deletion of your personal data. Please note that certain records cannot be erased due to legal obligations:</p>
+    <ul>
+        <li>Emergency / SOS records: retained for 7 years</li>
+        <li>Financial / billing records: retained for 7 years</li>
+    </ul>
+
+    <h3>Right to Restrict Processing (Article 18)</h3>
+    <p>You have the right to request that we limit how we process your data &mdash; for example, while we verify the accuracy of data you have disputed.</p>
+
+    <h3>Right to Data Portability (Article 20)</h3>
+    <p>You have the right to receive your personal data in a structured, commonly used, machine-readable format. Health data is available in <strong>HL7 FHIR format</strong> on request.</p>
+
+    <h3>Right to Object (Article 21)</h3>
+    <p>You have the right to object to processing based on legitimate interests or for direct marketing purposes. Where you object to marketing, we will stop processing immediately.</p>
+
+    <h3>Automated Decision-Making (Article 22)</h3>
+    <p>CLARA does not make automated decisions that produce legal effects or similarly significantly affect you. You can request human review of any AI-generated output at any time.</p>
+
+    <h3>Right to Withdraw Consent</h3>
+    <p>You may withdraw any consent you have given at any time, including consent for family circle sharing, CLARA AI processing, and marketing communications. Withdrawal does not affect the lawfulness of processing carried out prior to withdrawal.</p>
+
+    <div class="contact">
+        <h3>How to Exercise Your Rights</h3>
+        <p>Email <a href="mailto:privacy@lifelink-sync.com">privacy@lifelink-sync.com</a> with your request. We will respond within <strong>30 days</strong>. There is no fee for exercising your rights, unless requests are manifestly unfounded or excessive.</p>
+        <p>We may ask you to verify your identity before processing your request, to protect your data from unauthorised access.</p>
+    </div>
+
+    <h3>Supervisory Authorities</h3>
+    <p>If you are not satisfied with our response, you have the right to lodge a complaint with a supervisory authority:</p>
+    <ul>
+        <li><strong>Spain:</strong> Agencia Espa&ntilde;ola de Protecci&oacute;n de Datos (AEPD) &mdash; <a href="https://www.aepd.es" target="_blank" rel="noopener">www.aepd.es</a></li>
+        <li><strong>UK:</strong> Information Commissioner's Office (ICO) &mdash; <a href="https://ico.org.uk" target="_blank" rel="noopener">ico.org.uk</a></li>
+        <li>Or your local EU/EEA supervisory authority</li>
+    </ul>
+
+    <!-- ============================================================ -->
+    <h2>8. Cookies and Tracking</h2>
+
+    <p>We use a limited number of cookies and tracking technologies. For full details, please see our <a href="/cookie-policy">Cookie Policy</a>.</p>
+
+    <table>
+        <tr><th>Type</th><th>Purpose</th><th>Details</th></tr>
+        <tr><td>Essential</td><td>Authentication session, language and currency preferences</td><td>Required for the service to function</td></tr>
+        <tr><td>Analytics</td><td>Google Analytics 4</td><td>Anonymised usage data; IP anonymisation enabled</td></tr>
+        <tr><td>Error tracking</td><td>Sentry</td><td>10% sample rate for error reports and session traces</td></tr>
+    </table>
+
+    <p><strong>We do not use advertising or tracking cookies.</strong></p>
+
+    <!-- ============================================================ -->
+    <h2>9. Children's Privacy</h2>
+
+    <ul>
+        <li>Our service is not intended for persons under the age of 16.</li>
+        <li>Users aged 13&ndash;15 may use the service with verified parental consent.</li>
+        <li>We do not knowingly collect personal data from children under 13.</li>
+        <li>If we discover that we have collected data from a child under 13, we will delete it promptly and notify the relevant supervisory authority if required.</li>
+    </ul>
+
+    <!-- ============================================================ -->
+    <h2>10. International Data Transfers</h2>
+
+    <ul>
+        <li><strong>Primary processing:</strong> All primary data processing takes place within the EU/EEA (Supabase, Frankfurt, Germany).</li>
+        <li><strong>UK transfers:</strong> Permitted under the UK adequacy decision.</li>
+        <li><strong>US transfers:</strong> Transfers to Stripe, Resend, Twilio, Google, and Sentry are covered by Standard Contractual Clauses (SCCs).</li>
+        <li><strong>Emergency transfers:</strong> In an active emergency, data transfers may occur under the vital interests basis regardless of the recipient's location.</li>
+        <li>We do not transfer data to countries without adequate protection except under SCCs or other approved safeguards (e.g., binding corporate rules, adequacy decisions).</li>
+    </ul>
+
+    <!-- ============================================================ -->
+    <h2>11. Security</h2>
+
+    <p>We implement robust technical and organisational measures to protect your personal data:</p>
+
+    <ul>
+        <li><strong>Encryption at rest:</strong> AES-256 encryption for all stored data</li>
+        <li><strong>Encryption in transit:</strong> TLS 1.3 for all data transmissions</li>
+        <li><strong>Row-level security:</strong> Database-level controls ensuring users can only access their own data</li>
+        <li><strong>Role-based access:</strong> Staff access is restricted by role, following the principle of least privilege</li>
+        <li><strong>Security audits:</strong> Regular security audits and penetration testing</li>
+        <li><strong>Authentication monitoring:</strong> Automated monitoring of authentication failures with rate limiting to prevent brute-force attacks</li>
+        <li><strong>Password security:</strong> Passwords are securely hashed and never stored in plain text</li>
+    </ul>
+
+    <!-- ============================================================ -->
+    <h2>12. Data Breach Notification</h2>
+
+    <ul>
+        <li>We will notify the relevant supervisory authority <strong>within 72 hours</strong> of becoming aware of a personal data breach, as required by GDPR Article 33.</li>
+        <li>We will notify affected individuals <strong>without undue delay</strong> where the breach is likely to result in a high risk to their rights and freedoms, as required by GDPR Article 34.</li>
+        <li>We maintain a breach register as required by GDPR Article 33(5), documenting all breaches, their effects, and remedial actions taken.</li>
+    </ul>
+
+    <!-- ============================================================ -->
+    <h2>13. Changes to This Policy</h2>
+
+    <ul>
+        <li>We will provide at least <strong>30 days' notice</strong> before any material changes to this policy take effect.</li>
+        <li>Notice will be provided via email to all registered members.</li>
+        <li>Continued use of the service after the notice period constitutes acceptance of the updated policy.</li>
+        <li>Previous versions of this policy are available on request by contacting <a href="mailto:privacy@lifelink-sync.com">privacy@lifelink-sync.com</a>.</li>
+    </ul>
+
+    <!-- ============================================================ -->
+    <h2>14. Contact Us</h2>
+
+    <div class="contact">
+        <p><strong>General Privacy:</strong> <a href="mailto:privacy@lifelink-sync.com">privacy@lifelink-sync.com</a></p>
+        <p><strong>Data Protection Officer:</strong> <a href="mailto:dpo@lifelink-sync.com">dpo@lifelink-sync.com</a></p>
+        <p><strong>Medical Data Privacy:</strong> <a href="mailto:medical-privacy@lifelink-sync.com">medical-privacy@lifelink-sync.com</a></p>
+        <p><strong>AI Data Enquiries:</strong> <a href="mailto:ai-privacy@lifelink-sync.com">ai-privacy@lifelink-sync.com</a></p>
+        <p><strong>Legal:</strong> <a href="mailto:legal@lifelink-sync.com">legal@lifelink-sync.com</a></p>
+        <p><strong>Support:</strong> <a href="mailto:support@lifelink-sync.com">support@lifelink-sync.com</a></p>
+    </div>
+
+    <h3>Related Documents</h3>
+    <ul>
+        <li><a href="/terms-of-service">Terms of Service</a></li>
+        <li><a href="/cookie-policy">Cookie Policy</a></li>
+        <li><a href="/ai-data-policy">AI Data Policy</a></li>
+        <li><a href="/medical-data-compliance">Medical Data Compliance</a></li>
+        <li><a href="/data-processing-agreement">Data Processing Agreement</a></li>
+        <li><a href="/emergency-liability">Emergency Liability</a></li>
+    </ul>
+
+    <p><em>LifeLink Sync &mdash; Madrid, Spain. &copy; 2026 LifeLink Sync. All rights reserved.</em></p>
+
 </body>
 </html>

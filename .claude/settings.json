@@ -126,11 +126,38 @@
       "Bash(grep -n \"console\\\\.\" src/hooks/useTextToSpeech.ts src/hooks/useTabletClara.ts src/hooks/useVoiceActivation.ts src/components/tablet/*.tsx)",
       "Bash(node -e \":*)",
       "Bash(git checkout HEAD -- src/locales/en/common.json src/locales/es/common.json src/locales/nl/common.json)",
-      "Bash(git add src/components/dashboard/pages/SupportPage.tsx src/components/registration/steps/ProfileStep.tsx src/locales/en/common.json src/locales/es/common.json src/locales/nl/common.json supabase/functions/generate-embeddings/index.ts src/components/DashboardRedirect.tsx src/components/tablet/ClaraPresenceIndicator.tsx src/components/tablet/FamilyMessagesCard.tsx src/components/tablet/KioskSetupGuide.tsx src/components/tablet/QuickInfoCards.tsx src/components/tablet/ReminderCard.tsx src/components/tablet/TabletStatusBar.tsx src/hooks/usePWAFeatures.ts src/hooks/useTabletClara.ts src/hooks/useVoiceActivation.ts src/pages/TabletDashboard.tsx)"
+      "Bash(git add src/components/dashboard/pages/SupportPage.tsx src/components/registration/steps/ProfileStep.tsx src/locales/en/common.json src/locales/es/common.json src/locales/nl/common.json supabase/functions/generate-embeddings/index.ts src/components/DashboardRedirect.tsx src/components/tablet/ClaraPresenceIndicator.tsx src/components/tablet/FamilyMessagesCard.tsx src/components/tablet/KioskSetupGuide.tsx src/components/tablet/QuickInfoCards.tsx src/components/tablet/ReminderCard.tsx src/components/tablet/TabletStatusBar.tsx src/hooks/usePWAFeatures.ts src/hooks/useTabletClara.ts src/hooks/useVoiceActivation.ts src/pages/TabletDashboard.tsx)",
+      "Bash(xargs ls -lh)",
+      "Bash(grep -n \"you@example\\\\.com\\\\|+34 600 123 456\\\\|support@lifelink-sync\\\\.com\\\\|+34 900 123 456\" src/components/registration/**/*.tsx src/pages/Registration*.tsx src/pages/Checkout*.tsx src/pages/PaymentSuccess.tsx src/components/EmbeddedPayment.tsx)",
+      "Bash(grep -n \"Error\\\\|error\\\\|loading\\\\|Processing\\\\|processing\" src/components/registration/**/*.tsx src/pages/Registration*.tsx src/pages/Checkout*.tsx src/pages/PaymentSuccess.tsx src/components/EmbeddedPayment.tsx)",
+      "Bash(grep -o \"t\\(''[^'']*''\\)\" src/components/registration/**/*.tsx src/pages/Registration*.tsx src/pages/Checkout*.tsx src/pages/PaymentSuccess.tsx src/components/EmbeddedPayment.tsx)",
+      "Bash(ls /Users/leewakeman/lifelink-sync/lifelink-sync/src/components/dashboard/PWA*)",
+      "Bash(git add src/components/dashboard/PWAInstallBanner.tsx)",
+      "Bash(node -e \"JSON.parse\\(require\\(''fs''\\).readFileSync\\(''src/locales/en/common.json'', ''utf8''\\)\\); console.log\\(''EN: valid''\\)\")",
+      "Bash(node -e \"JSON.parse\\(require\\(''fs''\\).readFileSync\\(''src/locales/es/common.json'', ''utf8''\\)\\); console.log\\(''ES: valid''\\)\")",
+      "Bash(node -e \"JSON.parse\\(require\\(''fs''\\).readFileSync\\(''src/locales/nl/common.json'', ''utf8''\\)\\); console.log\\(''NL: valid''\\)\")",
+      "Bash(grep -l \"subscription_plans\" /Users/leewakeman/lifelink-sync/lifelink-sync/supabase/migrations/*.sql)",
+      "Bash(grep -A 50 \"^      profiles: {$\" /Users/leewakeman/lifelink-sync/lifelink-sync/src/integrations/supabase/types.ts)",
+      "Bash(grep -A 40 \"^      sos_incidents: {$\" /Users/leewakeman/lifelink-sync/lifelink-sync/src/integrations/supabase/types.ts)",
+      "Bash(grep -A 30 \"^      live_presence: {$\" /Users/leewakeman/lifelink-sync/lifelink-sync/src/integrations/supabase/types.ts)",
+      "Bash(grep -A 35 \"^      location_pings: {$\" /Users/leewakeman/lifelink-sync/lifelink-sync/src/integrations/supabase/types.ts)",
+      "Bash(grep -A 30 \"^      family_memberships: {$\" /Users/leewakeman/lifelink-sync/lifelink-sync/src/integrations/supabase/types.ts)",
+      "Bash(grep -A 30 \"^      place_events: {$\" /Users/leewakeman/lifelink-sync/lifelink-sync/src/integrations/supabase/types.ts)",
+      "Bash(grep -r \"email_templates\\\\|email_campaigns\\\\|email_logs\\\\|notification\" /Users/leewakeman/lifelink-sync/lifelink-sync/supabase/migrations/*.sql)",
+      "Bash(grep -A 30 \"^      subscribers: {$\" /Users/leewakeman/lifelink-sync/lifelink-sync/src/integrations/supabase/types.ts)",
+      "Bash(grep -r \"SOS\\\\|sos_incident\\\\|emergency\" /Users/leewakeman/lifelink-sync/lifelink-sync/supabase/migrations/*.sql)",
+      "Bash(grep -A 25 \"^      trial_tracking: {$\" /Users/leewakeman/lifelink-sync/lifelink-sync/src/integrations/supabase/types.ts)",
+      "Bash(grep -A 25 \"^      addons: {$\" /Users/leewakeman/lifelink-sync/lifelink-sync/src/integrations/supabase/types.ts)",
+      "Bash(grep -A 25 \"^      customer_addons: {$\" /Users/leewakeman/lifelink-sync/lifelink-sync/src/integrations/supabase/types.ts)",
+      "Bash(grep -A 30 \"^      circle_permissions: {$\" /Users/leewakeman/lifelink-sync/lifelink-sync/src/integrations/supabase/types.ts)",
+      "Read(//Users/leewakeman/**)",
+      "Bash(git add src/components/Pricing.tsx src/components/registration/RegistrationWizard.tsx src/components/registration/steps/PaymentStep.tsx src/components/registration/steps/PlanStep.tsx src/locales/en/common.json src/locales/es/common.json src/locales/nl/common.json src/pages/DeviceIceSosPendant.tsx src/pages/TrialSignupPage.tsx public/lovable-uploads/lifelink-pendant-hero.png)",
+      "Bash(git add public/privacy-policy.html public/terms-of-service.html public/ai-data-policy.html public/cookie-policy.html .claude/settings.json)"
     ],
     "additionalDirectories": [
       "/Users/leewakeman/lifelink-sync/lifelink-sync/.claude",
-      "/tmp"
+      "/tmp",
+      "/Users/leewakeman/ice-alarm-espanav1/lifelink-sync"
     ]
   }
 }
