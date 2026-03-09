@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Shield, Check, MapPin, Users, Activity, Wifi } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
+import EcosystemMapModal from "@/components/landing/EcosystemMapModal";
 
 interface HeroProps {
   onClaraClick?: () => void;
@@ -134,16 +135,17 @@ const Hero = ({ onClaraClick }: HeroProps) => {
                 </Link>
               </Button>
 
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-primary text-primary hover:bg-primary/5 font-semibold text-lg px-8 py-6 rounded-xl transition-all duration-300"
-                onClick={() => {
-                  document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-              >
-                {t('hero.seeHowItWorks')}
-              </Button>
+              <EcosystemMapModal
+                trigger={
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="border-primary text-primary hover:bg-primary/5 font-semibold text-lg px-8 py-6 rounded-xl transition-all duration-300"
+                  >
+                    {t('hero.seeHowItWorks')}
+                  </Button>
+                }
+              />
             </div>
 
             {/* Trust row */}
