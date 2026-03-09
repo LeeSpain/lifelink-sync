@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Bell } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export interface Reminder {
   id: string;
@@ -15,12 +16,14 @@ interface ReminderCardProps {
 }
 
 export const ReminderCard = ({ reminder, onDismiss }: ReminderCardProps) => {
+  const { t } = useTranslation();
+
   if (!reminder) {
     return (
       <div className="bg-slate-800/60 border border-slate-700 rounded-2xl p-8 text-center">
         <Bell className="h-10 w-10 text-slate-500 mx-auto mb-3" />
-        <p className="text-xl text-slate-400">No reminders right now</p>
-        <p className="text-sm text-slate-500 mt-1">Your family can send you reminders anytime</p>
+        <p className="text-xl text-slate-400">{t('tablet.reminder.empty', 'No reminders right now')}</p>
+        <p className="text-sm text-slate-500 mt-1">{t('tablet.reminder.emptyDesc', 'Your family can send you reminders anytime')}</p>
       </div>
     );
   }
@@ -34,14 +37,14 @@ export const ReminderCard = ({ reminder, onDismiss }: ReminderCardProps) => {
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1">
           <p className="text-xs uppercase tracking-wider text-amber-400 font-semibold mb-2">
-            Next Reminder
+            {t('tablet.reminder.title', 'Next Reminder')}
           </p>
           <p className="text-2xl md:text-3xl font-semibold text-white leading-snug">
             {reminder.message}
           </p>
           <div className="flex items-center gap-3 mt-3 text-sm text-slate-300">
             {timeStr && <span className="font-medium text-amber-300">{timeStr}</span>}
-            <span>From {reminder.from_name}</span>
+            <span>{reminder.from_name}</span>
           </div>
         </div>
         <Button
@@ -51,7 +54,7 @@ export const ReminderCard = ({ reminder, onDismiss }: ReminderCardProps) => {
           onClick={() => onDismiss(reminder.id)}
         >
           <CheckCircle className="h-5 w-5 mr-2" />
-          Got it
+          {t('tablet.reminder.dismiss', 'Got it')}
         </Button>
       </div>
     </div>

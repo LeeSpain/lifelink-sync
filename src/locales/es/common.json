@@ -2610,7 +2610,22 @@
       "countryPlaceholder": "Selecciona tu país",
       "dateOfBirth": "Fecha de Nacimiento",
       "optional": "opcional",
-      "dobHint": "Ayuda a los servicios de emergencia a proporcionar atención adecuada"
+      "dobHint": "Ayuda a los servicios de emergencia a proporcionar atención adecuada",
+      "countries": {
+        "ES": "España",
+        "GB": "Reino Unido",
+        "NL": "Países Bajos",
+        "DE": "Alemania",
+        "FR": "Francia",
+        "IT": "Italia",
+        "PT": "Portugal",
+        "BE": "Bélgica",
+        "IE": "Irlanda",
+        "US": "Estados Unidos",
+        "CA": "Canadá",
+        "AU": "Australia",
+        "OTHER": "Otro"
+      }
     },
     "plan": {
       "title": "Elige Tu Plan",
@@ -2798,6 +2813,89 @@
     "emergencyLine": "Línea de Emergencia",
     "available247": "Disponible 24/7",
     "emailSupport": "Soporte por Correo",
-    "responseWithin24h": "Respuesta en 24 horas"
+    "responseWithin24h": "Respuesta en 24 horas",
+    "statusInProgress": "En Progreso",
+    "statusResolved": "Resuelto",
+    "statusPending": "Pendiente",
+    "faqItems": {
+      "deviceSetup": {
+        "question": "¿Cómo configuro mi dispositivo de emergencia?",
+        "answer": "Para configurar tu dispositivo de emergencia: 1) Descarga la app LifeLink Sync, 2) Crea una cuenta o inicia sesión, 3) Ve a 'Mis Productos' y pulsa 'Añadir Dispositivo', 4) Sigue las instrucciones de emparejamiento en pantalla. El dispositivo se conectará automáticamente a tu cuenta una vez configurado correctamente.",
+        "category": "Configuración del Dispositivo"
+      },
+      "sosButton": {
+        "question": "¿Qué ocurre cuando pulso el botón SOS?",
+        "answer": "Cuando pulsas el botón SOS: 1) Tu ubicación se comparte con tus contactos de emergencia, 2) Se contacta a los servicios de emergencia según tu plan, 3) Un agente de monitorización evalúa la situación, 4) Tus familiares reciben notificaciones instantáneas con tu ubicación y estado.",
+        "category": "Servicios de Emergencia"
+      },
+      "emergencyContacts": {
+        "question": "¿Cómo actualizo mis contactos de emergencia?",
+        "answer": "Puedes actualizar tus contactos de emergencia en la sección Emergencia de tu panel. Haz clic en 'Editar' junto a cualquier contacto para modificar su información, o usa 'Añadir Contacto' para incluir nuevos contactos de emergencia. Mantén esta información actualizada para la mejor respuesta en emergencias.",
+        "category": "Gestión de Cuenta"
+      },
+      "locationSharing": {
+        "question": "¿Puedo compartir mi ubicación con familiares?",
+        "answer": "¡Sí! Puedes activar la compartición de ubicación con familiares en la sección Ubicación de tu panel. Puedes controlar quién ve tu ubicación, configurar zonas seguras para notificaciones automáticas y elegir cuándo está activa la compartición de ubicación.",
+        "category": "Privacidad y Ubicación"
+      },
+      "subscription": {
+        "question": "¿Cómo gestiono mi suscripción?",
+        "answer": "Visita la sección Suscripción en tu panel para ver tu plan actual, historial de facturación y métodos de pago. Puedes mejorar, reducir o cancelar tu suscripción en cualquier momento. Para planes familiares, también puedes gestionar el acceso de los miembros de la familia desde esta sección.",
+        "category": "Facturación"
+      },
+      "dataSecurity": {
+        "question": "¿Están mis datos seguros y privados?",
+        "answer": "Sí, nos tomamos tu privacidad y seguridad muy en serio. Todos los datos están cifrados en tránsito y en reposo. Nunca compartimos tu información personal con terceros excepto con los servicios de emergencia cuando activas el SOS. Puedes controlar tu configuración de privacidad en tu panel.",
+        "category": "Privacidad y Seguridad"
+      },
+      "batteryLife": {
+        "question": "¿Cuánto dura la batería de los dispositivos de emergencia?",
+        "answer": "La duración de la batería varía según el modelo, pero la mayoría de nuestros dispositivos duran 3-7 días con una sola carga en uso normal. En modo emergencia, los dispositivos pueden funcionar 24-48 horas continuamente. Recomendamos cargar el dispositivo semanalmente.",
+        "category": "Especificaciones del Dispositivo"
+      },
+      "testSystem": {
+        "question": "¿Puedo probar mi sistema de emergencia?",
+        "answer": "¡Sí! Puedes realizar una prueba desde tu panel sin activar los servicios de emergencia reales. Ve a Configuración > Prueba de Emergencia para enviar notificaciones de prueba a tus contactos y verificar que tu sistema funciona correctamente.",
+        "category": "Pruebas y Mantenimiento"
+      }
+    },
+    "kbArticles": {
+      "gettingStarted": {
+        "title": "Guía de Inicio",
+        "description": "Instrucciones completas de configuración para nuevos usuarios",
+        "category": "Configuración",
+        "readTime": "5 min"
+      },
+      "emergencyResponse": {
+        "title": "Procedimientos de Respuesta de Emergencia",
+        "description": "Qué ocurre durante una activación de emergencia",
+        "category": "Emergencia",
+        "readTime": "8 min"
+      },
+      "deviceTroubleshooting": {
+        "title": "Solución de Problemas del Dispositivo",
+        "description": "Problemas comunes y soluciones para todos los dispositivos",
+        "category": "Técnico",
+        "readTime": "10 min"
+      },
+      "privacySecurity": {
+        "title": "Configuración de Privacidad y Seguridad",
+        "description": "Gestión de tus datos y preferencias de privacidad",
+        "category": "Privacidad",
+        "readTime": "6 min"
+      },
+      "familyPlan": {
+        "title": "Gestión del Plan Familiar",
+        "description": "Añadir y gestionar miembros de la familia",
+        "category": "Cuenta",
+        "readTime": "7 min"
+      },
+      "billingFaq": {
+        "title": "Preguntas Frecuentes de Facturación",
+        "description": "Preguntas comunes sobre facturación y gestión de cuenta",
+        "category": "Facturación",
+        "readTime": "4 min"
+      }
+    }
   }
 }

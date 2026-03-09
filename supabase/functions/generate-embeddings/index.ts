@@ -255,7 +255,7 @@ serve(async (req) => {
         .update({
           processed_items: totalProcessed,
           failed_items: totalFailed,
-          status: totalProcessed === 0 ? 'failed' : totalFailed > 0 ? 'completed' : 'completed',
+          status: totalProcessed === 0 ? 'failed' : totalFailed > 0 ? 'completed_with_errors' : 'completed',
           completed_at: new Date().toISOString(),
         })
         .eq('id', job.id);

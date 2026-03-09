@@ -35,7 +35,7 @@ export const useVoiceActivation = (config: VoiceActivationInput) => {
   const recognition = useRef<SpeechRecognition | null>(null);
   const restartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const { isEnabled, sensitivity = 0.8 } = config;
+  const { isEnabled } = config;
 
   // Use refs for callbacks to avoid re-creating recognition on every render
   const configRef = useRef(config);
@@ -66,7 +66,7 @@ export const useVoiceActivation = (config: VoiceActivationInput) => {
 
       recognition.current.onstart = () => {
         setIsListening(true);
-        console.log('🎤 Voice activation listening started');
+        console.debug('Voice activation listening started');
       };
 
       recognition.current.onresult = (event) => {
@@ -94,7 +94,7 @@ export const useVoiceActivation = (config: VoiceActivationInput) => {
               fullTranscript.includes(phrase.toLowerCase())
             );
             if (matched) {
-              console.log(`🚨 Voice command matched: ${cmd.label || 'unknown'}`, fullTranscript);
+              console.debug(`Voice command matched: ${cmd.label || 'unknown'}`, fullTranscript);
               setLastMatchedCommand(cmd.label || null);
               cmd.onMatch();
               setTranscript('');
@@ -104,7 +104,7 @@ export const useVoiceActivation = (config: VoiceActivationInput) => {
         } else {
           // Legacy single-phrase mode
           if (fullTranscript.includes(cfg.triggerPhrase.toLowerCase())) {
-            console.log('🚨 Voice activation triggered!', fullTranscript);
+            console.debug('Voice activation triggered', fullTranscript);
             cfg.onActivation();
             setTranscript('');
           }

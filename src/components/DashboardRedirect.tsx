@@ -33,10 +33,10 @@ const DashboardRedirect = () => {
 
         // If no record exists or not completed, needs onboarding
         if (!data || !data.onboarding_completed) {
-          console.log('🔄 DashboardRedirect: User needs onboarding (not completed or no profile)');
+          console.debug('DashboardRedirect: DashboardRedirect: User needs onboarding (not completed or no profile)');
           setNeedsOnboarding(true);
         } else {
-          console.log('🔄 DashboardRedirect: User completed onboarding, proceeding to dashboard');
+          console.debug('DashboardRedirect: DashboardRedirect: User completed onboarding, proceeding to dashboard');
         }
       } catch (err) {
         console.error('Error checking onboarding:', err);
@@ -51,7 +51,7 @@ const DashboardRedirect = () => {
     }
   }, [user?.id, loading, isAdmin, role]);
 
-  console.log('🔄 DashboardRedirect - Enhanced Debug:', {
+  console.debug('DashboardRedirect: DashboardRedirect - Enhanced Debug:', {
     user: user?.id || 'none',
     userEmail: user?.email,
     isAdmin,
@@ -65,7 +65,7 @@ const DashboardRedirect = () => {
 
   // Show loading while checking authentication, role, family role, and onboarding
   if (loading || !onboardingChecked || familyRoleLoading) {
-    console.log('🔄 DashboardRedirect: Loading state, showing spinner');
+    console.debug('DashboardRedirect: DashboardRedirect: Loading state, showing spinner');
     return (
       <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
         <div className="text-white text-center">
@@ -78,7 +78,7 @@ const DashboardRedirect = () => {
 
   // Redirect to auth if not logged in
   if (!user) {
-    console.log('🔄 DashboardRedirect: No user found, redirecting to auth');
+    console.debug('DashboardRedirect: DashboardRedirect: No user found, redirecting to auth');
     return <Navigate to="/auth" replace />;
   }
 
@@ -87,7 +87,7 @@ const DashboardRedirect = () => {
   const fromPaymentSuccess = document.referrer.includes('/payment-success');
   
   if (justCompletedPayment || fromPaymentSuccess) {
-    console.log('🔄 DashboardRedirect: Payment flow detected, allowing welcome questionnaire');
+    console.debug('DashboardRedirect: DashboardRedirect: Payment flow detected, allowing welcome questionnaire');
     // Clear the payment flag and redirect to welcome questionnaire
     sessionStorage.removeItem('payment-completed');
     return <Navigate to="/welcome-questionnaire" replace />;
@@ -95,23 +95,23 @@ const DashboardRedirect = () => {
 
   // Check onboarding for non-admin users
   if (needsOnboarding && !isAdmin && role !== 'admin') {
-    console.log('🔄 DashboardRedirect: User needs onboarding, redirecting');
+    console.debug('DashboardRedirect: DashboardRedirect: User needs onboarding, redirecting');
     return <Navigate to="/dashboard/onboarding" replace />;
   }
 
   // Enhanced role-based routing with explicit admin check
   if (role === 'admin' || isAdmin) {
-    console.log('🔄 DashboardRedirect: Admin user detected, redirecting to admin dashboard');
+    console.debug('DashboardRedirect: DashboardRedirect: Admin user detected, redirecting to admin dashboard');
     return <Navigate to="/admin-dashboard" replace />;
   }
 
   // Family members (non-owners who joined via invitation) go to the family app
   if (familyRole?.isFamilyMember && !familyRole?.isOwner) {
-    console.log('🔄 DashboardRedirect: Family member detected, redirecting to family app');
+    console.debug('DashboardRedirect: DashboardRedirect: Family member detected, redirecting to family app');
     return <Navigate to="/family-app" replace />;
   }
 
-  console.log('🔄 DashboardRedirect: Regular/owner user, redirecting to member dashboard');
+  console.debug('DashboardRedirect: DashboardRedirect: Regular/owner user, redirecting to member dashboard');
   return <Navigate to="/member-dashboard" replace />;
 };
 

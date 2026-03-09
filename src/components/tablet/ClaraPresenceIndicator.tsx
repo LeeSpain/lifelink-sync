@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
 
 interface ClaraPresenceIndicatorProps {
@@ -20,6 +21,7 @@ export const ClaraPresenceIndicator = ({
   onToggleMute,
   onToggleListening,
 }: ClaraPresenceIndicatorProps) => {
+  const { t } = useTranslation('common');
   const [visibleTranscript, setVisibleTranscript] = useState('');
 
   // Show transcript briefly then fade
@@ -65,13 +67,14 @@ export const ClaraPresenceIndicator = ({
 
       {/* Mic toggle */}
       <button
+        type="button"
         onClick={onToggleListening}
         aria-label={
           noPermission
-            ? 'Microphone permission denied'
+            ? t('tablet.clara.micDenied')
             : isListening
-              ? 'Disable voice commands'
-              : 'Enable voice commands'
+              ? t('tablet.clara.disableVoice')
+              : t('tablet.clara.enableVoice')
         }
         aria-pressed={isListening}
         className={`p-1.5 rounded-full transition-colors ${
@@ -83,10 +86,10 @@ export const ClaraPresenceIndicator = ({
         }`}
         title={
           noPermission
-            ? 'Microphone permission denied'
+            ? t('tablet.clara.micDenied')
             : isListening
-              ? 'Voice active — tap to disable'
-              : 'Tap to enable voice commands'
+              ? t('tablet.clara.voiceActiveTap')
+              : t('tablet.clara.tapToEnable')
         }
       >
         {noPermission || !isListening ? (
@@ -98,8 +101,9 @@ export const ClaraPresenceIndicator = ({
 
       {/* Mute/unmute TTS */}
       <button
+        type="button"
         onClick={onToggleMute}
-        aria-label={isMuted ? 'Unmute Clara' : 'Mute Clara'}
+        aria-label={isMuted ? t('tablet.clara.unmute') : t('tablet.clara.mute')}
         aria-pressed={isMuted}
         className={`p-1.5 rounded-full transition-colors ${
           isMuted
@@ -108,7 +112,7 @@ export const ClaraPresenceIndicator = ({
               ? 'text-blue-400 hover:bg-blue-400/10'
               : 'text-slate-400 hover:bg-slate-700'
         }`}
-        title={isMuted ? 'Clara is muted — tap to unmute' : 'Tap to mute Clara'}
+        title={isMuted ? t('tablet.clara.mutedTap') : t('tablet.clara.tapToMute')}
       >
         {isMuted ? (
           <VolumeX className="h-4 w-4" />

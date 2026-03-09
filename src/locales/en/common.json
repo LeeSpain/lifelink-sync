@@ -2828,7 +2828,22 @@
       "countryPlaceholder": "Select your country",
       "dateOfBirth": "Date of Birth",
       "optional": "optional",
-      "dobHint": "Helps emergency responders provide appropriate care"
+      "dobHint": "Helps emergency responders provide appropriate care",
+      "countries": {
+        "ES": "Spain",
+        "GB": "United Kingdom",
+        "NL": "Netherlands",
+        "DE": "Germany",
+        "FR": "France",
+        "IT": "Italy",
+        "PT": "Portugal",
+        "BE": "Belgium",
+        "IE": "Ireland",
+        "US": "United States",
+        "CA": "Canada",
+        "AU": "Australia",
+        "OTHER": "Other"
+      }
     },
     "plan": {
       "title": "Choose Your Plan",
@@ -3016,6 +3031,89 @@
     "emergencyLine": "Emergency Line",
     "available247": "Available 24/7",
     "emailSupport": "Email Support",
-    "responseWithin24h": "Response within 24 hours"
+    "responseWithin24h": "Response within 24 hours",
+    "statusInProgress": "In Progress",
+    "statusResolved": "Resolved",
+    "statusPending": "Pending",
+    "faqItems": {
+      "deviceSetup": {
+        "question": "How do I set up my emergency device?",
+        "answer": "To set up your emergency device: 1) Download the LifeLink Sync mobile app, 2) Create an account or log in, 3) Go to 'My Products' and tap 'Add Device', 4) Follow the pairing instructions displayed on your screen. The device will automatically connect to your account once properly configured.",
+        "category": "Device Setup"
+      },
+      "sosButton": {
+        "question": "What happens when I press the SOS button?",
+        "answer": "When you press the SOS button: 1) Your location is shared with your emergency contacts, 2) Emergency services are contacted based on your plan, 3) A monitoring agent is alerted to assess the situation, 4) Your family members receive instant notifications with your location and status.",
+        "category": "Emergency Services"
+      },
+      "emergencyContacts": {
+        "question": "How do I update my emergency contacts?",
+        "answer": "You can update your emergency contacts by going to the Emergency section in your dashboard. Click 'Edit' next to any contact to modify their information, or use 'Add Contact' to include new emergency contacts. Make sure to keep this information current for the best emergency response.",
+        "category": "Account Management"
+      },
+      "locationSharing": {
+        "question": "Can I share my location with family members?",
+        "answer": "Yes! You can enable location sharing with family members in the Location section of your dashboard. You can control who sees your location, set up safe zones for automatic notifications, and choose when location sharing is active.",
+        "category": "Privacy & Location"
+      },
+      "subscription": {
+        "question": "How do I manage my subscription?",
+        "answer": "Visit the Subscription section in your dashboard to view your current plan, billing history, and payment methods. You can upgrade, downgrade, or cancel your subscription at any time. For family plans, you can also manage family member access from this section.",
+        "category": "Billing"
+      },
+      "dataSecurity": {
+        "question": "Is my data secure and private?",
+        "answer": "Yes, we take your privacy and security seriously. All data is encrypted in transit and at rest. We never share your personal information with third parties except for emergency services when you activate SOS. You can control your privacy settings in your dashboard.",
+        "category": "Privacy & Security"
+      },
+      "batteryLife": {
+        "question": "How long does the battery last on emergency devices?",
+        "answer": "Battery life varies by device model, but most of our emergency devices last 3-7 days on a single charge with normal usage. In emergency mode, devices can operate for 24-48 hours continuously. We recommend charging your device weekly.",
+        "category": "Device Specifications"
+      },
+      "testSystem": {
+        "question": "Can I test my emergency system?",
+        "answer": "Yes! You can perform a test from your dashboard without triggering actual emergency services. Go to Settings > Emergency Test to send test notifications to your contacts and verify your system is working properly.",
+        "category": "Testing & Maintenance"
+      }
+    },
+    "kbArticles": {
+      "gettingStarted": {
+        "title": "Getting Started Guide",
+        "description": "Complete setup instructions for new users",
+        "category": "Setup",
+        "readTime": "5 min"
+      },
+      "emergencyResponse": {
+        "title": "Emergency Response Procedures",
+        "description": "What happens during an emergency activation",
+        "category": "Emergency",
+        "readTime": "8 min"
+      },
+      "deviceTroubleshooting": {
+        "title": "Device Troubleshooting",
+        "description": "Common issues and solutions for all devices",
+        "category": "Technical",
+        "readTime": "10 min"
+      },
+      "privacySecurity": {
+        "title": "Privacy and Security Settings",
+        "description": "Managing your data and privacy preferences",
+        "category": "Privacy",
+        "readTime": "6 min"
+      },
+      "familyPlan": {
+        "title": "Family Plan Management",
+        "description": "Adding and managing family members",
+        "category": "Account",
+        "readTime": "7 min"
+      },
+      "billingFaq": {
+        "title": "Billing and Subscription FAQ",
+        "description": "Common billing questions and account management",
+        "category": "Billing",
+        "readTime": "4 min"
+      }
+    }
   }
 }

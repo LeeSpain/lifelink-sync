@@ -30,7 +30,7 @@ export const KioskSetupGuide = () => {
             <Lock className="h-5 w-5 text-green-400" />
             <h3 className="font-semibold text-white">{t('tablet.kiosk.title')}</h3>
           </div>
-          <button onClick={dismiss} className="text-slate-400 hover:text-white p-1" aria-label="Dismiss">
+          <button type="button" onClick={dismiss} className="text-slate-400 hover:text-white p-1" aria-label="Dismiss">
             <X className="h-4 w-4" />
           </button>
         </div>

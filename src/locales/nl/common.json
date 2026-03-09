@@ -2410,7 +2410,22 @@
       "countryPlaceholder": "Selecteer je land",
       "dateOfBirth": "Geboortedatum",
       "optional": "optioneel",
-      "dobHint": "Helpt hulpdiensten passende zorg te verlenen"
+      "dobHint": "Helpt hulpdiensten passende zorg te verlenen",
+      "countries": {
+        "ES": "Spanje",
+        "GB": "Verenigd Koninkrijk",
+        "NL": "Nederland",
+        "DE": "Duitsland",
+        "FR": "Frankrijk",
+        "IT": "Italië",
+        "PT": "Portugal",
+        "BE": "België",
+        "IE": "Ierland",
+        "US": "Verenigde Staten",
+        "CA": "Canada",
+        "AU": "Australië",
+        "OTHER": "Overig"
+      }
     },
     "plan": {
       "title": "Kies Je Plan",
@@ -2598,6 +2613,89 @@
     "emergencyLine": "Noodlijn",
     "available247": "24/7 Beschikbaar",
     "emailSupport": "E-mailondersteuning",
-    "responseWithin24h": "Reactie binnen 24 uur"
+    "responseWithin24h": "Reactie binnen 24 uur",
+    "statusInProgress": "In Behandeling",
+    "statusResolved": "Opgelost",
+    "statusPending": "In Afwachting",
+    "faqItems": {
+      "deviceSetup": {
+        "question": "Hoe stel ik mijn noodapparaat in?",
+        "answer": "Om je noodapparaat in te stellen: 1) Download de LifeLink Sync app, 2) Maak een account aan of log in, 3) Ga naar 'Mijn Producten' en tik op 'Apparaat Toevoegen', 4) Volg de koppelingsinstructies op je scherm. Het apparaat wordt automatisch verbonden met je account zodra het correct is geconfigureerd.",
+        "category": "Apparaat Instellen"
+      },
+      "sosButton": {
+        "question": "Wat gebeurt er als ik op de SOS-knop druk?",
+        "answer": "Wanneer je op de SOS-knop drukt: 1) Je locatie wordt gedeeld met je noodcontacten, 2) Hulpdiensten worden gecontacteerd op basis van je plan, 3) Een bewakingsagent beoordeelt de situatie, 4) Je familieleden ontvangen directe meldingen met je locatie en status.",
+        "category": "Hulpdiensten"
+      },
+      "emergencyContacts": {
+        "question": "Hoe werk ik mijn noodcontacten bij?",
+        "answer": "Je kunt je noodcontacten bijwerken in het Noodgevallen-gedeelte van je dashboard. Klik op 'Bewerken' naast een contact om de informatie te wijzigen, of gebruik 'Contact Toevoegen' om nieuwe noodcontacten toe te voegen. Houd deze informatie actueel voor de beste noodrespons.",
+        "category": "Accountbeheer"
+      },
+      "locationSharing": {
+        "question": "Kan ik mijn locatie delen met familieleden?",
+        "answer": "Ja! Je kunt locatie delen met familieleden inschakelen in het Locatie-gedeelte van je dashboard. Je kunt bepalen wie je locatie ziet, veilige zones instellen voor automatische meldingen en kiezen wanneer locatie delen actief is.",
+        "category": "Privacy en Locatie"
+      },
+      "subscription": {
+        "question": "Hoe beheer ik mijn abonnement?",
+        "answer": "Bezoek het Abonnement-gedeelte in je dashboard om je huidige plan, facturatiegeschiedenis en betaalmethoden te bekijken. Je kunt je abonnement op elk moment upgraden, downgraden of opzeggen. Voor familieplannen kun je ook de toegang van familieleden beheren vanuit dit gedeelte.",
+        "category": "Facturering"
+      },
+      "dataSecurity": {
+        "question": "Zijn mijn gegevens veilig en privé?",
+        "answer": "Ja, we nemen je privacy en veiligheid zeer serieus. Alle gegevens worden versleuteld tijdens verzending en opslag. We delen je persoonlijke informatie nooit met derden, behalve met hulpdiensten wanneer je SOS activeert. Je kunt je privacy-instellingen beheren in je dashboard.",
+        "category": "Privacy en Beveiliging"
+      },
+      "batteryLife": {
+        "question": "Hoe lang gaat de batterij mee bij noodapparaten?",
+        "answer": "De batterijduur varieert per model, maar de meeste van onze noodapparaten gaan 3-7 dagen mee op een enkele lading bij normaal gebruik. In noodmodus kunnen apparaten 24-48 uur continu werken. We raden aan het apparaat wekelijks op te laden.",
+        "category": "Apparaatspecificaties"
+      },
+      "testSystem": {
+        "question": "Kan ik mijn noodsysteem testen?",
+        "answer": "Ja! Je kunt een test uitvoeren vanuit je dashboard zonder daadwerkelijke hulpdiensten te activeren. Ga naar Instellingen > Noodtest om testmeldingen naar je contacten te sturen en te verifiëren dat je systeem correct werkt.",
+        "category": "Testen en Onderhoud"
+      }
+    },
+    "kbArticles": {
+      "gettingStarted": {
+        "title": "Startgids",
+        "description": "Volledige installatie-instructies voor nieuwe gebruikers",
+        "category": "Installatie",
+        "readTime": "5 min"
+      },
+      "emergencyResponse": {
+        "title": "Noodresponsprocedures",
+        "description": "Wat er gebeurt tijdens een noodactivering",
+        "category": "Noodgeval",
+        "readTime": "8 min"
+      },
+      "deviceTroubleshooting": {
+        "title": "Probleemoplossing Apparaat",
+        "description": "Veelvoorkomende problemen en oplossingen voor alle apparaten",
+        "category": "Technisch",
+        "readTime": "10 min"
+      },
+      "privacySecurity": {
+        "title": "Privacy- en Beveiligingsinstellingen",
+        "description": "Beheer van je gegevens en privacyvoorkeuren",
+        "category": "Privacy",
+        "readTime": "6 min"
+      },
+      "familyPlan": {
+        "title": "Beheer Familieplan",
+        "description": "Familieleden toevoegen en beheren",
+        "category": "Account",
+        "readTime": "7 min"
+      },
+      "billingFaq": {
+        "title": "Veelgestelde Vragen over Facturering",
+        "description": "Veelgestelde vragen over facturering en accountbeheer",
+        "category": "Facturering",
+        "readTime": "4 min"
+      }
+    }
   }
 }

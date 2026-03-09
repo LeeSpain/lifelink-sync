@@ -7,6 +7,7 @@ import { useEmergencySOS } from '@/hooks/useEmergencySOS';
 import { useTabletClara } from '@/hooks/useTabletClara';
 import { Button } from '@/components/ui/button';
 import { Phone, AlertTriangle, X, Download, Tablet } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { usePWAFeatures } from '@/hooks/usePWAFeatures';
 import { TabletStatusBar } from '@/components/tablet/TabletStatusBar';
 import { ReminderCard, type Reminder } from '@/components/tablet/ReminderCard';
@@ -15,11 +16,11 @@ import type { FamilyMessage } from '@/components/tablet/FamilyMessagesCard';
 import { useToast } from '@/hooks/use-toast';
 import { KioskSetupGuide } from '@/components/tablet/KioskSetupGuide';
 
-function getGreeting(): string {
+function getGreetingKey(): string {
   const h = new Date().getHours();
-  if (h < 12) return 'Good Morning';
-  if (h < 18) return 'Good Afternoon';
-  return 'Good Evening';
+  if (h < 12) return 'tablet.dashboard.greetingMorning';
+  if (h < 18) return 'tablet.dashboard.greetingAfternoon';
+  return 'tablet.dashboard.greetingEvening';
 }
 
 const TabletDashboard = () => {
@@ -28,9 +29,10 @@ const TabletDashboard = () => {
   const { contacts } = useEmergencyContacts();
   const { triggerEmergencySOS, isTriggering } = useEmergencySOS();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const { isInstalled, isInstallable, installApp, resetPrompt } = usePWAFeatures();
 
-  const [greeting, setGreeting] = useState(getGreeting());
+  const [greetingKey, setGreetingKey] = useState(getGreetingKey());
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [messages, setMessages] = useState<FamilyMessage[]>([]);
   const [showMessages, setShowMessages] = useState(false);
@@ -82,7 +84,7 @@ const TabletDashboard = () => {
 
   // Update greeting every 5 minutes
   useEffect(() => {
-    const timer = setInterval(() => setGreeting(getGreeting()), 5 * 60_000);
+    const timer = setInterval(() => setGreetingKey(getGreetingKey()), 5 * 60_000);
     return () => clearInterval(timer);
   }, []);
 
@@ -231,9 +233,9 @@ const TabletDashboard = () => {
         <div className="fixed inset-0 z-[100] bg-slate-950/95 flex items-center justify-center p-8">
           <div className="text-center max-w-lg">
             <Tablet className="h-16 w-16 text-primary mx-auto mb-6" />
-            <h2 className="text-3xl font-semibold mb-3">Install LifeLink Sync</h2>
+            <h2 className="text-3xl font-semibold mb-3">{t('tablet.dashboard.installTitle', 'Install LifeLink Sync')}</h2>
             <p className="text-lg text-slate-300 mb-8">
-              Install this app on your tablet for the best always-on experience. It will launch full-screen and keep your screen awake.
+              {t('tablet.dashboard.installDesc', 'Install this app on your tablet for the best always-on experience. It will launch full-screen and keep your screen awake.')}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               {isInstallable ? (
@@ -246,12 +248,12 @@ const TabletDashboard = () => {
                   }}
                 >
                   <Download className="h-5 w-5 mr-2" />
-                  Install Now
+                  {t('tablet.dashboard.installButton', 'Install Now')}
                 </Button>
               ) : (
                 <div className="bg-slate-800 rounded-xl p-4 text-left text-sm text-slate-300 max-w-sm mx-auto">
-                  <p className="font-medium text-white mb-2">To install:</p>
-                  <p>Open your browser menu and tap "Add to Home Screen" or "Install App"</p>
+                  <p className="font-medium text-white mb-2">{t('tablet.dashboard.installFallbackTitle', 'To install:')}</p>
+                  <p>{t('tablet.dashboard.installFallbackDesc', 'Open your browser menu and tap "Add to Home Screen" or "Install App"')}</p>
                 </div>
               )}
               <Button
@@ -260,7 +262,7 @@ const TabletDashboard = () => {
                 className="min-h-[56px] px-10 text-lg border-slate-600 text-slate-300"
                 onClick={dismissInstallOverlay}
               >
-                Continue in Browser
+                {t('tablet.dashboard.continueInBrowser', 'Continue in Browser')}
               </Button>
             </div>
           </div>
@@ -289,7 +291,7 @@ const TabletDashboard = () => {
         {/* Greeting */}
         <div className="text-center mb-6">
           <h1 className="text-4xl md:text-5xl font-light text-white">
-            {greeting}, <span className="font-semibold">{firstName}</span>
+            {t(greetingKey)}, <span className="font-semibold">{firstName}</span>
           </h1>
         </div>
 
@@ -326,7 +328,7 @@ const TabletDashboard = () => {
             disabled={sosTriggered || isTriggering}
           >
             <AlertTriangle className="h-7 w-7 mr-3" />
-            {isTriggering ? 'SENDING...' : sosTriggered ? 'ALERT SENT' : 'EMERGENCY'}
+            {isTriggering ? t('tablet.dashboard.sosSending', 'SENDING...') : sosTriggered ? t('tablet.dashboard.sosAlertSent', 'ALERT SENT') : t('tablet.dashboard.sosEmergency', 'EMERGENCY')}
           </Button>
 
           <Button
@@ -336,7 +338,7 @@ const TabletDashboard = () => {
             onClick={() => setShowContacts(true)}
           >
             <Phone className="h-7 w-7 mr-3" />
-            CALL FAMILY
+            {t('tablet.dashboard.callFamily', 'CALL FAMILY')}
           </Button>
         </div>
       </div>
@@ -352,13 +354,13 @@ const TabletDashboard = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">Messages from Family</h2>
+              <h2 className="text-xl font-semibold">{t('tablet.dashboard.messagesTitle', 'Messages from Family')}</h2>
               <Button variant="ghost" size="sm" onClick={() => setShowMessages(false)}>
                 <X className="h-5 w-5" />
               </Button>
             </div>
             {messages.length === 0 ? (
-              <p className="text-slate-400 text-center py-8">No messages yet</p>
+              <p className="text-slate-400 text-center py-8">{t('tablet.dashboard.noMessages', 'No messages yet')}</p>
             ) : (
               <div className="space-y-3">
                 {messages.map((msg) => (
@@ -392,13 +394,13 @@ const TabletDashboard = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">Call Family</h2>
+              <h2 className="text-xl font-semibold">{t('tablet.dashboard.contactsTitle', 'Call Family')}</h2>
               <Button variant="ghost" size="sm" onClick={() => setShowContacts(false)}>
                 <X className="h-5 w-5" />
               </Button>
             </div>
             {contacts.length === 0 ? (
-              <p className="text-slate-400 text-center py-8">No emergency contacts set up</p>
+              <p className="text-slate-400 text-center py-8">{t('tablet.dashboard.noContacts', 'No emergency contacts set up')}</p>
             ) : (
               <div className="space-y-3">
                 {contacts.map((c) => (

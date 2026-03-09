@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Wifi, WifiOff, Shield } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { ClaraPresenceIndicator } from '@/components/tablet/ClaraPresenceIndicator';
 
 interface ClaraState {
@@ -18,6 +19,7 @@ interface TabletStatusBarProps {
 }
 
 export const TabletStatusBar = ({ wakeLockActive, claraState }: TabletStatusBarProps) => {
+  const { t } = useTranslation();
   const [now, setNow] = useState(new Date());
   const [online, setOnline] = useState(navigator.onLine);
 
@@ -44,7 +46,7 @@ export const TabletStatusBar = ({ wakeLockActive, claraState }: TabletStatusBarP
     <div className="flex items-center justify-between px-6 py-3 bg-slate-900 text-white">
       <div className="flex items-center gap-2">
         <Shield className="h-5 w-5 text-red-400" />
-        <span className="font-semibold text-sm tracking-wide">LifeLink Sync</span>
+        <span className="font-semibold text-sm tracking-wide">{t('tablet.status.appName', 'LifeLink Sync')}</span>
       </div>
 
       <div className="text-center">
@@ -61,7 +63,7 @@ export const TabletStatusBar = ({ wakeLockActive, claraState }: TabletStatusBarP
             <WifiOff className="h-4 w-4 text-red-400" />
           )}
           {wakeLockActive && (
-            <span className="text-[10px] text-green-400 uppercase tracking-wider">Always On</span>
+            <span className="text-[10px] text-green-400 uppercase tracking-wider">{t('tablet.status.alwaysOn', 'Always On')}</span>
           )}
         </div>
       </div>

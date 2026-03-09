@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useToast } from '@/hooks/use-toast';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -11,6 +12,7 @@ export function usePWAFeatures() {
   const [isInstalled, setIsInstalled] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   useEffect(() => {
     // Check if app is already installed (standalone or fullscreen mode)
@@ -33,8 +35,8 @@ export function usePWAFeatures() {
       setIsInstallable(false);
       setDeferredPrompt(null);
       toast({
-        title: "App Installed!",
-        description: "LifeLink Sync has been added to your device"
+        title: t('mobileApp.appInstalledTitle', 'App Installed!'),
+        description: t('mobileApp.appInstalledDesc', 'LifeLink Sync has been added to your device')
       });
     };
 
@@ -45,7 +47,7 @@ export function usePWAFeatures() {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
-  }, [toast]);
+  }, [toast, t]);
 
   const installApp = async () => {
     if (!deferredPrompt) return;
@@ -56,8 +58,8 @@ export function usePWAFeatures() {
       
       if (outcome === 'accepted') {
         toast({
-          title: "Installing App...",
-          description: "LifeLink Sync is being added to your device"
+          title: t('mobileApp.installingTitle', 'Installing App...'),
+          description: t('mobileApp.installingDesc', 'LifeLink Sync is being added to your device')
         });
       }
       

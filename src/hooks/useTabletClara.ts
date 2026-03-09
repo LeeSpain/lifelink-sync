@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { useVoiceActivation, type VoiceCommand } from '@/hooks/useVoiceActivation';
 
@@ -22,6 +23,7 @@ export function useTabletClara({
   quietHoursStart = 22,
   quietHoursEnd = 7,
 }: UseTabletClaraOptions) {
+  const { t } = useTranslation('common');
   const tts = useTextToSpeech({ rate: 0.9 });
   const [voiceEnabled, setVoiceEnabled] = useState(
     () => localStorage.getItem('clara-voice-enabled') === '1'
@@ -45,21 +47,27 @@ export function useTabletClara({
   const ttsRef = useRef(tts);
   ttsRef.current = tts;
 
+  // Ref for translated strings so callbacks stay stable
+  const tRef = useRef(t);
+  tRef.current = t;
+
   const handleSOS = useCallback(() => {
     onSOSTriggerRef.current();
   }, []);
 
   const handleClaraActivate = useCallback(() => {
-    ttsRef.current.speak("I'm here. How can I help?");
+    ttsRef.current.speak(tRef.current('tablet.clara.imHere'));
   }, []);
 
   const handleReadLast = useCallback(() => {
     const last = lastAlertRef.current;
     if (last) {
-      const prefix = last.type === 'reminder' ? 'Reminder' : 'Message';
-      ttsRef.current.speak(`${prefix} from ${last.fromName}: ${last.message}`);
+      const prefix = last.type === 'reminder'
+        ? tRef.current('tablet.clara.reminder')
+        : tRef.current('tablet.clara.message');
+      ttsRef.current.speak(`${prefix} ${tRef.current('tablet.clara.fromPrefix')} ${last.fromName}: ${last.message}`);
     } else {
-      ttsRef.current.speak('There are no recent messages.');
+      ttsRef.current.speak(tRef.current('tablet.clara.noRecentMessages'));
     }
   }, []);
 
@@ -109,8 +117,10 @@ export function useTabletClara({
   speakAlertRef.current = (type, fromName, message) => {
     lastAlertRef.current = { type, fromName, message };
     if (isQuietHours(quietHoursStart, quietHoursEnd)) return;
-    const prefix = type === 'reminder' ? 'Reminder' : 'Message';
-    ttsRef.current.speak(`${prefix} from ${fromName}: ${message}`);
+    const prefix = type === 'reminder'
+      ? tRef.current('tablet.clara.reminder')
+      : tRef.current('tablet.clara.message');
+    ttsRef.current.speak(`${prefix} ${tRef.current('tablet.clara.fromPrefix')} ${fromName}: ${message}`);
   };
 
   // Stable function identity for consumers

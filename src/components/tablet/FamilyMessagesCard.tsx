@@ -1,4 +1,5 @@
 import { MessageSquare } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export interface FamilyMessage {
   id: string;
@@ -13,6 +14,7 @@ interface FamilyMessagesCardProps {
 }
 
 export const FamilyMessagesCard = ({ messages, onViewAll }: FamilyMessagesCardProps) => {
+  const { t } = useTranslation();
   const unreadCount = messages.length;
 
   return (
@@ -28,9 +30,9 @@ export const FamilyMessagesCard = ({ messages, onViewAll }: FamilyMessagesCardPr
           </span>
         )}
       </div>
-      <p className="text-lg font-semibold text-white">Messages</p>
+      <p className="text-lg font-semibold text-white">{t('tablet.messages.title', 'Messages')}</p>
       <p className="text-sm text-slate-400 mt-1">
-        {unreadCount > 0 ? `${unreadCount} from family` : 'No new messages'}
+        {unreadCount > 0 ? t('tablet.messages.count', '{{count}} from family', { count: unreadCount }) : t('tablet.messages.empty', 'No new messages')}
       </p>
       {messages[0] && (
         <p className="text-xs text-slate-500 mt-2 truncate">

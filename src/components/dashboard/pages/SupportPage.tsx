@@ -168,102 +168,36 @@ export function SupportPage() {
   // No support tickets - this will be replaced with real data from database in the future
   const supportTickets: any[] = [];
 
-  const faqItems = [
-    {
-      question: "How do I set up my emergency device?",
-      answer: "To set up your emergency device: 1) Download the LifeLink Sync mobile app, 2) Create an account or log in, 3) Go to 'My Products' and tap 'Add Device', 4) Follow the pairing instructions displayed on your screen. The device will automatically connect to your account once properly configured.",
-      category: "Device Setup"
-    },
-    {
-      question: "What happens when I press the SOS button?",
-      answer: "When you press the SOS button: 1) Your location is shared with your emergency contacts, 2) Emergency services are contacted based on your plan, 3) A monitoring agent is alerted to assess the situation, 4) Your family members receive instant notifications with your location and status.",
-      category: "Emergency Services"
-    },
-    {
-      question: "How do I update my emergency contacts?",
-      answer: "You can update your emergency contacts by going to the Emergency section in your dashboard. Click 'Edit' next to any contact to modify their information, or use 'Add Contact' to include new emergency contacts. Make sure to keep this information current for the best emergency response.",
-      category: "Account Management"
-    },
-    {
-      question: "Can I share my location with family members?",
-      answer: "Yes! You can enable location sharing with family members in the Location section of your dashboard. You can control who sees your location, set up safe zones for automatic notifications, and choose when location sharing is active.",
-      category: "Privacy & Location"
-    },
-    {
-      question: "How do I manage my subscription?",
-      answer: "Visit the Subscription section in your dashboard to view your current plan, billing history, and payment methods. You can upgrade, downgrade, or cancel your subscription at any time. For family plans, you can also manage family member access from this section.",
-      category: "Billing"
-    },
-    {
-      question: "Is my data secure and private?",
-      answer: "Yes, we take your privacy and security seriously. All data is encrypted in transit and at rest. We never share your personal information with third parties except for emergency services when you activate SOS. You can control your privacy settings in your dashboard.",
-      category: "Privacy & Security"
-    },
-    {
-      question: "How long does the battery last on emergency devices?",
-      answer: "Battery life varies by device model, but most of our emergency devices last 3-7 days on a single charge with normal usage. In emergency mode, devices can operate for 24-48 hours continuously. We recommend charging your device weekly.",
-      category: "Device Specifications"
-    },
-    {
-      question: "Can I test my emergency system?",
-      answer: "Yes! You can perform a test from your dashboard without triggering actual emergency services. Go to Settings > Emergency Test to send test notifications to your contacts and verify your system is working properly.",
-      category: "Testing & Maintenance"
-    }
-  ];
+  const FAQ_KEYS = ['deviceSetup', 'sosButton', 'emergencyContacts', 'locationSharing', 'subscription', 'dataSecurity', 'batteryLife', 'testSystem'] as const;
 
-  const knowledgeBaseArticles = [
-    {
-      title: "Getting Started Guide",
-      description: "Complete setup instructions for new users",
-      category: "Setup",
-      readTime: "5 min",
-      icon: <Zap className="h-5 w-5 text-primary" />
-    },
-    {
-      title: "Emergency Response Procedures",
-      description: "What happens during an emergency activation",
-      category: "Emergency",
-      readTime: "8 min",
-      icon: <AlertCircle className="h-5 w-5 text-primary" />
-    },
-    {
-      title: "Device Troubleshooting",
-      description: "Common issues and solutions for all devices",
-      category: "Technical",
-      readTime: "10 min",
-      icon: <HelpCircle className="h-5 w-5 text-muted-foreground" />
-    },
-    {
-      title: "Privacy and Security Settings",
-      description: "Managing your data and privacy preferences",
-      category: "Privacy",
-      readTime: "6 min",
-      icon: <CheckCircle className="h-5 w-5 text-muted-foreground" />
-    },
-    {
-      title: "Family Plan Management",
-      description: "Adding and managing family members",
-      category: "Account",
-      readTime: "7 min",
-      icon: <FileText className="h-5 w-5 text-primary" />
-    },
-    {
-      title: "Billing and Subscription FAQ",
-      description: "Common billing questions and account management",
-      category: "Billing",
-      readTime: "4 min",
-      icon: <Clock className="h-5 w-5 text-muted-foreground" />
-    }
-  ];
+  const faqItems = FAQ_KEYS.map(key => ({
+    question: t(`supportPage.faqItems.${key}.question`),
+    answer: t(`supportPage.faqItems.${key}.answer`),
+    category: t(`supportPage.faqItems.${key}.category`),
+  }));
+
+  const KB_KEYS = ['gettingStarted', 'emergencyResponse', 'deviceTroubleshooting', 'privacySecurity', 'familyPlan', 'billingFaq'] as const;
+  const KB_ICONS = [Zap, AlertCircle, HelpCircle, CheckCircle, FileText, Clock];
+
+  const knowledgeBaseArticles = KB_KEYS.map((key, i) => {
+    const Icon = KB_ICONS[i];
+    return {
+      title: t(`supportPage.kbArticles.${key}.title`),
+      description: t(`supportPage.kbArticles.${key}.description`),
+      category: t(`supportPage.kbArticles.${key}.category`),
+      readTime: t(`supportPage.kbArticles.${key}.readTime`),
+      icon: <Icon className={`h-5 w-5 ${i < 2 || i === 4 ? 'text-primary' : 'text-muted-foreground'}`} />,
+    };
+  });
 
   const getStatusBadge = (status: string) => {
     switch (status.toLowerCase()) {
       case "in progress":
-        return <Badge variant="secondary">In Progress</Badge>;
+        return <Badge variant="secondary">{t('supportPage.statusInProgress')}</Badge>;
       case "resolved":
-        return <Badge variant="secondary">Resolved</Badge>;
+        return <Badge variant="secondary">{t('supportPage.statusResolved')}</Badge>;
       case "pending":
-        return <Badge variant="secondary">Pending</Badge>;
+        return <Badge variant="secondary">{t('supportPage.statusPending')}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -600,7 +534,7 @@ export function SupportPage() {
               <Mail className="h-5 w-5 text-primary" />
               <div>
                 <h3 className="text-sm font-semibold">{t('supportPage.emailSupport')}</h3>
-                <p className="text-xs text-muted-foreground">support@icesurvival.com</p>
+                <p className="text-xs text-muted-foreground">support@lifelink-sync.com</p>
                 <p className="text-xs text-muted-foreground">{t('supportPage.responseWithin24h')}</p>
               </div>
             </div>

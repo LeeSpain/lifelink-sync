@@ -15,24 +15,15 @@ interface ProfileStepProps {
   onChange: (field: string, value: string) => void;
 }
 
-const countries = [
-  { value: 'ES', label: 'Spain' },
-  { value: 'GB', label: 'United Kingdom' },
-  { value: 'NL', label: 'Netherlands' },
-  { value: 'DE', label: 'Germany' },
-  { value: 'FR', label: 'France' },
-  { value: 'IT', label: 'Italy' },
-  { value: 'PT', label: 'Portugal' },
-  { value: 'BE', label: 'Belgium' },
-  { value: 'IE', label: 'Ireland' },
-  { value: 'US', label: 'United States' },
-  { value: 'CA', label: 'Canada' },
-  { value: 'AU', label: 'Australia' },
-  { value: 'OTHER', label: 'Other' },
-];
+const COUNTRY_CODES = ['ES', 'GB', 'NL', 'DE', 'FR', 'IT', 'PT', 'BE', 'IE', 'US', 'CA', 'AU', 'OTHER'] as const;
 
 const ProfileStep: React.FC<ProfileStepProps> = ({ data, onChange }) => {
   const { t } = useTranslation();
+
+  const countries = COUNTRY_CODES.map(code => ({
+    value: code,
+    label: t(`registration.profile.countries.${code}`),
+  }));
 
   return (
     <div className="space-y-6 max-w-md mx-auto">
@@ -79,7 +70,7 @@ const ProfileStep: React.FC<ProfileStepProps> = ({ data, onChange }) => {
 
         {/* Country */}
         <div className="space-y-2">
-          <Label>{t('registration.profile.country')}</Label>
+          <Label htmlFor="country">{t('registration.profile.country')}</Label>
           <Select value={data.country} onValueChange={(v) => onChange('country', v)}>
             <SelectTrigger>
               <div className="flex items-center gap-2">
