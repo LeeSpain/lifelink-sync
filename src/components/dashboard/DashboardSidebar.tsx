@@ -24,6 +24,7 @@ import {
   HelpCircle,
   Package,
   Smartphone,
+  Bluetooth,
   Map,
   Navigation,
   History,
@@ -63,6 +64,11 @@ const useDashboardItems = () => {
       title: t('dashboard.mobileApp'),
       url: "/member-dashboard/mobile-app",
       icon: Smartphone
+    },
+    {
+      title: t('dashboard.devices', { defaultValue: 'Devices' }),
+      url: "/member-dashboard/devices",
+      icon: Bluetooth
     }
   ];
 

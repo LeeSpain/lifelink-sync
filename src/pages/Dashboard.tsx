@@ -26,6 +26,7 @@ import MyCirclesPage from "@/pages/MyCirclesPage";
 import PlacesManager from "@/pages/PlacesManager";
 import LocationHistoryPage from "@/pages/LocationHistoryPage";
 import { ConnectionsPage } from "@/components/dashboard/ConnectionsPage";
+import { DevicesIntegrationsPage } from "@/components/dashboard/pages/DevicesIntegrationsPage";
 import AddOnMarketplace from "@/components/dashboard/AddOnMarketplace";
 import { MobileDashboard } from "@/components/mobile/MobileDashboard";
 import { useTranslation } from 'react-i18next';
@@ -343,6 +344,11 @@ const Dashboard = () => {
                   <div className="p-3 sm:p-6">
                     <ConnectionsPage />
                   </div>
+                } />
+
+                {/* Devices & Integrations Page */}
+                <Route path="devices" element={
+                  <DevicesIntegrationsPage />
                 } />
             </Routes>
           </div>

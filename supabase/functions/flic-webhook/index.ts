@@ -88,6 +88,34 @@ serve(async (req) => {
       console.log("📝 Logged Flic event", { buttonId, event: body.event });
     }
 
+    // Trigger SOS on long press (hold) event
+    if (body.event === "hold" && body.owner_user) {
+      console.log("🚨 Flic hold detected — triggering SOS for", body.owner_user);
+      try {
+        const triggerUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/sos-trigger`;
+        const integrationKey = Deno.env.get("INTEGRATION_API_KEY") || "";
+        const sosResp = await fetch(triggerUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-integration-key": integrationKey,
+          },
+          body: JSON.stringify({
+            user_id: body.owner_user,
+            source: "flic_hold",
+          }),
+        });
+        const sosData = await sosResp.json();
+        if (!sosResp.ok) {
+          console.error("SOS trigger failed:", sosData);
+        } else {
+          console.log("✅ SOS triggered via Flic hold:", sosData);
+        }
+      } catch (sosErr: any) {
+        console.error("❌ SOS trigger call failed:", sosErr?.message || sosErr);
+      }
+    }
+
     return new Response(
       JSON.stringify({ success: true, button_id: buttonId }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }

@@ -65,7 +65,7 @@ const DeviceIceSosPendant = () => {
   const steps = [
     { num: "1", title: "Download App", desc: "Install LifeLink Sync on iOS or Android" },
     { num: "2", title: "Pair Device", desc: "Secure Bluetooth 5.0 encrypted connection" },
-    { num: "3", title: "Connect Home", desc: "Link Alexa, Google Home, or smart devices" },
+    { num: "3", title: "Set Up Contacts", desc: "Add your emergency contacts and configure alerts" },
     { num: "4", title: "You're Protected", desc: "One button press alerts all your contacts" },
   ];
 
@@ -262,22 +262,28 @@ const DeviceIceSosPendant = () => {
                   letter: "A", label: "Amazon Alexa",
                   iconBg: "bg-primary/10", iconText: "text-primary",
                   desc: "Voice-activated emergency alerts across all Alexa devices in your home.",
-                  items: ["All Alexa devices", "Multi-room alerts", '"Alexa, help help help"', "Professional monitoring"]
+                  items: ["All Alexa devices", "Multi-room alerts", '"Alexa, help help help"', "Account linking"],
+                  comingSoon: true
                 },
                 {
                   letter: "G", label: "Google Home",
                   iconBg: "bg-guardian/10", iconText: "text-guardian",
                   desc: "AI-powered emergency response with intelligent location sharing.",
-                  items: ["Google Nest support", "Intelligent routing", '"Hey Google, emergency"', "Real-time location"]
+                  items: ["Google Nest support", "Intelligent routing", '"Hey Google, emergency"', "Real-time location"],
+                  comingSoon: true
                 },
                 {
                   icon: Smartphone, label: "Universal Mobile",
                   iconBg: "bg-primary/10", iconText: "text-primary",
                   desc: "Cross-platform compatibility with enterprise-grade security.",
-                  items: ["iOS & Android", "Bluetooth 5.0 LE", "Background protection", "100m range"]
+                  items: ["iOS & Android", "Bluetooth 5.0 LE", "Active while app is open", "100m range"],
+                  comingSoon: false
                 },
               ].map((card, i) => (
-                <Card key={i} className="bg-white border-[#E5E7EB] rounded-2xl hover:shadow-lg transition-shadow duration-300 p-8 text-center">
+                <Card key={i} className={`bg-white border-[#E5E7EB] rounded-2xl hover:shadow-lg transition-shadow duration-300 p-8 text-center ${card.comingSoon ? 'opacity-80' : ''}`}>
+                  {card.comingSoon && (
+                    <Badge className="mb-4 bg-secondary text-white">Coming Soon</Badge>
+                  )}
                   <div className={`w-16 h-16 mx-auto mb-6 rounded-2xl flex items-center justify-center ${card.iconBg}`}>
                     {card.icon ? (
                       <card.icon className={`h-8 w-8 ${card.iconText}`} />
@@ -499,7 +505,7 @@ const DeviceIceSosPendant = () => {
                 { q: "What's the battery life and charging process?", a: "7+ days typical use with intelligent power management. Magnetic USB charging takes 2 hours for full charge. Low battery alerts ensure you're never caught unprepared." },
                 { q: "Is the device waterproof for all activities?", a: "IP67 certified waterproof rating for swimming, showering, and extreme weather. Saltwater resistant for beach activities with full functionality maintained underwater up to 1 metre." },
                 { q: "What wearing options are included?", a: "Complete package includes: adjustable lanyard for daily wear, secure carabiner clip for bags & belts, and comfortable sport wristbands in white and black. All attachments are tested for security and comfort." },
-                { q: "Which smartphones and smart homes are compatible?", a: "Universal compatibility: iOS 12+ and Android 8+. Seamless integration with Amazon Alexa, Google Home, and all major smart home platforms." },
+                { q: "Which smartphones and smart homes are compatible?", a: "Universal compatibility: iOS 12+ and Android 8+. Bluetooth 5.0 LE pendant works with LifeLink Sync app. Amazon Alexa and Google Home integrations are coming soon." },
                 { q: "What's the range and connection reliability?", a: "100-metre professional range in open areas, 30–50m through walls. Automatic reconnection when back in range with missed alert notifications." },
                 { q: "How much does the pendant cost?", a: "Device: €59.99 + €4.99 shipping. No monthly fees for basic emergency contacts. Optional professional monitoring services available." },
                 { q: "What privacy and security measures are in place?", a: "End-to-end encryption for all data. GDPR compliant with zero data sharing. Full control over who receives alerts and when." },
