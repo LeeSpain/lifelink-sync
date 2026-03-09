@@ -12,9 +12,22 @@ import {
   Smartphone,
   Mic,
   X,
+  ChevronRight,
   ShieldAlert,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
+/* ── Keyframe animations (Upgrade 12) ── */
+const modalStyles = `
+@keyframes eco-fadeSlideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes eco-ping {
+  0% { transform: scale(1); opacity: 0.5; }
+  100% { transform: scale(1.3); opacity: 0; }
+}
+`;
 
 interface HowItAllConnectsModalProps {
   isOpen: boolean;
@@ -45,30 +58,46 @@ const HowItAllConnectsModal: React.FC<HowItAllConnectsModalProps> = ({ isOpen, o
 
   if (!isOpen) return null;
 
+  /* ── Response chain data (Upgrade 5) ── */
   const responseSteps = [
-    { num: 1, label: 'CLARA\nActivates', bg: 'bg-red-50', border: 'border-red-300', text: 'text-red-600' },
-    { num: 2, label: 'Family\nAlerted', bg: 'bg-orange-50', border: 'border-orange-300', text: 'text-orange-600' },
-    { num: 3, label: 'GPS\nShared', bg: 'bg-cyan-50', border: 'border-cyan-300', text: 'text-cyan-600' },
-    { num: 4, label: 'Medical\nProfile Sent', bg: 'bg-purple-50', border: 'border-purple-300', text: 'text-purple-600' },
-    { num: 5, label: 'Conference\nBridge', bg: 'bg-blue-50', border: 'border-blue-300', text: 'text-blue-600' },
-    { num: 6, label: 'Instant\nCallback', bg: 'bg-emerald-50', border: 'border-emerald-300', text: 'text-emerald-600' },
+    { num: 1, label: 'CLARA\nActivates', color: '#ef4444', border: '#fecaca', ring: 'rgba(239,68,68,0.12)' },
+    { num: 2, label: 'Family\nAlerted', color: '#f97316', border: '#fed7aa', ring: 'rgba(249,115,22,0.12)' },
+    { num: 3, label: 'GPS\nShared', color: '#06b6d4', border: '#a5f3fc', ring: 'rgba(6,182,212,0.12)' },
+    { num: 4, label: 'Medical\nProfile Sent', color: '#8b5cf6', border: '#ddd6fe', ring: 'rgba(139,92,246,0.12)' },
+    { num: 5, label: 'Conference\nBridge', color: '#3b82f6', border: '#bfdbfe', ring: 'rgba(59,130,246,0.12)' },
+    { num: 6, label: 'Instant\nCallback', color: '#10b981', border: '#a7f3d0', ring: 'rgba(16,185,129,0.12)' },
   ];
+
+  /* ── Ecosystem card config (Upgrade 6) ── */
+  const ecoCards = {
+    clara:     { grad1: '#fef2f2', grad2: '#fee2e2', border200: '#fecaca', color600: '#dc2626', color400: '#f87171', badgeBg: '#fef2f2', badgeColor: '#b91c1c' },
+    amber:     { grad1: '#fffbeb', grad2: '#fef3c7', border200: '#fde68a', color600: '#d97706', color400: '#fbbf24', badgeBg: '#fffbeb', badgeColor: '#92400e' },
+    blue:      { grad1: '#eff6ff', grad2: '#dbeafe', border200: '#bfdbfe', color600: '#2563eb', color400: '#60a5fa', badgeBg: '#eff6ff', badgeColor: '#1e40af' },
+    cyan:      { grad1: '#ecfeff', grad2: '#cffafe', border200: '#a5f3fc', color600: '#0891b2', color400: '#22d3ee', badgeBg: '#ecfeff', badgeColor: '#155e75' },
+    orange:    { grad1: '#fff7ed', grad2: '#ffedd5', border200: '#fed7aa', color600: '#ea580c', color400: '#fb923c', badgeBg: '#fff7ed', badgeColor: '#9a3412' },
+  };
+
+  const anim = (delayMs: number) => ({
+    animation: `eco-fadeSlideUp 250ms cubic-bezier(0.16,1,0.3,1) ${delayMs}ms both`,
+  });
 
   return (
     <>
-      {/* Dark overlay behind popup */}
+      <style>{modalStyles}</style>
+
+      {/* ── Overlay (Upgrade 1) ── */}
       <div
         style={{
           position: 'fixed',
           inset: 0,
           zIndex: 9998,
-          backgroundColor: 'rgba(0,0,0,0.6)',
-          backdropFilter: 'blur(4px)',
+          backgroundColor: 'rgba(15,23,42,0.5)',
+          backdropFilter: 'blur(8px)',
         }}
         onClick={onClose}
       />
 
-      {/* Popup box — centered, 80vw × 80vh (95vw × 90vh on small screens) */}
+      {/* ── Popup container (Upgrade 1) ── */}
       <div
         className="w-[80vw] h-[80vh] max-sm:w-[95vw] max-sm:h-[90vh]"
         style={{
@@ -78,15 +107,17 @@ const HowItAllConnectsModal: React.FC<HowItAllConnectsModalProps> = ({ isOpen, o
           transform: 'translate(-50%, -50%)',
           zIndex: 9999,
           backgroundColor: '#ffffff',
-          borderRadius: '16px',
-          boxShadow: '0 25px 60px rgba(0,0,0,0.4)',
+          borderRadius: '20px',
+          border: '1px solid rgba(0,0,0,0.08)',
+          boxShadow: '0 0 0 1px rgba(0,0,0,0.04), 0 8px 16px rgba(0,0,0,0.06), 0 24px 48px rgba(0,0,0,0.10), 0 48px 80px rgba(0,0,0,0.08)',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
+          animation: 'eco-fadeSlideUp 300ms cubic-bezier(0.16,1,0.3,1)',
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close button — always top right */}
+        {/* ── Close button (Upgrade 10) ── */}
         <button
           onClick={onClose}
           style={{
@@ -97,158 +128,316 @@ const HowItAllConnectsModal: React.FC<HowItAllConnectsModalProps> = ({ isOpen, o
             width: '36px',
             height: '36px',
             borderRadius: '50%',
-            background: '#f1f5f9',
+            background: '#f8fafc',
             border: '1px solid #e2e8f0',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#64748b',
+            color: '#94a3b8',
+            transition: 'all 150ms ease',
+          }}
+          onMouseEnter={(e) => {
+            const t = e.currentTarget;
+            t.style.background = '#fff1f2';
+            t.style.borderColor = '#fecaca';
+            t.style.color = '#ef4444';
+            t.style.boxShadow = '0 2px 8px rgba(239,68,68,0.12)';
+          }}
+          onMouseLeave={(e) => {
+            const t = e.currentTarget;
+            t.style.background = '#f8fafc';
+            t.style.borderColor = '#e2e8f0';
+            t.style.color = '#94a3b8';
+            t.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)';
           }}
           aria-label="Close"
         >
-          <X className="h-4 w-4" />
+          <X className="h-4 w-4" style={{ strokeWidth: 2.5 }} />
         </button>
 
-        {/* Scrollable content container */}
+        {/* ── Scrollable content ── */}
         <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
 
-          {/* ─── SECTION 1 — HEADER ─── */}
-          <div className="flex-shrink-0 px-4 pt-4 pb-3 md:px-6 md:pt-5 md:pb-4 border-b border-slate-200 bg-white">
+          {/* ═══ SECTION 1 — HEADER (Upgrade 2) ═══ */}
+          <div
+            className="flex-shrink-0 px-4 pt-4 pb-3 md:px-6 md:pt-5 md:pb-4"
+            style={{
+              background: 'linear-gradient(135deg, rgba(239,68,68,0.04) 0%, rgba(255,255,255,0) 60%)',
+              borderBottom: '1px solid #f1f5f9',
+            }}
+          >
             <div className="flex items-center pr-10">
-              <div className="w-1 h-8 bg-red-500 rounded-full shrink-0 mr-3" />
+              <div
+                className="shrink-0 mr-3"
+                style={{
+                  width: '3px',
+                  height: '32px',
+                  background: 'linear-gradient(180deg, #ef4444, #dc2626)',
+                  borderRadius: '2px',
+                  boxShadow: '0 2px 8px rgba(239,68,68,0.3)',
+                }}
+              />
               <div>
-                <h2 className="text-xl font-bold text-slate-900">How It All Connects</h2>
-                <p className="text-sm text-slate-500 mt-0.5">
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', letterSpacing: '-0.02em' }}>
+                  How It All Connects
+                </h2>
+                <p style={{ color: '#64748b', fontSize: '0.8125rem', fontWeight: 400, marginTop: '2px' }}>
                   Your complete protection ecosystem — every feature working together.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* ─── SECTION 2 — THREE WAYS TO CALL FOR HELP ─── */}
-          <div className="flex-shrink-0 px-4 py-3 md:px-6 md:py-4 bg-white border-b border-slate-100">
-            <p className="text-[10px] font-semibold tracking-widest uppercase text-slate-400 mb-3">
+          {/* ═══ SECTION 2 — THREE WAYS TO CALL FOR HELP (Upgrade 3 + 4) ═══ */}
+          <div className="flex-shrink-0 px-4 py-3 md:px-6 md:py-4" style={{ borderBottom: '1px solid #f1f5f9' }}>
+            {/* Section label (Upgrade 3) */}
+            <p className="inline-flex items-center gap-2 mb-3" style={{ fontSize: '0.625rem', fontWeight: 700, letterSpacing: '0.12em', color: '#94a3b8', textTransform: 'uppercase' }}>
+              <span style={{ width: '16px', height: '1.5px', background: '#ef4444', borderRadius: '1px', display: 'inline-block' }} />
               THREE WAYS TO CALL FOR HELP
             </p>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
-              <div className="bg-red-50 border border-red-200 rounded-xl p-3 md:p-4">
-                <Smartphone className="h-5 w-5 text-red-500" />
-                <p className="text-sm font-semibold text-slate-900 mt-1.5">App SOS Button</p>
-                <p className="text-xs text-slate-600 mt-1">One tap in the app</p>
-                <span className="inline-block mt-2 text-[9px] bg-red-100 text-red-600 rounded px-2 py-0.5">
+              {/* Card 1 — App SOS (Upgrade 4) */}
+              <div
+                className="relative rounded-[14px] p-3 md:p-4 transition-all duration-200 hover:-translate-y-0.5"
+                style={{
+                  background: '#ffffff',
+                  border: '1px solid #fecaca',
+                  borderTop: '3px solid #ef4444',
+                  boxShadow: '0 1px 2px rgba(239,68,68,0.06), 0 4px 12px rgba(239,68,68,0.08)',
+                  ...anim(60),
+                }}
+              >
+                <div className="flex items-center justify-center" style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'linear-gradient(135deg, #fef2f2, #fee2e2)', border: '1px solid #fecaca' }}>
+                  <Smartphone className="h-5 w-5" style={{ color: '#ef4444' }} />
+                </div>
+                <p style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.875rem', letterSpacing: '-0.01em', marginTop: '8px' }}>App SOS Button</p>
+                <p style={{ color: '#64748b', fontSize: '0.75rem', marginTop: '2px' }}>One tap in the app</p>
+                <span className="inline-block mt-2" style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '6px', fontSize: '9px', fontWeight: 700, padding: '2px 8px' }}>
                   ALWAYS AVAILABLE
                 </span>
               </div>
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 md:p-4">
-                <Bluetooth className="h-5 w-5 text-blue-500" />
-                <p className="text-sm font-semibold text-slate-900 mt-1.5">Bluetooth Pendant</p>
-                <p className="text-xs text-slate-600 mt-1">Press button, phone activates</p>
-                <span className="inline-block mt-2 text-[9px] bg-blue-100 text-blue-600 rounded px-2 py-0.5">
+
+              {/* Card 2 — Pendant */}
+              <div
+                className="relative rounded-[14px] p-3 md:p-4 transition-all duration-200 hover:-translate-y-0.5"
+                style={{
+                  background: '#ffffff',
+                  border: '1px solid #bfdbfe',
+                  borderTop: '3px solid #3b82f6',
+                  boxShadow: '0 1px 2px rgba(59,130,246,0.06), 0 4px 12px rgba(59,130,246,0.08)',
+                  ...anim(120),
+                }}
+              >
+                <div className="flex items-center justify-center" style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'linear-gradient(135deg, #eff6ff, #dbeafe)', border: '1px solid #bfdbfe' }}>
+                  <Bluetooth className="h-5 w-5" style={{ color: '#3b82f6' }} />
+                </div>
+                <p style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.875rem', letterSpacing: '-0.01em', marginTop: '8px' }}>Bluetooth Pendant</p>
+                <p style={{ color: '#64748b', fontSize: '0.75rem', marginTop: '2px' }}>Press button, phone activates</p>
+                <span className="inline-block mt-2" style={{ background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe', borderRadius: '6px', fontSize: '9px', fontWeight: 700, padding: '2px 8px' }}>
                   BLUETOOTH RANGE
                 </span>
               </div>
-              <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 md:p-4">
-                <Mic className="h-5 w-5 text-emerald-500" />
-                <p className="text-sm font-semibold text-slate-900 mt-1.5">Voice Activation</p>
-                <p className="text-xs text-slate-600 mt-1 italic">"CLARA, help me"</p>
-                <span className="inline-block mt-2 text-[9px] bg-emerald-100 text-emerald-600 rounded px-2 py-0.5">
+
+              {/* Card 3 — Voice */}
+              <div
+                className="relative rounded-[14px] p-3 md:p-4 transition-all duration-200 hover:-translate-y-0.5"
+                style={{
+                  background: '#ffffff',
+                  border: '1px solid #a7f3d0',
+                  borderTop: '3px solid #10b981',
+                  boxShadow: '0 1px 2px rgba(16,185,129,0.06), 0 4px 12px rgba(16,185,129,0.08)',
+                  ...anim(180),
+                }}
+              >
+                <div className="flex items-center justify-center" style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'linear-gradient(135deg, #ecfdf5, #d1fae5)', border: '1px solid #a7f3d0' }}>
+                  <Mic className="h-5 w-5" style={{ color: '#10b981' }} />
+                </div>
+                <p style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.875rem', letterSpacing: '-0.01em', marginTop: '8px' }}>Voice Activation</p>
+                <p style={{ color: '#64748b', fontSize: '0.75rem', marginTop: '2px', fontStyle: 'italic' }}>"CLARA, help me"</p>
+                <span className="inline-block mt-2" style={{ background: '#ecfdf5', color: '#059669', border: '1px solid #a7f3d0', borderRadius: '6px', fontSize: '9px', fontWeight: 700, padding: '2px 8px' }}>
                   HANDS FREE
                 </span>
               </div>
             </div>
           </div>
 
-          {/* ─── SECTION 3 — RESPONSE CHAIN ─── */}
-          <div className="flex-shrink-0 px-4 py-3 md:px-6 md:py-4 bg-slate-50 border-b border-slate-200">
-            <p className="text-[10px] font-semibold tracking-widest uppercase text-slate-400 mb-3">
+          {/* ═══ SECTION 3 — RESPONSE CHAIN (Upgrade 5) ═══ */}
+          <div
+            className="flex-shrink-0 px-4 py-3 md:px-6 md:py-4"
+            style={{ background: 'linear-gradient(135deg, #f8fafc, #f1f5f9)', borderTop: '1px solid #f1f5f9', borderBottom: '1px solid #f1f5f9' }}
+          >
+            <p className="inline-flex items-center gap-2 mb-3" style={{ fontSize: '0.625rem', fontWeight: 700, letterSpacing: '0.12em', color: '#94a3b8', textTransform: 'uppercase' }}>
+              <span style={{ width: '16px', height: '1.5px', background: '#ef4444', borderRadius: '1px', display: 'inline-block' }} />
               WHAT HAPPENS IN THE NEXT 30 SECONDS
             </p>
-            <div className="flex items-start overflow-x-auto md:overflow-visible md:justify-between gap-1 md:gap-0 pb-1 md:pb-0">
+
+            {/* Steps with connecting line */}
+            <div className="relative flex items-start overflow-x-auto md:overflow-visible md:justify-between gap-1 md:gap-0 pb-1 md:pb-0">
+              {/* Connecting line behind circles (desktop only) */}
+              <div className="hidden md:block absolute left-0 right-0" style={{ top: '18px', height: '1px', background: 'linear-gradient(90deg, transparent, #e2e8f0 10%, #e2e8f0 90%, transparent)', zIndex: 0 }} />
+
               {responseSteps.map((step, i) => (
                 <React.Fragment key={step.num}>
-                  <div className="flex flex-col items-center text-center flex-shrink-0 min-w-[60px] md:min-w-0 md:flex-1">
-                    <div className={`w-8 h-8 rounded-full border-2 ${step.bg} ${step.border} flex items-center justify-center mx-auto`}>
-                      <span className={`text-xs font-bold ${step.text}`}>{step.num}</span>
+                  <div className="flex flex-col items-center text-center flex-shrink-0 min-w-[60px] md:min-w-0 md:flex-1 relative z-[1]" style={anim(i * 50)}>
+                    <div
+                      className="flex items-center justify-center mx-auto"
+                      style={{
+                        width: '36px',
+                        height: '36px',
+                        borderRadius: '50%',
+                        background: '#ffffff',
+                        border: `1.5px solid ${step.border}`,
+                        boxShadow: `0 2px 4px rgba(0,0,0,0.06), 0 0 0 3px ${step.ring}`,
+                      }}
+                    >
+                      <span style={{ fontWeight: 800, fontSize: '0.8rem', color: step.color }}>{step.num}</span>
                     </div>
-                    <span className="text-[10px] text-slate-600 text-center leading-tight mt-1.5 whitespace-pre-line">
+                    <span style={{ fontSize: '10px', fontWeight: 600, color: '#475569', lineHeight: 1.3, marginTop: '6px', whiteSpace: 'pre-line', textAlign: 'center' }}>
                       {step.label}
                     </span>
                   </div>
                   {i < responseSteps.length - 1 && (
-                    <span className="text-slate-300 text-sm self-center pb-4 shrink-0">→</span>
+                    <ChevronRight className="self-center shrink-0 pb-5" style={{ width: '12px', height: '12px', color: '#cbd5e1' }} />
                   )}
                 </React.Fragment>
               ))}
             </div>
           </div>
 
-          {/* ─── SECTION 4 — ECOSYSTEM GRID ─── */}
+          {/* ═══ SECTION 4 — ECOSYSTEM GRID (Upgrade 6 + 7) ═══ */}
           <div className="px-4 py-3 md:px-6 md:py-4 bg-white">
-            <p className="text-[10px] font-semibold tracking-widest uppercase text-slate-400 mb-3">
+            <p className="inline-flex items-center gap-2 mb-3" style={{ fontSize: '0.625rem', fontWeight: 700, letterSpacing: '0.12em', color: '#94a3b8', textTransform: 'uppercase' }}>
+              <span style={{ width: '16px', height: '1.5px', background: '#ef4444', borderRadius: '1px', display: 'inline-block' }} />
               YOUR FULL ECOSYSTEM
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
               {/* LEFT COLUMN */}
               <div className="flex flex-col gap-3 md:gap-4">
-                {/* CLARA AI */}
-                <div className="bg-white border border-slate-200 border-l-4 border-l-red-500 rounded-xl p-4">
-                  <div className="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center">
-                    <Bot className="h-4 w-4 text-red-500" />
+                {/* CLARA AI (Upgrade 6) */}
+                <div
+                  className="relative overflow-hidden rounded-[14px] p-4 transition-all duration-200 hover:-translate-y-px"
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid #f1f5f9',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.04)',
+                    ...anim(40),
+                  }}
+                >
+                  {/* Gradient left border */}
+                  <div style={{ position: 'absolute', left: 0, top: '12px', bottom: '12px', width: '3px', borderRadius: '0 3px 3px 0', background: 'linear-gradient(180deg, #f87171, #dc2626)' }} />
+                  <div className="flex items-center justify-center" style={{ width: '36px', height: '36px', borderRadius: '10px', background: `linear-gradient(135deg, ${ecoCards.clara.grad1}, ${ecoCards.clara.grad2})`, border: `1px solid ${ecoCards.clara.border200}`, boxShadow: '0 1px 3px rgba(239,68,68,0.1)' }}>
+                    <Bot className="h-4 w-4" style={{ color: ecoCards.clara.color600 }} />
                   </div>
-                  <p className="text-sm font-semibold text-slate-900 mt-2">CLARA AI</p>
-                  <p className="text-xs text-slate-600 mt-1 line-clamp-2">
+                  <p style={{ fontWeight: 700, fontSize: '0.875rem', color: '#0f172a', letterSpacing: '-0.01em', marginTop: '10px' }}>CLARA AI</p>
+                  <p className="line-clamp-2" style={{ fontSize: '0.75rem', color: '#64748b', lineHeight: 1.5, marginTop: '4px' }}>
                     24/7 AI safety companion. Answers every SOS, assesses situations, coordinates your response.
                   </p>
-                  <span className="inline-block mt-2 text-[9px] bg-red-100 text-red-600 rounded px-2 py-0.5">
+                  <span className="inline-block mt-2" style={{ borderRadius: '6px', fontSize: '9px', fontWeight: 700, letterSpacing: '0.04em', padding: '2px 8px', border: `1px solid ${ecoCards.clara.border200}`, background: ecoCards.clara.badgeBg, color: ecoCards.clara.badgeColor }}>
                     CORE FEATURE
                   </span>
                 </div>
+
                 {/* Add-Ons */}
-                <div className="bg-white border border-slate-200 border-l-4 border-l-amber-500 rounded-xl p-4">
-                  <div className="w-8 h-8 bg-amber-50 rounded-lg flex items-center justify-center">
-                    <Sparkles className="h-4 w-4 text-amber-500" />
+                <div
+                  className="relative overflow-hidden rounded-[14px] p-4 transition-all duration-200 hover:-translate-y-px"
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid #f1f5f9',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.04)',
+                    ...anim(80),
+                  }}
+                >
+                  <div style={{ position: 'absolute', left: 0, top: '12px', bottom: '12px', width: '3px', borderRadius: '0 3px 3px 0', background: 'linear-gradient(180deg, #fbbf24, #d97706)' }} />
+                  <div className="flex items-center justify-center" style={{ width: '36px', height: '36px', borderRadius: '10px', background: `linear-gradient(135deg, ${ecoCards.amber.grad1}, ${ecoCards.amber.grad2})`, border: `1px solid ${ecoCards.amber.border200}`, boxShadow: '0 1px 3px rgba(217,119,6,0.1)' }}>
+                    <Sparkles className="h-4 w-4" style={{ color: ecoCards.amber.color600 }} />
                   </div>
-                  <p className="text-sm font-semibold text-slate-900 mt-2">Add-Ons</p>
-                  <p className="text-xs text-slate-600 mt-1 line-clamp-2">
+                  <p style={{ fontWeight: 700, fontSize: '0.875rem', color: '#0f172a', letterSpacing: '-0.01em', marginTop: '10px' }}>Add-Ons</p>
+                  <p className="line-clamp-2" style={{ fontSize: '0.75rem', color: '#64748b', lineHeight: 1.5, marginTop: '4px' }}>
                     Daily Wellbeing checks, Medication Reminders, and Family Links to extend your protection.
                   </p>
                   <div className="flex flex-wrap gap-1 mt-2">
-                    <span className="text-[9px] bg-slate-100 text-slate-600 rounded px-1.5 py-0.5">Wellbeing</span>
-                    <span className="text-[9px] bg-slate-100 text-slate-600 rounded px-1.5 py-0.5">Medication</span>
-                    <span className="text-[9px] bg-slate-100 text-slate-600 rounded px-1.5 py-0.5">Family Links</span>
+                    <span style={{ fontSize: '9px', background: '#f8fafc', color: '#475569', borderRadius: '4px', padding: '2px 6px', border: '1px solid #e2e8f0' }}>Wellbeing</span>
+                    <span style={{ fontSize: '9px', background: '#f8fafc', color: '#475569', borderRadius: '4px', padding: '2px 6px', border: '1px solid #e2e8f0' }}>Medication</span>
+                    <span style={{ fontSize: '9px', background: '#f8fafc', color: '#475569', borderRadius: '4px', padding: '2px 6px', border: '1px solid #e2e8f0' }}>Family Links</span>
                   </div>
                 </div>
               </div>
 
               {/* CENTRE COLUMN */}
               <div className="flex flex-col gap-3 md:gap-4">
-                {/* Member node */}
-                <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col items-center justify-center flex-1">
-                  <div className="relative w-16 h-16 mx-auto">
-                    <div className="absolute inset-0 rounded-full border border-red-300 animate-ping opacity-30" />
-                    <div className="absolute -inset-2 rounded-full border border-red-200 animate-ping opacity-20" style={{ animationDelay: '1s' }} />
-                    <div className="relative w-14 h-14 rounded-full bg-white border-2 border-red-500 shadow shadow-red-200 flex items-center justify-center mx-auto mt-1">
-                      <User className="h-7 w-7 text-red-500" />
+                {/* Member node (Upgrade 7) */}
+                <div
+                  className="flex flex-col items-center justify-center flex-1 rounded-[16px] p-5"
+                  style={{
+                    background: 'linear-gradient(135deg, #fff5f5, #ffffff)',
+                    border: '1px solid #fecaca',
+                    boxShadow: '0 0 0 1px rgba(239,68,68,0.08), 0 4px 16px rgba(239,68,68,0.08), 0 12px 32px rgba(239,68,68,0.06)',
+                    ...anim(0),
+                  }}
+                >
+                  <div className="relative" style={{ width: '80px', height: '80px' }}>
+                    {/* Pulse ring 1 */}
+                    <div style={{ position: 'absolute', inset: '-6px', borderRadius: '50%', border: '1.5px solid rgba(239,68,68,0.25)', animation: 'eco-ping 2.5s ease-out infinite' }} />
+                    {/* Pulse ring 2 */}
+                    <div style={{ position: 'absolute', inset: '-14px', borderRadius: '50%', border: '1px solid rgba(239,68,68,0.12)', animation: 'eco-ping 2.5s ease-out infinite', animationDelay: '0.8s' }} />
+                    {/* Avatar */}
+                    <div
+                      className="flex items-center justify-center mx-auto"
+                      style={{
+                        width: '64px',
+                        height: '64px',
+                        borderRadius: '50%',
+                        background: 'linear-gradient(135deg, #fff, #fef2f2)',
+                        border: '2px solid #ef4444',
+                        boxShadow: '0 0 0 4px rgba(239,68,68,0.08), 0 4px 16px rgba(239,68,68,0.2)',
+                        marginTop: '8px',
+                      }}
+                    >
+                      <User className="h-7 w-7" style={{ color: '#ef4444' }} />
                     </div>
                   </div>
-                  <p className="text-sm font-bold text-slate-900 mt-3">You — The Member</p>
-                  <p className="text-xs font-mono text-red-500 mt-0.5">€9.99/mo</p>
-                  <span className="inline-block bg-red-500 text-white text-[9px] rounded-full px-3 py-1 mt-1">
+                  <p style={{ fontWeight: 800, fontSize: '0.9375rem', color: '#0f172a', letterSpacing: '-0.02em', marginTop: '12px' }}>You — The Member</p>
+                  <p style={{ fontSize: '0.8125rem', fontWeight: 700, color: '#ef4444', fontVariantNumeric: 'tabular-nums', marginTop: '2px' }}>€9.99/mo</p>
+                  <span
+                    className="inline-block mt-2"
+                    style={{
+                      background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                      color: 'white',
+                      fontSize: '9px',
+                      fontWeight: 700,
+                      letterSpacing: '0.04em',
+                      borderRadius: '20px',
+                      padding: '3px 12px',
+                      boxShadow: '0 2px 8px rgba(239,68,68,0.3)',
+                    }}
+                  >
                     7 days free
                   </span>
                 </div>
+
                 {/* SOS Pendant */}
-                <div className="bg-white border border-slate-200 border-l-4 border-l-blue-500 rounded-xl p-4">
-                  <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-                    <Bluetooth className="h-4 w-4 text-blue-500" />
+                <div
+                  className="relative overflow-hidden rounded-[14px] p-4 transition-all duration-200 hover:-translate-y-px"
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid #f1f5f9',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.04)',
+                    ...anim(120),
+                  }}
+                >
+                  <div style={{ position: 'absolute', left: 0, top: '12px', bottom: '12px', width: '3px', borderRadius: '0 3px 3px 0', background: 'linear-gradient(180deg, #60a5fa, #2563eb)' }} />
+                  <div className="flex items-center justify-center" style={{ width: '36px', height: '36px', borderRadius: '10px', background: `linear-gradient(135deg, ${ecoCards.blue.grad1}, ${ecoCards.blue.grad2})`, border: `1px solid ${ecoCards.blue.border200}`, boxShadow: '0 1px 3px rgba(59,130,246,0.1)' }}>
+                    <Bluetooth className="h-4 w-4" style={{ color: ecoCards.blue.color600 }} />
                   </div>
-                  <p className="text-sm font-semibold text-slate-900 mt-2">SOS Pendant</p>
-                  <p className="text-xs text-slate-600 mt-1 line-clamp-2">
+                  <p style={{ fontWeight: 700, fontSize: '0.875rem', color: '#0f172a', letterSpacing: '-0.01em', marginTop: '10px' }}>SOS Pendant</p>
+                  <p className="line-clamp-2" style={{ fontSize: '0.75rem', color: '#64748b', lineHeight: 1.5, marginTop: '4px' }}>
                     Pairs with your phone via Bluetooth to instantly activate CLARA and trigger your full emergency response.
                   </p>
-                  <span className="inline-block mt-2 text-[9px] bg-blue-100 text-blue-600 rounded px-2 py-0.5">
+                  <span className="inline-block mt-2" style={{ borderRadius: '6px', fontSize: '9px', fontWeight: 700, letterSpacing: '0.04em', padding: '2px 8px', border: `1px solid ${ecoCards.blue.border200}`, background: ecoCards.blue.badgeBg, color: ecoCards.blue.badgeColor }}>
                     BLUETOOTH
                   </span>
                 </div>
@@ -257,28 +446,47 @@ const HowItAllConnectsModal: React.FC<HowItAllConnectsModalProps> = ({ isOpen, o
               {/* RIGHT COLUMN */}
               <div className="flex flex-col gap-3 md:gap-4">
                 {/* Family Network */}
-                <div className="bg-white border border-slate-200 border-l-4 border-l-cyan-500 rounded-xl p-4">
-                  <div className="w-8 h-8 bg-cyan-50 rounded-lg flex items-center justify-center">
-                    <Users className="h-4 w-4 text-cyan-500" />
+                <div
+                  className="relative overflow-hidden rounded-[14px] p-4 transition-all duration-200 hover:-translate-y-px"
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid #f1f5f9',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.04)',
+                    ...anim(80),
+                  }}
+                >
+                  <div style={{ position: 'absolute', left: 0, top: '12px', bottom: '12px', width: '3px', borderRadius: '0 3px 3px 0', background: 'linear-gradient(180deg, #22d3ee, #0891b2)' }} />
+                  <div className="flex items-center justify-center" style={{ width: '36px', height: '36px', borderRadius: '10px', background: `linear-gradient(135deg, ${ecoCards.cyan.grad1}, ${ecoCards.cyan.grad2})`, border: `1px solid ${ecoCards.cyan.border200}`, boxShadow: '0 1px 3px rgba(6,182,212,0.1)' }}>
+                    <Users className="h-4 w-4" style={{ color: ecoCards.cyan.color600 }} />
                   </div>
-                  <p className="text-sm font-semibold text-slate-900 mt-2">Family Network</p>
-                  <p className="text-xs text-slate-600 mt-1 line-clamp-2">
+                  <p style={{ fontWeight: 700, fontSize: '0.875rem', color: '#0f172a', letterSpacing: '-0.01em', marginTop: '10px' }}>Family Network</p>
+                  <p className="line-clamp-2" style={{ fontSize: '0.75rem', color: '#64748b', lineHeight: 1.5, marginTop: '4px' }}>
                     Unlimited contacts coordinated simultaneously. Live GPS, calls, alerts and wellbeing reports.
                   </p>
-                  <span className="inline-block mt-2 text-[9px] bg-cyan-100 text-cyan-600 rounded px-2 py-0.5">
+                  <span className="inline-block mt-2" style={{ borderRadius: '6px', fontSize: '9px', fontWeight: 700, letterSpacing: '0.04em', padding: '2px 8px', border: `1px solid ${ecoCards.cyan.border200}`, background: ecoCards.cyan.badgeBg, color: ecoCards.cyan.badgeColor }}>
                     1 LINK FREE
                   </span>
                 </div>
+
                 {/* Emergency Response */}
-                <div className="bg-white border border-slate-200 border-l-4 border-l-orange-500 rounded-xl p-4">
-                  <div className="w-8 h-8 bg-orange-50 rounded-lg flex items-center justify-center">
-                    <ShieldAlert className="h-4 w-4 text-orange-500" />
+                <div
+                  className="relative overflow-hidden rounded-[14px] p-4 transition-all duration-200 hover:-translate-y-px"
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid #f1f5f9',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.04)',
+                    ...anim(120),
+                  }}
+                >
+                  <div style={{ position: 'absolute', left: 0, top: '12px', bottom: '12px', width: '3px', borderRadius: '0 3px 3px 0', background: 'linear-gradient(180deg, #fb923c, #ea580c)' }} />
+                  <div className="flex items-center justify-center" style={{ width: '36px', height: '36px', borderRadius: '10px', background: `linear-gradient(135deg, ${ecoCards.orange.grad1}, ${ecoCards.orange.grad2})`, border: `1px solid ${ecoCards.orange.border200}`, boxShadow: '0 1px 3px rgba(249,115,22,0.1)' }}>
+                    <ShieldAlert className="h-4 w-4" style={{ color: ecoCards.orange.color600 }} />
                   </div>
-                  <p className="text-sm font-semibold text-slate-900 mt-2">Emergency Response</p>
-                  <p className="text-xs text-slate-600 mt-1 line-clamp-2">
+                  <p style={{ fontWeight: 700, fontSize: '0.875rem', color: '#0f172a', letterSpacing: '-0.01em', marginTop: '10px' }}>Emergency Response</p>
+                  <p className="line-clamp-2" style={{ fontSize: '0.75rem', color: '#64748b', lineHeight: 1.5, marginTop: '4px' }}>
                     SOS triggers instant response — contacts called, GPS shared, medical profile sent, ETA shown.
                   </p>
-                  <span className="inline-block mt-2 text-[9px] bg-orange-100 text-orange-600 rounded px-2 py-0.5">
+                  <span className="inline-block mt-2" style={{ borderRadius: '6px', fontSize: '9px', fontWeight: 700, letterSpacing: '0.04em', padding: '2px 8px', border: `1px solid ${ecoCards.orange.border200}`, background: ecoCards.orange.badgeBg, color: ecoCards.orange.badgeColor }}>
                     ALWAYS ON
                   </span>
                 </div>
@@ -286,39 +494,89 @@ const HowItAllConnectsModal: React.FC<HowItAllConnectsModalProps> = ({ isOpen, o
             </div>
           </div>
 
-          {/* ─── SECTION 5 — FOOTER ─── */}
-          <div className="flex-shrink-0 px-4 py-3 md:px-6 md:py-4 border-t border-slate-200 bg-white">
-            {/* CLARA Complete banner */}
-            <div className="bg-red-50 border border-red-200 border-l-4 border-l-red-500 rounded-xl px-4 py-3 flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
-              <Sparkles className="h-4 w-4 text-red-500 shrink-0" />
-              <span className="text-sm font-bold text-slate-900 shrink-0">CLARA Complete</span>
-              <span className="text-xs text-slate-600 flex-1">
+          {/* ═══ SECTION 5 — FOOTER (Upgrade 8 + 9 + 11) ═══ */}
+          <div className="flex-shrink-0 px-4 py-3 md:px-6 md:py-4 bg-white" style={{ borderTop: '1px solid #f1f5f9' }}>
+            {/* CLARA Complete banner (Upgrade 8) */}
+            <div
+              className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 rounded-xl px-4 py-3"
+              style={{
+                background: 'linear-gradient(135deg, rgba(239,68,68,0.06) 0%, rgba(239,68,68,0.02) 100%)',
+                border: '1px solid rgba(239,68,68,0.15)',
+                borderLeft: '3px solid #ef4444',
+                boxShadow: '0 2px 8px rgba(239,68,68,0.06)',
+              }}
+            >
+              <div className="flex items-center justify-center shrink-0" style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #fef2f2, #fee2e2)', border: '1px solid #fecaca' }}>
+                <Sparkles className="h-4 w-4" style={{ color: '#ef4444' }} />
+              </div>
+              <span style={{ fontWeight: 800, fontSize: '0.9375rem', color: '#0f172a', letterSpacing: '-0.02em' }} className="shrink-0">CLARA Complete</span>
+              <span style={{ fontSize: '0.75rem', color: '#64748b' }} className="flex-1">
                 Everything included — base plan plus all add-ons
               </span>
-              <span className="bg-red-500 text-white text-[9px] font-bold rounded-full px-3 py-1 shrink-0">
+              <span
+                className="shrink-0"
+                style={{
+                  background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                  color: 'white',
+                  fontWeight: 800,
+                  fontSize: '9px',
+                  letterSpacing: '0.06em',
+                  borderRadius: '20px',
+                  padding: '4px 12px',
+                  boxShadow: '0 2px 8px rgba(239,68,68,0.35)',
+                }}
+              >
                 BEST VALUE
               </span>
             </div>
 
-            {/* Legend + CTA */}
+            {/* Legend + CTA (Upgrade 9 + 11) */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-3 gap-3">
+              {/* Legend dots (Upgrade 11) */}
               <div className="hidden sm:flex items-center gap-4">
-                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-red-500" /><span className="text-[10px] text-slate-500">Member</span></div>
-                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-slate-400" /><span className="text-[10px] text-slate-500">Core</span></div>
-                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-amber-500" /><span className="text-[10px] text-slate-500">Add-On</span></div>
-                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-cyan-500" /><span className="text-[10px] text-slate-500">Family</span></div>
-                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-orange-500" /><span className="text-[10px] text-slate-500">Emergency</span></div>
+                {[
+                  { color: '#ef4444', label: 'Member' },
+                  { color: '#94a3b8', label: 'Core' },
+                  { color: '#f59e0b', label: 'Add-On' },
+                  { color: '#06b6d4', label: 'Family' },
+                  { color: '#f97316', label: 'Emergency' },
+                ].map((item) => (
+                  <div key={item.label} className="flex items-center gap-1.5">
+                    <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: item.color, boxShadow: `0 0 0 2px ${item.color}33` }} />
+                    <span style={{ fontSize: '10px', fontWeight: 600, color: '#94a3b8', letterSpacing: '0.02em' }}>{item.label}</span>
+                  </div>
+                ))}
               </div>
+
+              {/* CTA button (Upgrade 9) */}
               <Link
                 to="/register?trial=true"
-                className="
-                  inline-flex items-center gap-2
-                  bg-red-500 hover:bg-red-600 text-white text-xs font-semibold
-                  rounded-full px-5 py-2
-                  transition-all duration-200
-                  hover:shadow-md hover:shadow-red-200 hover:-translate-y-0.5
-                  w-full sm:w-auto justify-center
-                "
+                className="inline-flex items-center gap-2 w-full sm:w-auto justify-center"
+                style={{
+                  background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                  color: 'white',
+                  fontWeight: 700,
+                  fontSize: '0.8125rem',
+                  letterSpacing: '-0.01em',
+                  borderRadius: '24px',
+                  padding: '10px 20px',
+                  border: 'none',
+                  boxShadow: '0 2px 4px rgba(239,68,68,0.2), 0 4px 16px rgba(239,68,68,0.25)',
+                  transition: 'all 200ms ease',
+                  textDecoration: 'none',
+                }}
+                onMouseEnter={(e) => {
+                  const t = e.currentTarget;
+                  t.style.background = 'linear-gradient(135deg, #dc2626, #b91c1c)';
+                  t.style.boxShadow = '0 4px 8px rgba(239,68,68,0.25), 0 8px 24px rgba(239,68,68,0.3)';
+                  t.style.transform = 'translateY(-1px)';
+                }}
+                onMouseLeave={(e) => {
+                  const t = e.currentTarget;
+                  t.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+                  t.style.boxShadow = '0 2px 4px rgba(239,68,68,0.2), 0 4px 16px rgba(239,68,68,0.25)';
+                  t.style.transform = 'translateY(0)';
+                }}
               >
                 <Shield className="h-3 w-3" />
                 Start Free Trial
