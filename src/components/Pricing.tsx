@@ -97,13 +97,19 @@ const Pricing: React.FC = () => {
   return (
     <section id="pricing" className="py-20 bg-white">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
+        <div className="text-center mb-8">
           <h2 className="text-2xl font-bold mb-4 text-foreground">
             {t('pricing.heroTitle')}
           </h2>
-          <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-sm text-muted-foreground max-w-2xl mx-auto mb-6">
             {t('pricing.heroSubtitle')}
           </p>
+          <Button asChild size="lg" className="font-semibold py-6 px-10 bg-primary text-white hover:bg-primary/90 rounded-xl shadow-lg">
+            <Link to="/trial-signup">
+              <Shield className="h-5 w-5 mr-2" />
+              {t('pricing.startTrial')}
+            </Link>
+          </Button>
         </div>
 
         {/* Base Plan */}
@@ -120,7 +126,7 @@ const Pricing: React.FC = () => {
             <p className="text-sm text-white/70 mb-6">
               {t('pricing.basePlan.description')}
             </p>
-            <div className="space-y-3 mb-8">
+            <div className="space-y-3">
               {basePlanFeatures.map((feature, i) => (
                 <div key={i} className="flex items-start gap-2.5">
                   <Check className="h-4 w-4 mt-0.5 flex-shrink-0 text-primary" />
@@ -128,12 +134,6 @@ const Pricing: React.FC = () => {
                 </div>
               ))}
             </div>
-            <Button asChild className="w-full font-semibold py-6 bg-primary text-white hover:bg-primary/90">
-              <Link to="/trial-signup">
-                <Shield className="h-4 w-4 mr-2" />
-                {t('pricing.startTrial')}
-              </Link>
-            </Button>
           </div>
         </div>
 
