@@ -161,8 +161,8 @@ const DeviceIceSosPendant = () => {
               <div className="relative">
                 <div className="relative z-10">
                   <OptimizedImage
-                    src="/lovable-uploads/a5d9b9a3-71f8-4e05-b21b-2f2bc801fbc8.png"
-                    alt="LifeLink Sync Bluetooth Pendant with accessories"
+                    src="/lovable-uploads/lifelink-pendant-hero.png"
+                    alt="LifeLink Sync Bluetooth Pendant with lanyard"
                     className="w-full max-w-lg mx-auto rounded-3xl shadow-2xl"
                     priority={true}
                     sizes={getImageSizes('hero')}

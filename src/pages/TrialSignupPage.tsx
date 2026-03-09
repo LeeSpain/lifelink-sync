@@ -90,7 +90,6 @@ const TrialSignupPage: React.FC = () => {
     t('checkout.trialFeatureLocation'),
     t('checkout.trialFeatureContact'),
     t('checkout.trialFeatureIncident'),
-    t('checkout.trialFeatureFamily'),
   ];
 
   return (

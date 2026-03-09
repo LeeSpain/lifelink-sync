@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
 import { Shield, Star, Check, Clock, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -18,32 +16,10 @@ interface Plan {
   is_popular: boolean;
 }
 
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  currency: string;
-  features: string[];
-  status: string;
-}
-
-interface RegionalService {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  currency: string;
-  region: string;
-  features: string[];
-}
-
 interface PlanStepProps {
   data: {
     selectedPlanId: string;
     isTrialSelected: boolean;
-    selectedProducts: string[];
-    selectedServices: string[];
   };
   onChange: (field: string, value: any) => void;
 }
@@ -51,42 +27,30 @@ interface PlanStepProps {
 const PlanStep: React.FC<PlanStepProps> = ({ data, onChange }) => {
   const { t } = useTranslation();
   const [plans, setPlans] = useState<Plan[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [services, setServices] = useState<RegionalService[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [plansRes, productsRes, servicesRes] = await Promise.all([
-          supabase.from('subscription_plans').select('*').eq('is_active', true).eq('billing_interval', 'month').order('sort_order'),
-          supabase.from('products').select('*').in('status', ['active', 'coming_soon']).order('sort_order'),
-          supabase.from('regional_services').select('*').eq('is_active', true).order('sort_order'),
-        ]);
+        const plansRes = await supabase
+          .from('subscription_plans')
+          .select('*')
+          .eq('is_active', true)
+          .eq('billing_interval', 'month')
+          .order('sort_order');
 
         if (plansRes.data) {
-          setPlans(plansRes.data.map(p => ({
+          // Only show Individual-type plans — family/connection add-ons are post-join
+          const individualPlans = plansRes.data.filter(p =>
+            !p.name.toLowerCase().includes('family') &&
+            !p.name.toLowerCase().includes('connection')
+          );
+          setPlans(individualPlans.map(p => ({
             id: p.id, name: p.name, description: p.description || '',
             price: parseFloat(p.price.toString()), currency: p.currency,
             billing_interval: p.billing_interval,
             features: Array.isArray(p.features) ? p.features.map(String) : [],
             is_popular: p.is_popular,
-          })));
-        }
-        if (productsRes.data) {
-          setProducts(productsRes.data.map(p => ({
-            id: p.id, name: p.name, description: p.description || '',
-            price: parseFloat(p.price.toString()), currency: p.currency,
-            features: Array.isArray(p.features) ? p.features.map(String) : [],
-            status: p.status || 'active',
-          })));
-        }
-        if (servicesRes.data) {
-          setServices(servicesRes.data.map(s => ({
-            id: s.id, name: s.name, description: s.description || '',
-            price: parseFloat(s.price.toString()), currency: s.currency,
-            region: s.region,
-            features: Array.isArray(s.features) ? s.features.map(String) : [],
           })));
         }
       } catch (err) {
@@ -106,16 +70,6 @@ const PlanStep: React.FC<PlanStepProps> = ({ data, onChange }) => {
   const handleSelectTrial = () => {
     onChange('selectedPlanId', '');
     onChange('isTrialSelected', true);
-  };
-
-  const handleProductToggle = (productId: string, checked: boolean) => {
-    const current = data.selectedProducts || [];
-    onChange('selectedProducts', checked ? [...current, productId] : current.filter(id => id !== productId));
-  };
-
-  const handleServiceToggle = (serviceId: string, checked: boolean) => {
-    const current = data.selectedServices || [];
-    onChange('selectedServices', checked ? [...current, serviceId] : current.filter(id => id !== serviceId));
   };
 
   if (loading) {
@@ -221,64 +175,6 @@ const PlanStep: React.FC<PlanStepProps> = ({ data, onChange }) => {
         ))}
       </div>
 
-      {/* Products (Optional) */}
-      {products.length > 0 && (
-        <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-foreground">{t('registration.plan.optionalProducts')}</h3>
-          <div className="space-y-2">
-            {products.map((product) => (
-              <div key={product.id} className="flex items-center gap-3 p-3 rounded-lg border bg-card">
-                <Checkbox
-                  id={`product-${product.id}`}
-                  checked={data.selectedProducts?.includes(product.id)}
-                  onCheckedChange={(checked) => handleProductToggle(product.id, checked as boolean)}
-                  disabled={product.status === 'coming_soon'}
-                />
-                <Label htmlFor={`product-${product.id}`} className="flex-1 cursor-pointer">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-sm font-medium">{product.name}</span>
-                      {product.status === 'coming_soon' && (
-                        <Badge variant="outline" className="ml-2 text-xs">{t('registration.plan.comingSoon')}</Badge>
-                      )}
-                    </div>
-                    <span className="text-sm font-semibold">{product.currency === 'EUR' ? '\u20AC' : '$'}{product.price}</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground">{product.description}</p>
-                </Label>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Regional Services (Optional) */}
-      {services.length > 0 && (
-        <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-foreground">{t('registration.plan.regionalServices')}</h3>
-          <div className="space-y-2">
-            {services.map((service) => (
-              <div key={service.id} className="flex items-center gap-3 p-3 rounded-lg border bg-card">
-                <Checkbox
-                  id={`service-${service.id}`}
-                  checked={data.selectedServices?.includes(service.id)}
-                  onCheckedChange={(checked) => handleServiceToggle(service.id, checked as boolean)}
-                />
-                <Label htmlFor={`service-${service.id}`} className="flex-1 cursor-pointer">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-sm font-medium">{service.name}</span>
-                      <Badge variant="outline" className="ml-2 text-xs">{service.region}</Badge>
-                    </div>
-                    <span className="text-sm font-semibold">{service.currency === 'EUR' ? '\u20AC' : '$'}{service.price}/mo</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground">{service.description}</p>
-                </Label>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -6,8 +6,6 @@ import { Shield } from 'lucide-react';
 interface PaymentStepProps {
   data: {
     selectedPlanId: string;
-    selectedProducts: string[];
-    selectedServices: string[];
     email: string;
     firstName: string;
     lastName: string;
@@ -36,8 +34,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ data, onSuccess, onBack }) =>
 
       <EmbeddedPayment
         plans={plans}
-        products={data.selectedProducts}
-        regionalServices={data.selectedServices}
         userEmail={data.email}
         firstName={data.firstName}
         lastName={data.lastName}

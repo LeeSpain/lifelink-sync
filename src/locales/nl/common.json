@@ -64,7 +64,8 @@
     "perMonth": "/mnd",
     "startTrial": "Start 7 dagen gratis proefperiode",
     "addOnsTitle": "Pas aan met uitbreidingen",
-    "addOnsSubtitle": "Verbeter je bescherming met modulaire uitbreidingen. Op elk moment toevoegen of verwijderen.",
+    "addOnsSubtitle": "Verbeter je bescherming na het aanmelden. Voeg toe vanuit je dashboard op elk moment.",
+    "availableAfterJoining": "Beschikbaar in je dashboard",
     "callCentreNote": "Professioneel callcenter (alleen Spanje) is beschikbaar als aparte uitbreiding via onze regionale partner. Niet standaard inbegrepen in enig plan.",
     "pendantNote": "Handsfree bescherming nodig?",
     "pendantLink": "Voeg de Bluetooth Hanger toe voor €59.99",
@@ -2376,7 +2377,6 @@
       "profile": "Profiel",
       "plan": "Plan",
       "contacts": "Noodcontacten",
-      "family": "Familie",
       "payment": "Betaling",
       "complete": "Voltooid"
     },
@@ -2472,16 +2472,13 @@
     },
     "plan": {
       "title": "Kies Je Plan",
-      "subtitle": "Selecteer het beschermingsniveau dat bij je past",
+      "subtitle": "Begin met Individuele bescherming of probeer 7 dagen gratis",
       "loading": "Beschikbare plannen laden...",
       "freeTrialTitle": "7 Dagen Gratis Proefperiode",
       "noCardRequired": "Geen Kaart Nodig",
-      "freeTrialDesc": "Probeer alle functies 7 dagen gratis. Geen creditcard nodig. Op elk moment opzeggen.",
+      "freeTrialDesc": "Probeer alle functies van het Individueel plan 7 dagen gratis. Geen creditcard nodig.",
       "popular": "Populair",
-      "month": "maand",
-      "optionalProducts": "Optionele Producten",
-      "comingSoon": "Binnenkort",
-      "regionalServices": "Regionale Diensten"
+      "month": "maand"
     },
     "contacts": {
       "title": "Noodcontacten",

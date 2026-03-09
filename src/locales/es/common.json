@@ -64,7 +64,8 @@
     "perMonth": "/mes",
     "startTrial": "Comenzar prueba gratuita de 7 días",
     "addOnsTitle": "Personaliza con complementos",
-    "addOnsSubtitle": "Mejora tu protección con complementos modulares. Añade o elimina en cualquier momento.",
+    "addOnsSubtitle": "Mejora tu protección después de unirte. Añade desde tu panel en cualquier momento.",
+    "availableAfterJoining": "Disponible en tu panel",
     "callCentreNote": "El soporte profesional de centro de llamadas (solo España) está disponible como complemento separado a través de nuestro socio regional. No incluido en ningún plan por defecto.",
     "pendantNote": "¿Necesitas protección manos libres?",
     "pendantLink": "Añade el Colgante Bluetooth por €59.99",
@@ -2575,7 +2576,6 @@
       "profile": "Perfil",
       "plan": "Plan",
       "contacts": "Contactos de Emergencia",
-      "family": "Familia",
       "payment": "Pago",
       "complete": "Completado"
     },
@@ -2671,16 +2671,13 @@
     },
     "plan": {
       "title": "Elige Tu Plan",
-      "subtitle": "Selecciona el nivel de protección adecuado para ti",
+      "subtitle": "Empieza con protección Individual o prueba gratis durante 7 días",
       "loading": "Cargando planes disponibles...",
       "freeTrialTitle": "Prueba Gratuita de 7 Días",
       "noCardRequired": "Sin Tarjeta",
-      "freeTrialDesc": "Prueba todas las funciones gratis durante 7 días. Sin tarjeta de crédito. Cancela cuando quieras.",
+      "freeTrialDesc": "Prueba todas las funciones del plan Individual gratis durante 7 días. Sin tarjeta de crédito.",
       "popular": "Popular",
-      "month": "mes",
-      "optionalProducts": "Productos Opcionales",
-      "comingSoon": "Próximamente",
-      "regionalServices": "Servicios Regionales"
+      "month": "mes"
     },
     "contacts": {
       "title": "Contactos de Emergencia",

@@ -72,7 +72,8 @@
     "perMonth": "/mo",
     "startTrial": "Start 7-Day Free Trial",
     "addOnsTitle": "Customise with Add-Ons",
-    "addOnsSubtitle": "Enhance your protection with modular add-ons. Add or remove anytime.",
+    "addOnsSubtitle": "Enhance your protection after joining. Add from your dashboard anytime.",
+    "availableAfterJoining": "Available in your dashboard",
     "callCentreNote": "Professional call centre support (Spain only) is available as a separate add-on via our regional partner. Not included in any plan by default.",
     "pendantNote": "Need hands-free protection?",
     "pendantLink": "Add the Bluetooth Pendant for €59.99",
@@ -2802,7 +2803,6 @@
       "profile": "Profile",
       "plan": "Plan",
       "contacts": "Emergency Contacts",
-      "family": "Family",
       "payment": "Payment",
       "complete": "Complete"
     },
@@ -2898,16 +2898,13 @@
     },
     "plan": {
       "title": "Choose Your Plan",
-      "subtitle": "Select the protection level that's right for you",
+      "subtitle": "Start with Individual protection or try free for 7 days",
       "loading": "Loading available plans...",
       "freeTrialTitle": "7-Day Free Trial",
       "noCardRequired": "No Card Required",
-      "freeTrialDesc": "Try all features free for 7 days. No credit card needed. Cancel anytime.",
+      "freeTrialDesc": "Try all Individual plan features free for 7 days. No credit card needed.",
       "popular": "Popular",
-      "month": "month",
-      "optionalProducts": "Optional Products",
-      "comingSoon": "Coming Soon",
-      "regionalServices": "Regional Services"
+      "month": "month"
     },
     "contacts": {
       "title": "Emergency Contacts",

@@ -14,7 +14,6 @@ import AccountStep from './steps/AccountStep';
 import ProfileStep from './steps/ProfileStep';
 import PlanStep from './steps/PlanStep';
 import EmergencyContactsStep, { type EmergencyContact } from './steps/EmergencyContactsStep';
-import InviteFamilyStep, { type FamilyInvite } from './steps/InviteFamilyStep';
 import PaymentStep from './steps/PaymentStep';
 import CompleteStep from './steps/CompleteStep';
 
@@ -33,17 +32,13 @@ interface WizardData {
   // Plan
   selectedPlanId: string;
   isTrialSelected: boolean;
-  selectedProducts: string[];
-  selectedServices: string[];
   // Emergency Contacts
   emergencyContacts: EmergencyContact[];
-  // Family Invites
-  familyInvites: FamilyInvite[];
 }
 
 const STORAGE_KEY = 'lifelink_registration_wizard';
 
-const STEP_IDS = ['welcome', 'account', 'profile', 'plan', 'contacts', 'family', 'payment', 'complete'] as const;
+const STEP_IDS = ['welcome', 'account', 'profile', 'plan', 'contacts', 'payment', 'complete'] as const;
 
 const initialData: WizardData = {
   email: '',
@@ -57,10 +52,7 @@ const initialData: WizardData = {
   dateOfBirth: '',
   selectedPlanId: '',
   isTrialSelected: false,
-  selectedProducts: [],
-  selectedServices: [],
   emergencyContacts: [{ name: '', phone: '', email: '', relationship: '', notifyChannels: ['app'] }],
-  familyInvites: [],
 };
 
 const RegistrationWizard: React.FC = () => {
@@ -247,27 +239,6 @@ const RegistrationWizard: React.FC = () => {
     }
   };
 
-  // Send family invitations
-  const sendFamilyInvites = async () => {
-    const validInvites = data.familyInvites.filter(i => i.email.trim());
-    for (const invite of validInvites) {
-      try {
-        await supabase.functions.invoke('connections-invite', {
-          body: {
-            invite_email: invite.email,
-            type: 'family_circle',
-            relationship: invite.relationship || 'family',
-            escalation_priority: 3,
-            notify_channels: ['app'],
-            preferred_language: 'en',
-          }
-        });
-      } catch (err) {
-        console.error('Failed to send invite to', invite.email, err);
-      }
-    }
-  };
-
   // Send welcome email
   const sendWelcomeEmail = async () => {
     try {
@@ -293,10 +264,6 @@ const RegistrationWizard: React.FC = () => {
         await activateTrial();
       }
 
-      if (data.familyInvites.length > 0) {
-        await sendFamilyInvites();
-      }
-
       // Non-blocking welcome email
       sendWelcomeEmail();
 
@@ -318,8 +285,8 @@ const RegistrationWizard: React.FC = () => {
       if (!success) return;
     }
 
-    // After contacts step (for trial) or payment step (for paid), finalize
-    if (currentStepId === 'family') {
+    // After contacts step (for trial), finalize
+    if (currentStepId === 'contacts') {
       if (data.isTrialSelected) {
         await finalizeRegistration();
       }
@@ -353,13 +320,6 @@ const RegistrationWizard: React.FC = () => {
           <EmergencyContactsStep
             contacts={data.emergencyContacts}
             onChange={(contacts) => handleChange('emergencyContacts', contacts)}
-          />
-        );
-      case 'family':
-        return (
-          <InviteFamilyStep
-            invites={data.familyInvites}
-            onChange={(invites) => handleChange('familyInvites', invites)}
           />
         );
       case 'payment':
@@ -429,7 +389,7 @@ const RegistrationWizard: React.FC = () => {
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                         {t('registration.processing')}
                       </>
-                    ) : currentStepId === 'family' && data.isTrialSelected ? (
+                    ) : currentStepId === 'contacts' && data.isTrialSelected ? (
                       <>
                         {t('registration.startTrial')}
                         <ArrowRight className="h-4 w-4 ml-2" />
