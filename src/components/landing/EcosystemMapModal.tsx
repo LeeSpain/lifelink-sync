@@ -39,7 +39,7 @@ const animationStyles = `
   100% { background-position: 200% center; }
 }
 @keyframes eco-fade-up {
-  0% { opacity: 0; transform: translateY(12px); }
+  0% { opacity: 0; transform: translateY(8px); }
   100% { opacity: 1; transform: translateY(0); }
 }
 `;
@@ -64,7 +64,7 @@ interface FeatureNodeProps {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Color map — high contrast on dark bg                               */
+/*  Color map                                                          */
 /* ------------------------------------------------------------------ */
 const colorMap: Record<NodeColor, {
   border: string;
@@ -81,7 +81,7 @@ const colorMap: Record<NodeColor, {
 };
 
 /* ------------------------------------------------------------------ */
-/*  Feature Node Card                                                  */
+/*  Compact Feature Node Card                                          */
 /* ------------------------------------------------------------------ */
 const FeatureNode: React.FC<FeatureNodeProps> = ({
   icon: Icon, title, description, color, tag, delay, children,
@@ -91,32 +91,27 @@ const FeatureNode: React.FC<FeatureNodeProps> = ({
   return (
     <div
       className={`
-        group rounded-xl border border-slate-700 bg-slate-800/70
+        group rounded-lg border border-slate-700 bg-slate-800/70
         border-l-4 ${c.border}
-        p-5 transition-all duration-300 ease-out
-        hover:bg-slate-700/80 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/20
+        p-3 transition-all duration-300 ease-out
+        hover:bg-slate-700/80
       `}
-      style={{ animation: `eco-fade-up 0.5s ease-out ${delay}ms both` }}
+      style={{ animation: `eco-fade-up 0.4s ease-out ${delay}ms both` }}
     >
-      <div className="flex items-start gap-3">
-        {/* Icon */}
+      <div className="flex items-start gap-2.5">
         <div className={`
-          flex h-10 w-10 shrink-0 items-center justify-center rounded-lg
+          flex h-8 w-8 shrink-0 items-center justify-center rounded-md
           ${c.iconBg} ${c.iconText}
         `}>
-          <Icon className="h-5 w-5" />
+          <Icon className="h-4 w-4" />
         </div>
-
-        {/* Text */}
         <div className="min-w-0 flex-1">
-          <h3 className="text-sm font-bold text-white">{title}</h3>
-          <p className="mt-1 text-xs text-slate-300 leading-relaxed">{description}</p>
+          <h3 className="text-sm font-semibold text-white leading-tight">{title}</h3>
+          <p className="mt-0.5 text-xs text-slate-300 leading-snug line-clamp-2">{description}</p>
           {children}
         </div>
       </div>
-
-      {/* Category tag — single line */}
-      <div className="mt-3">
+      <div className="mt-2">
         <span className={`
           inline-block whitespace-nowrap rounded-full px-2 py-0.5
           text-[10px] font-medium uppercase tracking-wider
@@ -130,81 +125,18 @@ const FeatureNode: React.FC<FeatureNodeProps> = ({
 };
 
 /* ------------------------------------------------------------------ */
-/*  Member Node (shared across layouts)                                */
-/* ------------------------------------------------------------------ */
-const MemberNode: React.FC<{
-  size: 'sm' | 'md' | 'lg';
-  title: string;
-  desc: string;
-  price: string;
-  badge: string;
-}> = ({ size, title, desc, price, badge }) => {
-  const sizes = {
-    sm: { circle: 'h-20 w-20', icon: 'h-8 w-8', ring: '-inset-3' },
-    md: { circle: 'h-24 w-24', icon: 'h-9 w-9', ring: '-inset-4' },
-    lg: { circle: 'h-28 w-28', icon: 'h-10 w-10', ring: '-inset-5' },
-  };
-  const s = sizes[size];
-
-  return (
-    <div className="flex flex-col items-center gap-3">
-      {/* Circle with radar rings */}
-      <div className="relative">
-        {/* Radar ring 1 */}
-        <div
-          className={`absolute ${s.ring} rounded-full border-2 border-red-500/30 pointer-events-none`}
-          style={{ animation: 'eco-radar 3s ease-out infinite' }}
-          aria-hidden="true"
-        />
-        {/* Radar ring 2 */}
-        <div
-          className={`absolute ${s.ring} rounded-full border-2 border-red-500/30 pointer-events-none`}
-          style={{ animation: 'eco-radar 3s ease-out 1.5s infinite' }}
-          aria-hidden="true"
-        />
-        {/* Main circle — white bg, red border */}
-        <div
-          className={`
-            relative flex ${s.circle} items-center justify-center rounded-full
-            bg-white border-2 border-red-500
-          `}
-          style={{
-            animation: 'eco-breathe 3s ease-in-out infinite',
-            boxShadow: '0 0 30px rgba(239, 68, 68, 0.3)',
-          }}
-        >
-          <User className={`${s.icon} text-red-500`} />
-        </div>
-      </div>
-
-      {/* Labels */}
-      <div className="text-center">
-        <p className="text-sm font-bold text-white">{title}</p>
-        <p className="text-xs text-slate-300 mt-0.5">{desc}</p>
-        <p className="text-sm font-bold text-red-400 mt-1 font-mono">{price}</p>
-      </div>
-
-      {/* Free trial badge */}
-      <Badge className="bg-red-500 text-white border-0 text-xs font-medium">
-        {badge}
-      </Badge>
-    </div>
-  );
-};
-
-/* ------------------------------------------------------------------ */
-/*  Add-on sub-badges (Family, Wellbeing, Meds)                        */
+/*  Add-on sub-badges                                                  */
 /* ------------------------------------------------------------------ */
 const AddOnBadges = () => (
-  <div className="mt-2 flex flex-wrap gap-1.5">
-    <Badge className="text-[10px] gap-1 px-1.5 py-0 bg-slate-700 border-slate-600 text-slate-300">
-      <Users className="h-2.5 w-2.5" /> Family
+  <div className="mt-1.5 flex flex-wrap gap-1">
+    <Badge className="text-[9px] gap-0.5 px-1 py-0 bg-slate-700 border-slate-600 text-slate-300">
+      <Users className="h-2 w-2" /> Family
     </Badge>
-    <Badge className="text-[10px] gap-1 px-1.5 py-0 bg-slate-700 border-slate-600 text-slate-300">
-      <Heart className="h-2.5 w-2.5" /> Wellbeing
+    <Badge className="text-[9px] gap-0.5 px-1 py-0 bg-slate-700 border-slate-600 text-slate-300">
+      <Heart className="h-2 w-2" /> Wellbeing
     </Badge>
-    <Badge className="text-[10px] gap-1 px-1.5 py-0 bg-slate-700 border-slate-600 text-slate-300">
-      <Pill className="h-2.5 w-2.5" /> Meds
+    <Badge className="text-[9px] gap-0.5 px-1 py-0 bg-slate-700 border-slate-600 text-slate-300">
+      <Pill className="h-2 w-2" /> Meds
     </Badge>
   </div>
 );
@@ -234,141 +166,169 @@ const EcosystemMapModal: React.FC<EcosystemMapModalProps> = ({ trigger }) => {
         <DialogTrigger asChild>{trigger || defaultTrigger}</DialogTrigger>
 
         <DialogContent className="
-          max-w-4xl w-[95vw] max-h-[92vh] overflow-y-auto p-0
+          max-w-[900px] w-[95vw] max-h-[90vh] p-0
           bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl
+          flex flex-col overflow-hidden
           data-[state=open]:animate-in data-[state=open]:fade-in-0
           data-[state=open]:zoom-in-[0.96] data-[state=open]:duration-300
         ">
-          {/* ── Header ── */}
-          <div className="px-6 pt-6 pb-4 border-b border-slate-700/60">
-            <div className="flex items-start gap-3">
-              {/* Red accent bar */}
-              <div className="w-1 self-stretch rounded-full bg-red-500 shrink-0 mt-0.5" />
+          {/* ── Header (flex-shrink-0) ── */}
+          <div className="flex-shrink-0 px-5 py-3 border-b border-slate-700/60">
+            <div className="flex items-center gap-2.5">
+              <div className="w-1 h-10 rounded-full bg-red-500 shrink-0" />
               <div>
-                <h2 className="text-xl font-extrabold text-white tracking-tight">
+                <h2 className="text-lg font-bold text-white tracking-tight">
                   {t('ecosystem.title')}
                 </h2>
-                <p className="mt-1 text-sm text-slate-400">
+                <p className="text-xs text-slate-400 leading-tight">
                   {t('ecosystem.subtitle')}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* ── Body ── */}
-          <div className="relative px-6 pt-6 pb-4">
-            {/* Subtle radial glow behind centre */}
+          {/* ── Main Grid (flex-1, fills remaining space) ── */}
+          <div className="flex-1 min-h-0 relative">
+            {/* Radial glow */}
             <div className="hidden md:block absolute inset-0 pointer-events-none" aria-hidden="true">
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full bg-red-500/[0.05] blur-3xl" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-56 rounded-full bg-red-500/[0.04] blur-3xl" />
             </div>
 
-            {/* ── Desktop 3-col layout ── */}
-            <div className="hidden lg:grid lg:grid-cols-[1fr,auto,1fr] gap-6 items-start relative">
-              {/* Left column */}
-              <div className="flex flex-col gap-4 pt-4">
-                <FeatureNode
-                  icon={Bot}
-                  title={t('ecosystem.claraTitle')}
-                  description={t('ecosystem.claraDesc')}
-                  color="red"
-                  tag={t('ecosystem.legendFeature')}
-                  delay={100}
-                />
-                <FeatureNode
-                  icon={Sparkles}
-                  title={t('ecosystem.addOnsTitle')}
-                  description={t('ecosystem.addOnsDesc')}
-                  color="amber"
-                  tag={t('ecosystem.legendAddOn')}
-                  delay={200}
-                >
-                  <AddOnBadges />
-                </FeatureNode>
-              </div>
-
-              {/* Centre — Member hero node + Pendant */}
-              <div
-                className="flex flex-col items-center gap-5 px-6 py-4"
-                style={{ animation: 'eco-fade-up 0.5s ease-out 0ms both' }}
-              >
-                <MemberNode
-                  size="lg"
-                  title={t('ecosystem.memberTitle')}
-                  desc={t('ecosystem.memberDesc')}
-                  price={t('ecosystem.memberPrice')}
-                  badge={t('ecosystem.freeTrialBadge')}
-                />
-
-                {/* Connection indicator */}
-                <div className="w-px h-6 bg-slate-600" aria-hidden="true" />
-
-                {/* Pendant node below */}
-                <div className="w-full max-w-xs">
+            {/* ── Desktop/Tablet 3-col (md+) ── */}
+            <div className="hidden md:grid md:grid-cols-[1fr,auto,1fr] gap-3 p-4 h-full items-stretch relative">
+              {/* Left column — 2 stacked cards */}
+              <div className="flex flex-col gap-3">
+                <div className="flex-1">
                   <FeatureNode
-                    icon={Bluetooth}
-                    title={t('ecosystem.pendantTitle')}
-                    description={t('ecosystem.pendantDesc')}
-                    color="blue"
+                    icon={Bot}
+                    title={t('ecosystem.claraTitle')}
+                    description={t('ecosystem.claraDesc')}
+                    color="red"
                     tag={t('ecosystem.legendFeature')}
-                    delay={300}
+                    delay={100}
                   />
+                </div>
+                <div className="flex-1">
+                  <FeatureNode
+                    icon={Sparkles}
+                    title={t('ecosystem.addOnsTitle')}
+                    description={t('ecosystem.addOnsDesc')}
+                    color="amber"
+                    tag={t('ecosystem.legendAddOn')}
+                    delay={200}
+                  >
+                    <AddOnBadges />
+                  </FeatureNode>
                 </div>
               </div>
 
-              {/* Right column */}
-              <div className="flex flex-col gap-4 pt-4">
+              {/* Centre — Member node + connector + Pendant */}
+              <div
+                className="flex flex-col items-center justify-center gap-2 px-3 w-48"
+                style={{ animation: 'eco-fade-up 0.4s ease-out 0ms both' }}
+              >
+                {/* Member circle */}
+                <div className="relative">
+                  <div
+                    className="absolute -inset-3 rounded-full border-2 border-red-500/25 pointer-events-none"
+                    style={{ animation: 'eco-radar 3s ease-out infinite' }}
+                    aria-hidden="true"
+                  />
+                  <div
+                    className="absolute -inset-3 rounded-full border-2 border-red-500/25 pointer-events-none"
+                    style={{ animation: 'eco-radar 3s ease-out 1.5s infinite' }}
+                    aria-hidden="true"
+                  />
+                  <div
+                    className="relative flex h-20 w-20 items-center justify-center rounded-full bg-white border-2 border-red-500"
+                    style={{
+                      animation: 'eco-breathe 3s ease-in-out infinite',
+                      boxShadow: '0 0 30px rgba(239, 68, 68, 0.3)',
+                    }}
+                  >
+                    <User className="h-8 w-8 text-red-500" />
+                  </div>
+                </div>
+
+                <div className="text-center mt-1">
+                  <p className="text-sm font-bold text-white">{t('ecosystem.memberTitle')}</p>
+                  <p className="text-[11px] text-slate-300">{t('ecosystem.memberDesc')}</p>
+                  <p className="text-xs font-bold text-red-400 mt-0.5 font-mono">{t('ecosystem.memberPrice')}</p>
+                </div>
+
+                <Badge className="bg-red-500 text-white border-0 text-[10px] font-medium px-2 py-0">
+                  {t('ecosystem.freeTrialBadge')}
+                </Badge>
+
+                {/* Connector line */}
+                <div className="w-px h-3 bg-slate-600" aria-hidden="true" />
+
+                {/* Pendant card */}
                 <FeatureNode
-                  icon={Users}
-                  title={t('ecosystem.familyTitle')}
-                  description={t('ecosystem.familyDesc')}
-                  color="cyan"
+                  icon={Bluetooth}
+                  title={t('ecosystem.pendantTitle')}
+                  description={t('ecosystem.pendantDesc')}
+                  color="blue"
                   tag={t('ecosystem.legendFeature')}
-                  delay={150}
+                  delay={300}
                 />
-                <FeatureNode
-                  icon={Phone}
-                  title={t('ecosystem.emergencyTitle')}
-                  description={t('ecosystem.emergencyDesc')}
-                  color="orange"
-                  tag={t('ecosystem.legendFeature')}
-                  delay={250}
-                />
+              </div>
+
+              {/* Right column — 2 stacked cards */}
+              <div className="flex flex-col gap-3">
+                <div className="flex-1">
+                  <FeatureNode
+                    icon={Users}
+                    title={t('ecosystem.familyTitle')}
+                    description={t('ecosystem.familyDesc')}
+                    color="cyan"
+                    tag={t('ecosystem.legendFeature')}
+                    delay={150}
+                  />
+                </div>
+                <div className="flex-1">
+                  <FeatureNode
+                    icon={Phone}
+                    title={t('ecosystem.emergencyTitle')}
+                    description={t('ecosystem.emergencyDesc')}
+                    color="orange"
+                    tag={t('ecosystem.legendFeature')}
+                    delay={250}
+                  />
+                </div>
               </div>
             </div>
 
-            {/* ── Tablet 2-col layout ── */}
-            <div className="hidden md:grid md:grid-cols-2 lg:hidden gap-4">
-              <div className="col-span-2 py-4" style={{ animation: 'eco-fade-up 0.5s ease-out 0ms both' }}>
-                <MemberNode
-                  size="md"
-                  title={t('ecosystem.memberTitle')}
-                  desc={t('ecosystem.memberDesc')}
-                  price={t('ecosystem.memberPrice')}
-                  badge={t('ecosystem.freeTrialBadge')}
-                />
+            {/* ── Mobile single-col (scrollable) ── */}
+            <div className="flex flex-col gap-3 p-4 md:hidden overflow-y-auto max-h-full">
+              {/* Member node */}
+              <div className="flex flex-col items-center gap-2 py-3" style={{ animation: 'eco-fade-up 0.4s ease-out 0ms both' }}>
+                <div className="relative">
+                  <div
+                    className="absolute -inset-3 rounded-full border-2 border-red-500/25 pointer-events-none"
+                    style={{ animation: 'eco-radar 3s ease-out infinite' }}
+                    aria-hidden="true"
+                  />
+                  <div
+                    className="flex h-16 w-16 items-center justify-center rounded-full bg-white border-2 border-red-500"
+                    style={{
+                      animation: 'eco-breathe 3s ease-in-out infinite',
+                      boxShadow: '0 0 24px rgba(239, 68, 68, 0.25)',
+                    }}
+                  >
+                    <User className="h-7 w-7 text-red-500" />
+                  </div>
+                </div>
+                <div className="text-center">
+                  <p className="text-sm font-bold text-white">{t('ecosystem.memberTitle')}</p>
+                  <p className="text-xs text-slate-300">{t('ecosystem.memberDesc')}</p>
+                  <p className="text-xs font-bold text-red-400 mt-0.5 font-mono">{t('ecosystem.memberPrice')}</p>
+                </div>
+                <Badge className="bg-red-500 text-white border-0 text-[10px] font-medium px-2 py-0">
+                  {t('ecosystem.freeTrialBadge')}
+                </Badge>
               </div>
-              <FeatureNode icon={Bot} title={t('ecosystem.claraTitle')} description={t('ecosystem.claraDesc')} color="red" tag={t('ecosystem.legendFeature')} delay={100} />
-              <FeatureNode icon={Users} title={t('ecosystem.familyTitle')} description={t('ecosystem.familyDesc')} color="cyan" tag={t('ecosystem.legendFeature')} delay={150} />
-              <FeatureNode icon={Sparkles} title={t('ecosystem.addOnsTitle')} description={t('ecosystem.addOnsDesc')} color="amber" tag={t('ecosystem.legendAddOn')} delay={200}>
-                <AddOnBadges />
-              </FeatureNode>
-              <FeatureNode icon={Phone} title={t('ecosystem.emergencyTitle')} description={t('ecosystem.emergencyDesc')} color="orange" tag={t('ecosystem.legendFeature')} delay={250} />
-              <div className="col-span-2">
-                <FeatureNode icon={Bluetooth} title={t('ecosystem.pendantTitle')} description={t('ecosystem.pendantDesc')} color="blue" tag={t('ecosystem.legendFeature')} delay={300} />
-              </div>
-            </div>
 
-            {/* ── Mobile single-col layout ── */}
-            <div className="flex flex-col gap-4 md:hidden">
-              <div className="py-4" style={{ animation: 'eco-fade-up 0.5s ease-out 0ms both' }}>
-                <MemberNode
-                  size="sm"
-                  title={t('ecosystem.memberTitle')}
-                  desc={t('ecosystem.memberDesc')}
-                  price={t('ecosystem.memberPrice')}
-                  badge={t('ecosystem.freeTrialBadge')}
-                />
-              </div>
               <FeatureNode icon={Bot} title={t('ecosystem.claraTitle')} description={t('ecosystem.claraDesc')} color="red" tag={t('ecosystem.legendFeature')} delay={100} />
               <FeatureNode icon={Users} title={t('ecosystem.familyTitle')} description={t('ecosystem.familyDesc')} color="cyan" tag={t('ecosystem.legendFeature')} delay={150} />
               <FeatureNode icon={Phone} title={t('ecosystem.emergencyTitle')} description={t('ecosystem.emergencyDesc')} color="orange" tag={t('ecosystem.legendFeature')} delay={200} />
@@ -379,75 +339,79 @@ const EcosystemMapModal: React.FC<EcosystemMapModalProps> = ({ trigger }) => {
             </div>
           </div>
 
-          {/* ── CLARA Complete Banner ── */}
-          <div className="mx-6 mb-4 rounded-xl border border-slate-700 border-l-4 border-l-red-500 bg-slate-800/80 p-5 relative overflow-hidden">
-            {/* Shimmer */}
+          {/* ── CLARA Complete Banner (flex-shrink-0) ── */}
+          <div className="flex-shrink-0 mx-4 mb-2 rounded-lg border border-slate-700 border-l-4 border-l-red-500 bg-slate-800/80 py-2.5 px-3 relative overflow-hidden">
             <div
               className="absolute inset-0 pointer-events-none"
               style={{
-                background: 'linear-gradient(90deg, transparent 0%, rgba(239,68,68,0.06) 50%, transparent 100%)',
+                background: 'linear-gradient(90deg, transparent 0%, rgba(239,68,68,0.05) 50%, transparent 100%)',
                 backgroundSize: '200% 100%',
                 animation: 'eco-shimmer 3s linear infinite',
               }}
               aria-hidden="true"
             />
-
-            <div className="relative flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="flex items-center gap-3 text-center sm:text-left">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-red-500/20">
-                  <Sparkles className="h-5 w-5 text-red-400" />
+            <div className="relative flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-red-500/20">
+                  <Sparkles className="h-3.5 w-3.5 text-red-400" />
                 </div>
-                <div>
-                  <span className="text-base font-bold text-white">
-                    {t('ecosystem.claraCompleteTitle')}
-                  </span>
-                  <span className="ml-2 text-sm text-slate-300">
-                    {t('ecosystem.claraCompleteDesc')}
-                  </span>
-                </div>
+                <span className="text-sm font-bold text-white shrink-0">
+                  {t('ecosystem.claraCompleteTitle')}
+                </span>
+                <span className="text-xs text-slate-300 truncate hidden sm:inline">
+                  {t('ecosystem.claraCompleteDesc')}
+                </span>
               </div>
-              <Badge className="bg-red-500 text-white border-0 shrink-0 font-semibold whitespace-nowrap">
+              <Badge className="bg-red-500 text-white border-0 shrink-0 font-semibold text-xs whitespace-nowrap">
                 {t('ecosystem.claraCompletePrice')}
               </Badge>
             </div>
           </div>
 
-          {/* ── Legend ── */}
-          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 px-6 pb-3
-            text-[11px] font-medium uppercase tracking-wider text-slate-300">
-            <div className="flex items-center gap-1.5">
-              <div className="h-2.5 w-2.5 rounded-full bg-red-500" />
-              <span>{t('ecosystem.legendMember')}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="h-2.5 w-2.5 rounded-full bg-cyan-500" />
-              <span>{t('ecosystem.legendFeature')}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="h-2.5 w-2.5 rounded-full bg-amber-500" />
-              <span>{t('ecosystem.legendAddOn')}</span>
-            </div>
-          </div>
+          {/* ── Bottom Row: Legend + CTA (flex-shrink-0, same row) ── */}
+          <div className="flex-shrink-0 px-4 pb-4 pt-2 border-t border-slate-700/60">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+              {/* Legend */}
+              <div className="flex items-center gap-4 text-[10px] font-medium uppercase tracking-wider text-slate-300">
+                <div className="flex items-center gap-1">
+                  <div className="h-2 w-2 rounded-full bg-red-500" />
+                  <span>{t('ecosystem.legendMember')}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="h-2 w-2 rounded-full bg-cyan-500" />
+                  <span>{t('ecosystem.legendFeature')}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="h-2 w-2 rounded-full bg-amber-500" />
+                  <span>{t('ecosystem.legendAddOn')}</span>
+                </div>
+              </div>
 
-          {/* ── CTA ── */}
-          <div className="px-6 pb-6 pt-3 text-center space-y-3 border-t border-slate-700/60">
-            <Button
-              asChild
-              size="lg"
-              className="
-                bg-red-500 text-white hover:bg-red-600
-                rounded-full px-8 font-semibold
-                transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-red-500/25
-                w-full sm:w-auto
-              "
-            >
-              <Link to="/register?trial=true">
-                <Shield className="h-4 w-4 mr-2" />
-                {t('ecosystem.startTrial')}
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </Link>
-            </Button>
-            <p className="text-xs text-slate-400">
+              {/* CTA */}
+              <div className="flex items-center gap-3">
+                <span className="text-[10px] text-slate-400 hidden sm:inline whitespace-nowrap">
+                  {t('ecosystem.noCreditCard')}
+                </span>
+                <Button
+                  asChild
+                  size="sm"
+                  className="
+                    bg-red-500 text-white hover:bg-red-600
+                    rounded-full px-5 h-9 text-sm font-semibold
+                    transition-all duration-300 hover:shadow-lg hover:shadow-red-500/25
+                    whitespace-nowrap
+                  "
+                >
+                  <Link to="/register?trial=true">
+                    <Shield className="h-3.5 w-3.5 mr-1.5" />
+                    {t('ecosystem.startTrial')}
+                    <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+            {/* Mobile-only note */}
+            <p className="text-[10px] text-slate-400 text-center mt-2 sm:hidden">
               {t('ecosystem.noCreditCard')}
             </p>
           </div>
