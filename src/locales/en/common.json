@@ -25,7 +25,7 @@
     "companyDescription": "Emergency response and family safety platform providing peace of mind through advanced protection services.",
     "quickLinks": "Quick Links",
     "blog": "Blog",
-    "safetyProducts": "Safety Products", 
+    "safetyProducts": "Safety Products",
     "regionalServices": "Regional Services",
     "familyCarerAccess": "Family & Carer Access",
     "familyDashboard": "Family Dashboard",
@@ -46,10 +46,56 @@
     "rights": "All rights reserved."
   },
   "admin": {
-    "header": {
-      "title": "Admin Dashboard",
-      "subtitle": "LifeLink Sync Management Portal"
-    }
+    "title": "Admin Dashboard",
+    "subtitle": "LifeLink Sync Management Portal",
+    "overview": "📊 Overview & Analytics",
+    "aiMarketing": "🤖 AI & Marketing Intelligence",
+    "customerManagement": "👥 Customer Management",
+    "aiChatLeads": "💬 AI Chat & Leads",
+    "communicationMarketing": "📧 Communication & Marketing",
+    "liveMapManagement": "🗺️ Live Map Management",
+    "emergencySafety": "🚨 Emergency & Safety",
+    "productServices": "🛍️ Product & Services",
+    "system": "⚙️ System",
+    "dashboard": "Dashboard",
+    "analytics": "Analytics",
+    "videoAnalytics": "Video Analytics",
+    "revenueAnalytics": "Revenue Analytics",
+    "userGrowth": "User Growth",
+    "claraAiAgent": "Clara AI Agent",
+    "rivenMarketingAi": "Riven Marketing AI",
+    "allCustomers": "All Customers",
+    "subscriptions": "Subscriptions",
+    "familyAccounts": "Family Accounts",
+    "leadManagement": "Lead Management",
+    "leadIntelligence": "Lead Intelligence",
+    "conversations": "Conversations",
+    "aiPerformance": "AI Performance",
+    "contactSubmissions": "Contact Submissions",
+    "emailCampaigns": "Email Campaigns",
+    "communicationCenter": "Communication Center",
+    "socialMediaIntegration": "Social Media Integration",
+    "contentAutomation": "Content Automation",
+    "liveMapMonitor": "Live Map Monitor",
+    "circleAnalytics": "Circle Analytics",
+    "geofenceManagement": "Geofence Management",
+    "locationData": "Location Data",
+    "emergencyIncidents": "Emergency Incidents",
+    "safetyMonitoring": "Safety Monitoring",
+    "products": "Products",
+    "regionalServices": "Regional Services",
+    "subscriptionPlans": "Subscription Plans",
+    "flickControl": "Flic Control",
+    "userActivity": "User Activity",
+    "systemSettings": "System Settings",
+    "reports": "Reports",
+    "appTesting": "App Testing",
+    "regionalManagement": "🌍 Regional Management",
+    "regionalManagementDescription": "Centralized control over all regional emergency response operations",
+    "regionalHub": "Regional Hub",
+    "regionalOrganizations": "Organizations",
+    "regionalUsers": "Regional Staff",
+    "regionalAudit": "Audit Log"
   },
   "pricing": {
     "subscribeNow": "Subscribe Now",
@@ -117,7 +163,19 @@
     "claraComplete": {
       "badge": "FREE",
       "description": "Automatically unlocked when you activate both Daily Wellbeing and Medication Reminder. Full CLARA AI experience at no extra cost."
-    }
+    },
+    "individualPlan": "Individual Plan",
+    "monthlyPrice": "€9.99/month",
+    "trialBadge": "7 days free",
+    "noCard": "No credit card required",
+    "familyLink": "Family Link",
+    "familyLinkPrice": "€2.99/month",
+    "familyLinkIncluded": "1 included free",
+    "wellbeingAddon": "Daily Wellbeing",
+    "medicationAddon": "Medication Reminder",
+    "addonPrice": "€2.99/month each",
+    "claraCompleteNote": "Unlocks free when you have both add-ons",
+    "bestValue": "BEST VALUE"
   },
   "hero": {
     "badge": "Device-Free Emergency Protection",
@@ -158,7 +216,7 @@
     "familyDescription": "See exactly where your loved ones are, get instant alerts when they need help, and coordinate care seamlessly across your entire family network.",
     "familyNetwork": "Family Network",
     "familyNetworkDesc": "Connect all family members with secure, role-based access to location and emergency information.",
-    "emergencyAlerts": "Emergency Alerts", 
+    "emergencyAlerts": "Emergency Alerts",
     "emergencyAlertsDesc": "Instant notifications when someone activates SOS, with location data and response coordination.",
     "monitoring247": "24/7 Monitoring",
     "monitoring247Desc": "Professional monitoring and family alerts ensure someone is always watching over your loved ones.",
@@ -167,12 +225,30 @@
     "title": "Complete Emergency Protection Suite",
     "description": "Professional emergency protection with global call center access, Bluetooth device support, and AI monitoring — starting from €4.99/month with worldwide coverage.",
     "items": [
-      { "title": "24/7 Emergency Response", "description": "One-tap SOS activation with instant GPS location sharing to emergency contacts and professional call center." },
-      { "title": "AI Health Monitoring", "description": "Intelligent wellness tracking with Premium Protection plan including AI-powered health insights." },
-      { "title": "Global Call Center Access", "description": "Professional emergency response coordination available 24/7 with multilingual support worldwide." },
-      { "title": "Family Emergency Alerts", "description": "Instant SOS notifications to up to 5 emergency contacts with Family Connection and Premium plans." },
-      { "title": "GPS Location Tracking", "description": "Real-time location sharing during emergencies with precise coordinates sent to responders." },
-      { "title": "Bluetooth Device Support", "description": "Compatible with LifeLink Sync Bluetooth Pendant for hands-free emergency activation up to 100m range." }
+      {
+        "title": "24/7 Emergency Response",
+        "description": "One-tap SOS activation with instant GPS location sharing to emergency contacts and professional call center."
+      },
+      {
+        "title": "AI Health Monitoring",
+        "description": "Intelligent wellness tracking with Premium Protection plan including AI-powered health insights."
+      },
+      {
+        "title": "Global Call Center Access",
+        "description": "Professional emergency response coordination available 24/7 with multilingual support worldwide."
+      },
+      {
+        "title": "Family Emergency Alerts",
+        "description": "Instant SOS notifications to up to 5 emergency contacts with Family Connection and Premium plans."
+      },
+      {
+        "title": "GPS Location Tracking",
+        "description": "Real-time location sharing during emergencies with precise coordinates sent to responders."
+      },
+      {
+        "title": "Bluetooth Device Support",
+        "description": "Compatible with LifeLink Sync Bluetooth Pendant for hands-free emergency activation up to 100m range."
+      }
     ]
   },
   "familyConnections": {
@@ -219,9 +295,18 @@
     "heroDescription": "Advanced AI technology that understands your needs, learns from interactions, and provides instant, intelligent emergency support 24/7.",
     "cta": "Talk to Clara",
     "features": {
-      "intelligentSupport": { "title": "Intelligent Support", "description": "Natural language processing for instant help and emergency assistance" },
-      "learningAI": { "title": "Learning AI", "description": "Gets smarter over time, adapting to your specific needs and preferences" },
-      "instantResponse": { "title": "Instant Response", "description": "Immediate AI-powered assistance available 24/7 in multiple languages" }
+      "intelligentSupport": {
+        "title": "Intelligent Support",
+        "description": "Natural language processing for instant help and emergency assistance"
+      },
+      "learningAI": {
+        "title": "Learning AI",
+        "description": "Gets smarter over time, adapting to your specific needs and preferences"
+      },
+      "instantResponse": {
+        "title": "Instant Response",
+        "description": "Immediate AI-powered assistance available 24/7 in multiple languages"
+      }
     },
     "infoTitle": "Important Information",
     "planFeaturesTitle": "Plan Features:",
@@ -233,23 +318,24 @@
     },
     "cancellationTitle": "Cancellation Policy:",
     "cancellationDescription": "You can cancel your subscription at any time. Your access will continue until the end of your current billing period. Hardware purchases are non-refundable but carry a 1-year warranty.",
-    "welcomeMessage": "\ud83d\udc4b Hi! I'm Clara, your intelligent AI assistant. I'm here to help with emergency setup, family connections, and answer any questions!",
+    "welcomeMessage": "👋 Hi! I'm Clara, your intelligent AI assistant. I'm here to help with emergency setup, family connections, and answer any questions!",
     "smartFeatures": "Smart Features",
     "emergencySetup": "Emergency Setup",
     "familyManagement": "Family Management",
     "support247": "24/7 Support",
     "userQuestion": "How do I set up family members?",
-    "claraResponse": "I'll guide you through adding family members step by step. It's really simple! \ud83d\ude80",
+    "claraResponse": "I'll guide you through adding family members step by step. It's really simple! 🚀",
     "naturalLanguage": "Natural Language",
     "naturalLanguageDesc": "Speaks your language naturally",
     "instantResponseLabel": "Instant Response",
     "instantResponseDesc": "24/7 immediate assistance"
   },
   "appPreview": {
-    "title": "Experience Your Emergency Protection App",
-    "description": "See exactly what you'll get with LifeLink Sync. This interactive preview shows your personal emergency dashboard, one-tap SOS activation, family connections, and Bluetooth device integration.",
-    "loading": "Loading preview...",
-    "note": "This preview demonstrates the actual app interface you'll use for emergency protection."
+    "appName": "LifeLink Sync",
+    "tagline": "Tap once for immediate help",
+    "voiceOff": "Voice OFF",
+    "emergencySOS": "Emergency SOS",
+    "tapForHelp": "Tap for immediate help"
   },
   "dashboardOverview": {
     "welcome": "Welcome back, {{name}}!",
@@ -294,12 +380,47 @@
     }
   },
   "common": {
-    "perMonth": "/month",
-    "buyNow": "Buy now",
-    "howItWorks": "How it works",
+    "watchVideo": "Watch Video",
     "learnMore": "Learn more",
-    "visitor": "Visitor",
-    "comingSoon": "Coming Soon"
+    "getStarted": "Get Started",
+    "buyNow": "Buy Now",
+    "subscribeNow": "Subscribe Now",
+    "comingSoon": "Coming Soon",
+    "oneTime": "One-time",
+    "activeNow": "Active now",
+    "justNow": "Just now",
+    "available247": "Available 24/7",
+    "advanced": "Advanced",
+    "multilingual": "Multilingual",
+    "aiFeatures": "Advanced AI • Multilingual • Available 24/7",
+    "typeMessage": "Type your message...",
+    "viewDevices": "View Smart Devices",
+    "compatible": "Compatible with Alexa, Google Assistant & Apple HomeKit",
+    "smartDeviceIntegration": "Smart Device Integration",
+    "voiceActivatedProtection": "Voice-Activated Emergency Protection",
+    "instantResponse": "Instant Emergency Response",
+    "responseDescription": "Connect your smart devices and emergency contacts for instant, hands-free protection when you need it most",
+    "deviceIntegrationDescription": "Connect your smart speakers, Bluetooth pendant, and mobile devices for comprehensive emergency protection that activates with your voice or a simple button press.",
+    "smartSpeaker": "Smart Speaker Voice Commands",
+    "smartSpeakerDesc": "Say \"help, help, help\" three times on any smart device for instant emergency activation when your hands aren't free.",
+    "bluetoothPendant": "Bluetooth Emergency Pendant",
+    "bluetoothPendantDesc": "Wearable device with one-button emergency activation. Works up to 100 meters from your phone with instant SOS alerts.",
+    "voiceRecognition": "Voice Recognition Technology",
+    "voiceRecognitionDesc": "Advanced AI recognizes distress calls, unusual sounds, or specific trigger words to automatically activate emergency protocols.",
+    "voiceButtonActivation": "Voice/Button Activation",
+    "helpCommand": "\"Help me\" or pendant button press",
+    "locationAlert": "Location & Alert Sent",
+    "gpsShared": "GPS coordinates shared instantly",
+    "emergencyContacts": "Emergency Contacts Called",
+    "familyNotified": "Family, carers & services notified",
+    "professionalResponse": "Professional Response",
+    "monitoringCenter": "24/7 monitoring center activated",
+    "aiDetection": "AI Detection",
+    "responseTime": "Response Time",
+    "successRate": "Success Rate",
+    "monitoring": "Monitoring",
+    "countries": "Countries",
+    "professionalNetwork": "Professional Emergency Response Network"
   },
   "products": {
     "icePendant": {
@@ -334,10 +455,22 @@
   },
   "register": {
     "plans": {
-      "personal": { "name": "Personal Account", "desc": "Individual emergency contact system" },
-      "guardian": { "name": "Guardian Wellness", "desc": "Advanced health monitoring and alerts" },
-      "family": { "name": "Family Sharing", "desc": "Perfect for families with multiple members" },
-      "callcenterES": { "name": "Call Centre Spain", "desc": "24/7 professional emergency response" }
+      "personal": {
+        "name": "Personal Account",
+        "desc": "Individual emergency contact system"
+      },
+      "guardian": {
+        "name": "Guardian Wellness",
+        "desc": "Advanced health monitoring and alerts"
+      },
+      "family": {
+        "name": "Family Sharing",
+        "desc": "Perfect for families with multiple members"
+      },
+      "callcenterES": {
+        "name": "Call Centre Spain",
+        "desc": "24/7 professional emergency response"
+      }
     }
   },
   "regionServices": {
@@ -352,7 +485,7 @@
     "description": "Have questions about LifeLink Sync? Need help with your account? Get in touch with our support team.",
     "form": {
       "name": "Full Name",
-      "email": "Email Address", 
+      "email": "Email Address",
       "subject": "Subject",
       "message": "Message",
       "acceptTerms": "I agree to the Terms of Service and Privacy Policy",
@@ -370,7 +503,7 @@
       "address": "support@lifelink-sync.com"
     },
     "emergency": {
-      "title": "Emergency Hotline", 
+      "title": "Emergency Hotline",
       "description": "Use in-app SOS to dial your regional emergency number."
     },
     "faq": {
@@ -448,58 +581,6 @@
     "confidentialityDesc": "All calls are recorded for safety and training. Personal data is handled according to our Privacy Policy.",
     "noEmergency": "If you are in immediate danger, call 112 (Spain's emergency number)."
   },
-  "admin": {
-    "title": "Admin Dashboard",
-    "subtitle": "LifeLink Sync Management Portal",
-    "overview": "📊 Overview & Analytics",
-    "aiMarketing": "🤖 AI & Marketing Intelligence",
-    "customerManagement": "👥 Customer Management",
-    "aiChatLeads": "💬 AI Chat & Leads",
-    "communicationMarketing": "📧 Communication & Marketing",
-    "liveMapManagement": "🗺️ Live Map Management",
-    "emergencySafety": "🚨 Emergency & Safety",
-    "productServices": "🛍️ Product & Services",
-    "system": "⚙️ System",
-    "dashboard": "Dashboard",
-    "analytics": "Analytics",
-    "videoAnalytics": "Video Analytics",
-    "revenueAnalytics": "Revenue Analytics",
-    "userGrowth": "User Growth",
-    "claraAiAgent": "Clara AI Agent",
-    "rivenMarketingAi": "Riven Marketing AI",
-    "allCustomers": "All Customers",
-    "subscriptions": "Subscriptions",
-    "familyAccounts": "Family Accounts",
-    "leadManagement": "Lead Management",
-    "leadIntelligence": "Lead Intelligence",
-    "conversations": "Conversations",
-    "aiPerformance": "AI Performance",
-    "contactSubmissions": "Contact Submissions",
-    "emailCampaigns": "Email Campaigns",
-    "communicationCenter": "Communication Center",
-    "socialMediaIntegration": "Social Media Integration",
-    "contentAutomation": "Content Automation",
-    "liveMapMonitor": "Live Map Monitor",
-    "circleAnalytics": "Circle Analytics",
-    "geofenceManagement": "Geofence Management",
-    "locationData": "Location Data",
-    "emergencyIncidents": "Emergency Incidents",
-    "safetyMonitoring": "Safety Monitoring",
-    "products": "Products",
-    "regionalServices": "Regional Services",
-    "subscriptionPlans": "Subscription Plans",
-    "flickControl": "Flic Control",
-    "userActivity": "User Activity",
-    "systemSettings": "System Settings",
-    "reports": "Reports",
-    "appTesting": "App Testing",
-    "regionalManagement": "🌍 Regional Management",
-    "regionalManagementDescription": "Centralized control over all regional emergency response operations",
-    "regionalHub": "Regional Hub",
-    "regionalOrganizations": "Organizations",
-    "regionalUsers": "Regional Staff",
-    "regionalAudit": "Audit Log"
-  },
   "dashboard": {
     "title": "Dashboard",
     "loading": "Loading your dashboard...",
@@ -571,15 +652,6 @@
     "home": "Home",
     "loadingDashboard": "Loading your dashboard...",
     "authRequired": "Authentication required. Please log in.",
-    "welcomeBack": "Welcome back, {{name}}",
-    "protectionOverview": "Your protection overview and emergency readiness",
-    "memberFallback": "Member",
-    "activityTitle": "Activity & Testing",
-    "activityDesc": "View recent activity and system status",
-    "mobileAppTitle": "Mobile App",
-    "mobileAppDesc": "Set up and manage your mobile app connection",
-    "subscriptionTitle": "Subscription & Billing",
-    "subscriptionDesc": "Manage your plan, payments, and invoices",
     "pwaInstall": {
       "title": "Install LifeLink Sync",
       "desc": "Add to your home screen for one-tap emergency access",
@@ -773,78 +845,28 @@
     "manage": "Manage",
     "bpm": "BPM"
   },
-  "appPreview": {
-    "appName": "LifeLink Sync",
-    "tagline": "Tap once for immediate help",
-    "voiceOff": "Voice OFF",
-    "emergencySOS": "Emergency SOS",
-    "tapForHelp": "Tap for immediate help"
-  },
-  "common": {
-    "watchVideo": "Watch Video",
-    "learnMore": "Learn more",
-    "getStarted": "Get Started",
-    "buyNow": "Buy Now",
-    "subscribeNow": "Subscribe Now",
-    "comingSoon": "Coming Soon",
-    "oneTime": "One-time",
-    "activeNow": "Active now",
-    "justNow": "Just now",
-    "available247": "Available 24/7",
-    "advanced": "Advanced",
-    "multilingual": "Multilingual",
-    "aiFeatures": "Advanced AI • Multilingual • Available 24/7",
-    "typeMessage": "Type your message...",
-    "viewDevices": "View Smart Devices",
-    "compatible": "Compatible with Alexa, Google Assistant & Apple HomeKit",
-    "smartDeviceIntegration": "Smart Device Integration",
-    "voiceActivatedProtection": "Voice-Activated Emergency Protection",
-    "instantResponse": "Instant Emergency Response",
-    "responseDescription": "Connect your smart devices and emergency contacts for instant, hands-free protection when you need it most",
-    "deviceIntegrationDescription": "Connect your smart speakers, Bluetooth pendant, and mobile devices for comprehensive emergency protection that activates with your voice or a simple button press.",
-    "smartSpeaker": "Smart Speaker Voice Commands",
-    "smartSpeakerDesc": "Say \"help, help, help\" three times on any smart device for instant emergency activation when your hands aren't free.",
-    "bluetoothPendant": "Bluetooth Emergency Pendant",
-    "bluetoothPendantDesc": "Wearable device with one-button emergency activation. Works up to 100 meters from your phone with instant SOS alerts.",
-    "voiceRecognition": "Voice Recognition Technology",
-    "voiceRecognitionDesc": "Advanced AI recognizes distress calls, unusual sounds, or specific trigger words to automatically activate emergency protocols.",
-    "voiceButtonActivation": "Voice/Button Activation",
-    "helpCommand": "\"Help me\" or pendant button press",
-    "locationAlert": "Location & Alert Sent",
-    "gpsShared": "GPS coordinates shared instantly",
-    "emergencyContacts": "Emergency Contacts Called",
-    "familyNotified": "Family, carers & services notified",
-    "professionalResponse": "Professional Response",
-    "monitoringCenter": "24/7 monitoring center activated",
-    "aiDetection": "AI Detection",
-    "responseTime": "Response Time",
-    "successRate": "Success Rate",
-    "monitoring": "Monitoring",
-    "countries": "Countries",
-    "professionalNetwork": "Professional Emergency Response Network"
-  },
   "ecosystem": {
     "triggerButton": "See How It All Connects",
     "title": "How It All Connects",
-    "subtitle": "Your complete protection ecosystem — every feature working together.",
+    "subtitle": "Your complete emergency ecosystem",
     "triggerSectionLabel": "THREE WAYS TO CALL FOR HELP",
     "responseSectionLabel": "WHAT HAPPENS IN THE NEXT 30 SECONDS",
     "ecosystemSectionLabel": "YOUR FULL ECOSYSTEM",
-    "trigger1Title": "App SOS Button",
+    "trigger1Title": "App SOS",
     "trigger1Desc": "One tap in the app",
     "trigger1Badge": "ALWAYS AVAILABLE",
-    "trigger2Title": "Bluetooth Pendant",
+    "trigger2Title": "Pendant",
     "trigger2Desc": "Press button, phone activates",
-    "trigger2Badge": "WITHIN BLUETOOTH RANGE",
-    "trigger3Title": "Voice Activation",
+    "trigger2Badge": "BLUETOOTH RANGE",
+    "trigger3Title": "Voice",
     "trigger3Desc": "\"CLARA, help me\"",
     "trigger3Badge": "HANDS FREE",
-    "step1": "CLARA\nActivates",
-    "step2": "Family\nAlerted",
-    "step3": "GPS\nShared",
-    "step4": "Medical\nProfile Sent",
-    "step5": "Conference\nBridge",
-    "step6": "Instant\nCallback",
+    "step1": "CLARA Activates",
+    "step2": "Family Alerted",
+    "step3": "GPS Shared",
+    "step4": "Medical Profile Sent",
+    "step5": "Conference Bridge",
+    "step6": "Instant Callback",
     "claraTitle": "CLARA AI",
     "claraDesc": "24/7 AI safety companion. Answers every SOS, assesses situations, coordinates your response.",
     "claraBadge": "CORE FEATURE",
@@ -871,7 +893,18 @@
     "legendFamily": "Family",
     "legendEmergency": "Emergency",
     "ctaButton": "Start Free Trial",
-    "noCardNote": "No credit card required · 7 days free"
+    "noCardNote": "No credit card required · 7 days free",
+    "trigger1Sub": "One tap",
+    "trigger2Sub": "Press button",
+    "trigger3Sub": "\"CLARA, help me\"",
+    "claraLabel": "CLARA",
+    "claraSubLabel": "Always watching",
+    "chip1": "CLARA AI",
+    "chip2": "Family Network",
+    "chip3": "Add-Ons",
+    "chip4": "SOS Pendant",
+    "chip5": "Emergency",
+    "trialNote": "7 days free · No card needed"
   },
   "howItWorks": {
     "title": "From SOS to safe — in seconds.",
@@ -989,7 +1022,11 @@
     "addTrustedForBackupShort": "Add trusted contacts for backup",
     "buildNetwork": "Build your emergency network",
     "addForAlerts": "Add family members and trusted contacts for emergency alerts",
-    "getStarted": "Get Started"
+    "getStarted": "Get Started",
+    "members": "members",
+    "member": "member",
+    "contactsPlural": "contacts",
+    "contactSingular": "contact"
   },
   "connections": {
     "inviteLinkCopied": "Invite link copied",
@@ -1118,7 +1155,10 @@
     "profile": "Profile",
     "connectionLabel": "Connection",
     "online": "Online",
-    "offline": "Offline"
+    "offline": "Offline",
+    "myEmergencyLocation": "My Emergency Location",
+    "hereIsMyLocation": "Here is my current location for emergency purposes",
+    "moreNeeded": "{{count}} more needed"
   },
   "liveStatus": {
     "title": "Live Family Status",
@@ -1146,7 +1186,14 @@
     "viewLiveLocations": "View Live Locations",
     "noFamilyMembers": "No family members yet",
     "addFamilyToSee": "Add family members to see their live status",
-    "addFamilyMembers": "Add Family Members"
+    "addFamilyMembers": "Add Family Members",
+    "minutesAgo": "{{count}}m ago",
+    "hoursAgo": "{{count}}h ago",
+    "daysAgo": "{{count}}d ago",
+    "status_online": "Online",
+    "status_recent": "Recent",
+    "status_offline": "Offline",
+    "status_paused": "Paused"
   },
   "familyDashboard": {
     "title": "Family Emergency Dashboard",
@@ -1330,7 +1377,7 @@
     "active": "Active",
     "openLiveMap": "Open Live Map",
     "manageFamily": "Manage Family",
-    "realTimeInfo": "Real-time location sharing \u2022 Privacy protected \u2022 Family only",
+    "realTimeInfo": "Real-time location sharing • Privacy protected • Family only",
     "paused": "Paused",
     "liveMemberStatus": "Live",
     "minutesAgo": "{{count}}m",
@@ -1381,11 +1428,11 @@
     "privacyLiveSos": "Live SOS map + \"Received & On It\" + incident summary",
     "billingSummary": "Billing Summary",
     "ownerPaidSeats": "Owner-paid seats:",
-    "ownerPaidAmount": "{{count}} \u00d7 \u20ac2.99/month",
+    "ownerPaidAmount": "{{count}} × €2.99/month",
     "inviteePaidSeats": "Invitee-paid seats:",
     "inviteePaidAmount": "{{count}} seats (billed separately)",
     "yourTotal": "Your total:",
-    "totalAmount": "\u20ac{{amount}}/month",
+    "totalAmount": "€{{amount}}/month",
     "activeFamilyMembers": "Active Family Members",
     "joined": "Joined {{date}}",
     "youPay": "You pay",
@@ -1394,9 +1441,9 @@
     "expires": "Expires {{date}}",
     "revoke": "Revoke",
     "noFamilyAccessYet": "No Family Access Yet",
-    "noFamilyAccessDesc": "Upgrade emergency contacts to Family Access for \u20ac2.99/month to get live SOS alerts, maps, and \"Received & On It.\"",
+    "noFamilyAccessDesc": "Upgrade emergency contacts to Family Access for €2.99/month to get live SOS alerts, maps, and \"Received & On It.\"",
     "inviteFirstMember": "Invite First Family Member",
-    "upgradeCta": "Upgrade to Family Access for \u20ac2.99/month to get alerts, a live SOS map, and \"Received & On It.\"",
+    "upgradeCta": "Upgrade to Family Access for €2.99/month to get alerts, a live SOS map, and \"Received & On It.\"",
     "addAnotherMember": "Add Another Family Member",
     "inviteRevoked": "Invite Revoked",
     "inviteRevokedDesc": "Family invite has been revoked successfully",
@@ -1414,9 +1461,9 @@
     "enterEmailAddress": "Enter email address",
     "enterPhoneNumberField": "Enter phone number",
     "relationshipPlaceholder": "e.g., Spouse, Parent, Child, Sibling",
-    "whoPays": "Who pays? (\u20ac2.99/month)",
+    "whoPays": "Who pays? (€2.99/month)",
     "youPayOwner": "You pay (Owner-paid)",
-    "perMonth": "\u20ac2.99/month",
+    "perMonth": "€2.99/month",
     "seatBilledOnYours": "Seat is billed on your subscription",
     "theyPayInvitee": "They pay (Invitee-paid)",
     "theyCreateSubscription": "They create their own subscription",
@@ -1957,7 +2004,7 @@
     "carerSeoTitle": "Family Emergency Coordination - Connect Your Loved Ones | LifeLink Sync",
     "carerSeoDescription": "Professional family emergency coordination system. Instant SOS alerts, real-time location sharing during emergencies only. Privacy-first family safety solution.",
     "familyTracker": "Family Tracker",
-    "backToMap": "\u2190 Back to Map",
+    "backToMap": "← Back to Map",
     "liveStatus": "Live Status",
     "activity": "Activity",
     "speed": "Speed",
@@ -2101,7 +2148,7 @@
     "title": "Clara AI Assistant",
     "subtitle": "Live Support Chat",
     "placeholder": "Ask Clara about LifeLink Sync...",
-    "welcomeMessage": "\ud83d\udc4b Hi there! I'm Clara, your LifeLink Sync AI assistant. I'm here to help answer questions about our emergency protection services, features, pricing, and anything else you'd like to know. How can I assist you today?",
+    "welcomeMessage": "👋 Hi there! I'm Clara, your LifeLink Sync AI assistant. I'm here to help answer questions about our emergency protection services, features, pricing, and anything else you'd like to know. How can I assist you today?",
     "fallbackResponse": "I'm sorry, I couldn't process that request. Please try again or use the contact form for more detailed assistance.",
     "connectionError": "Unable to connect to Clara. Please try again or use the contact form.",
     "errorMessage": "I apologize, but I'm having trouble connecting right now. Please try again in a moment, or feel free to use the contact form for assistance.",
@@ -2357,12 +2404,12 @@
     "get7DaysAccess": "Get 7 days of full access to LifeLink Sync protection features.",
     "individualPlan": "Individual Plan",
     "sevenDaysFree": "7 days free",
-    "thenPricePerMonth": "then \u20ac9.99/month",
+    "thenPricePerMonth": "then €9.99/month",
     "activating": "Activating...",
     "startSevenDayTrial": "Start 7-Day Free Trial",
     "createAnAccount": "Create an account",
     "firstToStartTrial": "first to start your trial.",
-    "noPaymentRequired": "No payment required. Cancel anytime. After 7 days, subscribe for \u20ac9.99/month to continue.",
+    "noPaymentRequired": "No payment required. Cancel anytime. After 7 days, subscribe for €9.99/month to continue.",
     "trialFeatureSos": "SOS activation (app)",
     "trialFeatureClara": "Clara AI 24/7",
     "trialFeatureLocation": "Live location sharing",
@@ -2405,7 +2452,7 @@
     },
     "callCentre": {
       "title": "Professional Call Centre Support",
-      "badge": "Spain \u00b7 Regional Partner",
+      "badge": "Spain · Regional Partner",
       "description": "Optional add-on via a trusted Spanish partner. 24/7 staffed professional call centre, separate from the LifeLink Sync app. Available to members based in Spain.",
       "disclaimer": "This service is provided by an independent partner and is available to members based in Spain only. It operates alongside — not as part of — the LifeLink Sync app."
     }
@@ -2447,7 +2494,7 @@
     "failedToRemoveContact": "Failed to remove emergency contact.",
     "callOnly": "Call Only",
     "emergencyContacts": "Emergency Contacts",
-    "contactsCount": "{{count}}/5 contacts \u2022 Sequential calling during SOS",
+    "contactsCount": "{{count}}/5 contacts • Sequential calling during SOS",
     "addContact": "Add Contact",
     "editContact": "Edit Contact",
     "addEmergencyContact": "Add Emergency Contact",
@@ -3011,10 +3058,22 @@
       "paymentConfirmed": "Payment Confirmed",
       "profileComplete": "Profile Complete",
       "nextSteps": {
-        "testSos": { "title": "Test SOS", "desc": "Try your emergency button in safe mode" },
-        "checkCircles": { "title": "Check Circles", "desc": "See your family connections" },
-        "reviewContacts": { "title": "Review Contacts", "desc": "Verify emergency contact details" },
-        "notifications": { "title": "Notifications", "desc": "Configure your alert preferences" }
+        "testSos": {
+          "title": "Test SOS",
+          "desc": "Try your emergency button in safe mode"
+        },
+        "checkCircles": {
+          "title": "Check Circles",
+          "desc": "See your family connections"
+        },
+        "reviewContacts": {
+          "title": "Review Contacts",
+          "desc": "Verify emergency contact details"
+        },
+        "notifications": {
+          "title": "Notifications",
+          "desc": "Configure your alert preferences"
+        }
       },
       "goToDashboard": "Go to Your Dashboard",
       "needHelp": "Need help? Contact us at",

@@ -55,11 +55,11 @@ export const LiveFamilyStatus = () => {
   };
 
   const formatLastSeen = (minutes: number) => {
-    if (minutes < 60) return `${minutes}m ago`;
+    if (minutes < 60) return t('liveStatus.minutesAgo', { count: minutes });
     const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
+    if (hours < 24) return t('liveStatus.hoursAgo', { count: hours });
     const days = Math.floor(hours / 24);
-    return `${days}d ago`;
+    return t('liveStatus.daysAgo', { count: days });
   };
 
   return (
@@ -109,7 +109,7 @@ export const LiveFamilyStatus = () => {
                           variant={mockStatus.status === 'online' ? 'default' : 'secondary'}
                           className="text-xs px-1.5 py-0 h-5"
                         >
-                          {mockStatus.status}
+                          {t(`liveStatus.status_${mockStatus.status}`)}
                         </Badge>
                       </div>
                       <div className="flex items-center gap-3 text-xs text-muted-foreground">

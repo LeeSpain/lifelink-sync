@@ -91,7 +91,7 @@ export const FamilyCircleOverview = () => {
             <div className="flex-1 min-w-0">
               <div className="font-medium text-sm">{t('connections.familyCircle')}</div>
               <div className="text-xs text-muted-foreground">
-                {activeFamily.length} {activeFamily.length !== 1 ? 'members' : 'member'}
+                {activeFamily.length} {activeFamily.length !== 1 ? t('circles.members') : t('circles.member')}
               </div>
             </div>
           </div>
@@ -101,7 +101,7 @@ export const FamilyCircleOverview = () => {
             <div className="flex-1 min-w-0">
               <div className="font-medium text-sm">{t('circles.trustedContacts')}</div>
               <div className="text-xs text-muted-foreground">
-                {activeTrusted.length} {activeTrusted.length !== 1 ? 'contacts' : 'contact'}
+                {activeTrusted.length} {activeTrusted.length !== 1 ? t('circles.contactsPlural') : t('circles.contactSingular')}
               </div>
             </div>
           </div>

@@ -104,8 +104,8 @@ const EmergencyActionsWidget = ({ profile, subscription }: EmergencyActionsWidge
 
           if (navigator.share) {
             navigator.share({
-              title: 'My Emergency Location',
-              text: 'Here is my current location for emergency purposes',
+              title: t('emergencyActions.myEmergencyLocation'),
+              text: t('emergencyActions.hereIsMyLocation'),
               url: mapsUrl
             });
           } else {
@@ -169,7 +169,7 @@ const EmergencyActionsWidget = ({ profile, subscription }: EmergencyActionsWidge
   if (emergencyContactsCount < 3) {
     nextSteps.push({
       title: t('emergencyActions.addEmergencyContacts'),
-      description: `${3 - emergencyContactsCount} more`,
+      description: t('emergencyActions.moreNeeded', { count: 3 - emergencyContactsCount }),
       icon: Phone,
       action: () => navigate('/member-dashboard/connections'),
       priority: "medium"
