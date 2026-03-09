@@ -297,7 +297,7 @@ export default function DashboardOverview() {
           change="+18.5%"
           changeType="increase"
           icon={<Shield className="h-8 w-8 text-purple-500" />}
-          subtext="Premium Protection plans"
+          subtext="Individual Plan subscriptions"
         />
         
         <MetricCard

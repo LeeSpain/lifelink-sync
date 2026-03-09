@@ -6,22 +6,24 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  Phone, 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Check, 
-  X, 
+import {
+  Phone,
+  Plus,
+  Edit,
+  Trash2,
+  Check,
+  X,
   AlertTriangle,
   Users,
   Smartphone,
   PhoneCall,
-  Star
+  Star,
+  Shield
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useEmergencyContacts, type EmergencyContact } from "@/hooks/useEmergencyContacts";
+import { useContactLimit } from "@/hooks/useContactLimit";
 import { useTranslation } from 'react-i18next';
 
 interface EnhancedEmergencyContactsSectionProps {
@@ -32,6 +34,7 @@ interface EnhancedEmergencyContactsSectionProps {
 const EnhancedEmergencyContactsSection = ({ profile, onProfileUpdate }: EnhancedEmergencyContactsSectionProps) => {
   const { t } = useTranslation();
   const { contacts, loading, refetch } = useEmergencyContacts();
+  const { maxContacts, canAddMore, isTrial, remaining, refetchCount } = useContactLimit();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingContact, setEditingContact] = useState<EmergencyContact | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -124,19 +127,21 @@ const EnhancedEmergencyContactsSection = ({ profile, onProfileUpdate }: Enhanced
       }
 
       refetch();
+      refetchCount();
       onProfileUpdate();
       setIsModalOpen(false);
       resetForm();
-      
+
       toast({
         title: t('profileSection.success'),
         description: editingContact ? t('profileSection.contactUpdated') : t('profileSection.contactAdded')
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving contact:', error);
+      const isLimitError = error?.message?.includes('Contact limit reached');
       toast({
-        title: t('profileSection.error'),
-        description: t('profileSection.failedToSaveContact'),
+        title: isLimitError ? t('emergencyContacts.limitReached', { max: maxContacts }) : t('profileSection.error'),
+        description: isLimitError ? t('emergencyContacts.upgradeDesc') : t('profileSection.failedToSaveContact'),
         variant: "destructive"
       });
     } finally {
@@ -154,6 +159,7 @@ const EnhancedEmergencyContactsSection = ({ profile, onProfileUpdate }: Enhanced
       if (error) throw error;
 
       refetch();
+      refetchCount();
       onProfileUpdate();
       toast({
         title: t('profileSection.success'),
@@ -192,22 +198,25 @@ const EnhancedEmergencyContactsSection = ({ profile, onProfileUpdate }: Enhanced
               <Phone className="h-5 w-5 text-red-500" />
             </div>
             <div>
-              <CardTitle className="text-lg">{t('profileSection.emergencyContacts')}</CardTitle>
+              <CardTitle className="text-lg">{t('emergencyContacts.title')}</CardTitle>
               <p className="text-sm text-muted-foreground">
-                {t('profileSection.contactsCount', { count: contacts.length })}
+                {isTrial
+                  ? t('emergencyContacts.trialDesc')
+                  : t('emergencyContacts.paidDesc', { max: maxContacts, remaining })
+                }
               </p>
             </div>
           </div>
           <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
             <DialogTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => openModal()}
-                disabled={contacts.length >= 5}
+                disabled={!canAddMore}
               >
                 <Plus className="h-4 w-4 mr-2" />
-                {t('profileSection.addContact')}
+                {canAddMore ? t('emergencyContacts.addButton') : t('emergencyContacts.limitReached', { max: maxContacts })}
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-md">
@@ -271,7 +280,7 @@ const EnhancedEmergencyContactsSection = ({ profile, onProfileUpdate }: Enhanced
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {[1, 2, 3, 4, 5].map((num) => (
+                      {Array.from({ length: maxContacts }, (_, i) => i + 1).map((num) => (
                         <SelectItem key={num} value={num.toString()}>
                           {num === 1 ? `${num} (${t('profileSection.primary')})` : num.toString()}
                         </SelectItem>
@@ -313,7 +322,10 @@ const EnhancedEmergencyContactsSection = ({ profile, onProfileUpdate }: Enhanced
             <Phone className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
             <h3 className="font-medium mb-2">{t('profileSection.noContactsYet')}</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              {t('profileSection.addUpTo5Contacts')}
+              {isTrial
+                ? t('emergencyContacts.trialLimit')
+                : t('emergencyContacts.paidLimit', { max: maxContacts })
+              }
             </p>
             <Button variant="outline" onClick={() => openModal()}>
               <Plus className="h-4 w-4 mr-2" />
@@ -371,15 +383,32 @@ const EnhancedEmergencyContactsSection = ({ profile, onProfileUpdate }: Enhanced
           </div>
         )}
 
-        {contacts.length >= 5 && (
+        {!canAddMore && !isTrial && (
           <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-orange-600" />
-              <p className="text-sm font-medium text-orange-800">{t('profileSection.maxContactsReached')}</p>
+              <p className="text-sm font-medium text-orange-800">{t('emergencyContacts.limitReached', { max: maxContacts })}</p>
             </div>
-            <p className="text-xs text-orange-700 mt-1">
-              {t('profileSection.maxContactsDescription')}
-            </p>
+          </div>
+        )}
+
+        {isTrial && contacts.length >= 1 && (
+          <div className="mt-4 bg-red-50 border border-red-200 rounded-xl p-4 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <Shield className="h-5 w-5 text-red-500 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-semibold text-slate-900">{t('emergencyContacts.upgradeTitle')}</p>
+                <p className="text-xs text-slate-600 mt-0.5">{t('emergencyContacts.upgradeDesc')}</p>
+              </div>
+            </div>
+            <Button
+              variant="destructive"
+              size="sm"
+              className="flex-shrink-0 rounded-full"
+              onClick={() => window.location.href = '/pricing'}
+            >
+              {t('emergencyContacts.upgradeButton')}
+            </Button>
           </div>
         )}
       </CardContent>

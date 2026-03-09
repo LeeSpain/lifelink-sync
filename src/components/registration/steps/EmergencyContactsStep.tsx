@@ -18,6 +18,7 @@ export interface EmergencyContact {
 interface EmergencyContactsStepProps {
   contacts: EmergencyContact[];
   onChange: (contacts: EmergencyContact[]) => void;
+  isTrial?: boolean;
 }
 
 const CHANNEL_ICONS = [
@@ -30,8 +31,9 @@ const CHANNEL_ICONS = [
 
 const RELATIONSHIP_VALUES = ['spouse', 'parent', 'child', 'sibling', 'grandparent', 'friend', 'neighbor', 'caregiver', 'other'];
 
-const EmergencyContactsStep: React.FC<EmergencyContactsStepProps> = ({ contacts, onChange }) => {
+const EmergencyContactsStep: React.FC<EmergencyContactsStepProps> = ({ contacts, onChange, isTrial = false }) => {
   const { t } = useTranslation();
+  const maxContacts = isTrial ? 1 : 5;
 
   const CHANNEL_OPTIONS = CHANNEL_ICONS.map(({ id, icon }) => ({
     id,
@@ -62,7 +64,7 @@ const EmergencyContactsStep: React.FC<EmergencyContactsStepProps> = ({ contacts,
   };
 
   const addContact = () => {
-    if (contacts.length < 5) {
+    if (contacts.length < maxContacts) {
       onChange([...contacts, { name: '', phone: '', email: '', relationship: '', notifyChannels: ['app'] }]);
     }
   };
@@ -81,7 +83,10 @@ const EmergencyContactsStep: React.FC<EmergencyContactsStepProps> = ({ contacts,
         </div>
         <h2 className="text-2xl font-poppins font-bold text-foreground">{t('registration.contacts.title')}</h2>
         <p className="text-sm text-muted-foreground">
-          {t('registration.contacts.subtitle')}
+          {isTrial
+            ? t('emergencyContacts.trialLimit')
+            : t('emergencyContacts.paidLimit', { max: maxContacts })
+          }
         </p>
       </div>
 
@@ -201,7 +206,7 @@ const EmergencyContactsStep: React.FC<EmergencyContactsStepProps> = ({ contacts,
       </div>
 
       {/* Add Contact Button */}
-      {contacts.length < 5 && (
+      {contacts.length < maxContacts && (
         <Button
           type="button"
           variant="outline"

@@ -291,7 +291,7 @@ const GlobalProtectionPlansPage = () => {
             id="name"
             value={formData.name}
             onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-            placeholder="e.g., Basic Protection"
+            placeholder="e.g., Individual Plan"
           />
         </div>
         <div>

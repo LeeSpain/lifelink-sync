@@ -52,9 +52,8 @@ export default function StripeSetupPage() {
           <CardDescription>
             This will create all your products and services in your new Stripe account:
             <ul className="mt-2 space-y-1">
-              <li>• 2 Subscription Plans (Family Connection €4.99/mo, Premium Protection €4.99/mo)</li>
-              <li>• 1 Regional Service (Call Centre Spain €24.99/mo)</li>
-              <li>• 1 Physical Product (LifeLink Sync Bluetooth Pendant €4.99)</li>
+              <li>• Individual Plan (€9.99/mo) + Add-ons (Wellbeing, Medication, Extra Family Link at €2.99/mo each)</li>
+              <li>• 1 Physical Product (LifeLink Sync Bluetooth Pendant)</li>
             </ul>
           </CardDescription>
         </CardHeader>

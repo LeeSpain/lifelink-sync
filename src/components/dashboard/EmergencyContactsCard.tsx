@@ -3,9 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, Plus, Edit, Trash2, Phone, Smartphone } from "lucide-react";
+import { Users, Plus, Edit, Trash2, Phone, Smartphone, Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useContactLimit } from "@/hooks/useContactLimit";
 
 interface EmergencyContact {
   id: string;
@@ -27,6 +28,7 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
   const [isEditing, setIsEditing] = useState(false);
   const { toast } = useToast();
   const { t } = useTranslation();
+  const { maxContacts, canAddMore, isTrial, remaining, refetchCount } = useContactLimit();
 
   useEffect(() => {
     loadEmergencyContacts();
@@ -61,10 +63,10 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
   };
 
   const addContact = async () => {
-    if (contacts.length >= 5) {
+    if (!canAddMore) {
       toast({
-        title: t('emergencyContactsCard.maxReachedTitle'),
-        description: t('emergencyContactsCard.maxReachedDescription'),
+        title: t('emergencyContacts.limitReached', { max: maxContacts }),
+        description: isTrial ? t('emergencyContacts.upgradeDesc') : t('emergencyContacts.limitReached', { max: maxContacts }),
         variant: "destructive"
       });
       return;
@@ -94,6 +96,7 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
 
       setContacts([...contacts, { ...data, type: data.type as 'call_only' | 'family' }]);
       setIsEditing(true);
+      refetchCount();
       onProfileUpdate();
 
     } catch (error) {
@@ -116,6 +119,7 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
       if (error) throw error;
 
       setContacts(contacts.filter(c => c.id !== contactId));
+      refetchCount();
       onProfileUpdate();
       toast({
         title: t('emergencyContactsCard.removeSuccessTitle'),
@@ -306,24 +310,45 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
               ))}
               
               {isEditing && (
-                <div className="flex gap-2">
-                  {contacts.length < 5 && (
+                <div className="space-y-3">
+                  <div className="flex gap-2">
+                    {canAddMore && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={addContact}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        {t('emergencyContacts.addButton')}
+                      </Button>
+                    )}
                     <Button
-                      variant="outline"
+                      variant="default"
                       size="sm"
-                      onClick={addContact}
+                      onClick={saveContacts}
                     >
-                      <Plus className="h-4 w-4 mr-2" />
-                      {t('emergencyContactsCard.addContact')}
+                      {t('emergencyContactsCard.saveChanges')}
                     </Button>
+                  </div>
+                  {isTrial && contacts.length >= 1 && (
+                    <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <Shield className="h-5 w-5 text-red-500 flex-shrink-0" />
+                        <div>
+                          <p className="text-sm font-semibold text-slate-900">{t('emergencyContacts.upgradeTitle')}</p>
+                          <p className="text-xs text-slate-600 mt-0.5">{t('emergencyContacts.upgradeDesc')}</p>
+                        </div>
+                      </div>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="flex-shrink-0 rounded-full"
+                        onClick={() => window.location.href = '/pricing'}
+                      >
+                        {t('emergencyContacts.upgradeButton')}
+                      </Button>
+                    </div>
                   )}
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={saveContacts}
-                  >
-                    {t('emergencyContactsCard.saveChanges')}
-                  </Button>
                 </div>
               )}
             </>

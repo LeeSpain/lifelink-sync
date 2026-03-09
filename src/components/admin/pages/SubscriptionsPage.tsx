@@ -144,14 +144,12 @@ export default function SubscriptionsPage() {
     }
     
     switch (tier) {
-      case 'basic':
-        return <Badge variant="secondary">Basic</Badge>;
-      case 'premium':
-        return <Badge variant="default">Premium</Badge>;
-      case 'call_centre':
-        return <Badge variant="destructive">Call Centre</Badge>;
+      case 'individual':
+        return <Badge variant="default">Individual Plan</Badge>;
+      case 'trial':
+        return <Badge variant="secondary">Free Trial</Badge>;
       default:
-        return <Badge variant="outline">Unknown</Badge>;
+        return <Badge variant="outline">{tier || 'Unknown'}</Badge>;
     }
   };
 
@@ -316,7 +314,7 @@ export default function SubscriptionsPage() {
           <CardContent>
             <div className="text-2xl font-bold">{activeSubscriptions}</div>
             <p className="text-xs text-muted-foreground">
-              Premium: {stats.premium}, Call Centre: {stats.call_centre}
+              Individual: {stats.premium}, Trial: {stats.call_centre}
             </p>
           </CardContent>
         </Card>
@@ -378,10 +376,9 @@ export default function SubscriptionsPage() {
                 <SelectValue placeholder="Tier" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Tiers</SelectItem>
-                <SelectItem value="basic">Basic</SelectItem>
-                <SelectItem value="premium">Premium</SelectItem>
-                <SelectItem value="call_centre">Call Centre</SelectItem>
+                <SelectItem value="all">All Plans</SelectItem>
+                <SelectItem value="individual">Individual Plan</SelectItem>
+                <SelectItem value="trial">Free Trial</SelectItem>
               </SelectContent>
             </Select>
             <Select value={statusFilter} onValueChange={setStatusFilter}>

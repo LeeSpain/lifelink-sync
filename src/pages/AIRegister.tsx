@@ -133,10 +133,10 @@ const AIRegister = () => {
 
         setDbPlans(formattedPlans);
         
-        // Set Premium Protection as default (fixed standard plan)
-        const defaultPremiumPlan = formattedPlans.find(p => p.name === 'Premium Protection');
-        if (defaultPremiumPlan) {
-          setSelectedMainPlan(defaultPremiumPlan.id);
+        // Set Individual Plan as default (fixed standard plan)
+        const defaultIndividualPlan = formattedPlans.find(p => p.name === 'Individual Plan');
+        if (defaultIndividualPlan) {
+          setSelectedMainPlan(defaultIndividualPlan.id);
         }
 
         // Fetch products
@@ -389,16 +389,16 @@ const AIRegister = () => {
 
   // Helper functions using original data
   console.log('🔍 AIRegister: Finding premium plan from dbPlans:', dbPlans.length, 'plans');
-  const premiumPlan = dbPlans.find(p => p.name === 'Premium Protection');
+  const individualPlan = dbPlans.find(p => p.name === 'Individual Plan');
   const familyPlan = dbPlans.find(p => p.name.includes('Family'));
-  console.log('🔍 AIRegister: Found premiumPlan:', premiumPlan?.name, 'familyPlan:', familyPlan?.name);
+  console.log('🔍 AIRegister: Found individualPlan:', individualPlan?.name, 'familyPlan:', familyPlan?.name);
 
   // Tax rates
   const PRODUCT_IVA_RATE = 0.21; // 21% for products
   const SERVICE_IVA_RATE = 0.10; // 10% for regional services
 
   const calculateSubscriptionTotal = () => {
-    let total = premiumPlan ? premiumPlan.price : 0;
+    let total = individualPlan ? individualPlan.price : 0;
     if (hasFamilyPlan && familyPlan) {
       total += familyPlan.price;
     }
@@ -449,7 +449,7 @@ const AIRegister = () => {
 
   const getSelectedSubscriptionPlans = (): string[] => {
     const planIds: string[] = [];
-    if (premiumPlan) planIds.push(premiumPlan.id);
+    if (individualPlan) planIds.push(individualPlan.id);
     if (hasFamilyPlan && familyPlan) planIds.push(familyPlan.id);
     // Add selected regional services as they are subscription-based
     planIds.push(...selectedRegionalServices);
@@ -620,23 +620,23 @@ const AIRegister = () => {
                       <h2 className="text-xl font-bold text-foreground">Protection Plans</h2>
                     </div>
                     
-                    {/* Premium Protection Plan - Fixed Standard */}
+                    {/* Individual Plan - Fixed Standard */}
                     <div className="space-y-4">
                       <h3 className="font-medium text-foreground">Standard Protection Plan:</h3>
-                      {premiumPlan && (
+                      {individualPlan && (
                         <div className="p-4 border-2 border-primary bg-primary/5 rounded-lg">
                           <div className="flex justify-between items-start">
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-2">
                                 <Shield className="h-5 w-5 text-primary" />
-                                <h3 className="font-semibold text-lg">{premiumPlan.name}</h3>
+                                <h3 className="font-semibold text-lg">{individualPlan.name}</h3>
                                 <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
                                   Standard
                                 </span>
                               </div>
-                              <p className="text-muted-foreground mb-3">{premiumPlan.description}</p>
+                              <p className="text-muted-foreground mb-3">{individualPlan.description}</p>
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                {premiumPlan.features.map((feature, idx) => (
+                                {individualPlan.features.map((feature, idx) => (
                                   <div key={idx} className="flex items-center gap-1 text-sm">
                                     <Check className="h-3 w-3 text-green-500" />
                                     <span>{feature}</span>
@@ -647,12 +647,12 @@ const AIRegister = () => {
                             <div className="text-right ml-4">
                               <div className="space-y-1">
                                 <div className="text-sm text-muted-foreground">
-                                  Net: €{premiumPlan.price}
+                                  Net: €{individualPlan.price}
                                 </div>
                                 <div className="font-bold text-lg text-primary">
-                                  €{premiumPlan.price}
+                                  €{individualPlan.price}
                                 </div>
-                                <div className="text-sm text-muted-foreground">per {premiumPlan.billing_interval}</div>
+                                <div className="text-sm text-muted-foreground">per {individualPlan.billing_interval}</div>
                               </div>
                             </div>
                           </div>
@@ -843,16 +843,16 @@ const AIRegister = () => {
                       <div className="bg-white/95 backdrop-blur-sm rounded-lg p-6 border border-border/30 shadow-sm">
                         <h5 className="font-semibold text-foreground mb-4 text-sm uppercase tracking-wide">Monthly Subscriptions</h5>
                         
-                        {/* Premium Protection Plan */}
+                        {/* Individual Plan */}
                         <div className="space-y-4">
                           <div className="flex justify-between items-start">
                             <div className="flex-1">
-                              <div className="font-medium text-foreground text-base">Premium Protection Plan</div>
+                              <div className="font-medium text-foreground text-base">Individual Plan</div>
                               <div className="text-sm text-muted-foreground mt-1">Standard emergency protection • Monthly subscription</div>
                             </div>
                             <div className="text-right ml-6">
                               <div className="bg-gradient-to-br from-background to-muted/20 rounded-lg p-3 border border-border/50 shadow-sm">
-                                <div className="font-bold text-lg text-foreground">€{premiumPlan?.price || 0}</div>
+                                <div className="font-bold text-lg text-foreground">€{individualPlan?.price || 0}</div>
                                 <div className="text-xs text-muted-foreground mt-1">per month</div>
                               </div>
                             </div>

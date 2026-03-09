@@ -320,6 +320,7 @@ const RegistrationWizard: React.FC = () => {
           <EmergencyContactsStep
             contacts={data.emergencyContacts}
             onChange={(contacts) => handleChange('emergencyContacts', contacts)}
+            isTrial={data.isTrialSelected}
           />
         );
       case 'payment':

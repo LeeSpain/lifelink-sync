@@ -73,10 +73,10 @@ export function CustomerStatsCards({
       gradient: "from-purple-500/20 to-purple-500/5"
     },
     {
-      title: "Call Centre Subscriptions",
+      title: "Add-On Subscriptions",
       value: isLoading ? "..." : (realTimeData?.callCentreSubscriptions || 0).toLocaleString(),
       icon: Shield,
-      trend: "€24.99/month tier",
+      trend: "Wellbeing + Medication add-ons",
       trendUp: true,
       gradient: "from-cyan-500/20 to-cyan-500/5"
     },

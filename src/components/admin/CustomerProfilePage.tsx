@@ -868,9 +868,8 @@ const CustomerProfilePage: React.FC = () => {
                     <SelectValue placeholder="Select tier" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Free">Free</SelectItem>
-                    <SelectItem value="Premium Protection">Premium Protection</SelectItem>
-                    <SelectItem value="Call Centre">Call Centre</SelectItem>
+                    <SelectItem value="Free Trial">Free Trial</SelectItem>
+                    <SelectItem value="Individual Plan">Individual Plan</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

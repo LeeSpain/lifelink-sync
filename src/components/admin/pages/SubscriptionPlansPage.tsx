@@ -274,7 +274,7 @@ export default function SubscriptionPlansPage() {
                     id="plan-name"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="e.g., Premium Protection"
+                    placeholder="e.g., Individual Plan"
                   />
                 </div>
                 <div>
