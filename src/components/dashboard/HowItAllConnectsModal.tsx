@@ -14,8 +14,8 @@ import { Link } from 'react-router-dom';
 
 const modalStyles = `
 @keyframes eco-fadeSlideUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; scale: 0.97; }
+  to { opacity: 1; scale: 1; }
 }
 @keyframes eco-ringPulse {
   0% { transform: scale(1); opacity: 0.6; }
@@ -208,12 +208,13 @@ const HowItAllConnectsModal: React.FC<HowItAllConnectsModalProps> = ({ isOpen, o
       <div
         style={{
           position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+          willChange: 'transform', transformOrigin: 'center center',
           width: '860px', maxWidth: '92vw', height: 'auto', maxHeight: '88vh', minHeight: '560px',
           zIndex: 9999, backgroundColor: '#ffffff', borderRadius: '20px',
           border: '1px solid rgba(0,0,0,0.08)',
           boxShadow: '0 0 0 1px rgba(0,0,0,0.04), 0 8px 16px rgba(0,0,0,0.06), 0 24px 48px rgba(0,0,0,0.10), 0 48px 80px rgba(0,0,0,0.08)',
           display: 'flex', flexDirection: 'column', overflow: 'hidden',
-          animation: 'eco-fadeSlideUp 300ms cubic-bezier(0.16,1,0.3,1)',
+          animation: 'eco-fadeSlideUp 250ms ease-out forwards',
         }}
         onClick={(e) => e.stopPropagation()}
       >
