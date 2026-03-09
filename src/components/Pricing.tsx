@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Check, Shield, Users, Heart, Pill, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import { usePricing } from "@/hooks/usePricing";
 
 interface AddOnProps {
   name: string;
@@ -45,6 +46,7 @@ const AddOnCard: React.FC<AddOnProps> = ({ name, price, description, features, i
 
 const Pricing: React.FC = () => {
   const { t } = useTranslation();
+  const { prices, formatPrice } = usePricing();
 
   const basePlanFeatures = [
     t('pricing.basePlan.feature1'),
@@ -58,7 +60,7 @@ const Pricing: React.FC = () => {
   const addOns: AddOnProps[] = [
     {
       name: t('pricing.addOns.familyLink.name'),
-      price: t('pricing.addOns.price', '€2.99'),
+      price: formatPrice(prices.family_link_monthly),
       description: t('pricing.addOns.familyLink.description'),
       features: [
         t('pricing.addOns.familyLink.feature1'),
@@ -70,7 +72,7 @@ const Pricing: React.FC = () => {
     },
     {
       name: t('pricing.addOns.dailyWellbeing.name'),
-      price: t('pricing.addOns.price', '€2.99'),
+      price: formatPrice(prices.addon_daily_wellbeing),
       description: t('pricing.addOns.dailyWellbeing.description'),
       features: [
         t('pricing.addOns.dailyWellbeing.feature1'),
@@ -81,7 +83,7 @@ const Pricing: React.FC = () => {
     },
     {
       name: t('pricing.addOns.medicationReminder.name'),
-      price: t('pricing.addOns.price', '€2.99'),
+      price: formatPrice(prices.addon_medication_reminder),
       description: t('pricing.addOns.medicationReminder.description'),
       features: [
         t('pricing.addOns.medicationReminder.feature1'),
@@ -112,7 +114,7 @@ const Pricing: React.FC = () => {
             </Badge>
             <h3 className="text-2xl font-bold mb-2 text-white">{t('pricing.basePlan.name')}</h3>
             <div className="flex items-baseline gap-1 mb-4">
-              <span className="text-2xl font-bold text-primary">{t('pricing.basePlan.price')}</span>
+              <span className="text-2xl font-bold text-primary">{formatPrice(prices.individual_monthly)}</span>
               <span className="text-sm text-white/60">{t('pricing.perMonth')}</span>
             </div>
             <p className="text-sm text-white/70 mb-6">

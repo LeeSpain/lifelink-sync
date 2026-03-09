@@ -3,6 +3,7 @@ import { Users, Heart, Shield, Wifi, AlertTriangle, User, Clock, Baby, UserCircl
 import { Badge } from "@/components/ui/badge";
 import { BackgroundMap } from "./BackgroundMap";
 import { useTranslation } from 'react-i18next';
+import { usePricing } from '@/hooks/usePricing';
 
 // Testimonial Carousel Component
 const TestimonialCarousel: React.FC = () => {
@@ -161,6 +162,7 @@ const TestimonialCarousel: React.FC = () => {
 
 export const FamilyCircleSection: React.FC = () => {
   const { t } = useTranslation();
+  const { prices, formatPrice } = usePricing();
 
   return (
     <section className="py-section bg-gradient-to-br from-background to-muted/50 relative overflow-hidden">
@@ -775,7 +777,7 @@ export const FamilyCircleSection: React.FC = () => {
 
               <div className="space-y-6">
                 <div className="text-center">
-                  <div className="text-4xl font-bold text-primary mb-2">€2.99</div>
+                  <div className="text-4xl font-bold text-primary mb-2">{formatPrice(prices.family_link_monthly)}</div>
                   <div className="text-lg text-muted-foreground mb-4">{t('familyCarer.circle.perMonthPerConnection')}</div>
                   <div className="bg-white/60 rounded-lg p-4 border border-primary/10">
                     <p className="text-sm text-muted-foreground leading-relaxed">

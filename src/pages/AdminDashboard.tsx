@@ -53,6 +53,7 @@ import GoLivePreparationPage from '@/components/admin/pages/GoLivePreparationPag
 import TransferToCare from '@/pages/admin/TransferToCare';
 import AddonManagementPage from '@/components/admin/pages/AddonManagementPage';
 import TrialManagementPage from '@/components/admin/pages/TrialManagementPage';
+import PricingEditorPage from '@/components/admin/pages/PricingEditorPage';
 
 const AdminDashboard: React.FC = () => {
   useScrollToTop();
@@ -114,6 +115,7 @@ const AdminDashboard: React.FC = () => {
         <Route path="transfer-to-care" element={<TransferToCare />} />
         <Route path="addon-management" element={<AddonManagementPage />} />
         <Route path="trial-management" element={<TrialManagementPage />} />
+        <Route path="pricing" element={<PricingEditorPage />} />
         <Route path="*" element={<Navigate to="/admin-dashboard" replace />} />
       </Route>
     </Routes>

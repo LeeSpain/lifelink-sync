@@ -20,6 +20,7 @@ import { notifyPaymentSuccess } from '@/utils/paymentSuccess';
 
 import { PageSEO } from '@/components/PageSEO';
 import { isValidEmail, isValidPhone, validatePasswordStrength } from '@/utils/security';
+import { usePricing } from '@/hooks/usePricing';
 
 
 interface Plan {
@@ -67,6 +68,7 @@ interface PersonalDetails {
 
 const AIRegister = () => {
   const navigate = useNavigate();
+  const { prices, formatPrice } = usePricing();
   const [personalDetails, setPersonalDetails] = useState<PersonalDetails>({
     firstName: '',
     lastName: '',
@@ -677,7 +679,7 @@ const AIRegister = () => {
                             <h4 className="font-semibold text-foreground mb-2">Family Membership Payment</h4>
                             <p className="text-sm text-muted-foreground">
                               Once your account is set up, you can invite family members to join your emergency network. 
-                              Each family member connection costs <span className="font-medium text-foreground">€2.99 per month</span> and 
+                              Each family member connection costs <span className="font-medium text-foreground">{formatPrice(prices.family_link_monthly)} per month</span> and 
                               will be billed separately after they accept your invitation and set up their account.
                             </p>
                           </div>

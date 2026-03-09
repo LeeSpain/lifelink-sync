@@ -8,15 +8,16 @@ import { useTranslation } from 'react-i18next';
 import { IntroVideoModal } from '@/components/IntroVideoModal';
 import { usePreferences } from '@/contexts/PreferencesContext';
 import { convertCurrency, formatDisplayCurrency, languageToLocale } from '@/utils/currency';
+import { usePricing } from '@/hooks/usePricing';
 import familyCarerImage from '@/assets/family-carer-support.jpg';
 
 const FamilyCarerAccess = () => {
   const { t } = useTranslation();
   const { currency, language } = usePreferences();
-  
-  // Family pricing from subscription plans
-  const basePriceEUR = 2.99;
-  const convertedPrice = convertCurrency(basePriceEUR, 'EUR', currency);
+  const { prices } = usePricing();
+
+  // Family pricing from pricing_config
+  const convertedPrice = convertCurrency(prices.family_link_monthly, 'EUR', currency);
   const formattedPrice = formatDisplayCurrency(convertedPrice, currency, languageToLocale(language));
   const billingInterval = t('common.perMonth');
 

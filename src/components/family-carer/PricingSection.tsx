@@ -7,13 +7,15 @@ import { Link } from "react-router-dom";
 import { usePreferences } from '@/contexts/PreferencesContext';
 import { convertCurrency, formatDisplayCurrency, languageToLocale } from '@/utils/currency';
 import { useTranslation } from 'react-i18next';
+import { usePricing } from '@/hooks/usePricing';
 
 export const PricingSection = () => {
   const { currency, language } = usePreferences();
   const { t } = useTranslation();
+  const { prices } = usePricing();
 
-  const memberPlanPrice = convertCurrency(9.99, 'EUR', currency);
-  const familySeatPrice = convertCurrency(2.99, 'EUR', currency);
+  const memberPlanPrice = convertCurrency(prices.individual_monthly, 'EUR', currency);
+  const familySeatPrice = convertCurrency(prices.family_link_monthly, 'EUR', currency);
   const formattedMemberPrice = formatDisplayCurrency(memberPlanPrice, currency, languageToLocale(language));
   const formattedSeatPrice = formatDisplayCurrency(familySeatPrice, currency, languageToLocale(language));
 

@@ -13,10 +13,12 @@ import { supabase } from "@/integrations/supabase/client";
 import OptimizedImage from "@/components/ui/optimized-image";
 import { getImageSizes, generateBlurPlaceholder } from "@/utils/imageOptimization";
 import { useClaraChat } from "@/contexts/ClaraChatContext";
+import { usePricing } from "@/hooks/usePricing";
 
 const DeviceIceSosPendant = () => {
   const { t } = useTranslation();
   const { openClaraChat } = useClaraChat();
+  const { prices, formatPrice } = usePricing();
   const [comingSoon, setComingSoon] = useState(false);
   const title = t('devices.icePendant.seoTitle', { defaultValue: 'LifeLink Sync Bluetooth Pendant – LifeLink Sync' });
   const description = t('devices.icePendant.metaDescription', { defaultValue: 'Hands-free emergency pendant with Bluetooth, waterproof design, and 7-day battery. Works with LifeLink Sync app.' });
@@ -32,10 +34,10 @@ const DeviceIceSosPendant = () => {
     offers: {
       "@type": "Offer",
       priceCurrency: "EUR",
-      price: "64.98",
+      price: String((prices.pendant_price + 4.99).toFixed(2)),
       availability: "https://schema.org/InStock",
       url: canonical,
-      description: "LifeLink Sync Bluetooth Pendant €59.99 + €4.99 shipping"
+      description: `LifeLink Sync Bluetooth Pendant ${formatPrice(prices.pendant_price)} + €4.99 shipping`
     }
   };
 
@@ -348,7 +350,7 @@ const DeviceIceSosPendant = () => {
                 </div>
                 <CardContent className="p-8">
                   <div className="text-center mb-6">
-                    <div className="text-5xl font-bold font-poppins text-primary mb-1">€59.99</div>
+                    <div className="text-5xl font-bold font-poppins text-primary mb-1">{formatPrice(prices.pendant_price)}</div>
                     <div className="text-gray-500 font-inter">+ €4.99 shipping</div>
                     <div className="text-xs text-gray-400 mt-1">One-time purchase</div>
                   </div>
@@ -507,7 +509,7 @@ const DeviceIceSosPendant = () => {
                 { q: "What wearing options are included?", a: "Complete package includes: adjustable lanyard for daily wear, secure carabiner clip for bags & belts, and comfortable sport wristbands in white and black. All attachments are tested for security and comfort." },
                 { q: "Which smartphones and smart homes are compatible?", a: "Universal compatibility: iOS 12+ and Android 8+. Bluetooth 5.0 LE pendant works with LifeLink Sync app. Amazon Alexa and Google Home integrations are coming soon." },
                 { q: "What's the range and connection reliability?", a: "The pendant connects via Bluetooth to your phone, which must have the LifeLink app installed. Typical range is 10-30 metres depending on environment. Automatic reconnection when back in range with missed alert notifications." },
-                { q: "How much does the pendant cost?", a: "Device: €59.99 + €4.99 shipping. No monthly fees for basic emergency contacts. Optional professional monitoring services available." },
+                { q: "How much does the pendant cost?", a: `Device: ${formatPrice(prices.pendant_price)} + €4.99 shipping. No monthly fees for basic emergency contacts. Optional professional monitoring services available.` },
                 { q: "What privacy and security measures are in place?", a: "End-to-end encryption for all data. GDPR compliant with zero data sharing. Full control over who receives alerts and when." },
                 { q: "Is international travel supported?", a: "Global coverage with local emergency service integration in 50+ countries. Automatic regional compliance and language support." },
                 { q: "What warranty and support is provided?", a: "2-year full warranty covering device, battery, and accessories. 24/7 technical support. Free replacement for manufacturing defects." },
@@ -549,7 +551,7 @@ const DeviceIceSosPendant = () => {
                     >
                       <Link to="/register">
                         <Shield className="h-5 w-5 mr-2" />
-                        Order Now — €59.99
+                        Order Now — {formatPrice(prices.pendant_price)}
                       </Link>
                     </Button>
                     <Button

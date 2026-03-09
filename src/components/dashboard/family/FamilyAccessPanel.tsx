@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from 'react-i18next';
 import { Users, Plus, Settings, Euro, Shield } from "lucide-react";
 import FamilyInviteModal from "./FamilyInviteModal";
+import { usePricing } from "@/hooks/usePricing";
 
 interface FamilyGroup {
   id: string;
@@ -43,6 +44,7 @@ const FamilyAccessPanel = () => {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const { toast } = useToast();
   const { t } = useTranslation();
+  const { prices } = usePricing();
 
   const loadFamilyData = async () => {
     try {
@@ -265,7 +267,7 @@ const FamilyAccessPanel = () => {
                   </div>
                   <div className="border-t pt-1 flex justify-between font-medium">
                     <span>{t('familyDashboard.yourTotal')}</span>
-                    <span>{t('familyDashboard.totalAmount', { amount: (familyGroup.owner_seat_quota * 2.99).toFixed(2) })}</span>
+                    <span>{t('familyDashboard.totalAmount', { amount: (familyGroup.owner_seat_quota * prices.family_link_monthly).toFixed(2) })}</span>
                   </div>
                 </div>
               </div>
