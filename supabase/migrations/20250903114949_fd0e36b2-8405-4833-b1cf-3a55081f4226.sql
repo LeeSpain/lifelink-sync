@@ -1,6 +1,7 @@
 -- Create RLS policies for all regional tables
 
 -- ORGANIZATIONS policies
+DROP POLICY IF EXISTS "Admins can manage all organizations" ON public.organizations;
 CREATE POLICY "Admins can manage all organizations"
 ON public.organizations
 FOR ALL
@@ -8,6 +9,7 @@ TO authenticated
 USING (is_admin())
 WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "Regional users can view their organization" ON public.organizations;
 CREATE POLICY "Regional users can view their organization"
 ON public.organizations
 FOR SELECT
@@ -19,6 +21,7 @@ USING (EXISTS (
 ));
 
 -- ORGANIZATION_USERS policies
+DROP POLICY IF EXISTS "Admins can manage all organization users" ON public.organization_users;
 CREATE POLICY "Admins can manage all organization users"
 ON public.organization_users
 FOR ALL
@@ -26,6 +29,7 @@ TO authenticated
 USING (is_admin())
 WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "Users can view their own organization membership" ON public.organization_users;
 CREATE POLICY "Users can view their own organization membership"
 ON public.organization_users
 FOR SELECT
@@ -33,6 +37,7 @@ TO authenticated
 USING (auth.uid() = user_id);
 
 -- REGIONAL_EMERGENCY_CONTACTS policies
+DROP POLICY IF EXISTS "Users can manage their own regional emergency contacts" ON public.regional_emergency_contacts;
 CREATE POLICY "Users can manage their own regional emergency contacts"
 ON public.regional_emergency_contacts
 FOR ALL
@@ -40,6 +45,7 @@ TO authenticated
 USING (auth.uid() = client_id)
 WITH CHECK (auth.uid() = client_id);
 
+DROP POLICY IF EXISTS "Regional operators can view contacts for their org clients" ON public.regional_emergency_contacts;
 CREATE POLICY "Regional operators can view contacts for their org clients"
 ON public.regional_emergency_contacts
 FOR SELECT
@@ -54,6 +60,7 @@ USING (EXISTS (
 ));
 
 -- REGIONAL_DEVICES policies
+DROP POLICY IF EXISTS "Users can manage their own devices" ON public.regional_devices;
 CREATE POLICY "Users can manage their own devices"
 ON public.regional_devices
 FOR ALL
@@ -61,6 +68,7 @@ TO authenticated
 USING (auth.uid() = client_id)
 WITH CHECK (auth.uid() = client_id);
 
+DROP POLICY IF EXISTS "Regional operators can view devices for their org clients" ON public.regional_devices;
 CREATE POLICY "Regional operators can view devices for their org clients"
 ON public.regional_devices
 FOR SELECT
@@ -75,12 +83,14 @@ USING (EXISTS (
 ));
 
 -- REGIONAL_SOS_EVENTS policies
+DROP POLICY IF EXISTS "Users can view their own SOS events" ON public.regional_sos_events;
 CREATE POLICY "Users can view their own SOS events"
 ON public.regional_sos_events
 FOR SELECT
 TO authenticated
 USING (auth.uid() = client_id);
 
+DROP POLICY IF EXISTS "Regional operators can manage events for their org" ON public.regional_sos_events;
 CREATE POLICY "Regional operators can manage events for their org"
 ON public.regional_sos_events
 FOR ALL
@@ -98,6 +108,7 @@ WITH CHECK (EXISTS (
   AND ou.role IN ('regional_operator', 'regional_supervisor')
 ));
 
+DROP POLICY IF EXISTS "Admins can manage all SOS events" ON public.regional_sos_events;
 CREATE POLICY "Admins can manage all SOS events"
 ON public.regional_sos_events
 FOR ALL
@@ -106,6 +117,7 @@ USING (is_admin())
 WITH CHECK (is_admin());
 
 -- SOS_ACTIONS policies
+DROP POLICY IF EXISTS "Regional operators can manage actions for their events" ON public.sos_actions;
 CREATE POLICY "Regional operators can manage actions for their events"
 ON public.sos_actions
 FOR ALL
@@ -126,6 +138,7 @@ WITH CHECK (EXISTS (
 ));
 
 -- FAMILY_NOTIFICATIONS policies
+DROP POLICY IF EXISTS "Regional operators can insert family notifications" ON public.family_notifications;
 CREATE POLICY "Regional operators can insert family notifications"
 ON public.family_notifications
 FOR INSERT
@@ -138,6 +151,7 @@ WITH CHECK (EXISTS (
   AND ou.role IN ('regional_operator', 'regional_supervisor')
 ));
 
+DROP POLICY IF EXISTS "Family can read their notifications" ON public.family_notifications;
 CREATE POLICY "Family can read their notifications"
 ON public.family_notifications
 FOR SELECT
@@ -145,12 +159,14 @@ TO authenticated
 USING (auth.uid() = client_id);
 
 -- REGIONAL_AUDIT_LOG policies
+DROP POLICY IF EXISTS "Admins can view all audit logs" ON public.regional_audit_log;
 CREATE POLICY "Admins can view all audit logs"
 ON public.regional_audit_log
 FOR SELECT
 TO authenticated
 USING (is_admin());
 
+DROP POLICY IF EXISTS "Regional supervisors can view their org audit logs" ON public.regional_audit_log;
 CREATE POLICY "Regional supervisors can view their org audit logs"
 ON public.regional_audit_log
 FOR SELECT

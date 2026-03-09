@@ -23,12 +23,14 @@ CREATE TABLE IF NOT EXISTS public.social_media_oauth (
 ALTER TABLE public.social_media_oauth ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for social media OAuth
+DROP POLICY IF EXISTS "Admin can manage all social media OAuth" ON public.social_media_oauth;
 CREATE POLICY "Admin can manage all social media OAuth" 
 ON public.social_media_oauth 
 FOR ALL 
 USING (EXISTS (SELECT 1 FROM public.profiles WHERE user_id = auth.uid() AND role = 'admin'))
 WITH CHECK (EXISTS (SELECT 1 FROM public.profiles WHERE user_id = auth.uid() AND role = 'admin'));
 
+DROP POLICY IF EXISTS "Users can manage their own social media OAuth" ON public.social_media_oauth;
 CREATE POLICY "Users can manage their own social media OAuth" 
 ON public.social_media_oauth 
 FOR ALL 
@@ -55,6 +57,7 @@ CREATE TABLE IF NOT EXISTS public.content_generation_requests (
 ALTER TABLE public.content_generation_requests ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for content generation requests
+DROP POLICY IF EXISTS "Admin can manage all content generation requests" ON public.content_generation_requests;
 CREATE POLICY "Admin can manage all content generation requests" 
 ON public.content_generation_requests 
 FOR ALL 
@@ -83,6 +86,7 @@ CREATE TABLE IF NOT EXISTS public.social_media_posting_queue (
 ALTER TABLE public.social_media_posting_queue ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for social media posting queue
+DROP POLICY IF EXISTS "Admin can manage social media posting queue" ON public.social_media_posting_queue;
 CREATE POLICY "Admin can manage social media posting queue" 
 ON public.social_media_posting_queue 
 FOR ALL 
@@ -105,11 +109,13 @@ CREATE TABLE IF NOT EXISTS public.social_media_engagement (
 ALTER TABLE public.social_media_engagement ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for engagement tracking
+DROP POLICY IF EXISTS "Admin can view all engagement data" ON public.social_media_engagement;
 CREATE POLICY "Admin can view all engagement data" 
 ON public.social_media_engagement 
 FOR SELECT 
 USING (EXISTS (SELECT 1 FROM public.profiles WHERE user_id = auth.uid() AND role = 'admin'));
 
+DROP POLICY IF EXISTS "System can insert engagement data" ON public.social_media_engagement;
 CREATE POLICY "System can insert engagement data" 
 ON public.social_media_engagement 
 FOR INSERT 
@@ -125,16 +131,19 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Add triggers
+DROP TRIGGER IF EXISTS update_social_media_oauth_updated_at ON public.social_media_oauth;
 CREATE TRIGGER update_social_media_oauth_updated_at
   BEFORE UPDATE ON public.social_media_oauth
   FOR EACH ROW
   EXECUTE FUNCTION public.update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_content_generation_requests_updated_at ON public.content_generation_requests;
 CREATE TRIGGER update_content_generation_requests_updated_at
   BEFORE UPDATE ON public.content_generation_requests
   FOR EACH ROW
   EXECUTE FUNCTION public.update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_social_media_posting_queue_updated_at ON public.social_media_posting_queue;
 CREATE TRIGGER update_social_media_posting_queue_updated_at
   BEFORE UPDATE ON public.social_media_posting_queue
   FOR EACH ROW

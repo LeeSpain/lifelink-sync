@@ -104,44 +104,54 @@ ALTER TABLE public.emergency_escalation_log ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.emergency_test_results ENABLE ROW LEVEL SECURITY;
 
 -- Create RLS policies (admin only for monitoring data)
+DROP POLICY IF EXISTS "Admins can manage system health checks" ON public.system_health_checks;
 CREATE POLICY "Admins can manage system health checks" ON public.system_health_checks
 FOR ALL USING (is_admin()) WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "Admins can manage performance metrics" ON public.performance_metrics;
 CREATE POLICY "Admins can manage performance metrics" ON public.performance_metrics
 FOR ALL USING (is_admin()) WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "Admins can manage error tracking" ON public.error_tracking;
 CREATE POLICY "Admins can manage error tracking" ON public.error_tracking
 FOR ALL USING (is_admin()) WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "Admins can manage usage metrics" ON public.usage_metrics;
 CREATE POLICY "Admins can manage usage metrics" ON public.usage_metrics
 FOR ALL USING (is_admin()) WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "Admins can manage emergency service requests" ON public.emergency_service_requests;
 CREATE POLICY "Admins can manage emergency service requests" ON public.emergency_service_requests
 FOR ALL USING (is_admin()) WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "System can insert emergency service requests" ON public.emergency_service_requests;
 CREATE POLICY "System can insert emergency service requests" ON public.emergency_service_requests
 FOR INSERT WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Admins can manage emergency escalation log" ON public.emergency_escalation_log;
 CREATE POLICY "Admins can manage emergency escalation log" ON public.emergency_escalation_log
 FOR ALL USING (is_admin()) WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "System can insert emergency escalation log" ON public.emergency_escalation_log;
 CREATE POLICY "System can insert emergency escalation log" ON public.emergency_escalation_log
 FOR INSERT WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Admins can manage emergency test results" ON public.emergency_test_results;
 CREATE POLICY "Admins can manage emergency test results" ON public.emergency_test_results
 FOR ALL USING (is_admin()) WITH CHECK (is_admin());
 
 -- Create indexes for performance
-CREATE INDEX idx_system_health_checks_timestamp ON public.system_health_checks(check_timestamp);
-CREATE INDEX idx_performance_metrics_timestamp ON public.performance_metrics(test_timestamp);
-CREATE INDEX idx_error_tracking_timestamp ON public.error_tracking(error_timestamp);
-CREATE INDEX idx_usage_metrics_date ON public.usage_metrics(date);
-CREATE INDEX idx_emergency_requests_event_id ON public.emergency_service_requests(event_id);
-CREATE INDEX idx_emergency_requests_status ON public.emergency_service_requests(status);
-CREATE INDEX idx_emergency_escalation_event_id ON public.emergency_escalation_log(event_id);
-CREATE INDEX idx_emergency_test_results_timestamp ON public.emergency_test_results(test_timestamp);
+CREATE INDEX IF NOT EXISTS idx_system_health_checks_timestamp ON public.system_health_checks(check_timestamp);
+CREATE INDEX IF NOT EXISTS idx_performance_metrics_timestamp ON public.performance_metrics(test_timestamp);
+CREATE INDEX IF NOT EXISTS idx_error_tracking_timestamp ON public.error_tracking(error_timestamp);
+CREATE INDEX IF NOT EXISTS idx_usage_metrics_date ON public.usage_metrics(date);
+CREATE INDEX IF NOT EXISTS idx_emergency_requests_event_id ON public.emergency_service_requests(event_id);
+CREATE INDEX IF NOT EXISTS idx_emergency_requests_status ON public.emergency_service_requests(status);
+CREATE INDEX IF NOT EXISTS idx_emergency_escalation_event_id ON public.emergency_escalation_log(event_id);
+CREATE INDEX IF NOT EXISTS idx_emergency_test_results_timestamp ON public.emergency_test_results(test_timestamp);
 
 -- Add updated_at trigger for emergency_service_requests
+DROP TRIGGER IF EXISTS update_emergency_service_requests_updated_at ON public.emergency_service_requests;
 CREATE TRIGGER update_emergency_service_requests_updated_at
 BEFORE UPDATE ON public.emergency_service_requests
 FOR EACH ROW

@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS public.subscription_history (
 ALTER TABLE public.subscription_history ENABLE ROW LEVEL SECURITY;
 
 -- Admin can view all subscription history
+DROP POLICY IF EXISTS "admin_view_subscription_history" ON public.subscription_history;
 CREATE POLICY "admin_view_subscription_history" 
 ON public.subscription_history 
 FOR SELECT 
@@ -24,6 +25,7 @@ TO authenticated
 USING (is_admin());
 
 -- System can insert subscription history
+DROP POLICY IF EXISTS "system_insert_subscription_history" ON public.subscription_history;
 CREATE POLICY "system_insert_subscription_history" 
 ON public.subscription_history 
 FOR INSERT 
@@ -31,5 +33,5 @@ TO authenticated
 WITH CHECK (true);
 
 -- Create index for faster queries
-CREATE INDEX idx_subscription_history_user_id ON public.subscription_history(user_id);
-CREATE INDEX idx_subscription_history_created_at ON public.subscription_history(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_subscription_history_user_id ON public.subscription_history(user_id);
+CREATE INDEX IF NOT EXISTS idx_subscription_history_created_at ON public.subscription_history(created_at DESC);

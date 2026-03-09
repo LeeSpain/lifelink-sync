@@ -42,17 +42,18 @@ CREATE TABLE IF NOT EXISTS public.conference_participants (
 );
 
 -- Indexes for performance
-CREATE INDEX idx_conferences_incident ON public.emergency_conferences(incident_id);
-CREATE INDEX idx_conferences_status ON public.emergency_conferences(status);
-CREATE INDEX idx_conferences_started ON public.emergency_conferences(started_at DESC);
-CREATE INDEX idx_participants_conference ON public.conference_participants(conference_id);
-CREATE INDEX idx_participants_status ON public.conference_participants(status);
+CREATE INDEX IF NOT EXISTS idx_conferences_incident ON public.emergency_conferences(incident_id);
+CREATE INDEX IF NOT EXISTS idx_conferences_status ON public.emergency_conferences(status);
+CREATE INDEX IF NOT EXISTS idx_conferences_started ON public.emergency_conferences(started_at DESC);
+CREATE INDEX IF NOT EXISTS idx_participants_conference ON public.conference_participants(conference_id);
+CREATE INDEX IF NOT EXISTS idx_participants_status ON public.conference_participants(status);
 
 -- Enable RLS
 ALTER TABLE public.emergency_conferences ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.conference_participants ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies
+DROP POLICY IF EXISTS "Users can view their own conferences" ON public.emergency_conferences;
 CREATE POLICY "Users can view their own conferences"
 ON public.emergency_conferences FOR SELECT
 USING (
@@ -61,11 +62,13 @@ USING (
   )
 );
 
+DROP POLICY IF EXISTS "Service role can manage conferences" ON public.emergency_conferences;
 CREATE POLICY "Service role can manage conferences"
 ON public.emergency_conferences FOR ALL
 USING (true)
 WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Users can view participants in their conferences" ON public.conference_participants;
 CREATE POLICY "Users can view participants in their conferences"
 ON public.conference_participants FOR SELECT
 USING (
@@ -77,6 +80,7 @@ USING (
   )
 );
 
+DROP POLICY IF EXISTS "Service role can manage participants" ON public.conference_participants;
 CREATE POLICY "Service role can manage participants"
 ON public.conference_participants FOR ALL
 USING (true)
@@ -91,10 +95,12 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_conference_timestamp ON public.emergency_conferences;
 CREATE TRIGGER update_conference_timestamp
 BEFORE UPDATE ON public.emergency_conferences
 FOR EACH ROW EXECUTE FUNCTION update_conference_timestamp();
 
+DROP TRIGGER IF EXISTS update_participant_timestamp ON public.conference_participants;
 CREATE TRIGGER update_participant_timestamp
 BEFORE UPDATE ON public.conference_participants
 FOR EACH ROW EXECUTE FUNCTION update_conference_timestamp();

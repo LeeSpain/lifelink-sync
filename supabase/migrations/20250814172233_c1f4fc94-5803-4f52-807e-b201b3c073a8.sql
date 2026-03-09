@@ -32,7 +32,7 @@ AS $$
            count(*) AS total_messages,
            avg((EXTRACT(epoch FROM (uc.updated_at - uc.created_at)) / 60::numeric)) AS avg_response_time,
            avg((EXTRACT(epoch FROM (uc.updated_at - uc.created_at)) / 60::numeric)) AS avg_resolution_time
-    FROM unified_conversations uc
+    FROM public.unified_conversations uc
     WHERE uc.channel = 'email'::text
     GROUP BY date(uc.created_at)
     
@@ -44,11 +44,11 @@ AS $$
            count(*) AS total_messages,
            avg((EXTRACT(epoch FROM (uc.updated_at - uc.created_at)) / 60::numeric)) AS avg_response_time,
            avg((EXTRACT(epoch FROM (uc.updated_at - uc.created_at)) / 60::numeric)) AS avg_resolution_time
-    FROM unified_conversations uc
+    FROM public.unified_conversations uc
     WHERE uc.channel = 'whatsapp'::text
     GROUP BY date(uc.created_at)
   ) d
-  WHERE is_admin() = true;
+  WHERE public.is_admin() = true;
 $$;
 
 CREATE OR REPLACE FUNCTION public.check_admin_setup_allowed()

@@ -1,22 +1,27 @@
--- Add quality tracking columns to existing tables
-ALTER TABLE generated_content 
-ADD COLUMN IF NOT EXISTS quality_score INTEGER,
-ADD COLUMN IF NOT EXISTS validation_passed BOOLEAN DEFAULT false,
-ADD COLUMN IF NOT EXISTS quality_issues JSONB,
-ADD COLUMN IF NOT EXISTS seo_score INTEGER,
-ADD COLUMN IF NOT EXISTS readability_score INTEGER,
-ADD COLUMN IF NOT EXISTS engagement_score INTEGER;
+-- Add quality tracking columns to existing tables (if they exist)
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_catalog.pg_tables WHERE schemaname = 'public' AND tablename = 'generated_content') THEN
+    ALTER TABLE generated_content
+    ADD COLUMN IF NOT EXISTS quality_score INTEGER,
+    ADD COLUMN IF NOT EXISTS validation_passed BOOLEAN DEFAULT false,
+    ADD COLUMN IF NOT EXISTS quality_issues JSONB,
+    ADD COLUMN IF NOT EXISTS seo_score INTEGER,
+    ADD COLUMN IF NOT EXISTS readability_score INTEGER,
+    ADD COLUMN IF NOT EXISTS engagement_score INTEGER;
+  END IF;
 
--- Add processing time tracking to publishing queue
-ALTER TABLE publishing_queue 
-ADD COLUMN IF NOT EXISTS processing_time_ms INTEGER,
-ADD COLUMN IF NOT EXISTS quality_check_passed BOOLEAN DEFAULT false,
-ADD COLUMN IF NOT EXISTS quality_issues JSONB;
+  IF EXISTS (SELECT 1 FROM pg_catalog.pg_tables WHERE schemaname = 'public' AND tablename = 'publishing_queue') THEN
+    ALTER TABLE publishing_queue
+    ADD COLUMN IF NOT EXISTS processing_time_ms INTEGER,
+    ADD COLUMN IF NOT EXISTS quality_check_passed BOOLEAN DEFAULT false,
+    ADD COLUMN IF NOT EXISTS quality_issues JSONB;
+  END IF;
+END$$;
 
 -- Create quality metrics table for historical tracking
 CREATE TABLE IF NOT EXISTS quality_metrics (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
-  content_id UUID REFERENCES generated_content(id),
   platform TEXT,
   quality_score INTEGER NOT NULL,
   seo_score INTEGER,
@@ -28,17 +33,26 @@ CREATE TABLE IF NOT EXISTS quality_metrics (
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
+-- Add content_id column referencing generated_content if that table exists
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_catalog.pg_tables WHERE schemaname = 'public' AND tablename = 'generated_content') THEN
+    ALTER TABLE quality_metrics ADD COLUMN IF NOT EXISTS content_id UUID REFERENCES generated_content(id);
+  END IF;
+END$$;
+
 -- Enable RLS on quality metrics
 ALTER TABLE quality_metrics ENABLE ROW LEVEL SECURITY;
 
 -- Create RLS policies for quality metrics
-CREATE POLICY "Admin users can manage quality metrics" 
-ON quality_metrics 
+DROP POLICY IF EXISTS "Admin users can manage quality metrics" ON quality_metrics;
+CREATE POLICY "Admin users can manage quality metrics"
+ON quality_metrics
 FOR ALL
 USING (
   EXISTS (
-    SELECT 1 FROM profiles 
-    WHERE profiles.user_id = auth.uid() 
+    SELECT 1 FROM profiles
+    WHERE profiles.user_id = auth.uid()
     AND profiles.role = 'admin'
   )
 );
@@ -59,19 +73,24 @@ CREATE TABLE IF NOT EXISTS automated_test_results (
 ALTER TABLE automated_test_results ENABLE ROW LEVEL SECURITY;
 
 -- Create RLS policies for test results
-CREATE POLICY "Admin users can manage test results" 
-ON automated_test_results 
+DROP POLICY IF EXISTS "Admin users can manage test results" ON automated_test_results;
+CREATE POLICY "Admin users can manage test results"
+ON automated_test_results
 FOR ALL
 USING (
   EXISTS (
-    SELECT 1 FROM profiles 
-    WHERE profiles.user_id = auth.uid() 
+    SELECT 1 FROM profiles
+    WHERE profiles.user_id = auth.uid()
     AND profiles.role = 'admin'
   )
 );
 
 -- Create indexes for better performance
-CREATE INDEX IF NOT EXISTS idx_quality_metrics_content_id ON quality_metrics(content_id);
+DO $$
+BEGIN
+  CREATE INDEX IF NOT EXISTS idx_quality_metrics_content_id ON quality_metrics(content_id);
+EXCEPTION WHEN undefined_column THEN NULL;
+END$$;
 CREATE INDEX IF NOT EXISTS idx_quality_metrics_created_at ON quality_metrics(created_at);
 CREATE INDEX IF NOT EXISTS idx_test_results_created_at ON automated_test_results(created_at);
 CREATE INDEX IF NOT EXISTS idx_test_results_suite ON automated_test_results(test_suite);
@@ -86,6 +105,7 @@ END;
 $$ LANGUAGE plpgsql SET search_path = public;
 
 -- Create trigger for quality metrics updates
+DROP TRIGGER IF EXISTS update_quality_metrics_timestamp ON quality_metrics;
 CREATE TRIGGER update_quality_metrics_timestamp
 BEFORE UPDATE ON quality_metrics
 FOR EACH ROW

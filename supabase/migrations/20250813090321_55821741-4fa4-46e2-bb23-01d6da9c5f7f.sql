@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS public.whatsapp_accounts (
 ALTER TABLE public.whatsapp_accounts ENABLE ROW LEVEL SECURITY;
 
 -- Create admin-only policy for WhatsApp accounts
+DROP POLICY IF EXISTS "Admin can manage whatsapp accounts" ON public.whatsapp_accounts;
 CREATE POLICY "Admin can manage whatsapp accounts" 
 ON public.whatsapp_accounts 
 FOR ALL 
@@ -59,6 +60,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_track_gmail_token_refresh ON public.gmail_tokens;
 CREATE TRIGGER trigger_track_gmail_token_refresh
     BEFORE UPDATE ON public.gmail_tokens
     FOR EACH ROW
@@ -81,12 +83,14 @@ CREATE TABLE IF NOT EXISTS public.security_audit_log (
 ALTER TABLE public.security_audit_log ENABLE ROW LEVEL SECURITY;
 
 -- Admin can view all audit logs
+DROP POLICY IF EXISTS "Admin can view security audit logs" ON public.security_audit_log;
 CREATE POLICY "Admin can view security audit logs" 
 ON public.security_audit_log 
 FOR SELECT 
 USING (is_admin());
 
 -- System can insert audit logs
+DROP POLICY IF EXISTS "System can insert security audit logs" ON public.security_audit_log;
 CREATE POLICY "System can insert security audit logs" 
 ON public.security_audit_log 
 FOR INSERT 
@@ -109,6 +113,7 @@ CREATE TABLE IF NOT EXISTS public.rate_limits (
 ALTER TABLE public.rate_limits ENABLE ROW LEVEL SECURITY;
 
 -- Admin can manage rate limits
+DROP POLICY IF EXISTS "Admin can manage rate limits" ON public.rate_limits;
 CREATE POLICY "Admin can manage rate limits" 
 ON public.rate_limits 
 FOR ALL 
@@ -116,6 +121,7 @@ USING (is_admin())
 WITH CHECK (is_admin());
 
 -- System can manage rate limits for enforcement
+DROP POLICY IF EXISTS "System can manage rate limits" ON public.rate_limits;
 CREATE POLICY "System can manage rate limits" 
 ON public.rate_limits 
 FOR ALL 
@@ -129,11 +135,13 @@ CREATE INDEX IF NOT EXISTS idx_rate_limits_identifier_action ON public.rate_limi
 CREATE INDEX IF NOT EXISTS idx_gmail_tokens_expires_at ON public.gmail_tokens(expires_at);
 
 -- 8. Update triggers for audit logging
+DROP TRIGGER IF EXISTS update_whatsapp_accounts_updated_at ON public.whatsapp_accounts;
 CREATE TRIGGER update_whatsapp_accounts_updated_at
     BEFORE UPDATE ON public.whatsapp_accounts
     FOR EACH ROW
     EXECUTE FUNCTION public.update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_rate_limits_updated_at ON public.rate_limits;
 CREATE TRIGGER update_rate_limits_updated_at
     BEFORE UPDATE ON public.rate_limits
     FOR EACH ROW
@@ -143,4 +151,9 @@ CREATE TRIGGER update_rate_limits_updated_at
 COMMENT ON TABLE public.whatsapp_accounts IS 'WhatsApp Business API accounts with encrypted credentials - admin access only';
 COMMENT ON TABLE public.security_audit_log IS 'Security audit trail for sensitive operations';
 COMMENT ON TABLE public.rate_limits IS 'Rate limiting for security-sensitive operations';
-COMMENT ON COLUMN public.whatsapp_accounts.encrypted_credentials IS 'Encrypted WhatsApp Business API credentials - never store in plaintext';
+-- Only add comment if column exists
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='whatsapp_accounts' AND column_name='encrypted_credentials') THEN
+    COMMENT ON COLUMN public.whatsapp_accounts.encrypted_credentials IS 'Encrypted WhatsApp Business API credentials - never store in plaintext';
+  END IF;
+END $$;

@@ -28,12 +28,14 @@ ALTER TABLE public.phone_verifications ENABLE ROW LEVEL SECURITY;
 -- Drop any existing permissive policies on phone_verifications
 DROP POLICY IF EXISTS "Users can access phone verifications" ON public.phone_verifications;
 
+DROP POLICY IF EXISTS "Users can manage their own phone verifications" ON public.phone_verifications;
 CREATE POLICY "Users can manage their own phone verifications" 
 ON public.phone_verifications 
 FOR ALL 
 USING (auth.uid() = user_id)
 WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Admins can manage all phone verifications" ON public.phone_verifications;
 CREATE POLICY "Admins can manage all phone verifications" 
 ON public.phone_verifications 
 FOR ALL 
@@ -53,12 +55,14 @@ CREATE TABLE IF NOT EXISTS public.registration_selections (
 
 ALTER TABLE public.registration_selections ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can manage their own registration selections" ON public.registration_selections;
 CREATE POLICY "Users can manage their own registration selections" 
 ON public.registration_selections 
 FOR ALL 
 USING (auth.uid() = user_id)
 WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Admins can manage all registration selections" ON public.registration_selections;
 CREATE POLICY "Admins can manage all registration selections" 
 ON public.registration_selections 
 FOR ALL 

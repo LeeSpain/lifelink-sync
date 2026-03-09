@@ -62,6 +62,7 @@ ON public.video_analytics
 FOR INSERT
 WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Admin can view video analytics" ON public.video_analytics;
 CREATE POLICY "Admin can view video analytics"
 ON public.video_analytics
 FOR SELECT
@@ -77,6 +78,7 @@ FOR ALL
 USING (auth.uid() = user_id)
 WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Admin can view all selections" ON public.registration_selections;
 CREATE POLICY "Admin can view all selections"
 ON public.registration_selections
 FOR SELECT
@@ -92,6 +94,7 @@ FOR ALL
 USING (is_admin())
 WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "Sales can view leads" ON public.leads;
 CREATE POLICY "Sales can view leads"
 ON public.leads
 FOR SELECT
@@ -106,11 +109,13 @@ ON public.contact_submissions
 FOR INSERT
 WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Admin can view contact submissions" ON public.contact_submissions;
 CREATE POLICY "Admin can view contact submissions"
 ON public.contact_submissions
 FOR SELECT
 USING (is_admin());
 
+DROP POLICY IF EXISTS "Admin can manage contact submissions" ON public.contact_submissions;
 CREATE POLICY "Admin can manage contact submissions"
 ON public.contact_submissions
 FOR ALL

@@ -8,6 +8,7 @@ BEGIN
     DROP POLICY IF EXISTS "Family members can view their group" ON family_groups;
     
     -- Create safer RLS policies for family_groups
+    DROP POLICY IF EXISTS "Family group owners can manage their groups" ON family_groups;
     CREATE POLICY "Family group owners can manage their groups" 
     ON family_groups 
     FOR ALL 
@@ -22,6 +23,7 @@ BEGIN
         FOR SELECT 
         USING (user_id = auth.uid());
         
+        DROP POLICY IF EXISTS "Group owners can manage memberships" ON family_memberships;
         CREATE POLICY "Group owners can manage memberships" 
         ON family_memberships 
         FOR ALL 
@@ -35,21 +37,24 @@ BEGIN
     END IF;
     
     -- Ensure products table has proper RLS for user access
-    CREATE POLICY IF NOT EXISTS "Users can view active products" 
-    ON products 
-    FOR SELECT 
+    DROP POLICY IF EXISTS "Users can view active products" ON products;
+    CREATE POLICY "Users can view active products"
+    ON products
+    FOR SELECT
     USING (status = 'active');
-    
+
     -- Ensure regional_services has proper RLS
-    CREATE POLICY IF NOT EXISTS "Users can view active regional services" 
-    ON regional_services 
-    FOR SELECT 
+    DROP POLICY IF EXISTS "Users can view active regional services" ON regional_services;
+    CREATE POLICY "Users can view active regional services"
+    ON regional_services
+    FOR SELECT
     USING (is_active = true);
-    
-    -- Ensure subscription_plans has proper RLS  
-    CREATE POLICY IF NOT EXISTS "Users can view active subscription plans" 
-    ON subscription_plans 
-    FOR SELECT 
+
+    -- Ensure subscription_plans has proper RLS
+    DROP POLICY IF EXISTS "Users can view active subscription plans" ON subscription_plans;
+    CREATE POLICY "Users can view active subscription plans"
+    ON subscription_plans
+    FOR SELECT
     USING (is_active = true);
 
 EXCEPTION WHEN OTHERS THEN

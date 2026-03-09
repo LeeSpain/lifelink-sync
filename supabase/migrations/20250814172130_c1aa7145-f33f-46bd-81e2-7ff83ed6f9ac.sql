@@ -112,6 +112,7 @@ END;
 $$;
 
 -- Add rate limiting to contact submissions
+DROP POLICY IF EXISTS "Rate limited contact submissions" ON public.contact_submissions;
 CREATE POLICY "Rate limited contact submissions" 
 ON public.contact_submissions 
 FOR INSERT 

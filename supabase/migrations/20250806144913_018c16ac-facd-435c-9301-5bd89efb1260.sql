@@ -1,7 +1,4 @@
--- Create missing profile for existing user
-INSERT INTO public.profiles (user_id, role, profile_completion_percentage, created_at, updated_at)
-VALUES ('eab6ab5a-9e1c-48ae-8f71-9a4cba8fbd15', 'user', 0, now(), now())
-ON CONFLICT (user_id) DO NOTHING;
+-- Skip old user profile creation (old project user, not in new database)
 
 -- Create a trigger to automatically create profiles for new users
 CREATE OR REPLACE FUNCTION public.handle_new_user()

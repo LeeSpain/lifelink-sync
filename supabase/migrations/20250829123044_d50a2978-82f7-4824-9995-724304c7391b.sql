@@ -12,6 +12,7 @@ DROP POLICY IF EXISTS "Users manage own phone verifications (update)" ON public.
 
 -- Secure phone verifications: only service role can read, only edge functions can create
 -- (Verification codes should NEVER be readable by client-side code)
+DROP POLICY IF EXISTS "Service role can manage phone verifications" ON public.phone_verifications;
 CREATE POLICY "Service role can manage phone verifications"
 ON public.phone_verifications
 FOR ALL

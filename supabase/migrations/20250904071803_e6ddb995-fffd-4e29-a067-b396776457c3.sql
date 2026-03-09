@@ -1,6 +1,15 @@
 -- Enable realtime for regional emergency tables
-ALTER PUBLICATION supabase_realtime ADD TABLE regional_sos_events;
-ALTER PUBLICATION supabase_realtime ADD TABLE family_notifications;
+DO $$
+BEGIN
+  BEGIN
+    ALTER PUBLICATION supabase_realtime ADD TABLE regional_sos_events;
+  EXCEPTION WHEN duplicate_object THEN NULL;
+  END;
+  BEGIN
+    ALTER PUBLICATION supabase_realtime ADD TABLE family_notifications;
+  EXCEPTION WHEN duplicate_object THEN NULL;
+  END;
+END$$;
 
 -- Set REPLICA IDENTITY FULL for real-time updates
 ALTER TABLE regional_sos_events REPLICA IDENTITY FULL;

@@ -9,6 +9,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- Create trigger to automatically anonymize IPs on insert
+DROP TRIGGER IF EXISTS anonymize_video_analytics_ip_trigger ON public.video_analytics;
 CREATE TRIGGER anonymize_video_analytics_ip_trigger
   BEFORE INSERT ON public.video_analytics
   FOR EACH ROW

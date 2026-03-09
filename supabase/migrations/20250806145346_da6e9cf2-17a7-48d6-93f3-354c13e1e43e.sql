@@ -3,6 +3,7 @@
 DROP POLICY IF EXISTS "Users can update their own profile" ON public.profiles;
 
 -- Create new policies that exclude role updates for regular users
+DROP POLICY IF EXISTS "Users can update their own profile except role" ON public.profiles;
 CREATE POLICY "Users can update their own profile except role" 
 ON public.profiles 
 FOR UPDATE 

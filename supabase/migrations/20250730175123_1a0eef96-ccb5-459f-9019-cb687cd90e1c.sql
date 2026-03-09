@@ -34,6 +34,7 @@ FOR UPDATE
 USING (inviter_user_id = auth.uid());
 
 -- Create trigger for automatic timestamp updates
+DROP TRIGGER IF EXISTS update_family_invites_updated_at ON public.family_invites;
 CREATE TRIGGER update_family_invites_updated_at
 BEFORE UPDATE ON public.family_invites
 FOR EACH ROW

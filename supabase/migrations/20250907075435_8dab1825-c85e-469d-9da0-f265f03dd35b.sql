@@ -18,7 +18,7 @@ INSERT INTO public.subscription_plans (
   1.00,
   'EUR', 
   'month',
-  ARRAY['Test emergency features', 'Basic support', 'Development testing only'],
+  '["Test emergency features", "Basic support", "Development testing only"]'::jsonb,
   true,
   false,
   0,

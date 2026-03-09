@@ -16,6 +16,7 @@ DROP POLICY IF EXISTS "Users can create own phone verifications" ON public.phone
 DROP POLICY IF EXISTS "Service role can read phone verifications" ON public.phone_verifications;
 
 -- Ensure a strict service-role-only policy exists for all actions
+DROP POLICY IF EXISTS "Service role can manage phone verifications" ON public.phone_verifications;
 CREATE POLICY "Service role can manage phone verifications"
 ON public.phone_verifications
 FOR ALL

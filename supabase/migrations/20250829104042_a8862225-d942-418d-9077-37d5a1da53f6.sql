@@ -65,6 +65,7 @@ DROP POLICY IF EXISTS "Family members can view their group" ON public.family_gro
 DROP POLICY IF EXISTS "Users can manage their own family groups" ON public.family_groups;
 
 -- Create new RLS policies using security definer functions for family_groups
+DROP POLICY IF EXISTS "Family group owners can manage their groups" ON public.family_groups;
 CREATE POLICY "Family group owners can manage their groups"
 ON public.family_groups
 FOR ALL
@@ -72,6 +73,7 @@ TO authenticated
 USING (owner_user_id = auth.uid())
 WITH CHECK (owner_user_id = auth.uid());
 
+DROP POLICY IF EXISTS "Family members can view groups they belong to" ON public.family_groups;
 CREATE POLICY "Family members can view groups they belong to"
 ON public.family_groups
 FOR SELECT
@@ -84,6 +86,7 @@ DROP POLICY IF EXISTS "Family members can view memberships" ON public.family_mem
 DROP POLICY IF EXISTS "Users can view their own memberships" ON public.family_memberships;
 
 -- Create new RLS policies using security definer functions for family_memberships
+DROP POLICY IF EXISTS "Family group owners can manage memberships in their groups" ON public.family_memberships;
 CREATE POLICY "Family group owners can manage memberships in their groups"
 ON public.family_memberships
 FOR ALL
@@ -91,12 +94,14 @@ TO authenticated
 USING (public.is_family_group_owner(group_id))
 WITH CHECK (public.is_family_group_owner(group_id));
 
+DROP POLICY IF EXISTS "Family members can view their own membership" ON public.family_memberships;
 CREATE POLICY "Family members can view their own membership"
 ON public.family_memberships
 FOR SELECT
 TO authenticated
 USING (user_id = auth.uid());
 
+DROP POLICY IF EXISTS "Family members can view other memberships in their group" ON public.family_memberships;
 CREATE POLICY "Family members can view other memberships in their group"
 ON public.family_memberships
 FOR SELECT

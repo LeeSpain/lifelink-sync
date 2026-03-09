@@ -162,19 +162,19 @@ CREATE TABLE IF NOT EXISTS public.callback_analytics (
 );
 
 -- Indexes for performance
-CREATE INDEX idx_callback_requests_status ON public.callback_requests(status);
-CREATE INDEX idx_callback_requests_created ON public.callback_requests(created_at DESC);
-CREATE INDEX idx_callback_requests_assigned ON public.callback_requests(assigned_to, status);
-CREATE INDEX idx_callback_requests_phone ON public.callback_requests(contact_phone);
+CREATE INDEX IF NOT EXISTS idx_callback_requests_status ON public.callback_requests(status);
+CREATE INDEX IF NOT EXISTS idx_callback_requests_created ON public.callback_requests(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_callback_requests_assigned ON public.callback_requests(assigned_to, status);
+CREATE INDEX IF NOT EXISTS idx_callback_requests_phone ON public.callback_requests(contact_phone);
 
-CREATE INDEX idx_callback_queue_status ON public.callback_queue(status);
-CREATE INDEX idx_callback_queue_priority ON public.callback_queue(priority DESC, created_at);
-CREATE INDEX idx_callback_queue_assigned ON public.callback_queue(assigned_to);
+CREATE INDEX IF NOT EXISTS idx_callback_queue_status ON public.callback_queue(status);
+CREATE INDEX IF NOT EXISTS idx_callback_queue_priority ON public.callback_queue(priority DESC, created_at);
+CREATE INDEX IF NOT EXISTS idx_callback_queue_assigned ON public.callback_queue(assigned_to);
 
-CREATE INDEX idx_sales_rep_status ON public.sales_rep_availability(status);
-CREATE INDEX idx_sales_rep_user ON public.sales_rep_availability(user_id);
+CREATE INDEX IF NOT EXISTS idx_sales_rep_status ON public.sales_rep_availability(status);
+CREATE INDEX IF NOT EXISTS idx_sales_rep_user ON public.sales_rep_availability(user_id);
 
-CREATE INDEX idx_callback_analytics_date ON public.callback_analytics(date DESC);
+CREATE INDEX IF NOT EXISTS idx_callback_analytics_date ON public.callback_analytics(date DESC);
 
 -- Enable RLS
 ALTER TABLE public.callback_requests ENABLE ROW LEVEL SECURITY;
@@ -185,10 +185,12 @@ ALTER TABLE public.callback_analytics ENABLE ROW LEVEL SECURITY;
 -- RLS Policies
 
 -- Callback requests
+DROP POLICY IF EXISTS "Users can view their own callback requests" ON public.callback_requests;
 CREATE POLICY "Users can view their own callback requests"
 ON public.callback_requests FOR SELECT
 USING (user_id = auth.uid() OR contact_email = auth.email());
 
+DROP POLICY IF EXISTS "Sales reps can view assigned callbacks" ON public.callback_requests;
 CREATE POLICY "Sales reps can view assigned callbacks"
 ON public.callback_requests FOR SELECT
 USING (assigned_to = auth.uid() OR EXISTS (
@@ -197,12 +199,14 @@ USING (assigned_to = auth.uid() OR EXISTS (
   AND raw_user_meta_data->>'role' IN ('admin', 'sales_rep')
 ));
 
+DROP POLICY IF EXISTS "Service role can manage callback requests" ON public.callback_requests;
 CREATE POLICY "Service role can manage callback requests"
 ON public.callback_requests FOR ALL
 USING (true)
 WITH CHECK (true);
 
 -- Queue
+DROP POLICY IF EXISTS "Sales reps can view queue" ON public.callback_queue;
 CREATE POLICY "Sales reps can view queue"
 ON public.callback_queue FOR SELECT
 USING (EXISTS (
@@ -211,17 +215,20 @@ USING (EXISTS (
   AND raw_user_meta_data->>'role' IN ('admin', 'sales_rep')
 ));
 
+DROP POLICY IF EXISTS "Service role can manage queue" ON public.callback_queue;
 CREATE POLICY "Service role can manage queue"
 ON public.callback_queue FOR ALL
 USING (true)
 WITH CHECK (true);
 
 -- Availability
+DROP POLICY IF EXISTS "Reps can manage their own availability" ON public.sales_rep_availability;
 CREATE POLICY "Reps can manage their own availability"
 ON public.sales_rep_availability FOR ALL
 USING (user_id = auth.uid())
 WITH CHECK (user_id = auth.uid());
 
+DROP POLICY IF EXISTS "Admins can view all availability" ON public.sales_rep_availability;
 CREATE POLICY "Admins can view all availability"
 ON public.sales_rep_availability FOR SELECT
 USING (EXISTS (
@@ -231,6 +238,7 @@ USING (EXISTS (
 ));
 
 -- Analytics
+DROP POLICY IF EXISTS "Admins and sales reps can view analytics" ON public.callback_analytics;
 CREATE POLICY "Admins and sales reps can view analytics"
 ON public.callback_analytics FOR SELECT
 USING (EXISTS (
@@ -239,6 +247,7 @@ USING (EXISTS (
   AND raw_user_meta_data->>'role' IN ('admin', 'sales_rep')
 ));
 
+DROP POLICY IF EXISTS "System can insert analytics" ON public.callback_analytics;
 CREATE POLICY "System can insert analytics"
 ON public.callback_analytics FOR INSERT
 WITH CHECK (true);
@@ -246,14 +255,17 @@ WITH CHECK (true);
 -- Triggers
 
 -- Update timestamp trigger
+DROP TRIGGER IF EXISTS update_callback_requests_timestamp ON public.callback_requests;
 CREATE TRIGGER update_callback_requests_timestamp
 BEFORE UPDATE ON public.callback_requests
 FOR EACH ROW EXECUTE FUNCTION update_conference_timestamp();
 
+DROP TRIGGER IF EXISTS update_callback_queue_timestamp ON public.callback_queue;
 CREATE TRIGGER update_callback_queue_timestamp
 BEFORE UPDATE ON public.callback_queue
 FOR EACH ROW EXECUTE FUNCTION update_conference_timestamp();
 
+DROP TRIGGER IF EXISTS update_sales_rep_availability_timestamp ON public.sales_rep_availability;
 CREATE TRIGGER update_sales_rep_availability_timestamp
 BEFORE UPDATE ON public.sales_rep_availability
 FOR EACH ROW EXECUTE FUNCTION update_conference_timestamp();
@@ -278,6 +290,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_calculate_response_time ON public.callback_requests;
 CREATE TRIGGER trigger_calculate_response_time
 BEFORE UPDATE ON public.callback_requests
 FOR EACH ROW EXECUTE FUNCTION calculate_callback_response_time();

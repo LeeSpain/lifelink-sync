@@ -16,12 +16,14 @@ CREATE TABLE public.whatsapp_accounts (
 ALTER TABLE public.whatsapp_accounts ENABLE ROW LEVEL SECURITY;
 
 -- Create policies
+DROP POLICY IF EXISTS "System can manage whatsapp accounts" ON public.whatsapp_accounts;
 CREATE POLICY "System can manage whatsapp accounts" 
 ON public.whatsapp_accounts 
 FOR ALL 
 USING (true);
 
 -- Add trigger for updated_at
+DROP TRIGGER IF EXISTS update_whatsapp_accounts_updated_at ON public.whatsapp_accounts;
 CREATE TRIGGER update_whatsapp_accounts_updated_at
 BEFORE UPDATE ON public.whatsapp_accounts
 FOR EACH ROW
@@ -46,17 +48,19 @@ CREATE TABLE public.whatsapp_conversations (
 ALTER TABLE public.whatsapp_conversations ENABLE ROW LEVEL SECURITY;
 
 -- Create policies
+DROP POLICY IF EXISTS "System can manage whatsapp conversations" ON public.whatsapp_conversations;
 CREATE POLICY "System can manage whatsapp conversations" 
 ON public.whatsapp_conversations 
 FOR ALL 
 USING (true);
 
 -- Add indexes
-CREATE INDEX idx_whatsapp_conversations_phone ON public.whatsapp_conversations(phone_number);
-CREATE INDEX idx_whatsapp_conversations_user_id ON public.whatsapp_conversations(user_id);
-CREATE INDEX idx_whatsapp_conversations_account ON public.whatsapp_conversations(whatsapp_account_id);
+CREATE INDEX IF NOT EXISTS idx_whatsapp_conversations_phone ON public.whatsapp_conversations(phone_number);
+CREATE INDEX IF NOT EXISTS idx_whatsapp_conversations_user_id ON public.whatsapp_conversations(user_id);
+CREATE INDEX IF NOT EXISTS idx_whatsapp_conversations_account ON public.whatsapp_conversations(whatsapp_account_id);
 
 -- Add trigger for updated_at
+DROP TRIGGER IF EXISTS update_whatsapp_conversations_updated_at ON public.whatsapp_conversations;
 CREATE TRIGGER update_whatsapp_conversations_updated_at
 BEFORE UPDATE ON public.whatsapp_conversations
 FOR EACH ROW
@@ -85,15 +89,16 @@ CREATE TABLE public.whatsapp_messages (
 ALTER TABLE public.whatsapp_messages ENABLE ROW LEVEL SECURITY;
 
 -- Create policies
+DROP POLICY IF EXISTS "System can manage whatsapp messages" ON public.whatsapp_messages;
 CREATE POLICY "System can manage whatsapp messages" 
 ON public.whatsapp_messages 
 FOR ALL 
 USING (true);
 
 -- Add indexes
-CREATE INDEX idx_whatsapp_messages_conversation ON public.whatsapp_messages(conversation_id);
-CREATE INDEX idx_whatsapp_messages_timestamp ON public.whatsapp_messages(timestamp);
-CREATE INDEX idx_whatsapp_messages_wa_id ON public.whatsapp_messages(whatsapp_message_id);
+CREATE INDEX IF NOT EXISTS idx_whatsapp_messages_conversation ON public.whatsapp_messages(conversation_id);
+CREATE INDEX IF NOT EXISTS idx_whatsapp_messages_timestamp ON public.whatsapp_messages(timestamp);
+CREATE INDEX IF NOT EXISTS idx_whatsapp_messages_wa_id ON public.whatsapp_messages(whatsapp_message_id);
 
 -- Create phone_verifications table for phone number verification
 CREATE TABLE public.phone_verifications (
@@ -114,20 +119,22 @@ CREATE TABLE public.phone_verifications (
 ALTER TABLE public.phone_verifications ENABLE ROW LEVEL SECURITY;
 
 -- Create policies
+DROP POLICY IF EXISTS "Users can manage their own phone verifications" ON public.phone_verifications;
 CREATE POLICY "Users can manage their own phone verifications" 
 ON public.phone_verifications 
 FOR ALL 
 USING (auth.uid() = user_id OR user_id IS NULL);
 
+DROP POLICY IF EXISTS "System can manage phone verifications" ON public.phone_verifications;
 CREATE POLICY "System can manage phone verifications" 
 ON public.phone_verifications 
 FOR ALL 
 USING (true);
 
 -- Add indexes
-CREATE INDEX idx_phone_verifications_phone ON public.phone_verifications(phone_number);
-CREATE INDEX idx_phone_verifications_user ON public.phone_verifications(user_id);
-CREATE INDEX idx_phone_verifications_status ON public.phone_verifications(status);
+CREATE INDEX IF NOT EXISTS idx_phone_verifications_phone ON public.phone_verifications(phone_number);
+CREATE INDEX IF NOT EXISTS idx_phone_verifications_user ON public.phone_verifications(user_id);
+CREATE INDEX IF NOT EXISTS idx_phone_verifications_status ON public.phone_verifications(status);
 
 -- Create whatsapp_settings table for configuration
 CREATE TABLE public.whatsapp_settings (
@@ -144,12 +151,14 @@ CREATE TABLE public.whatsapp_settings (
 ALTER TABLE public.whatsapp_settings ENABLE ROW LEVEL SECURITY;
 
 -- Create policies
+DROP POLICY IF EXISTS "System can manage whatsapp settings" ON public.whatsapp_settings;
 CREATE POLICY "System can manage whatsapp settings" 
 ON public.whatsapp_settings 
 FOR ALL 
 USING (true);
 
 -- Add trigger for updated_at
+DROP TRIGGER IF EXISTS update_whatsapp_settings_updated_at ON public.whatsapp_settings;
 CREATE TRIGGER update_whatsapp_settings_updated_at
 BEFORE UPDATE ON public.whatsapp_settings
 FOR EACH ROW

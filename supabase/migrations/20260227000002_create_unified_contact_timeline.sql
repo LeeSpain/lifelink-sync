@@ -146,32 +146,32 @@ CREATE TABLE IF NOT EXISTS public.ai_contact_context (
 );
 
 -- Indexes for blazing fast timeline queries
-CREATE INDEX idx_timeline_user_occurred ON public.contact_timeline(user_id, occurred_at DESC);
-CREATE INDEX idx_timeline_email_occurred ON public.contact_timeline(contact_email, occurred_at DESC);
-CREATE INDEX idx_timeline_phone_occurred ON public.contact_timeline(contact_phone, occurred_at DESC);
-CREATE INDEX idx_timeline_event_type ON public.contact_timeline(event_type);
-CREATE INDEX idx_timeline_event_category ON public.contact_timeline(event_category);
-CREATE INDEX idx_timeline_occurred_at ON public.contact_timeline(occurred_at DESC);
-CREATE INDEX idx_timeline_importance ON public.contact_timeline(importance_score);
-CREATE INDEX idx_timeline_source ON public.contact_timeline(source_type, source_id);
-CREATE INDEX idx_timeline_incident ON public.contact_timeline(related_incident_id) WHERE related_incident_id IS NOT NULL;
-CREATE INDEX idx_timeline_conference ON public.contact_timeline(related_conference_id) WHERE related_conference_id IS NOT NULL;
-CREATE INDEX idx_timeline_conversation ON public.contact_timeline(related_conversation_id) WHERE related_conversation_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_timeline_user_occurred ON public.contact_timeline(user_id, occurred_at DESC);
+CREATE INDEX IF NOT EXISTS idx_timeline_email_occurred ON public.contact_timeline(contact_email, occurred_at DESC);
+CREATE INDEX IF NOT EXISTS idx_timeline_phone_occurred ON public.contact_timeline(contact_phone, occurred_at DESC);
+CREATE INDEX IF NOT EXISTS idx_timeline_event_type ON public.contact_timeline(event_type);
+CREATE INDEX IF NOT EXISTS idx_timeline_event_category ON public.contact_timeline(event_category);
+CREATE INDEX IF NOT EXISTS idx_timeline_occurred_at ON public.contact_timeline(occurred_at DESC);
+CREATE INDEX IF NOT EXISTS idx_timeline_importance ON public.contact_timeline(importance_score);
+CREATE INDEX IF NOT EXISTS idx_timeline_source ON public.contact_timeline(source_type, source_id);
+CREATE INDEX IF NOT EXISTS idx_timeline_incident ON public.contact_timeline(related_incident_id) WHERE related_incident_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_timeline_conference ON public.contact_timeline(related_conference_id) WHERE related_conference_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_timeline_conversation ON public.contact_timeline(related_conversation_id) WHERE related_conversation_id IS NOT NULL;
 
 -- Composite indexes for common queries
-CREATE INDEX idx_timeline_user_category_occurred ON public.contact_timeline(user_id, event_category, occurred_at DESC);
-CREATE INDEX idx_timeline_email_category_occurred ON public.contact_timeline(contact_email, event_category, occurred_at DESC);
+CREATE INDEX IF NOT EXISTS idx_timeline_user_category_occurred ON public.contact_timeline(user_id, event_category, occurred_at DESC);
+CREATE INDEX IF NOT EXISTS idx_timeline_email_category_occurred ON public.contact_timeline(contact_email, event_category, occurred_at DESC);
 
 -- Engagement summary indexes
-CREATE INDEX idx_engagement_user ON public.contact_engagement_summary(user_id);
-CREATE INDEX idx_engagement_email ON public.contact_engagement_summary(contact_email);
-CREATE INDEX idx_engagement_lead_score ON public.contact_engagement_summary(lead_score DESC);
-CREATE INDEX idx_engagement_risk ON public.contact_engagement_summary(risk_level);
-CREATE INDEX idx_engagement_last_interaction ON public.contact_engagement_summary(last_interaction_at DESC);
+CREATE INDEX IF NOT EXISTS idx_engagement_user ON public.contact_engagement_summary(user_id);
+CREATE INDEX IF NOT EXISTS idx_engagement_email ON public.contact_engagement_summary(contact_email);
+CREATE INDEX IF NOT EXISTS idx_engagement_lead_score ON public.contact_engagement_summary(lead_score DESC);
+CREATE INDEX IF NOT EXISTS idx_engagement_risk ON public.contact_engagement_summary(risk_level);
+CREATE INDEX IF NOT EXISTS idx_engagement_last_interaction ON public.contact_engagement_summary(last_interaction_at DESC);
 
 -- AI context indexes
-CREATE INDEX idx_ai_context_user ON public.ai_contact_context(user_id);
-CREATE INDEX idx_ai_context_email ON public.ai_contact_context(contact_email);
+CREATE INDEX IF NOT EXISTS idx_ai_context_user ON public.ai_contact_context(user_id);
+CREATE INDEX IF NOT EXISTS idx_ai_context_email ON public.ai_contact_context(contact_email);
 
 -- Enable RLS
 ALTER TABLE public.contact_timeline ENABLE ROW LEVEL SECURITY;
@@ -179,10 +179,12 @@ ALTER TABLE public.contact_engagement_summary ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.ai_contact_context ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for timeline
+DROP POLICY IF EXISTS "Users can view their own timeline" ON public.contact_timeline;
 CREATE POLICY "Users can view their own timeline"
 ON public.contact_timeline FOR SELECT
 USING (user_id = auth.uid());
 
+DROP POLICY IF EXISTS "Admins can view all timelines" ON public.contact_timeline;
 CREATE POLICY "Admins can view all timelines"
 ON public.contact_timeline FOR SELECT
 USING (
@@ -193,16 +195,19 @@ USING (
   )
 );
 
+DROP POLICY IF EXISTS "Service role can manage timeline" ON public.contact_timeline;
 CREATE POLICY "Service role can manage timeline"
 ON public.contact_timeline FOR ALL
 USING (true)
 WITH CHECK (true);
 
 -- RLS Policies for engagement summary
+DROP POLICY IF EXISTS "Users can view their own engagement" ON public.contact_engagement_summary;
 CREATE POLICY "Users can view their own engagement"
 ON public.contact_engagement_summary FOR SELECT
 USING (user_id = auth.uid());
 
+DROP POLICY IF EXISTS "Admins can view all engagement" ON public.contact_engagement_summary;
 CREATE POLICY "Admins can view all engagement"
 ON public.contact_engagement_summary FOR SELECT
 USING (
@@ -213,12 +218,14 @@ USING (
   )
 );
 
+DROP POLICY IF EXISTS "Service role can manage engagement" ON public.contact_engagement_summary;
 CREATE POLICY "Service role can manage engagement"
 ON public.contact_engagement_summary FOR ALL
 USING (true)
 WITH CHECK (true);
 
 -- RLS Policies for AI context
+DROP POLICY IF EXISTS "Service role can manage AI context" ON public.ai_contact_context;
 CREATE POLICY "Service role can manage AI context"
 ON public.ai_contact_context FOR ALL
 USING (true)
@@ -298,6 +305,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Trigger to auto-update engagement summary
+DROP TRIGGER IF EXISTS trigger_update_engagement ON public.contact_timeline;
 CREATE TRIGGER trigger_update_engagement
 AFTER INSERT OR UPDATE OR DELETE ON public.contact_timeline
 FOR EACH ROW EXECUTE FUNCTION update_contact_engagement();

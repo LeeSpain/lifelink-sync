@@ -9,6 +9,7 @@ BEGIN
       AND tablename='marketing_content' 
       AND policyname='Public can view published blog content'
   ) THEN
+    DROP POLICY IF EXISTS "Public can view published blog content" ON public.marketing_content;
     CREATE POLICY "Public can view published blog content"
     ON public.marketing_content
     FOR SELECT

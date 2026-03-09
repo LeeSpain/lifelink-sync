@@ -1,5 +1,5 @@
 -- Create SLA settings table
-CREATE TABLE public.sla_settings (
+CREATE TABLE IF NOT EXISTS public.sla_settings (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   description TEXT,
@@ -17,7 +17,7 @@ CREATE TABLE public.sla_settings (
 );
 
 -- Create business hours table
-CREATE TABLE public.business_hours (
+CREATE TABLE IF NOT EXISTS public.business_hours (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   day_of_week INTEGER NOT NULL CHECK (day_of_week >= 0 AND day_of_week <= 6), -- 0 = Sunday, 6 = Saturday
   start_time TIME NOT NULL DEFAULT '09:00',
@@ -27,7 +27,7 @@ CREATE TABLE public.business_hours (
 );
 
 -- Create SLA breaches tracking table
-CREATE TABLE public.sla_breaches (
+CREATE TABLE IF NOT EXISTS public.sla_breaches (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   conversation_id UUID REFERENCES unified_conversations(id) ON DELETE CASCADE,
   sla_setting_id UUID REFERENCES sla_settings(id) ON DELETE SET NULL,
@@ -42,11 +42,11 @@ CREATE TABLE public.sla_breaches (
 );
 
 -- Create indexes for performance
-CREATE INDEX idx_sla_settings_channel ON public.sla_settings(channel) WHERE is_active = true;
-CREATE INDEX idx_sla_settings_priority ON public.sla_settings(priority) WHERE is_active = true;
-CREATE INDEX idx_sla_breaches_conversation ON public.sla_breaches(conversation_id);
-CREATE INDEX idx_sla_breaches_unresolved ON public.sla_breaches(resolved_at) WHERE resolved_at IS NULL;
-CREATE INDEX idx_business_hours_day ON public.business_hours(day_of_week) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_sla_settings_channel ON public.sla_settings(channel) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_sla_settings_priority ON public.sla_settings(priority) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_sla_breaches_conversation ON public.sla_breaches(conversation_id);
+CREATE INDEX IF NOT EXISTS idx_sla_breaches_unresolved ON public.sla_breaches(resolved_at) WHERE resolved_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_business_hours_day ON public.business_hours(day_of_week) WHERE is_active = true;
 
 -- Enable RLS
 ALTER TABLE public.sla_settings ENABLE ROW LEVEL SECURITY;
@@ -54,42 +54,54 @@ ALTER TABLE public.business_hours ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.sla_breaches ENABLE ROW LEVEL SECURITY;
 
 -- SLA Settings policies - Admin only
+DROP POLICY IF EXISTS "Admins can view SLA settings" ON public.sla_settings;
 CREATE POLICY "Admins can view SLA settings" ON public.sla_settings
   FOR SELECT USING (public.is_admin());
 
+DROP POLICY IF EXISTS "Admins can create SLA settings" ON public.sla_settings;
 CREATE POLICY "Admins can create SLA settings" ON public.sla_settings
   FOR INSERT WITH CHECK (public.is_admin());
 
+DROP POLICY IF EXISTS "Admins can update SLA settings" ON public.sla_settings;
 CREATE POLICY "Admins can update SLA settings" ON public.sla_settings
   FOR UPDATE USING (public.is_admin());
 
+DROP POLICY IF EXISTS "Admins can delete SLA settings" ON public.sla_settings;
 CREATE POLICY "Admins can delete SLA settings" ON public.sla_settings
   FOR DELETE USING (public.is_admin());
 
 -- Business Hours policies - Admin only
+DROP POLICY IF EXISTS "Admins can view business hours" ON public.business_hours;
 CREATE POLICY "Admins can view business hours" ON public.business_hours
   FOR SELECT USING (public.is_admin());
 
+DROP POLICY IF EXISTS "Admins can create business hours" ON public.business_hours;
 CREATE POLICY "Admins can create business hours" ON public.business_hours
   FOR INSERT WITH CHECK (public.is_admin());
 
+DROP POLICY IF EXISTS "Admins can update business hours" ON public.business_hours;
 CREATE POLICY "Admins can update business hours" ON public.business_hours
   FOR UPDATE USING (public.is_admin());
 
+DROP POLICY IF EXISTS "Admins can delete business hours" ON public.business_hours;
 CREATE POLICY "Admins can delete business hours" ON public.business_hours
   FOR DELETE USING (public.is_admin());
 
 -- SLA Breaches policies - Admin only
+DROP POLICY IF EXISTS "Admins can view SLA breaches" ON public.sla_breaches;
 CREATE POLICY "Admins can view SLA breaches" ON public.sla_breaches
   FOR SELECT USING (public.is_admin());
 
+DROP POLICY IF EXISTS "Admins can create SLA breaches" ON public.sla_breaches;
 CREATE POLICY "Admins can create SLA breaches" ON public.sla_breaches
   FOR INSERT WITH CHECK (public.is_admin());
 
+DROP POLICY IF EXISTS "Admins can update SLA breaches" ON public.sla_breaches;
 CREATE POLICY "Admins can update SLA breaches" ON public.sla_breaches
   FOR UPDATE USING (public.is_admin());
 
 -- Create trigger for updated_at on sla_settings
+DROP TRIGGER IF EXISTS update_sla_settings_updated_at ON public.sla_settings;
 CREATE TRIGGER update_sla_settings_updated_at
   BEFORE UPDATE ON public.sla_settings
   FOR EACH ROW

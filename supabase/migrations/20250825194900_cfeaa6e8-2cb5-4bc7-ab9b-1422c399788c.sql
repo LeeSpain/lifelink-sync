@@ -13,6 +13,7 @@ BEGIN
       AND schemaname = 'public' 
       AND tablename = 'whatsapp_settings'
   ) THEN
+    DROP POLICY IF EXISTS "Admin can manage whatsapp settings" ON public.whatsapp_settings;
     CREATE POLICY "Admin can manage whatsapp settings"
     ON public.whatsapp_settings
     FOR ALL

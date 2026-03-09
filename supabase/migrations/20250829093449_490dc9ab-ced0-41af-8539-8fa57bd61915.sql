@@ -1,7 +1,7 @@
 -- Add social media API credentials to secrets (if not already added)
 -- Note: These would typically be set via the Supabase dashboard
 
--- Insert additional Emma training data for completeness
+-- Insert additional Emma training data for completeness (skip duplicates)
 INSERT INTO public.training_data (question, answer, category, tags, confidence_score) VALUES
 -- Emergency Scenarios
 ('What if I fall and cant get up?', 'If you fall and cant get up, ICE SOS Premium''s fall detection will automatically detect the fall and alert your emergency contacts and our monitoring center within 30 seconds. If you''re conscious, you can also press your emergency button to confirm you need help. Our team will assess the situation and dispatch emergency services if needed.', 'emergency_response', '{"falls", "emergency", "automatic"}', 1.0),
@@ -28,7 +28,7 @@ INSERT INTO public.training_data (question, answer, category, tags, confidence_s
 -- Privacy and Data
 ('What data do you collect?', 'We only collect data necessary for your safety: location during emergencies, emergency contact information, basic health data you choose to share, and device status. We never sell your data or use it for marketing. Your privacy and security are our top priorities.', 'privacy', '{"data_collection", "privacy_policy"}', 1.0),
 ('Can I control who sees my location?', 'Yes! You have complete control over location sharing. You choose which family members can see your location, when they can see it, and you can turn sharing on/off anytime. Only designated emergency contacts and our response team see your location during actual emergencies.', 'privacy', '{"location_control", "family_access"}', 1.0)
-ON CONFLICT (question) DO NOTHING;
+;
 
 -- Update Riven AI system prompt with comprehensive marketing knowledge
 INSERT INTO public.site_content (key, value) VALUES (

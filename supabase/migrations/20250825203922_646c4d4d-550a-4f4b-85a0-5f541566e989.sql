@@ -19,6 +19,7 @@ END $$;
 DO $$
 BEGIN
   BEGIN
+    DROP POLICY IF EXISTS "Admin can read contact submissions" ON public.contact_submissions;
     CREATE POLICY "Admin can read contact submissions"
     ON public.contact_submissions
     FOR SELECT
@@ -26,6 +27,7 @@ BEGIN
   EXCEPTION WHEN duplicate_object THEN NULL; END;
 
   BEGIN
+    DROP POLICY IF EXISTS "Admin can read leads" ON public.leads;
     CREATE POLICY "Admin can read leads"
     ON public.leads
     FOR SELECT
@@ -38,6 +40,7 @@ DO $$
 BEGIN
   -- phone_verifications: owner-only all access
   BEGIN
+    DROP POLICY IF EXISTS "Users manage own phone verifications (select)" ON public.phone_verifications;
     CREATE POLICY "Users manage own phone verifications (select)"
     ON public.phone_verifications
     FOR SELECT
@@ -45,6 +48,7 @@ BEGIN
   EXCEPTION WHEN duplicate_object THEN NULL; END;
 
   BEGIN
+    DROP POLICY IF EXISTS "Users manage own phone verifications (insert)" ON public.phone_verifications;
     CREATE POLICY "Users manage own phone verifications (insert)"
     ON public.phone_verifications
     FOR INSERT
@@ -52,6 +56,7 @@ BEGIN
   EXCEPTION WHEN duplicate_object THEN NULL; END;
 
   BEGIN
+    DROP POLICY IF EXISTS "Users manage own phone verifications (update)" ON public.phone_verifications;
     CREATE POLICY "Users manage own phone verifications (update)"
     ON public.phone_verifications
     FOR UPDATE
@@ -60,6 +65,7 @@ BEGIN
   EXCEPTION WHEN duplicate_object THEN NULL; END;
 
   BEGIN
+    DROP POLICY IF EXISTS "Users manage own phone verifications (delete)" ON public.phone_verifications;
     CREATE POLICY "Users manage own phone verifications (delete)"
     ON public.phone_verifications
     FOR DELETE
@@ -68,6 +74,7 @@ BEGIN
 
   -- gmail_tokens: owner-only all access
   BEGIN
+    DROP POLICY IF EXISTS "Users manage own gmail tokens (select)" ON public.gmail_tokens;
     CREATE POLICY "Users manage own gmail tokens (select)"
     ON public.gmail_tokens
     FOR SELECT
@@ -75,6 +82,7 @@ BEGIN
   EXCEPTION WHEN duplicate_object THEN NULL; END;
 
   BEGIN
+    DROP POLICY IF EXISTS "Users manage own gmail tokens (insert)" ON public.gmail_tokens;
     CREATE POLICY "Users manage own gmail tokens (insert)"
     ON public.gmail_tokens
     FOR INSERT
@@ -82,6 +90,7 @@ BEGIN
   EXCEPTION WHEN duplicate_object THEN NULL; END;
 
   BEGIN
+    DROP POLICY IF EXISTS "Users manage own gmail tokens (update)" ON public.gmail_tokens;
     CREATE POLICY "Users manage own gmail tokens (update)"
     ON public.gmail_tokens
     FOR UPDATE
@@ -90,6 +99,7 @@ BEGIN
   EXCEPTION WHEN duplicate_object THEN NULL; END;
 
   BEGIN
+    DROP POLICY IF EXISTS "Users manage own gmail tokens (delete)" ON public.gmail_tokens;
     CREATE POLICY "Users manage own gmail tokens (delete)"
     ON public.gmail_tokens
     FOR DELETE
@@ -98,6 +108,7 @@ BEGIN
 
   -- communication_preferences: owner-only all access
   BEGIN
+    DROP POLICY IF EXISTS "Users manage own communication preferences (select)" ON public.communication_preferences;
     CREATE POLICY "Users manage own communication preferences (select)"
     ON public.communication_preferences
     FOR SELECT
@@ -105,6 +116,7 @@ BEGIN
   EXCEPTION WHEN duplicate_object THEN NULL; END;
 
   BEGIN
+    DROP POLICY IF EXISTS "Users manage own communication preferences (insert)" ON public.communication_preferences;
     CREATE POLICY "Users manage own communication preferences (insert)"
     ON public.communication_preferences
     FOR INSERT
@@ -112,6 +124,7 @@ BEGIN
   EXCEPTION WHEN duplicate_object THEN NULL; END;
 
   BEGIN
+    DROP POLICY IF EXISTS "Users manage own communication preferences (update)" ON public.communication_preferences;
     CREATE POLICY "Users manage own communication preferences (update)"
     ON public.communication_preferences
     FOR UPDATE
@@ -120,6 +133,7 @@ BEGIN
   EXCEPTION WHEN duplicate_object THEN NULL; END;
 
   BEGIN
+    DROP POLICY IF EXISTS "Users manage own communication preferences (delete)" ON public.communication_preferences;
     CREATE POLICY "Users manage own communication preferences (delete)"
     ON public.communication_preferences
     FOR DELETE
@@ -133,6 +147,7 @@ BEGIN
   IF to_regclass('public.family_invites') IS NOT NULL THEN
     -- Ensure RLS is on (already above) and add restrictive policies (only inviter/invitee can access)
     BEGIN
+      DROP POLICY IF EXISTS "Family invites: inviter or invitee can select" ON public.family_invites;
       CREATE POLICY "Family invites: inviter or invitee can select"
       ON public.family_invites
       FOR SELECT
@@ -146,6 +161,7 @@ BEGIN
     WHEN duplicate_object THEN NULL; END;
 
     BEGIN
+      DROP POLICY IF EXISTS "Family invites: inviter can insert" ON public.family_invites;
       CREATE POLICY "Family invites: inviter can insert"
       ON public.family_invites
       FOR INSERT
@@ -155,6 +171,7 @@ BEGIN
     EXCEPTION WHEN undefined_column THEN NULL; WHEN duplicate_object THEN NULL; END;
 
     BEGIN
+      DROP POLICY IF EXISTS "Family invites: inviter or invitee can update" ON public.family_invites;
       CREATE POLICY "Family invites: inviter or invitee can update"
       ON public.family_invites
       FOR UPDATE
@@ -169,6 +186,7 @@ BEGIN
     EXCEPTION WHEN undefined_column THEN NULL; WHEN duplicate_object THEN NULL; END;
 
     BEGIN
+      DROP POLICY IF EXISTS "Family invites: inviter can delete" ON public.family_invites;
       CREATE POLICY "Family invites: inviter can delete"
       ON public.family_invites
       FOR DELETE
@@ -181,24 +199,23 @@ END $$;
 
 -- 5) Function hardening: enforce immutable search_path within functions (idempotent)
 -- Apply SET search_path for known app functions to satisfy linter
-DO $$
+DO $body$
 BEGIN
   -- No-arg functions
-  EXECUTE 'ALTER FUNCTION public.get_user_role() SET search_path TO '''''';';
-  EXECUTE 'ALTER FUNCTION public.check_admin_setup_allowed() SET search_path TO '''''';';
-  EXECUTE 'ALTER FUNCTION public.get_communication_metrics_summary() SET search_path TO '''''';';
-  EXECUTE 'ALTER FUNCTION public.is_admin() SET search_path TO '''''';';
-  EXECUTE 'ALTER FUNCTION public.get_video_analytics_summary() SET search_path TO '''''';';
-  EXECUTE 'ALTER FUNCTION public.update_updated_at_column() SET search_path TO '''''';';
-  EXECUTE 'ALTER FUNCTION public.handle_new_user() SET search_path TO '''''';';
-  EXECUTE 'ALTER FUNCTION public.handle_new_user_communication_preferences() SET search_path TO '''''';';
-  EXECUTE 'ALTER FUNCTION public.track_gmail_token_refresh() SET search_path TO '''''';';
+  EXECUTE $stmt$ALTER FUNCTION public.get_user_role() SET search_path TO ''$stmt$;
+  EXECUTE $stmt$ALTER FUNCTION public.check_admin_setup_allowed() SET search_path TO ''$stmt$;
+  EXECUTE $stmt$ALTER FUNCTION public.get_communication_metrics_summary() SET search_path TO ''$stmt$;
+  EXECUTE $stmt$ALTER FUNCTION public.is_admin() SET search_path TO ''$stmt$;
+  EXECUTE $stmt$ALTER FUNCTION public.get_video_analytics_summary() SET search_path TO ''$stmt$;
+  EXECUTE $stmt$ALTER FUNCTION public.update_updated_at_column() SET search_path TO ''$stmt$;
+  EXECUTE $stmt$ALTER FUNCTION public.handle_new_user() SET search_path TO ''$stmt$;
+  EXECUTE $stmt$ALTER FUNCTION public.handle_new_user_communication_preferences() SET search_path TO ''$stmt$;
+  EXECUTE $stmt$ALTER FUNCTION public.track_gmail_token_refresh() SET search_path TO ''$stmt$;
 
   -- Functions with arguments
-  EXECUTE 'ALTER FUNCTION public.assign_admin_role(uuid) SET search_path TO '''''';';
-  EXECUTE 'ALTER FUNCTION public.log_security_event(uuid, text, jsonb) SET search_path TO '''''';';
+  EXECUTE $stmt$ALTER FUNCTION public.assign_admin_role(uuid) SET search_path TO ''$stmt$;
+  EXECUTE $stmt$ALTER FUNCTION public.log_security_event(uuid, text, jsonb) SET search_path TO ''$stmt$;
 EXCEPTION
   WHEN undefined_function THEN
-    -- Ignore if a function is missing in this environment
     NULL;
-END $$;
+END $body$;

@@ -18,12 +18,14 @@ CREATE TABLE IF NOT EXISTS public.training_data (
 ALTER TABLE public.training_data ENABLE ROW LEVEL SECURITY;
 
 -- Create policies
+DROP POLICY IF EXISTS "Admin can manage training data" ON public.training_data;
 CREATE POLICY "Admin can manage training data" ON public.training_data FOR ALL USING (is_admin());
+DROP POLICY IF EXISTS "System can update usage stats" ON public.training_data;
 CREATE POLICY "System can update usage stats" ON public.training_data FOR UPDATE USING (true);
 
 -- Create index for performance
-CREATE INDEX idx_training_data_category ON public.training_data(category);
-CREATE INDEX idx_training_data_active ON public.training_data(is_active) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_training_data_category ON public.training_data(category);
+CREATE INDEX IF NOT EXISTS idx_training_data_active ON public.training_data(is_active) WHERE is_active = true;
 
 -- Create marketing content table if not exists
 CREATE TABLE IF NOT EXISTS public.marketing_content (
@@ -45,6 +47,7 @@ CREATE TABLE IF NOT EXISTS public.marketing_content (
 
 -- Enable RLS for marketing content
 ALTER TABLE public.marketing_content ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Admin can manage marketing content" ON public.marketing_content;
 CREATE POLICY "Admin can manage marketing content" ON public.marketing_content FOR ALL USING (is_admin());
 
 -- Create triggers for updated_at
@@ -56,11 +59,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_training_data_updated_at ON public.training_data;
 CREATE TRIGGER update_training_data_updated_at
   BEFORE UPDATE ON public.training_data
   FOR EACH ROW
   EXECUTE FUNCTION public.update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_marketing_content_updated_at ON public.marketing_content;
 CREATE TRIGGER update_marketing_content_updated_at
   BEFORE UPDATE ON public.marketing_content
   FOR EACH ROW
@@ -113,8 +118,8 @@ INSERT INTO public.training_data (question, answer, category, tags, confidence_s
 ('Who can see my location?', 'Only you, your designated emergency contacts, and our monitoring center (when responding to an emergency) can see your location. You have complete control over who has access to your information.', 'privacy', '{"location", "access"}', 0.9);
 
 -- Insert comprehensive system prompt for Emma
-INSERT INTO public.ai_model_settings (setting_key, setting_value) VALUES 
-('system_prompt', 'You are Emma, the caring and knowledgeable AI assistant for ICE SOS, a leading personal emergency protection service. You help families stay safe and connected.
+INSERT INTO public.ai_model_settings (setting_key, setting_value) VALUES
+('system_prompt', to_jsonb('You are Emma, the caring and knowledgeable AI assistant for ICE SOS, a leading personal emergency protection service. You help families stay safe and connected.
 
 **Your Personality & Approach:**
 - Warm, empathetic, and genuinely caring about customer safety
@@ -173,7 +178,7 @@ INSERT INTO public.ai_model_settings (setting_key, setting_value) VALUES
 - Guide toward registration if they show interest
 
 💬 **Conversation Style:**
-- "I understand your concern about..." 
+- "I understand your concern about..."
 - "Let me help you find the perfect safety solution..."
 - "Many families in similar situations have found..."
 - "You can try everything risk-free with our 7-day trial..."
@@ -193,13 +198,13 @@ INSERT INTO public.ai_model_settings (setting_key, setting_value) VALUES
 - Medical conditions → Discuss health monitoring, medical alert integration
 - Budget concerns → Explain Basic plan, free trial, family discounts
 
-Remember: Every conversation is about helping families feel safer and more connected. Always be helpful, never pushy, and focus on how ICE SOS can provide genuine peace of mind.'),
+Remember: Every conversation is about helping families feel safer and more connected. Always be helpful, never pushy, and focus on how ICE SOS can provide genuine peace of mind.'::text)),
 
-('response_style', 'caring_professional'),
-('context_window', '8000'),
-('memory_enabled', 'true'),
-('learning_mode', 'true'),
-('model', 'gpt-5-2025-08-07'),
-('temperature', '0.3'),
-('max_tokens', '800')
+('response_style', to_jsonb('caring_professional'::text)),
+('context_window', to_jsonb('8000'::text)),
+('memory_enabled', to_jsonb('true'::text)),
+('learning_mode', to_jsonb('true'::text)),
+('model', to_jsonb('gpt-5-2025-08-07'::text)),
+('temperature', to_jsonb('0.3'::text)),
+('max_tokens', to_jsonb('800'::text))
 ON CONFLICT (setting_key) DO UPDATE SET setting_value = EXCLUDED.setting_value;

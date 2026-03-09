@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS public.social_media_oauth_state (
 ALTER TABLE public.social_media_oauth_state ENABLE ROW LEVEL SECURITY;
 
 -- Create policies
+DROP POLICY IF EXISTS "System can manage OAuth state" ON public.social_media_oauth_state;
 CREATE POLICY "System can manage OAuth state" 
 ON public.social_media_oauth_state 
 FOR ALL 

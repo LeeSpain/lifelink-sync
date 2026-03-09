@@ -30,26 +30,34 @@ DROP POLICY IF EXISTS "Anyone can insert contact submissions" ON public.contact_
 DROP POLICY IF EXISTS "Service role can insert contact submissions" ON public.contact_submissions;
 
 -- Create secure RLS policies for registration_selections
+DROP POLICY IF EXISTS "Users can view own registration data" ON public.registration_selections;
 CREATE POLICY "Users can view own registration data" ON public.registration_selections
 FOR SELECT USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can insert own registration data" ON public.registration_selections;
 CREATE POLICY "Users can insert own registration data" ON public.registration_selections
 FOR INSERT WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can update own registration data" ON public.registration_selections;
 CREATE POLICY "Users can update own registration data" ON public.registration_selections
 FOR UPDATE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Admins can manage all registration data" ON public.registration_selections;
 CREATE POLICY "Admins can manage all registration data" ON public.registration_selections
 FOR ALL USING (is_admin()) WITH CHECK (is_admin());
 
 -- Create secure RLS policies for homepage_analytics
+DROP POLICY IF EXISTS "Admins can view homepage analytics" ON public.homepage_analytics;
 CREATE POLICY "Admins can view homepage analytics" ON public.homepage_analytics
 FOR SELECT USING (is_admin());
+DROP POLICY IF EXISTS "System can insert homepage analytics" ON public.homepage_analytics;
 CREATE POLICY "System can insert homepage analytics" ON public.homepage_analytics
 FOR INSERT WITH CHECK (true);
 
 -- Secure contact_submissions to admin only except for INSERT
+DROP POLICY IF EXISTS "Authenticated users can submit contact forms" ON public.contact_submissions;
 CREATE POLICY "Authenticated users can submit contact forms" ON public.contact_submissions
 FOR INSERT WITH CHECK (true);
 
 -- Ensure video_analytics is anonymized properly
 DROP POLICY IF EXISTS "Authenticated users can insert video analytics" ON public.video_analytics;
+DROP POLICY IF EXISTS "Users can track video analytics" ON public.video_analytics;
 CREATE POLICY "Users can track video analytics" ON public.video_analytics
 FOR INSERT WITH CHECK (true);

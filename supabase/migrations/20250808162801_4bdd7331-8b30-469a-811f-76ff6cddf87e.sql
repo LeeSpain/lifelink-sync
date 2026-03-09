@@ -12,22 +12,26 @@ CREATE TABLE IF NOT EXISTS public.site_content (
 ALTER TABLE public.site_content ENABLE ROW LEVEL SECURITY;
 
 -- Public can read, only admins can modify
+DROP POLICY IF EXISTS "Anyone can view site content" ON public.site_content;
 CREATE POLICY "Anyone can view site content"
   ON public.site_content
   FOR SELECT
   USING (true);
 
+DROP POLICY IF EXISTS "Admins can insert site content" ON public.site_content;
 CREATE POLICY "Admins can insert site content"
   ON public.site_content
   FOR INSERT
   WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "Admins can update site content" ON public.site_content;
 CREATE POLICY "Admins can update site content"
   ON public.site_content
   FOR UPDATE
   USING (is_admin())
   WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "Admins can delete site content" ON public.site_content;
 CREATE POLICY "Admins can delete site content"
   ON public.site_content
   FOR DELETE

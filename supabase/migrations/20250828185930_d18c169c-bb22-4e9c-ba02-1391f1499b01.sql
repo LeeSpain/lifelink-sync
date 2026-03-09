@@ -140,32 +140,42 @@ ALTER TABLE public.content_moderation ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.competitor_analysis ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies
+DROP POLICY IF EXISTS "Admin can manage platform configs" ON public.social_platform_configs;
 CREATE POLICY "Admin can manage platform configs" ON public.social_platform_configs 
 FOR ALL USING (is_admin()) WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "Admin can manage content generation" ON public.content_generation_requests;
 CREATE POLICY "Admin can manage content generation" ON public.content_generation_requests 
 FOR ALL USING (is_admin()) WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "Admin can view analytics" ON public.social_media_analytics;
 CREATE POLICY "Admin can view analytics" ON public.social_media_analytics 
 FOR SELECT USING (is_admin());
 
+DROP POLICY IF EXISTS "System can insert analytics" ON public.social_media_analytics;
 CREATE POLICY "System can insert analytics" ON public.social_media_analytics 
 FOR INSERT WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Admin can view campaign analytics" ON public.campaign_analytics;
 CREATE POLICY "Admin can view campaign analytics" ON public.campaign_analytics 
 FOR SELECT USING (is_admin());
 
+DROP POLICY IF EXISTS "System can manage campaign analytics" ON public.campaign_analytics;
 CREATE POLICY "System can manage campaign analytics" ON public.campaign_analytics 
 FOR ALL USING (true) WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Admin can manage AB tests" ON public.content_ab_tests;
 CREATE POLICY "Admin can manage AB tests" ON public.content_ab_tests 
 FOR ALL USING (is_admin()) WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "Admin can manage content moderation" ON public.content_moderation;
 CREATE POLICY "Admin can manage content moderation" ON public.content_moderation 
 FOR ALL USING (is_admin()) WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "Admin can view competitor analysis" ON public.competitor_analysis;
 CREATE POLICY "Admin can view competitor analysis" ON public.competitor_analysis 
 FOR SELECT USING (is_admin());
 
+DROP POLICY IF EXISTS "System can manage competitor analysis" ON public.competitor_analysis;
 CREATE POLICY "System can manage competitor analysis" ON public.competitor_analysis 
 FOR INSERT WITH CHECK (true);

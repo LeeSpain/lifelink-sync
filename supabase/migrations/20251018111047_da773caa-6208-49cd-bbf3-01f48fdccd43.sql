@@ -1,5 +1,5 @@
 -- Create customer notes table
-CREATE TABLE public.customer_notes (
+CREATE TABLE IF NOT EXISTS public.customer_notes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   customer_id UUID NOT NULL,
   created_by UUID NOT NULL,
@@ -11,6 +11,7 @@ CREATE TABLE public.customer_notes (
 
 ALTER TABLE public.customer_notes ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Admin can manage customer notes" ON public.customer_notes;
 CREATE POLICY "Admin can manage customer notes"
 ON public.customer_notes
 FOR ALL
@@ -18,7 +19,7 @@ USING (is_admin())
 WITH CHECK (is_admin());
 
 -- Create customer tags table
-CREATE TABLE public.customer_tags (
+CREATE TABLE IF NOT EXISTS public.customer_tags (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL UNIQUE,
   color TEXT NOT NULL DEFAULT '#3b82f6',
@@ -27,6 +28,7 @@ CREATE TABLE public.customer_tags (
 
 ALTER TABLE public.customer_tags ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Admin can manage tags" ON public.customer_tags;
 CREATE POLICY "Admin can manage tags"
 ON public.customer_tags
 FOR ALL
@@ -34,7 +36,7 @@ USING (is_admin())
 WITH CHECK (is_admin());
 
 -- Create customer tag assignments table
-CREATE TABLE public.customer_tag_assignments (
+CREATE TABLE IF NOT EXISTS public.customer_tag_assignments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   customer_id UUID NOT NULL,
   tag_id UUID NOT NULL REFERENCES public.customer_tags(id) ON DELETE CASCADE,
@@ -45,6 +47,7 @@ CREATE TABLE public.customer_tag_assignments (
 
 ALTER TABLE public.customer_tag_assignments ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Admin can manage tag assignments" ON public.customer_tag_assignments;
 CREATE POLICY "Admin can manage tag assignments"
 ON public.customer_tag_assignments
 FOR ALL
@@ -52,11 +55,12 @@ USING (is_admin())
 WITH CHECK (is_admin());
 
 -- Create indexes for performance
-CREATE INDEX idx_customer_notes_customer ON public.customer_notes(customer_id);
-CREATE INDEX idx_customer_tag_assignments_customer ON public.customer_tag_assignments(customer_id);
-CREATE INDEX idx_customer_tag_assignments_tag ON public.customer_tag_assignments(tag_id);
+CREATE INDEX IF NOT EXISTS idx_customer_notes_customer ON public.customer_notes(customer_id);
+CREATE INDEX IF NOT EXISTS idx_customer_tag_assignments_customer ON public.customer_tag_assignments(customer_id);
+CREATE INDEX IF NOT EXISTS idx_customer_tag_assignments_tag ON public.customer_tag_assignments(tag_id);
 
 -- Create trigger for updated_at
+DROP TRIGGER IF EXISTS update_customer_notes_updated_at ON public.customer_notes;
 CREATE TRIGGER update_customer_notes_updated_at
 BEFORE UPDATE ON public.customer_notes
 FOR EACH ROW

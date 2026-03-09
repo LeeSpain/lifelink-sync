@@ -17,6 +17,7 @@ BEGIN
     END LOOP;
 
     -- Admin full control
+    DROP POLICY IF EXISTS "Admin can manage whatsapp_accounts" ON public.whatsapp_accounts;
     CREATE POLICY "Admin can manage whatsapp_accounts"
       ON public.whatsapp_accounts
       FOR ALL
@@ -43,6 +44,7 @@ BEGIN
     END LOOP;
 
     -- Admin full control
+    DROP POLICY IF EXISTS "Admin can manage whatsapp_conversations" ON public.whatsapp_conversations;
     CREATE POLICY "Admin can manage whatsapp_conversations"
       ON public.whatsapp_conversations
       FOR ALL
@@ -51,6 +53,7 @@ BEGIN
       WITH CHECK (public.is_admin());
 
     -- Users can select their own conversations
+    DROP POLICY IF EXISTS "Users can view their whatsapp_conversations" ON public.whatsapp_conversations;
     CREATE POLICY "Users can view their whatsapp_conversations"
       ON public.whatsapp_conversations
       FOR SELECT
@@ -58,6 +61,7 @@ BEGIN
       USING (user_id = auth.uid());
 
     -- Users can insert conversations for themselves
+    DROP POLICY IF EXISTS "Users can insert their whatsapp_conversations" ON public.whatsapp_conversations;
     CREATE POLICY "Users can insert their whatsapp_conversations"
       ON public.whatsapp_conversations
       FOR INSERT
@@ -65,6 +69,7 @@ BEGIN
       WITH CHECK (user_id = auth.uid());
 
     -- Users can update their own conversations
+    DROP POLICY IF EXISTS "Users can update their whatsapp_conversations" ON public.whatsapp_conversations;
     CREATE POLICY "Users can update their whatsapp_conversations"
       ON public.whatsapp_conversations
       FOR UPDATE
@@ -73,6 +78,7 @@ BEGIN
       WITH CHECK (user_id = auth.uid());
 
     -- Users can delete their own conversations
+    DROP POLICY IF EXISTS "Users can delete their whatsapp_conversations" ON public.whatsapp_conversations;
     CREATE POLICY "Users can delete their whatsapp_conversations"
       ON public.whatsapp_conversations
       FOR DELETE
@@ -95,6 +101,7 @@ BEGIN
       EXECUTE format('DROP POLICY IF EXISTS %I ON public.campaign_recipients', pol.policyname);
     END LOOP;
 
+    DROP POLICY IF EXISTS "Admin can manage campaign_recipients" ON public.campaign_recipients;
     CREATE POLICY "Admin can manage campaign_recipients"
       ON public.campaign_recipients
       FOR ALL
@@ -118,6 +125,7 @@ BEGIN
       EXECUTE format('DROP POLICY IF EXISTS %I ON public.email_queue', pol.policyname);
     END LOOP;
 
+    DROP POLICY IF EXISTS "Admin can manage email_queue" ON public.email_queue;
     CREATE POLICY "Admin can manage email_queue"
       ON public.email_queue
       FOR ALL

@@ -30,6 +30,7 @@ BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'marketing_content' AND policyname = 'Admin can manage marketing content'
   ) THEN
+    DROP POLICY IF EXISTS "Admin can manage marketing content" ON public.marketing_content;
     CREATE POLICY "Admin can manage marketing content"
     ON public.marketing_content
     FOR ALL

@@ -26,6 +26,7 @@ BEGIN
 END $$;
 
 -- Create strict system policy limited to service_role only
+DROP POLICY IF EXISTS "System can manage call attempts" ON public.sos_call_attempts;
 CREATE POLICY "System can manage call attempts"
 ON public.sos_call_attempts
 FOR ALL

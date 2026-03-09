@@ -1,5 +1,5 @@
 -- Create table for daily campaign metrics aggregation
-CREATE TABLE public.riven_campaign_metrics_daily (
+CREATE TABLE IF NOT EXISTS public.riven_campaign_metrics_daily (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   metric_date DATE NOT NULL,
   campaign_id TEXT NOT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE public.riven_campaign_metrics_daily (
 );
 
 -- Create table for lead engagement tracking
-CREATE TABLE public.riven_lead_engagement (
+CREATE TABLE IF NOT EXISTS public.riven_lead_engagement (
   lead_id UUID PRIMARY KEY REFERENCES public.leads(id) ON DELETE CASCADE,
   last_touch_at TIMESTAMPTZ NULL,
   last_reply_at TIMESTAMPTZ NULL,
@@ -24,28 +24,31 @@ CREATE TABLE public.riven_lead_engagement (
 );
 
 -- Create indexes for performance
-CREATE INDEX idx_riven_metrics_date ON public.riven_campaign_metrics_daily(metric_date);
-CREATE INDEX idx_riven_metrics_campaign ON public.riven_campaign_metrics_daily(campaign_id);
-CREATE INDEX idx_riven_engagement_touch ON public.riven_lead_engagement(last_touch_at);
-CREATE INDEX idx_riven_engagement_reply ON public.riven_lead_engagement(last_reply_at);
+CREATE INDEX IF NOT EXISTS idx_riven_metrics_date ON public.riven_campaign_metrics_daily(metric_date);
+CREATE INDEX IF NOT EXISTS idx_riven_metrics_campaign ON public.riven_campaign_metrics_daily(campaign_id);
+CREATE INDEX IF NOT EXISTS idx_riven_engagement_touch ON public.riven_lead_engagement(last_touch_at);
+CREATE INDEX IF NOT EXISTS idx_riven_engagement_reply ON public.riven_lead_engagement(last_reply_at);
 
 -- Enable RLS
 ALTER TABLE public.riven_campaign_metrics_daily ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.riven_lead_engagement ENABLE ROW LEVEL SECURITY;
 
 -- RLS policies for riven_campaign_metrics_daily - authenticated read access
+DROP POLICY IF EXISTS "Authenticated users can read campaign metrics" ON public.riven_campaign_metrics_daily;
 CREATE POLICY "Authenticated users can read campaign metrics" 
   ON public.riven_campaign_metrics_daily
   FOR SELECT 
   USING (auth.role() = 'authenticated');
 
 -- Admin can insert/update metrics
+DROP POLICY IF EXISTS "Admins can manage campaign metrics" ON public.riven_campaign_metrics_daily;
 CREATE POLICY "Admins can manage campaign metrics" 
   ON public.riven_campaign_metrics_daily
   FOR ALL 
   USING (public.is_admin());
 
 -- RLS policies for riven_lead_engagement - access only if lead belongs to user
+DROP POLICY IF EXISTS "Users can read their own lead engagement" ON public.riven_lead_engagement;
 CREATE POLICY "Users can read their own lead engagement" 
   ON public.riven_lead_engagement
   FOR SELECT 
@@ -54,6 +57,7 @@ CREATE POLICY "Users can read their own lead engagement"
     OR public.is_admin()
   );
 
+DROP POLICY IF EXISTS "Users can manage their own lead engagement" ON public.riven_lead_engagement;
 CREATE POLICY "Users can manage their own lead engagement" 
   ON public.riven_lead_engagement
   FOR ALL 
@@ -63,6 +67,7 @@ CREATE POLICY "Users can manage their own lead engagement"
   );
 
 -- Trigger for updated_at on riven_lead_engagement
+DROP TRIGGER IF EXISTS update_riven_lead_engagement_updated_at ON public.riven_lead_engagement;
 CREATE TRIGGER update_riven_lead_engagement_updated_at
   BEFORE UPDATE ON public.riven_lead_engagement
   FOR EACH ROW

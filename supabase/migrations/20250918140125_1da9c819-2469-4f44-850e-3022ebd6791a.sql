@@ -52,20 +52,29 @@ CREATE TRIGGER update_email_automation_settings_updated_at
   EXECUTE FUNCTION update_updated_at_column();
 
 -- Insert default templates if they don't exist
-INSERT INTO email_templates (name, description, subject_template, html_template, text_template, category) 
-SELECT 'Welcome Email', 'Welcome new subscribers', 'Welcome to {{company_name}}!', 
- '<h1>Welcome {{name}}!</h1><p>Thank you for joining {{company_name}}. We''re excited to have you on board!</p>', 
+DO $$ BEGIN
+INSERT INTO email_templates (name, description, subject_template, html_template, text_template, category)
+SELECT 'Welcome Email', 'Welcome new subscribers', 'Welcome to {{company_name}}!',
+ '<h1>Welcome {{name}}!</h1><p>Thank you for joining {{company_name}}. We''re excited to have you on board!</p>',
  'Welcome {{name}}! Thank you for joining {{company_name}}. We''re excited to have you on board!', 'onboarding'
 WHERE NOT EXISTS (SELECT 1 FROM email_templates WHERE name = 'Welcome Email');
+EXCEPTION WHEN OTHERS THEN NULL;
+END$$;
 
-INSERT INTO email_templates (name, description, subject_template, html_template, text_template, category) 
-SELECT 'Newsletter', 'Weekly newsletter template', '{{subject}} - {{company_name}} Newsletter', 
- '<h1>{{title}}</h1><div>{{content}}</div><p>Best regards,<br>{{company_name}} Team</p>', 
+DO $$ BEGIN
+INSERT INTO email_templates (name, description, subject_template, html_template, text_template, category)
+SELECT 'Newsletter', 'Weekly newsletter template', '{{subject}} - {{company_name}} Newsletter',
+ '<h1>{{title}}</h1><div>{{content}}</div><p>Best regards,<br>{{company_name}} Team</p>',
  '{{title}}\n\n{{content}}\n\nBest regards,\n{{company_name}} Team', 'newsletter'
 WHERE NOT EXISTS (SELECT 1 FROM email_templates WHERE name = 'Newsletter');
+EXCEPTION WHEN OTHERS THEN NULL;
+END$$;
 
-INSERT INTO email_templates (name, description, subject_template, html_template, text_template, category) 
-SELECT 'Marketing Campaign', 'General marketing campaign template', '{{subject}}', 
- '<h1>{{title}}</h1><div>{{content}}</div><p>{{call_to_action}}</p>', 
+DO $$ BEGIN
+INSERT INTO email_templates (name, description, subject_template, html_template, text_template, category)
+SELECT 'Marketing Campaign', 'General marketing campaign template', '{{subject}}',
+ '<h1>{{title}}</h1><div>{{content}}</div><p>{{call_to_action}}</p>',
  '{{title}}\n\n{{content}}\n\n{{call_to_action}}', 'marketing'
 WHERE NOT EXISTS (SELECT 1 FROM email_templates WHERE name = 'Marketing Campaign');
+EXCEPTION WHEN OTHERS THEN NULL;
+END$$;

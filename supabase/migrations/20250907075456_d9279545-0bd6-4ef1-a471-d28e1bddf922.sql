@@ -1,7 +1,7 @@
 -- Create a 1 Euro test subscription plan (fixed with JSONB array format)
 INSERT INTO public.subscription_plans (
   id,
-  name, 
+  name,
   description,
   price,
   currency,
@@ -16,11 +16,11 @@ INSERT INTO public.subscription_plans (
   'Test Plan - 1 Euro',
   'Special test plan for development and testing purposes - minimal cost payment testing',
   1.00,
-  'EUR', 
+  'EUR',
   'month',
   '["Test emergency features", "Basic support", "Development testing only"]'::jsonb,
   true,
   false,
   0,
   'global'
-);
+) ON CONFLICT (name) DO NOTHING;

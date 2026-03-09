@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS workflow_stages (
 ALTER TABLE workflow_stages ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for workflow stages
+DROP POLICY IF EXISTS "Admin can manage workflow stages" ON workflow_stages;
 CREATE POLICY "Admin can manage workflow stages"
 ON workflow_stages
 FOR ALL
@@ -34,6 +35,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Create trigger for automatic timestamp updates
+DROP TRIGGER IF EXISTS update_workflow_stages_updated_at_trigger ON workflow_stages;
 CREATE TRIGGER update_workflow_stages_updated_at_trigger
   BEFORE UPDATE ON workflow_stages
   FOR EACH ROW
@@ -41,4 +43,8 @@ CREATE TRIGGER update_workflow_stages_updated_at_trigger
 
 -- Add realtime support
 ALTER TABLE workflow_stages REPLICA IDENTITY FULL;
-ALTER PUBLICATION supabase_realtime ADD TABLE workflow_stages;
+DO $$
+BEGIN
+  ALTER PUBLICATION supabase_realtime ADD TABLE workflow_stages;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END$$;

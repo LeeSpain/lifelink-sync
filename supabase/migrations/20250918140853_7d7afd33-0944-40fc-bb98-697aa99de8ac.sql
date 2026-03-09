@@ -15,12 +15,14 @@ DO $$
 BEGIN
   -- Ensure email_delivery_log policies exist
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'email_delivery_log' AND policyname = 'Service can manage delivery logs') THEN
+    DROP POLICY IF EXISTS "Service can manage delivery logs" ON email_delivery_log;
     CREATE POLICY "Service can manage delivery logs" ON email_delivery_log
       FOR ALL USING (auth.role() = 'service_role') WITH CHECK (auth.role() = 'service_role');
   END IF;
   
   -- Ensure email_automation_settings policies exist  
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'email_automation_settings' AND policyname = 'Admin can manage automation settings') THEN
+    DROP POLICY IF EXISTS "Admin can manage automation settings" ON email_automation_settings;
     CREATE POLICY "Admin can manage automation settings" ON email_automation_settings
       FOR ALL USING (is_admin()) WITH CHECK (is_admin());
   END IF;

@@ -20,6 +20,7 @@ BEGIN
     END LOOP;
 
     -- Admin full access
+    DROP POLICY IF EXISTS "Admin can manage whatsapp_messages" ON public.whatsapp_messages;
     CREATE POLICY "Admin can manage whatsapp_messages"
       ON public.whatsapp_messages
       FOR ALL
@@ -28,6 +29,7 @@ BEGIN
       WITH CHECK (public.is_admin());
 
     -- Users can read messages for conversations they own
+    DROP POLICY IF EXISTS "Users can read messages in their conversations" ON public.whatsapp_messages;
     CREATE POLICY "Users can read messages in their conversations"
       ON public.whatsapp_messages
       FOR SELECT
@@ -42,6 +44,7 @@ BEGIN
       );
 
     -- Users can insert messages only into their conversations
+    DROP POLICY IF EXISTS "Users can insert messages into their conversations" ON public.whatsapp_messages;
     CREATE POLICY "Users can insert messages into their conversations"
       ON public.whatsapp_messages
       FOR INSERT
@@ -56,6 +59,7 @@ BEGIN
       );
 
     -- Users can update messages only within their conversations (if ever needed)
+    DROP POLICY IF EXISTS "Users can update messages in their conversations" ON public.whatsapp_messages;
     CREATE POLICY "Users can update messages in their conversations"
       ON public.whatsapp_messages
       FOR UPDATE
@@ -78,6 +82,7 @@ BEGIN
       );
 
     -- Users can delete messages only within their conversations
+    DROP POLICY IF EXISTS "Users can delete messages in their conversations" ON public.whatsapp_messages;
     CREATE POLICY "Users can delete messages in their conversations"
       ON public.whatsapp_messages
       FOR DELETE
@@ -113,6 +118,7 @@ BEGIN
     END LOOP;
 
     -- Only admins can select analytics
+    DROP POLICY IF EXISTS "Admins can read homepage analytics" ON public.homepage_analytics;
     CREATE POLICY "Admins can read homepage analytics"
       ON public.homepage_analytics
       FOR SELECT
@@ -120,6 +126,7 @@ BEGIN
       USING (public.is_admin());
 
     -- Allow inserts from unauthenticated visitors (anon) for event capture
+    DROP POLICY IF EXISTS "Allow anon insert for homepage analytics events" ON public.homepage_analytics;
     CREATE POLICY "Allow anon insert for homepage analytics events"
       ON public.homepage_analytics
       FOR INSERT
@@ -127,6 +134,7 @@ BEGIN
       WITH CHECK (true);
 
     -- Allow inserts from authenticated users as well (e.g. SSR, app users)
+    DROP POLICY IF EXISTS "Allow authenticated insert for homepage analytics events" ON public.homepage_analytics;
     CREATE POLICY "Allow authenticated insert for homepage analytics events"
       ON public.homepage_analytics
       FOR INSERT
@@ -134,6 +142,7 @@ BEGIN
       WITH CHECK (true);
 
     -- Only admins may update/delete (if ever needed)
+    DROP POLICY IF EXISTS "Admins can update homepage analytics" ON public.homepage_analytics;
     CREATE POLICY "Admins can update homepage analytics"
       ON public.homepage_analytics
       FOR UPDATE
@@ -141,6 +150,7 @@ BEGIN
       USING (public.is_admin())
       WITH CHECK (public.is_admin());
 
+    DROP POLICY IF EXISTS "Admins can delete homepage analytics" ON public.homepage_analytics;
     CREATE POLICY "Admins can delete homepage analytics"
       ON public.homepage_analytics
       FOR DELETE

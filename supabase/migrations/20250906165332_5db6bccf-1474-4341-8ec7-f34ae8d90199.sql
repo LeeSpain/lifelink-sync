@@ -28,6 +28,7 @@ BEGIN
       AND tablename='marketing_campaigns' 
       AND policyname='Admin can manage marketing campaigns'
   ) THEN
+    DROP POLICY IF EXISTS "Admin can manage marketing campaigns" ON public.marketing_campaigns;
     CREATE POLICY "Admin can manage marketing campaigns"
     ON public.marketing_campaigns
     FOR ALL

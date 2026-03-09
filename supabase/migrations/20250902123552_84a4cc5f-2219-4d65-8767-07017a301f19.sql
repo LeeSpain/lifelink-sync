@@ -18,12 +18,14 @@ END $$;
 
 -- 3) Create least-privilege policies (no SELECT for end users)
 -- Users: can insert/update/delete only their own rows
+DROP POLICY IF EXISTS "Users can insert own phone verifications" ON public.phone_verifications;
 CREATE POLICY "Users can insert own phone verifications"
   ON public.phone_verifications
   FOR INSERT
   TO authenticated
   WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update own phone verifications" ON public.phone_verifications;
 CREATE POLICY "Users can update own phone verifications"
   ON public.phone_verifications
   FOR UPDATE
@@ -31,6 +33,7 @@ CREATE POLICY "Users can update own phone verifications"
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete own phone verifications" ON public.phone_verifications;
 CREATE POLICY "Users can delete own phone verifications"
   ON public.phone_verifications
   FOR DELETE
@@ -49,6 +52,7 @@ BEGIN
     -- keep existing service role policy as-is
     NULL;
   ELSE
+    DROP POLICY IF EXISTS "Service role can manage phone verifications" ON public.phone_verifications;
     CREATE POLICY "Service role can manage phone verifications"
       ON public.phone_verifications
       FOR ALL

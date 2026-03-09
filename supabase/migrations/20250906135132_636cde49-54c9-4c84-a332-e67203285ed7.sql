@@ -61,60 +61,75 @@ CREATE TABLE IF NOT EXISTS public.social_media_accounts (
   UNIQUE(user_id, platform)
 );
 
+-- Ensure social_media_accounts has all expected columns (table may pre-exist)
+ALTER TABLE public.social_media_accounts ADD COLUMN IF NOT EXISTS connection_status TEXT NOT NULL DEFAULT 'connected';
+
 -- Enable RLS on new tables
 ALTER TABLE public.blog_posts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.email_campaigns ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.social_media_accounts ENABLE ROW LEVEL SECURITY;
 
 -- RLS policies for blog_posts
+DROP POLICY IF EXISTS "Admin can manage blog posts" ON public.blog_posts;
 CREATE POLICY "Admin can manage blog posts" 
 ON public.blog_posts FOR ALL 
 USING (is_admin())
 WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "Public can view published blog posts" ON public.blog_posts;
 CREATE POLICY "Public can view published blog posts" 
 ON public.blog_posts FOR SELECT 
 USING (status = 'published');
 
 -- RLS policies for email_campaigns
+DROP POLICY IF EXISTS "Admin can manage email campaigns" ON public.email_campaigns;
 CREATE POLICY "Admin can manage email campaigns" 
 ON public.email_campaigns FOR ALL 
 USING (is_admin())
 WITH CHECK (is_admin());
 
 -- RLS policies for social_media_accounts
+DROP POLICY IF EXISTS "Users can manage their own social media accounts" ON public.social_media_accounts;
 CREATE POLICY "Users can manage their own social media accounts" 
 ON public.social_media_accounts FOR ALL 
 USING (auth.uid() = user_id)
 WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Admin can view all social media accounts" ON public.social_media_accounts;
 CREATE POLICY "Admin can view all social media accounts" 
 ON public.social_media_accounts FOR SELECT 
 USING (is_admin());
 
 -- Add triggers for updated_at
+DROP TRIGGER IF EXISTS update_blog_posts_updated_at ON public.blog_posts;
 CREATE TRIGGER update_blog_posts_updated_at
   BEFORE UPDATE ON public.blog_posts
   FOR EACH ROW
   EXECUTE FUNCTION public.update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_email_campaigns_updated_at ON public.email_campaigns;
 CREATE TRIGGER update_email_campaigns_updated_at
   BEFORE UPDATE ON public.email_campaigns
   FOR EACH ROW
   EXECUTE FUNCTION public.update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_social_media_accounts_updated_at ON public.social_media_accounts;
 CREATE TRIGGER update_social_media_accounts_updated_at
   BEFORE UPDATE ON public.social_media_accounts
   FOR EACH ROW
   EXECUTE FUNCTION public.update_updated_at_column();
 
 -- Add indexes for performance
-CREATE INDEX idx_blog_posts_slug ON public.blog_posts(slug);
-CREATE INDEX idx_blog_posts_status ON public.blog_posts(status);
-CREATE INDEX idx_blog_posts_published_at ON public.blog_posts(published_at);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_slug ON public.blog_posts(slug);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_status ON public.blog_posts(status);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_published_at ON public.blog_posts(published_at);
 
-CREATE INDEX idx_email_campaigns_status ON public.email_campaigns(status);
-CREATE INDEX idx_email_campaigns_scheduled_at ON public.email_campaigns(scheduled_at);
+CREATE INDEX IF NOT EXISTS idx_email_campaigns_status ON public.email_campaigns(status);
+CREATE INDEX IF NOT EXISTS idx_email_campaigns_scheduled_at ON public.email_campaigns(scheduled_at);
 
-CREATE INDEX idx_social_media_accounts_user_platform ON public.social_media_accounts(user_id, platform);
-CREATE INDEX idx_social_media_accounts_status ON public.social_media_accounts(connection_status);
+CREATE INDEX IF NOT EXISTS idx_social_media_accounts_user_platform ON public.social_media_accounts(user_id, platform);
+DO $$
+BEGIN
+  CREATE INDEX IF NOT EXISTS idx_social_media_accounts_status ON public.social_media_accounts(connection_status);
+EXCEPTION WHEN undefined_column THEN NULL;
+END$$;

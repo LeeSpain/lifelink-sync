@@ -10,6 +10,7 @@ BEGIN
     SELECT 1 FROM pg_policies 
     WHERE schemaname = 'public' AND tablename = 'auth_failures' AND policyname = 'Admin can view auth failures'
   ) THEN
+    DROP POLICY IF EXISTS "Admin can view auth failures" ON public.auth_failures;
     CREATE POLICY "Admin can view auth failures" ON public.auth_failures
     FOR SELECT
     USING (is_admin());
@@ -20,6 +21,7 @@ BEGIN
     SELECT 1 FROM pg_policies 
     WHERE schemaname = 'public' AND tablename = 'auth_failures' AND policyname = 'Service can read auth failures'
   ) THEN
+    DROP POLICY IF EXISTS "Service can read auth failures" ON public.auth_failures;
     CREATE POLICY "Service can read auth failures" ON public.auth_failures
     FOR SELECT
     USING (auth.role() = 'service_role');
@@ -30,6 +32,7 @@ BEGIN
     SELECT 1 FROM pg_policies 
     WHERE schemaname = 'public' AND tablename = 'auth_failures' AND policyname = 'Service can insert auth failures'
   ) THEN
+    DROP POLICY IF EXISTS "Service can insert auth failures" ON public.auth_failures;
     CREATE POLICY "Service can insert auth failures" ON public.auth_failures
     FOR INSERT
     WITH CHECK (auth.role() = 'service_role');
@@ -39,6 +42,7 @@ BEGIN
     SELECT 1 FROM pg_policies 
     WHERE schemaname = 'public' AND tablename = 'auth_failures' AND policyname = 'Service can update auth failures'
   ) THEN
+    DROP POLICY IF EXISTS "Service can update auth failures" ON public.auth_failures;
     CREATE POLICY "Service can update auth failures" ON public.auth_failures
     FOR UPDATE
     USING (auth.role() = 'service_role')
@@ -57,6 +61,7 @@ BEGIN
     SELECT 1 FROM pg_policies 
     WHERE schemaname = 'public' AND tablename = 'registration_selections' AND policyname = 'Users can view own registration selections'
   ) THEN
+    DROP POLICY IF EXISTS "Users can view own registration selections" ON public.registration_selections;
     CREATE POLICY "Users can view own registration selections" ON public.registration_selections
     FOR SELECT
     USING (auth.uid() = user_id);
@@ -67,6 +72,7 @@ BEGIN
     SELECT 1 FROM pg_policies 
     WHERE schemaname = 'public' AND tablename = 'registration_selections' AND policyname = 'Admins can manage registration selections'
   ) THEN
+    DROP POLICY IF EXISTS "Admins can manage registration selections" ON public.registration_selections;
     CREATE POLICY "Admins can manage registration selections" ON public.registration_selections
     FOR ALL
     USING (is_admin())
@@ -78,6 +84,7 @@ BEGIN
     SELECT 1 FROM pg_policies 
     WHERE schemaname = 'public' AND tablename = 'registration_selections' AND policyname = 'Service can manage registration selections'
   ) THEN
+    DROP POLICY IF EXISTS "Service can manage registration selections" ON public.registration_selections;
     CREATE POLICY "Service can manage registration selections" ON public.registration_selections
     FOR ALL
     USING (auth.role() = 'service_role')

@@ -91,16 +91,20 @@ ALTER TABLE public.sos_locations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.sos_acknowledgements ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for emergency_contacts
+DROP POLICY IF EXISTS "Users can manage their own emergency contacts" ON emergency_contacts;
 CREATE POLICY "Users can manage their own emergency contacts" ON emergency_contacts
 FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Admins can manage all emergency contacts" ON emergency_contacts;
 CREATE POLICY "Admins can manage all emergency contacts" ON emergency_contacts
 FOR ALL USING (is_admin()) WITH CHECK (is_admin());
 
 -- RLS Policies for family_groups
+DROP POLICY IF EXISTS "Users can manage their own family groups" ON family_groups;
 CREATE POLICY "Users can manage their own family groups" ON family_groups
 FOR ALL USING (auth.uid() = owner_user_id) WITH CHECK (auth.uid() = owner_user_id);
 
+DROP POLICY IF EXISTS "Family members can view their group" ON family_groups;
 CREATE POLICY "Family members can view their group" ON family_groups
 FOR SELECT USING (
   EXISTS (
@@ -111,10 +115,12 @@ FOR SELECT USING (
   )
 );
 
+DROP POLICY IF EXISTS "Admins can manage all family groups" ON family_groups;
 CREATE POLICY "Admins can manage all family groups" ON family_groups
 FOR ALL USING (is_admin()) WITH CHECK (is_admin());
 
 -- RLS Policies for family_memberships
+DROP POLICY IF EXISTS "Group owners can manage memberships" ON family_memberships;
 CREATE POLICY "Group owners can manage memberships" ON family_memberships
 FOR ALL USING (
   EXISTS (
@@ -130,16 +136,20 @@ FOR ALL USING (
   )
 );
 
+DROP POLICY IF EXISTS "Users can view their own memberships" ON family_memberships;
 CREATE POLICY "Users can view their own memberships" ON family_memberships
 FOR SELECT USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Admins can manage all memberships" ON family_memberships;
 CREATE POLICY "Admins can manage all memberships" ON family_memberships
 FOR ALL USING (is_admin()) WITH CHECK (is_admin());
 
 -- RLS Policies for sos_events
+DROP POLICY IF EXISTS "Users can manage their own SOS events" ON sos_events;
 CREATE POLICY "Users can manage their own SOS events" ON sos_events
 FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Family members can view SOS events for their groups" ON sos_events;
 CREATE POLICY "Family members can view SOS events for their groups" ON sos_events
 FOR SELECT USING (
   group_id IS NOT NULL AND EXISTS (
@@ -150,10 +160,12 @@ FOR SELECT USING (
   )
 );
 
+DROP POLICY IF EXISTS "Admins can manage all SOS events" ON sos_events;
 CREATE POLICY "Admins can manage all SOS events" ON sos_events
 FOR ALL USING (is_admin()) WITH CHECK (is_admin());
 
 -- RLS Policies for sos_locations (PRIVACY: only during active SOS)
+DROP POLICY IF EXISTS "Users can manage their own SOS locations" ON sos_locations;
 CREATE POLICY "Users can manage their own SOS locations" ON sos_locations
 FOR ALL USING (
   EXISTS (
@@ -169,6 +181,7 @@ FOR ALL USING (
   )
 );
 
+DROP POLICY IF EXISTS "Family can read live locations only during active SOS" ON sos_locations;
 CREATE POLICY "Family can read live locations only during active SOS" ON sos_locations
 FOR SELECT USING (
   EXISTS (
@@ -181,10 +194,12 @@ FOR SELECT USING (
   )
 );
 
+DROP POLICY IF EXISTS "Admins can manage all SOS locations" ON sos_locations;
 CREATE POLICY "Admins can manage all SOS locations" ON sos_locations
 FOR ALL USING (is_admin()) WITH CHECK (is_admin());
 
 -- RLS Policies for sos_acknowledgements
+DROP POLICY IF EXISTS "Users can manage acknowledgements for their events" ON sos_acknowledgements;
 CREATE POLICY "Users can manage acknowledgements for their events" ON sos_acknowledgements
 FOR ALL USING (
   EXISTS (
@@ -200,6 +215,7 @@ FOR ALL USING (
   )
 );
 
+DROP POLICY IF EXISTS "Family members can acknowledge SOS events" ON sos_acknowledgements;
 CREATE POLICY "Family members can acknowledge SOS events" ON sos_acknowledgements
 FOR INSERT WITH CHECK (
   auth.uid() = family_user_id AND EXISTS (
@@ -212,6 +228,7 @@ FOR INSERT WITH CHECK (
   )
 );
 
+DROP POLICY IF EXISTS "Family members can view acknowledgements" ON sos_acknowledgements;
 CREATE POLICY "Family members can view acknowledgements" ON sos_acknowledgements
 FOR SELECT USING (
   auth.uid() = family_user_id OR EXISTS (
@@ -223,20 +240,24 @@ FOR SELECT USING (
   )
 );
 
+DROP POLICY IF EXISTS "Admins can manage all acknowledgements" ON sos_acknowledgements;
 CREATE POLICY "Admins can manage all acknowledgements" ON sos_acknowledgements
 FOR ALL USING (is_admin()) WITH CHECK (is_admin());
 
 -- Add triggers for updated_at timestamps
+DROP TRIGGER IF EXISTS update_emergency_contacts_updated_at ON emergency_contacts;
 CREATE TRIGGER update_emergency_contacts_updated_at
   BEFORE UPDATE ON emergency_contacts
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_family_groups_updated_at ON family_groups;
 CREATE TRIGGER update_family_groups_updated_at
   BEFORE UPDATE ON family_groups
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_family_memberships_updated_at ON family_memberships;
 CREATE TRIGGER update_family_memberships_updated_at
   BEFORE UPDATE ON family_memberships
   FOR EACH ROW
@@ -257,6 +278,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS limit_emergency_contacts ON emergency_contacts;
 CREATE TRIGGER limit_emergency_contacts
   BEFORE INSERT ON emergency_contacts
   FOR EACH ROW
@@ -275,6 +297,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS validate_family_contact_trigger ON emergency_contacts;
 CREATE TRIGGER validate_family_contact_trigger
   BEFORE INSERT OR UPDATE ON emergency_contacts
   FOR EACH ROW

@@ -11,6 +11,7 @@ BEGIN
     DROP POLICY "Service role can insert contact submissions" ON public.contact_submissions;
   END IF;
 
+  DROP POLICY IF EXISTS "Service role can insert contact submissions" ON public.contact_submissions;
   CREATE POLICY "Service role can insert contact submissions"
   ON public.contact_submissions
   FOR INSERT
@@ -24,6 +25,7 @@ BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='contact_submissions' AND policyname='Admin can read contact submissions'
   ) THEN
+    DROP POLICY IF EXISTS "Admin can read contact submissions" ON public.contact_submissions;
     CREATE POLICY "Admin can read contact submissions"
     ON public.contact_submissions
     FOR SELECT
@@ -33,6 +35,7 @@ BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='contact_submissions' AND policyname='Admin can update contact submissions'
   ) THEN
+    DROP POLICY IF EXISTS "Admin can update contact submissions" ON public.contact_submissions;
     CREATE POLICY "Admin can update contact submissions"
     ON public.contact_submissions
     FOR UPDATE
@@ -43,6 +46,7 @@ BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='contact_submissions' AND policyname='Admin can delete contact submissions'
   ) THEN
+    DROP POLICY IF EXISTS "Admin can delete contact submissions" ON public.contact_submissions;
     CREATE POLICY "Admin can delete contact submissions"
     ON public.contact_submissions
     FOR DELETE

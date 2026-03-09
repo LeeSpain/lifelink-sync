@@ -4,6 +4,7 @@
 DROP POLICY IF EXISTS "Users can update their own profile except role" ON public.profiles;
 
 -- Create a more secure update policy that prevents role modification through normal updates
+DROP POLICY IF EXISTS "Users can update their own profile (excluding role)" ON public.profiles;
 CREATE POLICY "Users can update their own profile (excluding role)" 
 ON public.profiles 
 FOR UPDATE 
@@ -114,12 +115,14 @@ CREATE TABLE IF NOT EXISTS public.security_events (
 ALTER TABLE public.security_events ENABLE ROW LEVEL SECURITY;
 
 -- Only admins can view security events
+DROP POLICY IF EXISTS "Admins can view security events" ON public.security_events;
 CREATE POLICY "Admins can view security events" 
 ON public.security_events 
 FOR SELECT 
 USING (is_admin());
 
 -- System can insert security events
+DROP POLICY IF EXISTS "System can insert security events" ON public.security_events;
 CREATE POLICY "System can insert security events" 
 ON public.security_events 
 FOR INSERT 

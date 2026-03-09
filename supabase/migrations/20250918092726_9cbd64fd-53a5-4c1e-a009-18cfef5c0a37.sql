@@ -14,7 +14,8 @@ FOR INSERT
 WITH CHECK (true);
 
 -- Ensure all analytics-related tables have proper admin access
-CREATE POLICY IF NOT EXISTS "Admins can read contact submissions" 
-ON public.contact_submissions 
-FOR SELECT 
+DROP POLICY IF EXISTS "Admins can read contact submissions" ON public.contact_submissions;
+CREATE POLICY "Admins can read contact submissions"
+ON public.contact_submissions
+FOR SELECT
 USING (is_admin());

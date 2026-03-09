@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS public.social_media_accounts (
 ALTER TABLE public.social_media_accounts ENABLE ROW LEVEL SECURITY;
 
 -- Create RLS policies
+DROP POLICY IF EXISTS "Users can manage their own social media accounts" ON public.social_media_accounts;
 CREATE POLICY "Users can manage their own social media accounts"
 ON public.social_media_accounts
 FOR ALL
@@ -28,6 +29,7 @@ USING (auth.uid() = user_id)
 WITH CHECK (auth.uid() = user_id);
 
 -- Add updated_at trigger
+DROP TRIGGER IF EXISTS update_social_media_accounts_updated_at ON public.social_media_accounts;
 CREATE TRIGGER update_social_media_accounts_updated_at
 BEFORE UPDATE ON public.social_media_accounts
 FOR EACH ROW

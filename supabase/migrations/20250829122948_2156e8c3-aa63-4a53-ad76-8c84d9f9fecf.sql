@@ -19,17 +19,20 @@ DROP POLICY IF EXISTS "Users can view own registration selections" ON public.reg
 DROP POLICY IF EXISTS "Users can manage own registration selections" ON public.registration_selections;
 DROP POLICY IF EXISTS "Admins can view all registration selections" ON public.registration_selections;
 
+DROP POLICY IF EXISTS "Users can view own registration selections" ON public.registration_selections;
 CREATE POLICY "Users can view own registration selections"
 ON public.registration_selections
 FOR SELECT
 USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can manage own registration selections" ON public.registration_selections;
 CREATE POLICY "Users can manage own registration selections"
 ON public.registration_selections
 FOR ALL
 USING (auth.uid() = user_id)
 WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Admins can view all registration selections" ON public.registration_selections;
 CREATE POLICY "Admins can view all registration selections"
 ON public.registration_selections
 FOR SELECT
@@ -60,6 +63,7 @@ ON public.phone_verifications
 FOR SELECT
 USING (auth.role() = 'service_role');
 
+DROP POLICY IF EXISTS "Users can create own phone verifications" ON public.phone_verifications;
 CREATE POLICY "Users can create own phone verifications"
 ON public.phone_verifications
 FOR INSERT

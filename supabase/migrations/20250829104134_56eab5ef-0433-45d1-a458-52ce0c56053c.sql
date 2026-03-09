@@ -44,6 +44,7 @@ AS $$
 $$;
 
 -- Create new clean RLS policies using security definer functions
+DROP POLICY IF EXISTS "Family owners manage their groups" ON public.family_groups;
 CREATE POLICY "Family owners manage their groups"
 ON public.family_groups
 FOR ALL
@@ -51,6 +52,7 @@ TO authenticated
 USING (owner_user_id = auth.uid())
 WITH CHECK (owner_user_id = auth.uid());
 
+DROP POLICY IF EXISTS "Family members view their groups" ON public.family_groups;
 CREATE POLICY "Family members view their groups"
 ON public.family_groups
 FOR SELECT
@@ -64,6 +66,7 @@ USING (
   )
 );
 
+DROP POLICY IF EXISTS "Family owners manage memberships" ON public.family_memberships;
 CREATE POLICY "Family owners manage memberships"
 ON public.family_memberships
 FOR ALL
@@ -83,6 +86,7 @@ WITH CHECK (
   )
 );
 
+DROP POLICY IF EXISTS "Members view own membership" ON public.family_memberships;
 CREATE POLICY "Members view own membership"
 ON public.family_memberships
 FOR SELECT
@@ -90,6 +94,7 @@ TO authenticated
 USING (user_id = auth.uid());
 
 -- Keep admin policies
+DROP POLICY IF EXISTS "Admins manage all family groups" ON public.family_groups;
 CREATE POLICY "Admins manage all family groups"
 ON public.family_groups
 FOR ALL
@@ -97,6 +102,7 @@ TO authenticated
 USING (is_admin())
 WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "Admins manage all family memberships" ON public.family_memberships;
 CREATE POLICY "Admins manage all family memberships"
 ON public.family_memberships
 FOR ALL

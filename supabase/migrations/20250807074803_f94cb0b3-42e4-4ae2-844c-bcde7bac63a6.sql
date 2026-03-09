@@ -34,48 +34,57 @@ ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.registration_selections ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for orders table
+DROP POLICY IF EXISTS "Users can view their own orders" ON public.orders;
 CREATE POLICY "Users can view their own orders" 
 ON public.orders 
 FOR SELECT 
 USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can create their own orders" ON public.orders;
 CREATE POLICY "Users can create their own orders" 
 ON public.orders 
 FOR INSERT 
 WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "System can manage orders" ON public.orders;
 CREATE POLICY "System can manage orders" 
 ON public.orders 
 FOR ALL 
 USING (true);
 
 -- Create policies for registration_selections table
+DROP POLICY IF EXISTS "Users can view their own registration selections" ON public.registration_selections;
 CREATE POLICY "Users can view their own registration selections" 
 ON public.registration_selections 
 FOR SELECT 
 USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can create their own registration selections" ON public.registration_selections;
 CREATE POLICY "Users can create their own registration selections" 
 ON public.registration_selections 
 FOR INSERT 
 WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update their own registration selections" ON public.registration_selections;
 CREATE POLICY "Users can update their own registration selections" 
 ON public.registration_selections 
 FOR UPDATE 
 USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "System can manage registration selections" ON public.registration_selections;
 CREATE POLICY "System can manage registration selections" 
 ON public.registration_selections 
 FOR ALL 
 USING (true);
 
 -- Create trigger for automatic timestamp updates
+DROP TRIGGER IF EXISTS update_orders_updated_at ON public.orders;
 CREATE TRIGGER update_orders_updated_at
 BEFORE UPDATE ON public.orders
 FOR EACH ROW
 EXECUTE FUNCTION public.update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_registration_selections_updated_at ON public.registration_selections;
 CREATE TRIGGER update_registration_selections_updated_at
 BEFORE UPDATE ON public.registration_selections
 FOR EACH ROW

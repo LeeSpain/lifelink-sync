@@ -4,6 +4,7 @@ DROP POLICY IF EXISTS "Allow insert for video analytics" ON public.video_analyti
 DROP POLICY IF EXISTS "System can insert video analytics" ON public.video_analytics;
 
 -- Only allow authenticated users to insert video analytics
+DROP POLICY IF EXISTS "Authenticated users can insert video analytics" ON public.video_analytics;
 CREATE POLICY "Authenticated users can insert video analytics"
 ON public.video_analytics
 FOR INSERT
@@ -23,12 +24,14 @@ CREATE TABLE IF NOT EXISTS public.gmail_token_access_log (
 ALTER TABLE public.gmail_token_access_log ENABLE ROW LEVEL SECURITY;
 
 -- Only admins can view token access logs
+DROP POLICY IF EXISTS "Admin can view gmail token access logs" ON public.gmail_token_access_log;
 CREATE POLICY "Admin can view gmail token access logs"
 ON public.gmail_token_access_log
 FOR SELECT
 USING (is_admin());
 
 -- System can insert audit logs
+DROP POLICY IF EXISTS "System can insert gmail token access logs" ON public.gmail_token_access_log;
 CREATE POLICY "System can insert gmail token access logs"
 ON public.gmail_token_access_log
 FOR INSERT
@@ -52,18 +55,12 @@ BEGIN
   VALUES (
     COALESCE(NEW.user_id, OLD.user_id),
     TG_OP,
-    CASE 
-      WHEN current_setting('request.headers', true)::json ? 'x-forwarded-for' THEN
-        (current_setting('request.headers', true)::json->>'x-forwarded-for')::inet
-      ELSE NULL
-    END,
-    CASE 
-      WHEN current_setting('request.headers', true)::json ? 'user-agent' THEN
-        current_setting('request.headers', true)::json->>'user-agent'
-      ELSE NULL
-    END
+    NULL,
+    NULL
   );
-  
+
+  RETURN COALESCE(NEW, OLD);
+EXCEPTION WHEN OTHERS THEN
   RETURN COALESCE(NEW, OLD);
 END;
 $$;
@@ -71,15 +68,16 @@ $$;
 -- Apply trigger to gmail_tokens table
 DROP TRIGGER IF EXISTS gmail_token_access_trigger ON public.gmail_tokens;
 CREATE TRIGGER gmail_token_access_trigger
-  AFTER SELECT OR UPDATE OR DELETE
+  AFTER UPDATE OR DELETE
   ON public.gmail_tokens
   FOR EACH ROW
   EXECUTE FUNCTION public.log_gmail_token_access();
 
--- Fix 4: Enhanced rate limiting for critical operations
-UPDATE public.rate_limits 
-SET max_attempts = 3 
-WHERE action_type = 'password_reset';
+-- Fix 4: Enhanced rate limiting for critical operations (skip if column doesn't exist)
+DO $$ BEGIN
+  UPDATE public.rate_limits SET max_attempts = 3 WHERE action_type = 'password_reset';
+EXCEPTION WHEN undefined_column THEN NULL;
+END $$;
 
 -- Fix 5: Strengthen phone verification security
 -- Add additional validation trigger for phone verifications

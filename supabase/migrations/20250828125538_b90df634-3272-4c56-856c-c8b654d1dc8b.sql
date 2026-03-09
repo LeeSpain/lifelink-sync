@@ -23,6 +23,7 @@ BEGIN
     SELECT 1 FROM pg_policies 
     WHERE schemaname = 'public' AND tablename = 'phone_verifications' AND policyname = 'Users can only access own phone verifications'
   ) THEN
+    DROP POLICY IF EXISTS "Users can only access own phone verifications" ON public.phone_verifications;
     CREATE POLICY "Users can only access own phone verifications"
     ON public.phone_verifications
     FOR ALL
@@ -36,6 +37,7 @@ BEGIN
     SELECT 1 FROM pg_policies 
     WHERE schemaname = 'public' AND tablename = 'registration_selections' AND policyname = 'Users can only access own registration selections'
   ) THEN
+    DROP POLICY IF EXISTS "Users can only access own registration selections" ON public.registration_selections;
     CREATE POLICY "Users can only access own registration selections"
     ON public.registration_selections
     FOR ALL

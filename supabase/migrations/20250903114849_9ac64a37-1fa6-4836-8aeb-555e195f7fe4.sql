@@ -1,7 +1,7 @@
 -- ICE SOS Lite: Regional Call Centre Integration - Complete Database Schema
 
 -- REGIONAL ORGANIZATIONS
-CREATE TABLE public.organizations (
+CREATE TABLE IF NOT EXISTS public.organizations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   region TEXT,
@@ -13,6 +13,7 @@ CREATE TABLE public.organizations (
 -- Enable RLS for organizations
 ALTER TABLE public.organizations ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Admins can manage all organizations" ON public.organizations;
 CREATE POLICY "Admins can manage all organizations"
 ON public.organizations
 FOR ALL
@@ -20,6 +21,7 @@ TO authenticated
 USING (is_admin())
 WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "Regional users can view their organization" ON public.organizations;
 CREATE POLICY "Regional users can view their organization"
 ON public.organizations
 FOR SELECT
@@ -31,7 +33,7 @@ USING (EXISTS (
 ));
 
 -- ORGANIZATION USERS
-CREATE TABLE public.organization_users (
+CREATE TABLE IF NOT EXISTS public.organization_users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id UUID REFERENCES public.organizations(id) ON DELETE CASCADE,
   user_id UUID NOT NULL,
@@ -45,6 +47,7 @@ CREATE TABLE public.organization_users (
 -- Enable RLS for organization_users
 ALTER TABLE public.organization_users ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Admins can manage all organization users" ON public.organization_users;
 CREATE POLICY "Admins can manage all organization users"
 ON public.organization_users
 FOR ALL
@@ -52,6 +55,7 @@ TO authenticated
 USING (is_admin())
 WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "Users can view their own organization membership" ON public.organization_users;
 CREATE POLICY "Users can view their own organization membership"
 ON public.organization_users
 FOR SELECT
@@ -63,22 +67,22 @@ DO $$
 BEGIN
   -- Add organization_id column if it doesn't exist
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'profiles' AND column_name = 'organization_id') THEN
-    ALTER TABLE public.profiles ADD COLUMN organization_id UUID REFERENCES public.organizations(id);
+    ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES public.organizations(id);
   END IF;
   
   -- Add preferred_language column if it doesn't exist
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'profiles' AND column_name = 'preferred_language') THEN
-    ALTER TABLE public.profiles ADD COLUMN preferred_language TEXT DEFAULT 'es';
+    ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS preferred_language TEXT DEFAULT 'es';
   END IF;
   
   -- Add subscription_regional column if it doesn't exist
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'profiles' AND column_name = 'subscription_regional') THEN
-    ALTER TABLE public.profiles ADD COLUMN subscription_regional BOOLEAN DEFAULT false;
+    ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS subscription_regional BOOLEAN DEFAULT false;
   END IF;
 END $$;
 
 -- REGIONAL EMERGENCY CONTACTS (separate from main emergency_contacts)
-CREATE TABLE public.regional_emergency_contacts (
+CREATE TABLE IF NOT EXISTS public.regional_emergency_contacts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   client_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   priority INTEGER,
@@ -92,6 +96,7 @@ CREATE TABLE public.regional_emergency_contacts (
 -- Enable RLS for regional_emergency_contacts
 ALTER TABLE public.regional_emergency_contacts ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can manage their own regional emergency contacts" ON public.regional_emergency_contacts;
 CREATE POLICY "Users can manage their own regional emergency contacts"
 ON public.regional_emergency_contacts
 FOR ALL
@@ -99,6 +104,7 @@ TO authenticated
 USING (auth.uid() = client_id)
 WITH CHECK (auth.uid() = client_id);
 
+DROP POLICY IF EXISTS "Regional operators can view contacts for their org clients" ON public.regional_emergency_contacts;
 CREATE POLICY "Regional operators can view contacts for their org clients"
 ON public.regional_emergency_contacts
 FOR SELECT
@@ -113,7 +119,7 @@ USING (EXISTS (
 ));
 
 -- DEVICES
-CREATE TABLE public.regional_devices (
+CREATE TABLE IF NOT EXISTS public.regional_devices (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   client_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   device_type TEXT,
@@ -128,6 +134,7 @@ CREATE TABLE public.regional_devices (
 -- Enable RLS for regional_devices
 ALTER TABLE public.regional_devices ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can manage their own devices" ON public.regional_devices;
 CREATE POLICY "Users can manage their own devices"
 ON public.regional_devices
 FOR ALL
@@ -135,6 +142,7 @@ TO authenticated
 USING (auth.uid() = client_id)
 WITH CHECK (auth.uid() = client_id);
 
+DROP POLICY IF EXISTS "Regional operators can view devices for their org clients" ON public.regional_devices;
 CREATE POLICY "Regional operators can view devices for their org clients"
 ON public.regional_devices
 FOR SELECT
@@ -149,7 +157,7 @@ USING (EXISTS (
 ));
 
 -- REGIONAL SOS EVENTS (separate from main sos_events)
-CREATE TABLE public.regional_sos_events (
+CREATE TABLE IF NOT EXISTS public.regional_sos_events (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   client_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   organization_id UUID REFERENCES public.organizations(id),
@@ -168,12 +176,14 @@ CREATE TABLE public.regional_sos_events (
 -- Enable RLS for regional_sos_events
 ALTER TABLE public.regional_sos_events ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view their own SOS events" ON public.regional_sos_events;
 CREATE POLICY "Users can view their own SOS events"
 ON public.regional_sos_events
 FOR SELECT
 TO authenticated
 USING (auth.uid() = client_id);
 
+DROP POLICY IF EXISTS "Regional operators can manage events for their org" ON public.regional_sos_events;
 CREATE POLICY "Regional operators can manage events for their org"
 ON public.regional_sos_events
 FOR ALL
@@ -191,6 +201,7 @@ WITH CHECK (EXISTS (
   AND ou.role IN ('regional_operator', 'regional_supervisor')
 ));
 
+DROP POLICY IF EXISTS "Admins can manage all SOS events" ON public.regional_sos_events;
 CREATE POLICY "Admins can manage all SOS events"
 ON public.regional_sos_events
 FOR ALL
@@ -199,7 +210,7 @@ USING (is_admin())
 WITH CHECK (is_admin());
 
 -- SOS ACTIONS
-CREATE TABLE public.sos_actions (
+CREATE TABLE IF NOT EXISTS public.sos_actions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   event_id UUID REFERENCES public.regional_sos_events(id) ON DELETE CASCADE,
   actor_user_id UUID,
@@ -211,6 +222,7 @@ CREATE TABLE public.sos_actions (
 -- Enable RLS for sos_actions
 ALTER TABLE public.sos_actions ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Regional operators can manage actions for their events" ON public.sos_actions;
 CREATE POLICY "Regional operators can manage actions for their events"
 ON public.sos_actions
 FOR ALL
@@ -231,7 +243,7 @@ WITH CHECK (EXISTS (
 ));
 
 -- FAMILY NOTIFICATIONS
-CREATE TABLE public.family_notifications (
+CREATE TABLE IF NOT EXISTS public.family_notifications (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   event_id UUID REFERENCES public.regional_sos_events(id) ON DELETE CASCADE,
   client_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -246,6 +258,7 @@ CREATE TABLE public.family_notifications (
 -- Enable RLS for family_notifications
 ALTER TABLE public.family_notifications ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Regional operators can insert family notifications" ON public.family_notifications;
 CREATE POLICY "Regional operators can insert family notifications"
 ON public.family_notifications
 FOR INSERT
@@ -258,6 +271,7 @@ WITH CHECK (EXISTS (
   AND ou.role IN ('regional_operator', 'regional_supervisor')
 ));
 
+DROP POLICY IF EXISTS "Family can read their notifications" ON public.family_notifications;
 CREATE POLICY "Family can read their notifications"
 ON public.family_notifications
 FOR SELECT
@@ -265,7 +279,7 @@ TO authenticated
 USING (auth.uid() = client_id);
 
 -- AUDIT LOG
-CREATE TABLE public.regional_audit_log (
+CREATE TABLE IF NOT EXISTS public.regional_audit_log (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID,
   organization_id UUID REFERENCES public.organizations(id),
@@ -279,12 +293,14 @@ CREATE TABLE public.regional_audit_log (
 -- Enable RLS for regional_audit_log
 ALTER TABLE public.regional_audit_log ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Admins can view all audit logs" ON public.regional_audit_log;
 CREATE POLICY "Admins can view all audit logs"
 ON public.regional_audit_log
 FOR SELECT
 TO authenticated
 USING (is_admin());
 
+DROP POLICY IF EXISTS "Regional supervisors can view their org audit logs" ON public.regional_audit_log;
 CREATE POLICY "Regional supervisors can view their org audit logs"
 ON public.regional_audit_log
 FOR SELECT
@@ -297,13 +313,13 @@ USING (EXISTS (
 ));
 
 -- Create indexes for performance
-CREATE INDEX idx_organization_users_user_id ON public.organization_users(user_id);
-CREATE INDEX idx_organization_users_org_id ON public.organization_users(organization_id);
-CREATE INDEX idx_regional_sos_events_client_id ON public.regional_sos_events(client_id);
-CREATE INDEX idx_regional_sos_events_org_id ON public.regional_sos_events(organization_id);
-CREATE INDEX idx_regional_sos_events_status ON public.regional_sos_events(status);
-CREATE INDEX idx_family_notifications_client_id ON public.family_notifications(client_id);
-CREATE INDEX idx_family_notifications_event_id ON public.family_notifications(event_id);
+CREATE INDEX IF NOT EXISTS idx_organization_users_user_id ON public.organization_users(user_id);
+CREATE INDEX IF NOT EXISTS idx_organization_users_org_id ON public.organization_users(organization_id);
+CREATE INDEX IF NOT EXISTS idx_regional_sos_events_client_id ON public.regional_sos_events(client_id);
+CREATE INDEX IF NOT EXISTS idx_regional_sos_events_org_id ON public.regional_sos_events(organization_id);
+CREATE INDEX IF NOT EXISTS idx_regional_sos_events_status ON public.regional_sos_events(status);
+CREATE INDEX IF NOT EXISTS idx_family_notifications_client_id ON public.family_notifications(client_id);
+CREATE INDEX IF NOT EXISTS idx_family_notifications_event_id ON public.family_notifications(event_id);
 
 -- Create triggers for updated_at
 CREATE OR REPLACE FUNCTION public.update_updated_at_column()
@@ -314,8 +330,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_organizations_updated_at ON public.organizations;
 CREATE TRIGGER update_organizations_updated_at BEFORE UPDATE ON public.organizations FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+DROP TRIGGER IF EXISTS update_organization_users_updated_at ON public.organization_users;
 CREATE TRIGGER update_organization_users_updated_at BEFORE UPDATE ON public.organization_users FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+DROP TRIGGER IF EXISTS update_regional_emergency_contacts_updated_at ON public.regional_emergency_contacts;
 CREATE TRIGGER update_regional_emergency_contacts_updated_at BEFORE UPDATE ON public.regional_emergency_contacts FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+DROP TRIGGER IF EXISTS update_regional_devices_updated_at ON public.regional_devices;
 CREATE TRIGGER update_regional_devices_updated_at BEFORE UPDATE ON public.regional_devices FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+DROP TRIGGER IF EXISTS update_regional_sos_events_updated_at ON public.regional_sos_events;
 CREATE TRIGGER update_regional_sos_events_updated_at BEFORE UPDATE ON public.regional_sos_events FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();

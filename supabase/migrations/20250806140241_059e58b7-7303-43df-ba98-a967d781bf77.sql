@@ -99,36 +99,49 @@ ALTER TABLE public.workflow_executions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.routing_rules ENABLE ROW LEVEL SECURITY;
 
 -- Create RLS policies for admin management
+DROP POLICY IF EXISTS "Admin can manage email templates" ON public.email_templates;
 CREATE POLICY "Admin can manage email templates" ON public.email_templates FOR ALL USING (true);
+DROP POLICY IF EXISTS "Admin can manage conversation categories" ON public.conversation_categories;
 CREATE POLICY "Admin can manage conversation categories" ON public.conversation_categories FOR ALL USING (true);
+DROP POLICY IF EXISTS "Admin can manage auto reply queue" ON public.auto_reply_queue;
 CREATE POLICY "Admin can manage auto reply queue" ON public.auto_reply_queue FOR ALL USING (true);
+DROP POLICY IF EXISTS "Admin can manage workflow triggers" ON public.workflow_triggers;
 CREATE POLICY "Admin can manage workflow triggers" ON public.workflow_triggers FOR ALL USING (true);
+DROP POLICY IF EXISTS "Admin can view workflow executions" ON public.workflow_executions;
 CREATE POLICY "Admin can view workflow executions" ON public.workflow_executions FOR SELECT USING (true);
+DROP POLICY IF EXISTS "System can manage workflow executions" ON public.workflow_executions;
 CREATE POLICY "System can manage workflow executions" ON public.workflow_executions FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "System can update workflow executions" ON public.workflow_executions;
 CREATE POLICY "System can update workflow executions" ON public.workflow_executions FOR UPDATE USING (true);
+DROP POLICY IF EXISTS "Admin can manage routing rules" ON public.routing_rules;
 CREATE POLICY "Admin can manage routing rules" ON public.routing_rules FOR ALL USING (true);
 
 -- Add triggers for updated_at columns
+DROP TRIGGER IF EXISTS update_email_templates_updated_at ON public.email_templates;
 CREATE TRIGGER update_email_templates_updated_at
   BEFORE UPDATE ON public.email_templates
   FOR EACH ROW
   EXECUTE FUNCTION public.update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_conversation_categories_updated_at ON public.conversation_categories;
 CREATE TRIGGER update_conversation_categories_updated_at
   BEFORE UPDATE ON public.conversation_categories
   FOR EACH ROW
   EXECUTE FUNCTION public.update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_auto_reply_queue_updated_at ON public.auto_reply_queue;
 CREATE TRIGGER update_auto_reply_queue_updated_at
   BEFORE UPDATE ON public.auto_reply_queue
   FOR EACH ROW
   EXECUTE FUNCTION public.update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_workflow_triggers_updated_at ON public.workflow_triggers;
 CREATE TRIGGER update_workflow_triggers_updated_at
   BEFORE UPDATE ON public.workflow_triggers
   FOR EACH ROW
   EXECUTE FUNCTION public.update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_routing_rules_updated_at ON public.routing_rules;
 CREATE TRIGGER update_routing_rules_updated_at
   BEFORE UPDATE ON public.routing_rules
   FOR EACH ROW

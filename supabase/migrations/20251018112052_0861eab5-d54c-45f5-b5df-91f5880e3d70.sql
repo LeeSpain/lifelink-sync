@@ -32,18 +32,21 @@ ALTER TABLE public.customer_regional_services ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.order_notes ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for customer_regional_services
+DROP POLICY IF EXISTS "Admins can manage all customer services" ON public.customer_regional_services;
 CREATE POLICY "Admins can manage all customer services"
   ON public.customer_regional_services
   FOR ALL
   USING (is_admin())
   WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "Customers can view their own services" ON public.customer_regional_services;
 CREATE POLICY "Customers can view their own services"
   ON public.customer_regional_services
   FOR SELECT
   USING (auth.uid() = customer_id);
 
 -- RLS Policies for order_notes
+DROP POLICY IF EXISTS "Admins can manage all order notes" ON public.order_notes;
 CREATE POLICY "Admins can manage all order notes"
   ON public.order_notes
   FOR ALL
@@ -51,12 +54,13 @@ CREATE POLICY "Admins can manage all order notes"
   WITH CHECK (is_admin());
 
 -- Create indexes for performance
-CREATE INDEX idx_customer_regional_services_customer_id ON public.customer_regional_services(customer_id);
-CREATE INDEX idx_customer_regional_services_service_id ON public.customer_regional_services(service_id);
-CREATE INDEX idx_customer_regional_services_status ON public.customer_regional_services(status);
-CREATE INDEX idx_order_notes_order_id ON public.order_notes(order_id);
+CREATE INDEX IF NOT EXISTS idx_customer_regional_services_customer_id ON public.customer_regional_services(customer_id);
+CREATE INDEX IF NOT EXISTS idx_customer_regional_services_service_id ON public.customer_regional_services(service_id);
+CREATE INDEX IF NOT EXISTS idx_customer_regional_services_status ON public.customer_regional_services(status);
+CREATE INDEX IF NOT EXISTS idx_order_notes_order_id ON public.order_notes(order_id);
 
 -- Add updated_at trigger for customer_regional_services
+DROP TRIGGER IF EXISTS update_customer_regional_services_updated_at ON public.customer_regional_services;
 CREATE TRIGGER update_customer_regional_services_updated_at
   BEFORE UPDATE ON public.customer_regional_services
   FOR EACH ROW

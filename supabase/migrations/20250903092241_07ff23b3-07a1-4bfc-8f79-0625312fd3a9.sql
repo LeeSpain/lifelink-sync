@@ -4,6 +4,7 @@
 DROP POLICY IF EXISTS "Anyone can read contact submissions" ON public.contact_submissions;
 
 -- Ensure only admins can read contact submissions
+DROP POLICY IF EXISTS "Admins only can read contact submissions" ON public.contact_submissions;
 CREATE POLICY "Admins only can read contact submissions" ON public.contact_submissions
 FOR SELECT 
 USING (is_admin());
@@ -12,11 +13,13 @@ USING (is_admin());
 DROP POLICY IF EXISTS "Public can read subscribers" ON public.subscribers;
 
 -- Users can only read their own subscription data
+DROP POLICY IF EXISTS "Users can read own subscription" ON public.subscribers;
 CREATE POLICY "Users can read own subscription" ON public.subscribers
 FOR SELECT
 USING (auth.uid() = user_id OR auth.email() = email);
 
 -- Admins can read all subscriptions
+DROP POLICY IF EXISTS "Admins can read all subscriptions" ON public.subscribers;
 CREATE POLICY "Admins can read all subscriptions" ON public.subscribers  
 FOR SELECT
 USING (is_admin());
@@ -32,6 +35,7 @@ BEGIN
 END $$;
 
 -- Ensure video analytics is admin-only for reading
+DROP POLICY IF EXISTS "Only admins can read video analytics" ON public.video_analytics;
 CREATE POLICY "Only admins can read video analytics" ON public.video_analytics
 FOR SELECT
 USING (is_admin());
@@ -46,6 +50,7 @@ BEGIN
     DROP POLICY IF EXISTS "Anyone can read homepage analytics" ON public.homepage_analytics;
     
     -- Only admins can read analytics
+    DROP POLICY IF EXISTS "Only admins can read homepage analytics" ON public.homepage_analytics;
     CREATE POLICY "Only admins can read homepage analytics" ON public.homepage_analytics
     FOR SELECT
     USING (is_admin());

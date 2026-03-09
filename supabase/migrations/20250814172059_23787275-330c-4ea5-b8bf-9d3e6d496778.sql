@@ -44,8 +44,8 @@ BEGIN
     SET role = 'admin', updated_at = now()
     WHERE user_id = target_user_id;
     
-    GET DIAGNOSTICS assignment_successful = FOUND;
-    
+    assignment_successful := FOUND;
+
     IF assignment_successful THEN
       -- Enhanced logging for admin assignment
       INSERT INTO public.security_audit_log (
@@ -158,6 +158,7 @@ END;
 $$;
 
 -- Add rate limiting to contact submissions
+DROP POLICY IF EXISTS "Rate limited contact submissions" ON public.contact_submissions;
 CREATE POLICY "Rate limited contact submissions" 
 ON public.contact_submissions 
 FOR INSERT 

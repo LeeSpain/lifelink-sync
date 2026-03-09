@@ -44,13 +44,14 @@ BEGIN
       AND tablename = 'phone_verifications' 
       AND policyname = 'Service role can manage phone verifications'
   ) THEN
-    EXECUTE $$
+    EXECUTE $inner$
+      DROP POLICY IF EXISTS "Service role can manage phone verifications" ON public.phone_verifications;
       CREATE POLICY "Service role can manage phone verifications"
       ON public.phone_verifications
       FOR ALL
       USING (auth.role() = 'service_role')
       WITH CHECK (auth.role() = 'service_role');
-    $$;
+    $inner$;
   END IF;
 END$$;
 

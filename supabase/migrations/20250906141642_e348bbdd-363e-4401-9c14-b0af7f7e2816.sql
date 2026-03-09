@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS content_quality_metrics (
 ALTER TABLE content_quality_metrics ENABLE ROW LEVEL SECURITY;
 
 -- Create RLS policies for quality metrics
+DROP POLICY IF EXISTS "Admin users can manage quality metrics" ON content_quality_metrics;
 CREATE POLICY "Admin users can manage quality metrics" 
 ON content_quality_metrics 
 FOR ALL
@@ -44,6 +45,7 @@ CREATE TABLE IF NOT EXISTS automated_test_results (
 ALTER TABLE automated_test_results ENABLE ROW LEVEL SECURITY;
 
 -- Create RLS policies for test results
+DROP POLICY IF EXISTS "Admin users can manage test results" ON automated_test_results;
 CREATE POLICY "Admin users can manage test results" 
 ON automated_test_results 
 FOR ALL
@@ -55,12 +57,17 @@ USING (
   )
 );
 
--- Add quality tracking columns to publishing queue
-ALTER TABLE publishing_queue 
-ADD COLUMN IF NOT EXISTS processing_time_ms INTEGER,
-ADD COLUMN IF NOT EXISTS quality_check_passed BOOLEAN DEFAULT false,
-ADD COLUMN IF NOT EXISTS quality_issues JSONB,
-ADD COLUMN IF NOT EXISTS error_message TEXT;
+-- Add quality tracking columns to publishing queue (if table exists)
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_catalog.pg_tables WHERE schemaname = 'public' AND tablename = 'publishing_queue') THEN
+    ALTER TABLE publishing_queue
+    ADD COLUMN IF NOT EXISTS processing_time_ms INTEGER,
+    ADD COLUMN IF NOT EXISTS quality_check_passed BOOLEAN DEFAULT false,
+    ADD COLUMN IF NOT EXISTS quality_issues JSONB,
+    ADD COLUMN IF NOT EXISTS error_message TEXT;
+  END IF;
+END$$;
 
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_quality_metrics_created_at ON content_quality_metrics(created_at);

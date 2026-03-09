@@ -17,6 +17,7 @@ CREATE TABLE public.training_data (
 ALTER TABLE public.training_data ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for training data
+DROP POLICY IF EXISTS "Admin can manage training data" ON public.training_data;
 CREATE POLICY "Admin can manage training data" 
 ON public.training_data 
 FOR ALL 
@@ -37,6 +38,7 @@ CREATE TABLE public.ai_model_settings (
 ALTER TABLE public.ai_model_settings ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for AI model settings
+DROP POLICY IF EXISTS "Admin can manage AI model settings" ON public.ai_model_settings;
 CREATE POLICY "Admin can manage AI model settings" 
 ON public.ai_model_settings 
 FOR ALL 
@@ -50,12 +52,14 @@ INSERT INTO public.ai_model_settings (setting_key, setting_value, description) V
 ('system_prompt_templates', '{"default": "You are Emma, the AI customer service agent...", "technical": "You are a technical support agent...", "sales": "You are a sales assistant..."}', 'System prompt templates');
 
 -- Create trigger for updated_at on training_data
+DROP TRIGGER IF EXISTS update_training_data_updated_at ON public.training_data;
 CREATE TRIGGER update_training_data_updated_at
 BEFORE UPDATE ON public.training_data
 FOR EACH ROW
 EXECUTE FUNCTION public.update_updated_at_column();
 
 -- Create trigger for updated_at on ai_model_settings
+DROP TRIGGER IF EXISTS update_ai_model_settings_updated_at ON public.ai_model_settings;
 CREATE TRIGGER update_ai_model_settings_updated_at
 BEFORE UPDATE ON public.ai_model_settings
 FOR EACH ROW

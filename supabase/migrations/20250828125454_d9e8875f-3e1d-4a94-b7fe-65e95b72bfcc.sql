@@ -26,6 +26,7 @@ BEGIN
     WHERE schemaname = 'public' AND tablename = 'phone_verifications' 
     AND policyname = 'Users can manage their own phone verifications'
   ) THEN
+    DROP POLICY IF EXISTS "Users can manage their own phone verifications" ON public.phone_verifications;
     CREATE POLICY "Users can manage their own phone verifications"
     ON public.phone_verifications
     FOR ALL
@@ -44,6 +45,7 @@ BEGIN
     WHERE schemaname = 'public' AND tablename = 'registration_selections' 
     AND policyname = 'Users can manage their own registration selections'
   ) THEN
+    DROP POLICY IF EXISTS "Users can manage their own registration selections" ON public.registration_selections;
     CREATE POLICY "Users can manage their own registration selections"
     ON public.registration_selections
     FOR ALL

@@ -1,5 +1,5 @@
 -- Create live location tracking tables for family members
-CREATE TABLE public.live_locations (
+CREATE TABLE IF NOT EXISTS public.live_locations (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID NOT NULL,
   family_group_id UUID,
@@ -19,12 +19,14 @@ CREATE TABLE public.live_locations (
 ALTER TABLE public.live_locations ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for live locations
+DROP POLICY IF EXISTS "Users can manage their own location" ON public.live_locations;
 CREATE POLICY "Users can manage their own location" 
 ON public.live_locations 
 FOR ALL 
 USING (auth.uid() = user_id)
 WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Family members can view each others locations" ON public.live_locations;
 CREATE POLICY "Family members can view each others locations" 
 ON public.live_locations 
 FOR SELECT 
@@ -44,9 +46,9 @@ USING (
 );
 
 -- Create indexes for performance
-CREATE INDEX idx_live_locations_user_id ON public.live_locations(user_id);
-CREATE INDEX idx_live_locations_family_group_id ON public.live_locations(family_group_id);
-CREATE INDEX idx_live_locations_last_seen ON public.live_locations(last_seen);
+CREATE INDEX IF NOT EXISTS idx_live_locations_user_id ON public.live_locations(user_id);
+CREATE INDEX IF NOT EXISTS idx_live_locations_family_group_id ON public.live_locations(family_group_id);
+CREATE INDEX IF NOT EXISTS idx_live_locations_last_seen ON public.live_locations(last_seen);
 
 -- Create function to update timestamps
 CREATE OR REPLACE FUNCTION public.update_live_location_timestamp()
@@ -59,6 +61,7 @@ END;
 $$ LANGUAGE plpgsql SET search_path = public;
 
 -- Create trigger for automatic timestamp updates
+DROP TRIGGER IF EXISTS update_live_locations_timestamp ON public.live_locations;
 CREATE TRIGGER update_live_locations_timestamp
 BEFORE UPDATE ON public.live_locations
 FOR EACH ROW
@@ -66,4 +69,8 @@ EXECUTE FUNCTION public.update_live_location_timestamp();
 
 -- Enable realtime for live location updates
 ALTER TABLE public.live_locations REPLICA IDENTITY FULL;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.live_locations;
+DO $$
+BEGIN
+  ALTER PUBLICATION supabase_realtime ADD TABLE public.live_locations;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END$$;

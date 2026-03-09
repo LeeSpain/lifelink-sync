@@ -1,7 +1,7 @@
 -- Create followup sequences system for hot lead automation
 
 -- Table: followup_sequences
-CREATE TABLE public.followup_sequences (
+CREATE TABLE IF NOT EXISTS public.followup_sequences (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name text NOT NULL,
   is_active boolean NOT NULL DEFAULT true,
@@ -9,7 +9,7 @@ CREATE TABLE public.followup_sequences (
 );
 
 -- Table: followup_steps
-CREATE TABLE public.followup_steps (
+CREATE TABLE IF NOT EXISTS public.followup_steps (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   sequence_id uuid NOT NULL REFERENCES public.followup_sequences(id) ON DELETE CASCADE,
   step_order int NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE public.followup_steps (
 );
 
 -- Table: followup_enrollments
-CREATE TABLE public.followup_enrollments (
+CREATE TABLE IF NOT EXISTS public.followup_enrollments (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   sequence_id uuid NOT NULL REFERENCES public.followup_sequences(id) ON DELETE CASCADE,
   lead_id uuid NOT NULL REFERENCES public.leads(id) ON DELETE CASCADE,
@@ -34,7 +34,7 @@ CREATE TABLE public.followup_enrollments (
 );
 
 -- Table: followup_send_log
-CREATE TABLE public.followup_send_log (
+CREATE TABLE IF NOT EXISTS public.followup_send_log (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   enrollment_id uuid NOT NULL REFERENCES public.followup_enrollments(id) ON DELETE CASCADE,
   step_order int NOT NULL,
@@ -51,15 +51,18 @@ ALTER TABLE public.followup_enrollments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.followup_send_log ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for sequences/steps: authenticated users can read
+DROP POLICY IF EXISTS "Authenticated users can read sequences" ON public.followup_sequences;
 CREATE POLICY "Authenticated users can read sequences"
 ON public.followup_sequences FOR SELECT
 USING (auth.uid() IS NOT NULL);
 
+DROP POLICY IF EXISTS "Authenticated users can read steps" ON public.followup_steps;
 CREATE POLICY "Authenticated users can read steps"
 ON public.followup_steps FOR SELECT
 USING (auth.uid() IS NOT NULL);
 
 -- RLS Policies for enrollments: access via lead ownership
+DROP POLICY IF EXISTS "Users can view enrollments for their leads" ON public.followup_enrollments;
 CREATE POLICY "Users can view enrollments for their leads"
 ON public.followup_enrollments FOR SELECT
 USING (
@@ -71,6 +74,7 @@ USING (
   OR is_admin()
 );
 
+DROP POLICY IF EXISTS "Users can insert enrollments for their leads" ON public.followup_enrollments;
 CREATE POLICY "Users can insert enrollments for their leads"
 ON public.followup_enrollments FOR INSERT
 WITH CHECK (
@@ -82,6 +86,7 @@ WITH CHECK (
   OR is_admin()
 );
 
+DROP POLICY IF EXISTS "Users can update enrollments for their leads" ON public.followup_enrollments;
 CREATE POLICY "Users can update enrollments for their leads"
 ON public.followup_enrollments FOR UPDATE
 USING (
@@ -94,6 +99,7 @@ USING (
 );
 
 -- RLS Policies for send logs
+DROP POLICY IF EXISTS "Users can view send logs for their enrollments" ON public.followup_send_log;
 CREATE POLICY "Users can view send logs for their enrollments"
 ON public.followup_send_log FOR SELECT
 USING (
@@ -106,6 +112,7 @@ USING (
   OR is_admin()
 );
 
+DROP POLICY IF EXISTS "Users can insert send logs for their enrollments" ON public.followup_send_log;
 CREATE POLICY "Users can insert send logs for their enrollments"
 ON public.followup_send_log FOR INSERT
 WITH CHECK (
@@ -119,10 +126,10 @@ WITH CHECK (
 );
 
 -- Indexes for performance
-CREATE INDEX idx_followup_steps_sequence ON public.followup_steps(sequence_id, step_order);
-CREATE INDEX idx_followup_enrollments_next_send ON public.followup_enrollments(status, next_send_at) WHERE status = 'active';
-CREATE INDEX idx_followup_enrollments_lead ON public.followup_enrollments(lead_id);
-CREATE INDEX idx_followup_send_log_enrollment ON public.followup_send_log(enrollment_id);
+CREATE INDEX IF NOT EXISTS idx_followup_steps_sequence ON public.followup_steps(sequence_id, step_order);
+CREATE INDEX IF NOT EXISTS idx_followup_enrollments_next_send ON public.followup_enrollments(status, next_send_at) WHERE status = 'active';
+CREATE INDEX IF NOT EXISTS idx_followup_enrollments_lead ON public.followup_enrollments(lead_id);
+CREATE INDEX IF NOT EXISTS idx_followup_send_log_enrollment ON public.followup_send_log(enrollment_id);
 
 -- Seed default Hot Lead sequence
 INSERT INTO public.followup_sequences (id, name, is_active)

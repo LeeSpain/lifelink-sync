@@ -5,15 +5,13 @@ BEGIN
   -- Check if this is an organization user invitation
   IF NEW.raw_user_meta_data->>'invited_as' = 'regional_user' THEN
     -- Create the profile record
-    INSERT INTO public.profiles (id, email, first_name, last_name)
+    INSERT INTO public.profiles (user_id, first_name, last_name)
     VALUES (
       NEW.id,
-      NEW.email,
       COALESCE(NEW.raw_user_meta_data->>'first_name', split_part(NEW.email, '@', 1)),
       COALESCE(NEW.raw_user_meta_data->>'last_name', '')
     )
-    ON CONFLICT (id) DO UPDATE SET
-      email = EXCLUDED.email,
+    ON CONFLICT (user_id) DO UPDATE SET
       first_name = COALESCE(EXCLUDED.first_name, profiles.first_name),
       last_name = COALESCE(EXCLUDED.last_name, profiles.last_name);
   END IF;
@@ -35,8 +33,7 @@ SELECT
   o.name as organization_name,
   o.region as organization_region,
   p.first_name,
-  p.last_name,
-  p.email as profile_email
+  p.last_name
 FROM organization_users ou
 LEFT JOIN organizations o ON ou.organization_id = o.id
-LEFT JOIN profiles p ON ou.user_id = p.id;
+LEFT JOIN profiles p ON ou.user_id = p.user_id;

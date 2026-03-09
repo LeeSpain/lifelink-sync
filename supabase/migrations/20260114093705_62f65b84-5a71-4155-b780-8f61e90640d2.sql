@@ -1,5 +1,5 @@
 -- Create onboarding progress table
-CREATE TABLE public.onboarding_progress (
+CREATE TABLE IF NOT EXISTS public.onboarding_progress (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID NOT NULL UNIQUE,
   steps JSONB NOT NULL DEFAULT '{
@@ -19,24 +19,28 @@ CREATE TABLE public.onboarding_progress (
 ALTER TABLE public.onboarding_progress ENABLE ROW LEVEL SECURITY;
 
 -- Users can view their own progress
+DROP POLICY IF EXISTS "Users can view their own onboarding progress" ON public.onboarding_progress;
 CREATE POLICY "Users can view their own onboarding progress"
 ON public.onboarding_progress
 FOR SELECT
 USING (auth.uid() = user_id);
 
 -- Users can insert their own progress
+DROP POLICY IF EXISTS "Users can insert their own onboarding progress" ON public.onboarding_progress;
 CREATE POLICY "Users can insert their own onboarding progress"
 ON public.onboarding_progress
 FOR INSERT
 WITH CHECK (auth.uid() = user_id);
 
 -- Users can update their own progress
+DROP POLICY IF EXISTS "Users can update their own onboarding progress" ON public.onboarding_progress;
 CREATE POLICY "Users can update their own onboarding progress"
 ON public.onboarding_progress
 FOR UPDATE
 USING (auth.uid() = user_id);
 
 -- Create trigger for updated_at
+DROP TRIGGER IF EXISTS update_onboarding_progress_updated_at ON public.onboarding_progress;
 CREATE TRIGGER update_onboarding_progress_updated_at
 BEFORE UPDATE ON public.onboarding_progress
 FOR EACH ROW

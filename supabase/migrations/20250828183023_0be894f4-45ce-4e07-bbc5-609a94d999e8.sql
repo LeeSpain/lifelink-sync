@@ -64,6 +64,7 @@ ALTER TABLE public.social_media_accounts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.marketing_analytics ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for marketing_campaigns
+DROP POLICY IF EXISTS "Admin can manage marketing campaigns" ON public.marketing_campaigns;
 CREATE POLICY "Admin can manage marketing campaigns"
 ON public.marketing_campaigns
 FOR ALL
@@ -71,6 +72,7 @@ USING (is_admin())
 WITH CHECK (is_admin());
 
 -- RLS Policies for marketing_content
+DROP POLICY IF EXISTS "Admin can manage marketing content" ON public.marketing_content;
 CREATE POLICY "Admin can manage marketing content"
 ON public.marketing_content
 FOR ALL
@@ -78,6 +80,7 @@ USING (is_admin())
 WITH CHECK (is_admin());
 
 -- RLS Policies for social_media_accounts
+DROP POLICY IF EXISTS "Admin can manage social media accounts" ON public.social_media_accounts;
 CREATE POLICY "Admin can manage social media accounts"
 ON public.social_media_accounts
 FOR ALL
@@ -85,27 +88,32 @@ USING (is_admin())
 WITH CHECK (is_admin());
 
 -- RLS Policies for marketing_analytics
+DROP POLICY IF EXISTS "Admin can view marketing analytics" ON public.marketing_analytics;
 CREATE POLICY "Admin can view marketing analytics"
 ON public.marketing_analytics
 FOR SELECT
 USING (is_admin());
 
+DROP POLICY IF EXISTS "System can insert marketing analytics" ON public.marketing_analytics;
 CREATE POLICY "System can insert marketing analytics"
 ON public.marketing_analytics
 FOR INSERT
 WITH CHECK (true);
 
 -- Add triggers for updated_at
+DROP TRIGGER IF EXISTS update_marketing_campaigns_updated_at ON public.marketing_campaigns;
 CREATE TRIGGER update_marketing_campaigns_updated_at
 BEFORE UPDATE ON public.marketing_campaigns
 FOR EACH ROW
 EXECUTE FUNCTION public.update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_marketing_content_updated_at ON public.marketing_content;
 CREATE TRIGGER update_marketing_content_updated_at
 BEFORE UPDATE ON public.marketing_content
 FOR EACH ROW
 EXECUTE FUNCTION public.update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_social_media_accounts_updated_at ON public.social_media_accounts;
 CREATE TRIGGER update_social_media_accounts_updated_at
 BEFORE UPDATE ON public.social_media_accounts
 FOR EACH ROW

@@ -17,13 +17,7 @@ INSERT INTO public.subscription_plans (
   24.99,
   'EUR',
   'month',
-  ARRAY[
-    '24/7 access to ICE Alarm support team',
-    'Staff speak English and Spanish',
-    'Direct escalation to call center',
-    'Professional emergency response',
-    'Geofenced to Spain region'
-  ],
+  '["24/7 access to ICE Alarm support team","Staff speak English and Spanish","Direct escalation to call center","Professional emergency response","Geofenced to Spain region"]'::jsonb,
   true,
   false,
   10
@@ -50,6 +44,7 @@ FOR ALL
 USING (true);
 
 -- Add triggers for updated_at on subscription_plans if not exists
+DROP TRIGGER IF EXISTS update_subscription_plans_updated_at ON public.subscription_plans;
 CREATE TRIGGER update_subscription_plans_updated_at
 BEFORE UPDATE ON public.subscription_plans
 FOR EACH ROW

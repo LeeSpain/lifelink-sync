@@ -15,17 +15,20 @@ CREATE TABLE public.gmail_tokens (
 ALTER TABLE public.gmail_tokens ENABLE ROW LEVEL SECURITY;
 
 -- Create policies
+DROP POLICY IF EXISTS "Users can manage their own gmail tokens" ON public.gmail_tokens;
 CREATE POLICY "Users can manage their own gmail tokens" 
 ON public.gmail_tokens 
 FOR ALL 
 USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "System can manage gmail tokens" ON public.gmail_tokens;
 CREATE POLICY "System can manage gmail tokens" 
 ON public.gmail_tokens 
 FOR ALL 
 USING (true);
 
 -- Add trigger for updated_at
+DROP TRIGGER IF EXISTS update_gmail_tokens_updated_at ON public.gmail_tokens;
 CREATE TRIGGER update_gmail_tokens_updated_at
 BEFORE UPDATE ON public.gmail_tokens
 FOR EACH ROW
@@ -51,12 +54,14 @@ CREATE TABLE public.email_automation_settings (
 ALTER TABLE public.email_automation_settings ENABLE ROW LEVEL SECURITY;
 
 -- Create policies
+DROP POLICY IF EXISTS "Admin can manage email automation settings" ON public.email_automation_settings;
 CREATE POLICY "Admin can manage email automation settings" 
 ON public.email_automation_settings 
 FOR ALL 
 USING (true);
 
 -- Add trigger for updated_at
+DROP TRIGGER IF EXISTS update_email_automation_settings_updated_at ON public.email_automation_settings;
 CREATE TRIGGER update_email_automation_settings_updated_at
 BEFORE UPDATE ON public.email_automation_settings
 FOR EACH ROW
@@ -84,17 +89,19 @@ CREATE TABLE public.email_queue (
 ALTER TABLE public.email_queue ENABLE ROW LEVEL SECURITY;
 
 -- Create policies
+DROP POLICY IF EXISTS "System can manage email queue" ON public.email_queue;
 CREATE POLICY "System can manage email queue" 
 ON public.email_queue 
 FOR ALL 
 USING (true);
 
 -- Add indexes for performance
-CREATE INDEX idx_email_queue_status ON public.email_queue(status);
-CREATE INDEX idx_email_queue_scheduled_at ON public.email_queue(scheduled_at);
-CREATE INDEX idx_email_queue_priority ON public.email_queue(priority);
+CREATE INDEX IF NOT EXISTS idx_email_queue_status ON public.email_queue(status);
+CREATE INDEX IF NOT EXISTS idx_email_queue_scheduled_at ON public.email_queue(scheduled_at);
+CREATE INDEX IF NOT EXISTS idx_email_queue_priority ON public.email_queue(priority);
 
 -- Add trigger for updated_at
+DROP TRIGGER IF EXISTS update_email_queue_updated_at ON public.email_queue;
 CREATE TRIGGER update_email_queue_updated_at
 BEFORE UPDATE ON public.email_queue
 FOR EACH ROW

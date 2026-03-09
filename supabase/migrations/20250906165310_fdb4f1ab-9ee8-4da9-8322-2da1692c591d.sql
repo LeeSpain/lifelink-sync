@@ -20,18 +20,20 @@ CREATE TABLE IF NOT EXISTS public.marketing_campaigns (
 ALTER TABLE public.marketing_campaigns ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for marketing_campaigns
-CREATE POLICY IF NOT EXISTS "Admin can manage marketing campaigns"
+DROP POLICY IF EXISTS "Admin can manage marketing campaigns" ON public.marketing_campaigns;
+CREATE POLICY "Admin can manage marketing campaigns"
 ON public.marketing_campaigns
 FOR ALL
 USING (
   EXISTS (
-    SELECT 1 FROM public.profiles 
+    SELECT 1 FROM public.profiles
     WHERE user_id = auth.uid() AND role = 'admin'
   )
 );
 
 -- Create updated_at trigger
-CREATE TRIGGER IF NOT EXISTS update_marketing_campaigns_updated_at
+DROP TRIGGER IF EXISTS update_marketing_campaigns_updated_at ON public.marketing_campaigns;
+CREATE TRIGGER update_marketing_campaigns_updated_at
   BEFORE UPDATE ON public.marketing_campaigns
   FOR EACH ROW
   EXECUTE FUNCTION public.update_updated_at_column();

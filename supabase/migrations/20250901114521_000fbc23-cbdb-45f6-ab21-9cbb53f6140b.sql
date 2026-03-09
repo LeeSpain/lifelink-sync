@@ -5,12 +5,14 @@ DROP POLICY IF EXISTS "Users can manage their own registration selections" ON pu
 DROP POLICY IF EXISTS "Admins can manage all registration selections" ON public.registration_selections;
 
 -- Recreate the policies properly
+DROP POLICY IF EXISTS "Users can manage their own registration selections" ON public.registration_selections;
 CREATE POLICY "Users can manage their own registration selections" 
 ON public.registration_selections 
 FOR ALL 
 USING (auth.uid() = user_id)
 WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Admins can manage all registration selections" ON public.registration_selections;
 CREATE POLICY "Admins can manage all registration selections" 
 ON public.registration_selections 
 FOR ALL 
@@ -103,22 +105,22 @@ DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'sos_incidents') THEN
     IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'public' AND tablename = 'sos_incidents' AND indexname = 'idx_sos_incidents_user_id') THEN
-      CREATE INDEX idx_sos_incidents_user_id ON public.sos_incidents(user_id);
+      CREATE INDEX IF NOT EXISTS idx_sos_incidents_user_id ON public.sos_incidents(user_id);
     END IF;
     IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'public' AND tablename = 'sos_incidents' AND indexname = 'idx_sos_incidents_status') THEN
-      CREATE INDEX idx_sos_incidents_status ON public.sos_incidents(status);
+      CREATE INDEX IF NOT EXISTS idx_sos_incidents_status ON public.sos_incidents(status);
     END IF;
     IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'public' AND tablename = 'sos_incidents' AND indexname = 'idx_sos_incidents_created_at') THEN
-      CREATE INDEX idx_sos_incidents_created_at ON public.sos_incidents(created_at);
+      CREATE INDEX IF NOT EXISTS idx_sos_incidents_created_at ON public.sos_incidents(created_at);
     END IF;
   END IF;
 
   IF EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'sos_call_attempts') THEN
     IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'public' AND tablename = 'sos_call_attempts' AND indexname = 'idx_sos_call_attempts_incident_id') THEN
-      CREATE INDEX idx_sos_call_attempts_incident_id ON public.sos_call_attempts(incident_id);
+      CREATE INDEX IF NOT EXISTS idx_sos_call_attempts_incident_id ON public.sos_call_attempts(incident_id);
     END IF;
     IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE schemaname = 'public' AND tablename = 'sos_call_attempts' AND indexname = 'idx_sos_call_attempts_call_sid') THEN
-      CREATE INDEX idx_sos_call_attempts_call_sid ON public.sos_call_attempts(call_sid);
+      CREATE INDEX IF NOT EXISTS idx_sos_call_attempts_call_sid ON public.sos_call_attempts(call_sid);
     END IF;
   END IF;
 END $$;

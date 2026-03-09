@@ -58,21 +58,25 @@ DROP POLICY IF EXISTS "Users can manage their own social media accounts" ON publ
 DROP POLICY IF EXISTS "Admin can view all social media accounts" ON public.social_media_accounts;
 
 -- RLS policies for blog_posts
+DROP POLICY IF EXISTS "Admin can manage blog posts" ON public.blog_posts;
 CREATE POLICY "Admin can manage blog posts" 
 ON public.blog_posts FOR ALL 
 USING (is_admin())
 WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "Public can view published blog posts" ON public.blog_posts;
 CREATE POLICY "Public can view published blog posts" 
 ON public.blog_posts FOR SELECT 
 USING (status = 'published');
 
 -- RLS policies for social_media_accounts
+DROP POLICY IF EXISTS "Users can manage their own social media accounts" ON public.social_media_accounts;
 CREATE POLICY "Users can manage their own social media accounts" 
 ON public.social_media_accounts FOR ALL 
 USING (auth.uid() = user_id)
 WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Admin can view all social media accounts" ON public.social_media_accounts;
 CREATE POLICY "Admin can view all social media accounts" 
 ON public.social_media_accounts FOR SELECT 
 USING (is_admin());
@@ -86,6 +90,7 @@ CREATE TRIGGER update_blog_posts_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION public.update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_social_media_accounts_updated_at ON public.social_media_accounts;
 CREATE TRIGGER update_social_media_accounts_updated_at
   BEFORE UPDATE ON public.social_media_accounts
   FOR EACH ROW

@@ -48,7 +48,7 @@ DO $$ BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM pg_indexes WHERE schemaname = 'public' AND indexname = 'idx_blog_posts_slug'
   ) THEN
-    CREATE INDEX idx_blog_posts_slug ON public.blog_posts(slug);
+    CREATE INDEX IF NOT EXISTS idx_blog_posts_slug ON public.blog_posts(slug);
   END IF;
 END $$;
 
@@ -56,7 +56,7 @@ DO $$ BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM pg_indexes WHERE schemaname = 'public' AND indexname = 'idx_blog_posts_status'
   ) THEN
-    CREATE INDEX idx_blog_posts_status ON public.blog_posts(status);
+    CREATE INDEX IF NOT EXISTS idx_blog_posts_status ON public.blog_posts(status);
   END IF;
 END $$;
 
@@ -64,7 +64,7 @@ DO $$ BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM pg_indexes WHERE schemaname = 'public' AND indexname = 'idx_blog_posts_published_at'
   ) THEN
-    CREATE INDEX idx_blog_posts_published_at ON public.blog_posts(published_at);
+    CREATE INDEX IF NOT EXISTS idx_blog_posts_published_at ON public.blog_posts(published_at);
   END IF;
 END $$;
 
@@ -130,7 +130,7 @@ DO $$ BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM pg_indexes WHERE schemaname = 'public' AND indexname = 'idx_social_media_accounts_user_platform'
   ) THEN
-    CREATE INDEX idx_social_media_accounts_user_platform ON public.social_media_accounts(user_id, platform);
+    CREATE INDEX IF NOT EXISTS idx_social_media_accounts_user_platform ON public.social_media_accounts(user_id, platform);
   END IF;
 END $$;
 
@@ -138,7 +138,7 @@ DO $$ BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM pg_indexes WHERE schemaname = 'public' AND indexname = 'idx_social_media_accounts_status'
   ) THEN
-    CREATE INDEX idx_social_media_accounts_status ON public.social_media_accounts(connection_status);
+    CREATE INDEX IF NOT EXISTS idx_social_media_accounts_status ON public.social_media_accounts(connection_status);
   END IF;
 END $$;
 

@@ -6,6 +6,7 @@ DROP POLICY IF EXISTS "Family members can view their group" ON family_groups;
 
 -- Fix family_groups policies
 DROP POLICY IF EXISTS "Family members can view their group" ON family_groups;
+DROP POLICY IF EXISTS "Family group owners can manage their groups" ON family_groups;
 CREATE POLICY "Family group owners can manage their groups" 
 ON family_groups 
 FOR ALL 
@@ -23,6 +24,7 @@ BEGIN
         FOR SELECT 
         USING (user_id = auth.uid());
         
+        DROP POLICY IF EXISTS "Group owners can manage memberships" ON family_memberships;
         CREATE POLICY "Group owners can manage memberships" 
         ON family_memberships 
         FOR ALL 

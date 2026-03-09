@@ -15,18 +15,21 @@ BEGIN
     EXECUTE 'DROP POLICY IF EXISTS "Users can view registration selections" ON public.registration_selections';
 
     -- Admin-only read access
+    EXECUTE 'DROP POLICY IF EXISTS "Admins can read registration selections" ON public.registration_selections';
     EXECUTE 'CREATE POLICY "Admins can read registration selections"
       ON public.registration_selections
       FOR SELECT
       USING (public.is_admin())';
 
     -- Users can only insert their own data
+    EXECUTE 'DROP POLICY IF EXISTS "Users can create own registration selections" ON public.registration_selections';
     EXECUTE 'CREATE POLICY "Users can create own registration selections"
       ON public.registration_selections
       FOR INSERT
       WITH CHECK (auth.uid() = user_id OR user_id IS NULL)';
 
     -- Admin management
+    EXECUTE 'DROP POLICY IF EXISTS "Admins can manage registration selections" ON public.registration_selections';
     EXECUTE 'CREATE POLICY "Admins can manage registration selections"
       ON public.registration_selections
       FOR ALL
@@ -53,12 +56,14 @@ BEGIN
     EXECUTE 'DROP POLICY IF EXISTS "Users can manage phone verifications" ON public.phone_verifications';
 
     -- Service role read-only (no client reads)
+    EXECUTE 'DROP POLICY IF EXISTS "Service role can read phone verifications" ON public.phone_verifications';
     EXECUTE 'CREATE POLICY "Service role can read phone verifications"
       ON public.phone_verifications
       FOR SELECT
       USING (auth.role() = ''service_role'')';
 
     -- Users can only INSERT their own records
+    EXECUTE 'DROP POLICY IF EXISTS "Users can create own phone verifications" ON public.phone_verifications';
     EXECUTE 'CREATE POLICY "Users can create own phone verifications"
       ON public.phone_verifications
       FOR INSERT

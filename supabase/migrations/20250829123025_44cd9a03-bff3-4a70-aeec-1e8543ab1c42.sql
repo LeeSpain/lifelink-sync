@@ -10,16 +10,19 @@ DROP POLICY IF EXISTS "Users can create own registration selections" ON public.r
 DROP POLICY IF EXISTS "Admins can manage registration selections" ON public.registration_selections;
 
 -- Create new secure policies
+DROP POLICY IF EXISTS "Admins can read registration selections" ON public.registration_selections;
 CREATE POLICY "Admins can read registration selections"
 ON public.registration_selections
 FOR SELECT
 USING (public.is_admin());
 
+DROP POLICY IF EXISTS "Users can create own registration selections" ON public.registration_selections;
 CREATE POLICY "Users can create own registration selections"
 ON public.registration_selections
 FOR INSERT
 WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
 
+DROP POLICY IF EXISTS "Admins can manage registration selections" ON public.registration_selections;
 CREATE POLICY "Admins can manage registration selections"
 ON public.registration_selections
 FOR ALL
@@ -35,11 +38,13 @@ DROP POLICY IF EXISTS "Service role can read phone verifications" ON public.phon
 DROP POLICY IF EXISTS "Users can create own phone verifications" ON public.phone_verifications;
 
 -- Create new secure policies
+DROP POLICY IF EXISTS "Service role can read phone verifications" ON public.phone_verifications;
 CREATE POLICY "Service role can read phone verifications"
 ON public.phone_verifications
 FOR SELECT
 USING (auth.role() = 'service_role');
 
+DROP POLICY IF EXISTS "Users can create own phone verifications" ON public.phone_verifications;
 CREATE POLICY "Users can create own phone verifications"
 ON public.phone_verifications
 FOR INSERT

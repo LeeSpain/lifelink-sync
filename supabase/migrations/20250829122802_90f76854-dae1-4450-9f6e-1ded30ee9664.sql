@@ -9,17 +9,20 @@ DROP POLICY IF EXISTS "Sales can read leads" ON public.leads;
 DROP POLICY IF EXISTS "Admins can manage leads (all)" ON public.leads;
 
 -- Re-create precise SELECT permissions
+DROP POLICY IF EXISTS "Admins can read leads" ON public.leads;
 CREATE POLICY "Admins can read leads"
 ON public.leads
 FOR SELECT
 USING (public.is_admin());
 
+DROP POLICY IF EXISTS "Sales can read leads" ON public.leads;
 CREATE POLICY "Sales can read leads"
 ON public.leads
 FOR SELECT
 USING (public.is_sales() OR public.is_admin());
 
 -- Preserve existing admin management
+DROP POLICY IF EXISTS "Admins can manage leads (all)" ON public.leads;
 CREATE POLICY "Admins can manage leads (all)"
 ON public.leads
 FOR ALL
@@ -37,11 +40,13 @@ DROP POLICY IF EXISTS "Authenticated users can insert video analytics" ON public
 DROP POLICY IF EXISTS "Users can insert own video analytics" ON public.video_analytics;
 
 -- Recreate policies
+DROP POLICY IF EXISTS "Admins can view video analytics" ON public.video_analytics;
 CREATE POLICY "Admins can view video analytics"
 ON public.video_analytics
 FOR SELECT
 USING (public.is_admin());
 
+DROP POLICY IF EXISTS "Authenticated users can insert video analytics" ON public.video_analytics;
 CREATE POLICY "Authenticated users can insert video analytics"
 ON public.video_analytics
 FOR INSERT

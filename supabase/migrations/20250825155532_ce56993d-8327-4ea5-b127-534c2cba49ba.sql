@@ -23,21 +23,23 @@ CREATE TABLE public.video_analytics (
 ALTER TABLE public.video_analytics ENABLE ROW LEVEL SECURITY;
 
 -- Create policies
+DROP POLICY IF EXISTS "Admin can view all video analytics" ON public.video_analytics;
 CREATE POLICY "Admin can view all video analytics" 
 ON public.video_analytics 
 FOR SELECT 
 USING (is_admin());
 
+DROP POLICY IF EXISTS "System can insert video analytics" ON public.video_analytics;
 CREATE POLICY "System can insert video analytics" 
 ON public.video_analytics 
 FOR INSERT 
 WITH CHECK (true);
 
 -- Create indexes for better performance
-CREATE INDEX idx_video_analytics_video_id ON public.video_analytics(video_id);
-CREATE INDEX idx_video_analytics_created_at ON public.video_analytics(created_at);
-CREATE INDEX idx_video_analytics_event_type ON public.video_analytics(event_type);
-CREATE INDEX idx_video_analytics_user_id ON public.video_analytics(user_id);
+CREATE INDEX IF NOT EXISTS idx_video_analytics_video_id ON public.video_analytics(video_id);
+CREATE INDEX IF NOT EXISTS idx_video_analytics_created_at ON public.video_analytics(created_at);
+CREATE INDEX IF NOT EXISTS idx_video_analytics_event_type ON public.video_analytics(event_type);
+CREATE INDEX IF NOT EXISTS idx_video_analytics_user_id ON public.video_analytics(user_id);
 
 -- Create function to get video analytics summary
 CREATE OR REPLACE FUNCTION public.get_video_analytics_summary()

@@ -15,16 +15,19 @@ BEGIN
 END $$;
 
 -- 2) Restrictive, least-privilege policies
+DROP POLICY IF EXISTS "Users can view their own phone verifications" ON public.phone_verifications;
 CREATE POLICY "Users can view their own phone verifications"
 ON public.phone_verifications
 FOR SELECT
 USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert their own phone verifications" ON public.phone_verifications;
 CREATE POLICY "Users can insert their own phone verifications"
 ON public.phone_verifications
 FOR INSERT
 WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update their own phone verifications" ON public.phone_verifications;
 CREATE POLICY "Users can update their own phone verifications"
 ON public.phone_verifications
 FOR UPDATE
@@ -41,6 +44,6 @@ BEGIN
     JOIN pg_namespace n ON n.oid = c.relnamespace
     WHERE c.relname = 'idx_phone_verifications_user_id' AND n.nspname = 'public'
   ) THEN
-    CREATE INDEX idx_phone_verifications_user_id ON public.phone_verifications(user_id);
+    CREATE INDEX IF NOT EXISTS idx_phone_verifications_user_id ON public.phone_verifications(user_id);
   END IF;
 END $$;

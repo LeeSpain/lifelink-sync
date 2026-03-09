@@ -56,11 +56,13 @@ CREATE POLICY "Public can view active products" ON public.products FOR SELECT US
 CREATE POLICY "Public can view product compatibility" ON public.service_product_compatibility FOR SELECT USING (true);
 
 -- Create triggers for automatic timestamp updates
+DROP TRIGGER IF EXISTS update_product_categories_updated_at ON public.product_categories;
 CREATE TRIGGER update_product_categories_updated_at
   BEFORE UPDATE ON public.product_categories
   FOR EACH ROW
   EXECUTE FUNCTION public.update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_products_updated_at ON public.products;
 CREATE TRIGGER update_products_updated_at
   BEFORE UPDATE ON public.products
   FOR EACH ROW

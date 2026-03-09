@@ -20,6 +20,7 @@ BEGIN
     SELECT 1 FROM pg_policies 
     WHERE schemaname='public' AND tablename='leads' AND policyname='Sales can read leads'
   ) THEN
+    DROP POLICY IF EXISTS "Sales can read leads" ON public.leads;
     CREATE POLICY "Sales can read leads"
     ON public.leads
     FOR SELECT

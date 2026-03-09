@@ -8,6 +8,7 @@ DROP POLICY IF EXISTS "Admin can read contact submissions" ON public.contact_sub
 DROP POLICY IF EXISTS "Only admins can view contact submissions" ON public.contact_submissions;
 
 -- 3) Create a single strict admin-only SELECT policy
+DROP POLICY IF EXISTS "Admins can read contact submissions" ON public.contact_submissions;
 CREATE POLICY "Admins can read contact submissions"
 ON public.contact_submissions
 FOR SELECT

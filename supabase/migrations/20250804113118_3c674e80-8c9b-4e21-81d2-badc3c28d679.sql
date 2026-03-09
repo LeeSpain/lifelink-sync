@@ -55,6 +55,7 @@ USING (true)
 WITH CHECK (true);
 
 -- Create trigger for updated_at
+DROP TRIGGER IF EXISTS update_leads_updated_at ON public.leads;
 CREATE TRIGGER update_leads_updated_at
 BEFORE UPDATE ON public.leads
 FOR EACH ROW

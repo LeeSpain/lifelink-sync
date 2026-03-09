@@ -28,6 +28,7 @@ DROP POLICY IF EXISTS "Admin can manage whatsapp accounts" ON public.whatsapp_ac
 ALTER TABLE public.whatsapp_accounts ENABLE ROW LEVEL SECURITY;
 
 -- Create admin-only policy for existing WhatsApp accounts table
+DROP POLICY IF EXISTS "Admin can manage whatsapp accounts" ON public.whatsapp_accounts;
 CREATE POLICY "Admin can manage whatsapp accounts" 
 ON public.whatsapp_accounts 
 FOR ALL 
@@ -81,12 +82,14 @@ CREATE TABLE IF NOT EXISTS public.security_audit_log (
 ALTER TABLE public.security_audit_log ENABLE ROW LEVEL SECURITY;
 
 -- Admin can view all audit logs
+DROP POLICY IF EXISTS "Admin can view security audit logs" ON public.security_audit_log;
 CREATE POLICY "Admin can view security audit logs" 
 ON public.security_audit_log 
 FOR SELECT 
 USING (is_admin());
 
 -- System can insert audit logs
+DROP POLICY IF EXISTS "System can insert security audit logs" ON public.security_audit_log;
 CREATE POLICY "System can insert security audit logs" 
 ON public.security_audit_log 
 FOR INSERT 
@@ -109,6 +112,7 @@ CREATE TABLE IF NOT EXISTS public.rate_limits (
 ALTER TABLE public.rate_limits ENABLE ROW LEVEL SECURITY;
 
 -- Admin can manage rate limits
+DROP POLICY IF EXISTS "Admin can manage rate limits" ON public.rate_limits;
 CREATE POLICY "Admin can manage rate limits" 
 ON public.rate_limits 
 FOR ALL 
@@ -116,6 +120,7 @@ USING (is_admin())
 WITH CHECK (is_admin());
 
 -- System can manage rate limits for enforcement
+DROP POLICY IF EXISTS "System can manage rate limits" ON public.rate_limits;
 CREATE POLICY "System can manage rate limits" 
 ON public.rate_limits 
 FOR ALL 

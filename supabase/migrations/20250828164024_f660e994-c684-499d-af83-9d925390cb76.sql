@@ -17,9 +17,11 @@ CREATE TABLE public.family_alerts (
 ALTER TABLE public.family_alerts ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for family_alerts
+DROP POLICY IF EXISTS "Users can view their own family alerts" ON family_alerts;
 CREATE POLICY "Users can view their own family alerts" ON family_alerts
 FOR SELECT USING (auth.uid() = family_user_id);
 
+DROP POLICY IF EXISTS "SOS originators can view alerts for their events" ON family_alerts;
 CREATE POLICY "SOS originators can view alerts for their events" ON family_alerts
 FOR SELECT USING (
   EXISTS (
@@ -29,28 +31,31 @@ FOR SELECT USING (
   )
 );
 
+DROP POLICY IF EXISTS "System can manage family alerts" ON family_alerts;
 CREATE POLICY "System can manage family alerts" ON family_alerts
 FOR ALL USING (true) WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Admins can manage all family alerts" ON family_alerts;
 CREATE POLICY "Admins can manage all family alerts" ON family_alerts
 FOR ALL USING (is_admin()) WITH CHECK (is_admin());
 
 -- Add indexes for better performance
-CREATE INDEX idx_family_alerts_event_id ON family_alerts(event_id);
-CREATE INDEX idx_family_alerts_family_user_id ON family_alerts(family_user_id);
-CREATE INDEX idx_family_alerts_sent_at ON family_alerts(sent_at);
+CREATE INDEX IF NOT EXISTS idx_family_alerts_event_id ON family_alerts(event_id);
+CREATE INDEX IF NOT EXISTS idx_family_alerts_family_user_id ON family_alerts(family_user_id);
+CREATE INDEX IF NOT EXISTS idx_family_alerts_sent_at ON family_alerts(sent_at);
 
-CREATE INDEX idx_sos_events_status ON sos_events(status);
-CREATE INDEX idx_sos_events_user_id ON sos_events(user_id);
-CREATE INDEX idx_sos_events_group_id ON sos_events(group_id);
+CREATE INDEX IF NOT EXISTS idx_sos_events_status ON sos_events(status);
+CREATE INDEX IF NOT EXISTS idx_sos_events_user_id ON sos_events(user_id);
+CREATE INDEX IF NOT EXISTS idx_sos_events_group_id ON sos_events(group_id);
 
-CREATE INDEX idx_sos_locations_event_id ON sos_locations(event_id);
-CREATE INDEX idx_sos_locations_created_at ON sos_locations(created_at);
+CREATE INDEX IF NOT EXISTS idx_sos_locations_event_id ON sos_locations(event_id);
+CREATE INDEX IF NOT EXISTS idx_sos_locations_created_at ON sos_locations(created_at);
 
-CREATE INDEX idx_sos_acknowledgements_event_id ON sos_acknowledgements(event_id);
-CREATE INDEX idx_sos_acknowledgements_family_user_id ON sos_acknowledgements(family_user_id);
+CREATE INDEX IF NOT EXISTS idx_sos_acknowledgements_event_id ON sos_acknowledgements(event_id);
+CREATE INDEX IF NOT EXISTS idx_sos_acknowledgements_family_user_id ON sos_acknowledgements(family_user_id);
 
 -- Add trigger for updated_at on family_alerts
+DROP TRIGGER IF EXISTS update_family_alerts_updated_at ON family_alerts;
 CREATE TRIGGER update_family_alerts_updated_at
   BEFORE UPDATE ON family_alerts
   FOR EACH ROW

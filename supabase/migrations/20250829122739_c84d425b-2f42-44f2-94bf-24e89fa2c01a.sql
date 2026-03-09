@@ -10,11 +10,13 @@ DROP POLICY IF EXISTS "Only admins can manage leads" ON public.leads; -- managem
 DROP POLICY IF EXISTS "Sales can read leads" ON public.leads;
 
 -- Re-create precise SELECT permissions
+DROP POLICY IF EXISTS "Admins can read leads" ON public.leads;
 CREATE POLICY "Admins can read leads"
 ON public.leads
 FOR SELECT
 USING (public.is_admin());
 
+DROP POLICY IF EXISTS "Sales can read leads" ON public.leads;
 CREATE POLICY "Sales can read leads"
 ON public.leads
 FOR SELECT
@@ -40,11 +42,13 @@ DROP POLICY IF EXISTS "Authenticated users can insert video analytics" ON public
 DROP POLICY IF EXISTS "Users can insert own video analytics" ON public.video_analytics;
 
 -- Recreate consolidated policies
+DROP POLICY IF EXISTS "Admins can view video analytics" ON public.video_analytics;
 CREATE POLICY "Admins can view video analytics"
 ON public.video_analytics
 FOR SELECT
 USING (public.is_admin());
 
+DROP POLICY IF EXISTS "Authenticated users can insert video analytics" ON public.video_analytics;
 CREATE POLICY "Authenticated users can insert video analytics"
 ON public.video_analytics
 FOR INSERT
@@ -68,20 +72,22 @@ BEGIN
     EXECUTE 'DROP POLICY IF EXISTS "Users can manage phone verifications" ON public.phone_verifications';
 
     -- Service role read-only (no client reads)
-    EXECUTE $$
+    EXECUTE $inner$
+      DROP POLICY IF EXISTS "Service role can read phone verifications" ON public.phone_verifications;
       CREATE POLICY "Service role can read phone verifications"
       ON public.phone_verifications
       FOR SELECT
       USING (auth.role() = 'service_role')
-    $$;
+    $inner$;
 
     -- Users can only INSERT their own records
-    EXECUTE $$
+    EXECUTE $inner$
+      DROP POLICY IF EXISTS "Users can create own phone verifications" ON public.phone_verifications;
       CREATE POLICY "Users can create own phone verifications"
       ON public.phone_verifications
       FOR INSERT
       WITH CHECK (auth.uid() = user_id)
-    $$;
+    $inner$;
 
     -- Attach validation trigger if it doesn't exist
     IF NOT EXISTS (

@@ -72,19 +72,23 @@ ALTER TABLE lead_tags ENABLE ROW LEVEL SECURITY;
 ALTER TABLE lead_files ENABLE ROW LEVEL SECURITY;
 
 -- RLS policies for lead_activities
+DROP POLICY IF EXISTS "Admin can manage lead activities" ON lead_activities;
 CREATE POLICY "Admin can manage lead activities" ON lead_activities
   FOR ALL USING (is_admin())
   WITH CHECK (is_admin());
 
 -- RLS policies for lead_tags
+DROP POLICY IF EXISTS "Admin can manage lead tags" ON lead_tags;
 CREATE POLICY "Admin can manage lead tags" ON lead_tags
   FOR ALL USING (is_admin())
   WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "Users can view lead tags" ON lead_tags;
 CREATE POLICY "Users can view lead tags" ON lead_tags
   FOR SELECT USING (true);
 
 -- RLS policies for lead_files
+DROP POLICY IF EXISTS "Admin can manage lead files" ON lead_files;
 CREATE POLICY "Admin can manage lead files" ON lead_files
   FOR ALL USING (is_admin())
   WITH CHECK (is_admin());

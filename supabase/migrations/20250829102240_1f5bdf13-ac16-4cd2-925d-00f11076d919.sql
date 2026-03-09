@@ -36,18 +36,21 @@ DROP POLICY IF EXISTS "Users can manage their own family groups" ON public.famil
 DROP POLICY IF EXISTS "Users can manage their owned family groups" ON public.family_groups;
 DROP POLICY IF EXISTS "Admin can manage all family groups" ON public.family_groups;
 
+DROP POLICY IF EXISTS "Admins manage groups" ON public.family_groups;
 CREATE POLICY "Admins manage groups"
 ON public.family_groups
 FOR ALL
 USING (public.is_admin() = true)
 WITH CHECK (public.is_admin() = true);
 
+DROP POLICY IF EXISTS "Owners manage their groups" ON public.family_groups;
 CREATE POLICY "Owners manage their groups"
 ON public.family_groups
 FOR ALL
 USING (owner_user_id = auth.uid())
 WITH CHECK (owner_user_id = auth.uid());
 
+DROP POLICY IF EXISTS "Members can view group" ON public.family_groups;
 CREATE POLICY "Members can view group"
 ON public.family_groups
 FOR SELECT
@@ -61,17 +64,20 @@ DROP POLICY IF EXISTS "Users can view their own family memberships" ON public.fa
 DROP POLICY IF EXISTS "Users can view their own memberships" ON public.family_memberships;
 DROP POLICY IF EXISTS "Admin can manage all family memberships" ON public.family_memberships;
 
+DROP POLICY IF EXISTS "Admins manage memberships" ON public.family_memberships;
 CREATE POLICY "Admins manage memberships"
 ON public.family_memberships
 FOR ALL
 USING (public.is_admin() = true)
 WITH CHECK (public.is_admin() = true);
 
+DROP POLICY IF EXISTS "Users view own memberships" ON public.family_memberships;
 CREATE POLICY "Users view own memberships"
 ON public.family_memberships
 FOR SELECT
 USING (user_id = auth.uid());
 
+DROP POLICY IF EXISTS "Owners manage group memberships" ON public.family_memberships;
 CREATE POLICY "Owners manage group memberships"
 ON public.family_memberships
 FOR ALL

@@ -15,10 +15,12 @@ ALTER TABLE sos_actions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE regional_emergency_contacts ENABLE ROW LEVEL SECURITY;
 
 -- Organizations policies
+DROP POLICY IF EXISTS "Admins can manage all organizations" ON organizations;
 CREATE POLICY "Admins can manage all organizations" ON organizations
   FOR ALL USING (is_admin())
   WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "Regional users can view their organization" ON organizations;
 CREATE POLICY "Regional users can view their organization" ON organizations
   FOR SELECT USING (
     EXISTS (
@@ -29,10 +31,12 @@ CREATE POLICY "Regional users can view their organization" ON organizations
   );
 
 -- Organization users policies
+DROP POLICY IF EXISTS "Admins can manage organization users" ON organization_users;
 CREATE POLICY "Admins can manage organization users" ON organization_users
   FOR ALL USING (is_admin())
   WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "Organization users can view colleagues" ON organization_users;
 CREATE POLICY "Organization users can view colleagues" ON organization_users
   FOR SELECT USING (
     organization_id IN (
@@ -42,29 +46,36 @@ CREATE POLICY "Organization users can view colleagues" ON organization_users
   );
 
 -- Connections policies
+DROP POLICY IF EXISTS "Owners can manage their connections" ON connections;
 CREATE POLICY "Owners can manage their connections" ON connections
   FOR ALL USING (owner_id = auth.uid())
   WITH CHECK (owner_id = auth.uid());
 
+DROP POLICY IF EXISTS "Contacts can view their connection" ON connections;
 CREATE POLICY "Contacts can view their connection" ON connections
   FOR SELECT USING (contact_user_id = auth.uid());
 
+DROP POLICY IF EXISTS "Admins can view all connections" ON connections;
 CREATE POLICY "Admins can view all connections" ON connections
   FOR SELECT USING (is_admin());
 
 -- Circle permissions policies
+DROP POLICY IF EXISTS "Owners can manage circle permissions" ON circle_permissions;
 CREATE POLICY "Owners can manage circle permissions" ON circle_permissions
   FOR ALL USING (owner_id = auth.uid())
   WITH CHECK (owner_id = auth.uid());
 
+DROP POLICY IF EXISTS "Family members can view their permissions" ON circle_permissions;
 CREATE POLICY "Family members can view their permissions" ON circle_permissions
   FOR SELECT USING (family_user_id = auth.uid());
 
 -- SOS events policies
+DROP POLICY IF EXISTS "Users can manage their own SOS events" ON sos_events;
 CREATE POLICY "Users can manage their own SOS events" ON sos_events
   FOR ALL USING (user_id = auth.uid())
   WITH CHECK (user_id = auth.uid());
 
+DROP POLICY IF EXISTS "Family members can view group SOS events" ON sos_events;
 CREATE POLICY "Family members can view group SOS events" ON sos_events
   FOR SELECT USING (
     EXISTS (
@@ -75,6 +86,7 @@ CREATE POLICY "Family members can view group SOS events" ON sos_events
     )
   );
 
+DROP POLICY IF EXISTS "Trusted contacts can view active events" ON sos_events;
 CREATE POLICY "Trusted contacts can view active events" ON sos_events
   FOR SELECT USING (
     status = 'active' AND EXISTS (
@@ -84,11 +96,13 @@ CREATE POLICY "Trusted contacts can view active events" ON sos_events
     )
   );
 
+DROP POLICY IF EXISTS "Admins can manage all SOS events" ON sos_events;
 CREATE POLICY "Admins can manage all SOS events" ON sos_events
   FOR ALL USING (is_admin())
   WITH CHECK (is_admin());
 
 -- SOS locations policies
+DROP POLICY IF EXISTS "Users can view locations for their events" ON sos_locations;
 CREATE POLICY "Users can view locations for their events" ON sos_locations
   FOR SELECT USING (
     EXISTS (
@@ -98,6 +112,7 @@ CREATE POLICY "Users can view locations for their events" ON sos_locations
     )
   );
 
+DROP POLICY IF EXISTS "Family can view locations for group events" ON sos_locations;
 CREATE POLICY "Family can view locations for group events" ON sos_locations
   FOR SELECT USING (
     EXISTS (
@@ -109,10 +124,12 @@ CREATE POLICY "Family can view locations for group events" ON sos_locations
     )
   );
 
+DROP POLICY IF EXISTS "System can insert locations" ON sos_locations;
 CREATE POLICY "System can insert locations" ON sos_locations
   FOR INSERT WITH CHECK (true);
 
 -- SOS acknowledgements policies
+DROP POLICY IF EXISTS "Family members can acknowledge SOS events" ON sos_acknowledgements;
 CREATE POLICY "Family members can acknowledge SOS events" ON sos_acknowledgements
   FOR INSERT WITH CHECK (
     auth.uid() = family_user_id AND
@@ -126,6 +143,7 @@ CREATE POLICY "Family members can acknowledge SOS events" ON sos_acknowledgement
     )
   );
 
+DROP POLICY IF EXISTS "Family members can view acknowledgements" ON sos_acknowledgements;
 CREATE POLICY "Family members can view acknowledgements" ON sos_acknowledgements
   FOR SELECT USING (
     auth.uid() = family_user_id OR
@@ -138,6 +156,7 @@ CREATE POLICY "Family members can view acknowledgements" ON sos_acknowledgements
     )
   );
 
+DROP POLICY IF EXISTS "Users can manage acknowledgements for their events" ON sos_acknowledgements;
 CREATE POLICY "Users can manage acknowledgements for their events" ON sos_acknowledgements
   FOR ALL USING (
     EXISTS (
@@ -154,18 +173,22 @@ CREATE POLICY "Users can manage acknowledgements for their events" ON sos_acknow
     )
   );
 
+DROP POLICY IF EXISTS "Admins can manage all acknowledgements" ON sos_acknowledgements;
 CREATE POLICY "Admins can manage all acknowledgements" ON sos_acknowledgements
   FOR ALL USING (is_admin())
   WITH CHECK (is_admin());
 
 -- SOS event access policies
+DROP POLICY IF EXISTS "System can manage event access" ON sos_event_access;
 CREATE POLICY "System can manage event access" ON sos_event_access
   FOR ALL WITH CHECK (true);
 
 -- Family notifications policies
+DROP POLICY IF EXISTS "Family can read their notifications" ON family_notifications;
 CREATE POLICY "Family can read their notifications" ON family_notifications
   FOR SELECT USING (auth.uid() = client_id);
 
+DROP POLICY IF EXISTS "Regional operators can insert family notifications" ON family_notifications;
 CREATE POLICY "Regional operators can insert family notifications" ON family_notifications
   FOR INSERT WITH CHECK (
     EXISTS (
@@ -178,6 +201,7 @@ CREATE POLICY "Regional operators can insert family notifications" ON family_not
   );
 
 -- Regional SOS events policies
+DROP POLICY IF EXISTS "Regional operators can manage events for their org" ON regional_sos_events;
 CREATE POLICY "Regional operators can manage events for their org" ON regional_sos_events
   FOR ALL USING (
     EXISTS (
@@ -196,14 +220,17 @@ CREATE POLICY "Regional operators can manage events for their org" ON regional_s
     )
   );
 
+DROP POLICY IF EXISTS "Users can view their own SOS events" ON regional_sos_events;
 CREATE POLICY "Users can view their own SOS events" ON regional_sos_events
   FOR SELECT USING (auth.uid() = client_id);
 
+DROP POLICY IF EXISTS "Admins can manage all SOS events" ON regional_sos_events;
 CREATE POLICY "Admins can manage all SOS events" ON regional_sos_events
   FOR ALL USING (is_admin())
   WITH CHECK (is_admin());
 
 -- SOS actions policies
+DROP POLICY IF EXISTS "Regional operators can manage actions for their events" ON sos_actions;
 CREATE POLICY "Regional operators can manage actions for their events" ON sos_actions
   FOR ALL USING (
     EXISTS (
@@ -225,10 +252,12 @@ CREATE POLICY "Regional operators can manage actions for their events" ON sos_ac
   );
 
 -- Regional emergency contacts policies
+DROP POLICY IF EXISTS "Users can manage their own regional emergency contacts" ON regional_emergency_contacts;
 CREATE POLICY "Users can manage their own regional emergency contacts" ON regional_emergency_contacts
   FOR ALL USING (auth.uid() = client_id)
   WITH CHECK (auth.uid() = client_id);
 
+DROP POLICY IF EXISTS "Regional operators can view contacts for their org clients" ON regional_emergency_contacts;
 CREATE POLICY "Regional operators can view contacts for their org clients" ON regional_emergency_contacts
   FOR SELECT USING (
     EXISTS (

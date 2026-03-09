@@ -30,6 +30,7 @@ FOR SELECT
 USING (is_active = true);
 
 -- Create trigger for automatic timestamp updates
+DROP TRIGGER IF EXISTS update_subscription_plans_updated_at ON public.subscription_plans;
 CREATE TRIGGER update_subscription_plans_updated_at
 BEFORE UPDATE ON public.subscription_plans
 FOR EACH ROW

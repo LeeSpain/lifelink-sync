@@ -1,14 +1,14 @@
 -- Add audience column to training_data table for content filtering
 ALTER TABLE public.training_data 
-ADD COLUMN audience TEXT DEFAULT 'customer' CHECK (audience IN ('customer', 'internal', 'admin'));
+ADD COLUMN IF NOT EXISTS audience TEXT DEFAULT 'customer' CHECK (audience IN ('customer', 'internal', 'admin'));
 
 -- Add tags column for better categorization  
 ALTER TABLE public.training_data 
-ADD COLUMN tags TEXT[] DEFAULT '{}';
+ADD COLUMN IF NOT EXISTS tags TEXT[] DEFAULT '{}';
 
 -- Add index for performance
-CREATE INDEX idx_training_data_audience ON public.training_data(audience);
-CREATE INDEX idx_training_data_status_audience ON public.training_data(status, audience);
+CREATE INDEX IF NOT EXISTS idx_training_data_audience ON public.training_data(audience);
+CREATE INDEX IF NOT EXISTS idx_training_data_status_audience ON public.training_data(status, audience);
 
 -- Update existing training data to be customer-facing by default
 UPDATE public.training_data SET audience = 'customer' WHERE audience IS NULL;

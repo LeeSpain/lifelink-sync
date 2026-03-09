@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS public.location_pings (
 
 ALTER TABLE public.location_pings ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "pings_owner" ON public.location_pings;
 CREATE POLICY "pings_owner" ON public.location_pings
   FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
@@ -39,6 +40,7 @@ CREATE TABLE IF NOT EXISTS public.live_presence (
 
 ALTER TABLE public.live_presence ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "presence_visible_in_circle" ON public.live_presence;
 CREATE POLICY "presence_visible_in_circle" ON public.live_presence
   FOR SELECT USING (
     EXISTS (
@@ -53,6 +55,7 @@ CREATE POLICY "presence_visible_in_circle" ON public.live_presence
     )
   );
 
+DROP POLICY IF EXISTS "users_can_update_own_presence" ON public.live_presence;
 CREATE POLICY "users_can_update_own_presence" ON public.live_presence
   FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
@@ -70,6 +73,7 @@ CREATE TABLE IF NOT EXISTS public.places (
 
 ALTER TABLE public.places ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "places_visible_to_group" ON public.places;
 CREATE POLICY "places_visible_to_group" ON public.places
   FOR SELECT USING (
     EXISTS (
@@ -80,6 +84,7 @@ CREATE POLICY "places_visible_to_group" ON public.places
     )
   );
 
+DROP POLICY IF EXISTS "places_edit_by_group" ON public.places;
 CREATE POLICY "places_edit_by_group" ON public.places
   FOR ALL USING (
     EXISTS (
@@ -108,6 +113,7 @@ CREATE TABLE IF NOT EXISTS public.place_events (
 
 ALTER TABLE public.place_events ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "place_events_view_in_circle" ON public.place_events;
 CREATE POLICY "place_events_view_in_circle" ON public.place_events
 FOR SELECT USING (
   EXISTS (

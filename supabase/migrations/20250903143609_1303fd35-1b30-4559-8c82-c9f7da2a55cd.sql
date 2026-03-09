@@ -252,10 +252,17 @@ END;
 $$;
 
 -- Add update triggers
+DROP TRIGGER IF EXISTS update_organizations_updated_at ON organizations;
 CREATE TRIGGER update_organizations_updated_at BEFORE UPDATE ON organizations FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DROP TRIGGER IF EXISTS update_organization_users_updated_at ON organization_users;
 CREATE TRIGGER update_organization_users_updated_at BEFORE UPDATE ON organization_users FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DROP TRIGGER IF EXISTS update_connections_updated_at ON connections;
 CREATE TRIGGER update_connections_updated_at BEFORE UPDATE ON connections FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DROP TRIGGER IF EXISTS update_circle_permissions_updated_at ON circle_permissions;
 CREATE TRIGGER update_circle_permissions_updated_at BEFORE UPDATE ON circle_permissions FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DROP TRIGGER IF EXISTS update_sos_events_updated_at ON sos_events;
 CREATE TRIGGER update_sos_events_updated_at BEFORE UPDATE ON sos_events FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DROP TRIGGER IF EXISTS update_regional_sos_events_updated_at ON regional_sos_events;
 CREATE TRIGGER update_regional_sos_events_updated_at BEFORE UPDATE ON regional_sos_events FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DROP TRIGGER IF EXISTS update_regional_emergency_contacts_updated_at ON regional_emergency_contacts;
 CREATE TRIGGER update_regional_emergency_contacts_updated_at BEFORE UPDATE ON regional_emergency_contacts FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

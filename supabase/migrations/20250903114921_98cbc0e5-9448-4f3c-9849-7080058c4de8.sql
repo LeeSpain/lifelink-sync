@@ -1,7 +1,7 @@
 -- ICE SOS Lite: Regional Call Centre Integration - Fixed Database Schema
 
 -- REGIONAL ORGANIZATIONS (create first)
-CREATE TABLE public.organizations (
+CREATE TABLE IF NOT EXISTS public.organizations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   region TEXT,
@@ -11,7 +11,7 @@ CREATE TABLE public.organizations (
 );
 
 -- ORGANIZATION USERS (create after organizations)
-CREATE TABLE public.organization_users (
+CREATE TABLE IF NOT EXISTS public.organization_users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id UUID REFERENCES public.organizations(id) ON DELETE CASCADE,
   user_id UUID NOT NULL,
@@ -28,7 +28,7 @@ ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS preferred_language TEXT DEF
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS subscription_regional BOOLEAN DEFAULT false;
 
 -- REGIONAL EMERGENCY CONTACTS
-CREATE TABLE public.regional_emergency_contacts (
+CREATE TABLE IF NOT EXISTS public.regional_emergency_contacts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   client_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   priority INTEGER,
@@ -40,7 +40,7 @@ CREATE TABLE public.regional_emergency_contacts (
 );
 
 -- REGIONAL DEVICES
-CREATE TABLE public.regional_devices (
+CREATE TABLE IF NOT EXISTS public.regional_devices (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   client_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   device_type TEXT,
@@ -53,7 +53,7 @@ CREATE TABLE public.regional_devices (
 );
 
 -- REGIONAL SOS EVENTS
-CREATE TABLE public.regional_sos_events (
+CREATE TABLE IF NOT EXISTS public.regional_sos_events (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   client_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   organization_id UUID REFERENCES public.organizations(id),
@@ -70,7 +70,7 @@ CREATE TABLE public.regional_sos_events (
 );
 
 -- SOS ACTIONS
-CREATE TABLE public.sos_actions (
+CREATE TABLE IF NOT EXISTS public.sos_actions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   event_id UUID REFERENCES public.regional_sos_events(id) ON DELETE CASCADE,
   actor_user_id UUID,
@@ -80,7 +80,7 @@ CREATE TABLE public.sos_actions (
 );
 
 -- FAMILY NOTIFICATIONS
-CREATE TABLE public.family_notifications (
+CREATE TABLE IF NOT EXISTS public.family_notifications (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   event_id UUID REFERENCES public.regional_sos_events(id) ON DELETE CASCADE,
   client_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -93,7 +93,7 @@ CREATE TABLE public.family_notifications (
 );
 
 -- REGIONAL AUDIT LOG
-CREATE TABLE public.regional_audit_log (
+CREATE TABLE IF NOT EXISTS public.regional_audit_log (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID,
   organization_id UUID REFERENCES public.organizations(id),
@@ -115,10 +115,10 @@ ALTER TABLE public.family_notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.regional_audit_log ENABLE ROW LEVEL SECURITY;
 
 -- Create indexes for performance
-CREATE INDEX idx_organization_users_user_id ON public.organization_users(user_id);
-CREATE INDEX idx_organization_users_org_id ON public.organization_users(organization_id);
-CREATE INDEX idx_regional_sos_events_client_id ON public.regional_sos_events(client_id);
-CREATE INDEX idx_regional_sos_events_org_id ON public.regional_sos_events(organization_id);
-CREATE INDEX idx_regional_sos_events_status ON public.regional_sos_events(status);
-CREATE INDEX idx_family_notifications_client_id ON public.family_notifications(client_id);
-CREATE INDEX idx_family_notifications_event_id ON public.family_notifications(event_id);
+CREATE INDEX IF NOT EXISTS idx_organization_users_user_id ON public.organization_users(user_id);
+CREATE INDEX IF NOT EXISTS idx_organization_users_org_id ON public.organization_users(organization_id);
+CREATE INDEX IF NOT EXISTS idx_regional_sos_events_client_id ON public.regional_sos_events(client_id);
+CREATE INDEX IF NOT EXISTS idx_regional_sos_events_org_id ON public.regional_sos_events(organization_id);
+CREATE INDEX IF NOT EXISTS idx_regional_sos_events_status ON public.regional_sos_events(status);
+CREATE INDEX IF NOT EXISTS idx_family_notifications_client_id ON public.family_notifications(client_id);
+CREATE INDEX IF NOT EXISTS idx_family_notifications_event_id ON public.family_notifications(event_id);

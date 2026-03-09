@@ -20,18 +20,21 @@ CREATE TABLE public.contact_submissions (
 ALTER TABLE public.contact_submissions ENABLE ROW LEVEL SECURITY;
 
 -- Policies for contact submissions
+DROP POLICY IF EXISTS "Admin can manage all contact submissions" ON public.contact_submissions;
 CREATE POLICY "Admin can manage all contact submissions" 
 ON public.contact_submissions 
 FOR ALL 
 USING (is_admin())
 WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "System can insert contact submissions" ON public.contact_submissions;
 CREATE POLICY "System can insert contact submissions" 
 ON public.contact_submissions 
 FOR INSERT 
 WITH CHECK (true);
 
 -- Create trigger for updating timestamps
+DROP TRIGGER IF EXISTS update_contact_submissions_updated_at ON public.contact_submissions;
 CREATE TRIGGER update_contact_submissions_updated_at
 BEFORE UPDATE ON public.contact_submissions
 FOR EACH ROW

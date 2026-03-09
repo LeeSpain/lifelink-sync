@@ -25,12 +25,14 @@ CREATE TABLE IF NOT EXISTS public.subscription_plans (
 ALTER TABLE public.subscription_plans ENABLE ROW LEVEL SECURITY;
 
 -- Create policy for public to view active subscription plans
+DROP POLICY IF EXISTS "Public can view active subscription plans" ON public.subscription_plans;
 CREATE POLICY "Public can view active subscription plans" 
 ON public.subscription_plans 
 FOR SELECT 
 USING (is_active = true);
 
 -- Create policy for admin to manage subscription plans
+DROP POLICY IF EXISTS "Admin can manage subscription plans" ON public.subscription_plans;
 CREATE POLICY "Admin can manage subscription plans" 
 ON public.subscription_plans 
 FOR ALL 
@@ -38,10 +40,10 @@ USING (is_admin());
 
 -- Insert default subscription plans
 INSERT INTO public.subscription_plans (name, description, price, currency, features, is_popular, sort_order) VALUES
-('Personal Account', 'Basic personal protection plan', 1.99, 'EUR', ARRAY['Emergency SOS', 'Location tracking', 'Emergency contacts'], false, 1),
-('Guardian Wellness', 'Comprehensive health and wellness monitoring', 4.99, 'EUR', ARRAY['Emergency SOS', 'Health monitoring', 'Medical alerts', 'Family notifications'], true, 2),
-('Family Sharing', 'Family protection and communication', 0.99, 'EUR', ARRAY['Family group management', 'Shared emergency contacts', 'Group notifications'], false, 3),
-('Call Centre (Spain)', 'Professional call center services for Spain', 24.99, 'EUR', ARRAY['24/7 Spanish call center', 'Local emergency response', 'Professional monitoring'], false, 4)
+('Personal Account', 'Basic personal protection plan', 1.99, 'EUR', '["Emergency SOS", "Location tracking", "Emergency contacts"]'::jsonb, false, 1),
+('Guardian Wellness', 'Comprehensive health and wellness monitoring', 4.99, 'EUR', '["Emergency SOS", "Health monitoring", "Medical alerts", "Family notifications"]'::jsonb, true, 2),
+('Family Sharing', 'Family protection and communication', 0.99, 'EUR', '["Family group management", "Shared emergency contacts", "Group notifications"]'::jsonb, false, 3),
+('Call Centre (Spain)', 'Professional call center services for Spain', 24.99, 'EUR', '["24/7 Spanish call center", "Local emergency response", "Professional monitoring"]'::jsonb, false, 4)
 ON CONFLICT DO NOTHING;
 
 -- Add subscribers table if missing
@@ -61,14 +63,17 @@ CREATE TABLE IF NOT EXISTS public.subscribers (
 ALTER TABLE public.subscribers ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for subscribers
+DROP POLICY IF EXISTS "select_own_subscription" ON public.subscribers;
 CREATE POLICY "select_own_subscription" ON public.subscribers
 FOR SELECT
 USING (user_id = auth.uid() OR email = auth.email());
 
+DROP POLICY IF EXISTS "update_own_subscription" ON public.subscribers;
 CREATE POLICY "update_own_subscription" ON public.subscribers
 FOR UPDATE
 USING (user_id = auth.uid() OR email = auth.email());
 
+DROP POLICY IF EXISTS "insert_subscription" ON public.subscribers;
 CREATE POLICY "insert_subscription" ON public.subscribers
 FOR INSERT
 WITH CHECK (true);

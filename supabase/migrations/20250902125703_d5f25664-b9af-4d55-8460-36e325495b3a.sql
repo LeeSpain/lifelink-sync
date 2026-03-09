@@ -8,6 +8,7 @@ DROP POLICY IF EXISTS "users_manage_own_selections" ON public.registration_selec
 DROP POLICY IF EXISTS "Admins can manage all registration selections" ON public.registration_selections;
 
 -- Create consolidated, secure policy for registration_selections
+DROP POLICY IF EXISTS "Users manage own registration selections" ON public.registration_selections;
 CREATE POLICY "Users manage own registration selections"
   ON public.registration_selections
   FOR ALL
@@ -16,6 +17,7 @@ CREATE POLICY "Users manage own registration selections"
   WITH CHECK (auth.uid() = user_id);
   
 -- Admin access policy
+DROP POLICY IF EXISTS "Admins can manage all registration selections" ON public.registration_selections;
 CREATE POLICY "Admins can manage all registration selections"
   ON public.registration_selections
   FOR ALL
@@ -54,6 +56,7 @@ CREATE TABLE IF NOT EXISTS public.auth_failures (
 ALTER TABLE public.auth_failures ENABLE ROW LEVEL SECURITY;
 
 -- Only admins can view auth failures
+DROP POLICY IF EXISTS "Admins can view auth failures" ON public.auth_failures;
 CREATE POLICY "Admins can view auth failures"
   ON public.auth_failures
   FOR SELECT
@@ -61,6 +64,7 @@ CREATE POLICY "Admins can view auth failures"
   USING (is_admin());
 
 -- System can insert auth failures
+DROP POLICY IF EXISTS "System can insert auth failures" ON public.auth_failures;
 CREATE POLICY "System can insert auth failures"
   ON public.auth_failures
   FOR INSERT

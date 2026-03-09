@@ -18,16 +18,19 @@ CREATE TABLE public.regional_services (
 ALTER TABLE public.regional_services ENABLE ROW LEVEL SECURITY;
 
 -- Admin can manage regional services
+DROP POLICY IF EXISTS "Admin can manage regional services" ON public.regional_services;
 CREATE POLICY "Admin can manage regional services" ON public.regional_services
   FOR ALL
   USING (true);
 
 -- Public can view active regional services
+DROP POLICY IF EXISTS "Public can view active regional services" ON public.regional_services;
 CREATE POLICY "Public can view active regional services" ON public.regional_services
   FOR SELECT
   USING (is_active = true);
 
 -- Add trigger for updated_at
+DROP TRIGGER IF EXISTS update_regional_services_updated_at ON public.regional_services;
 CREATE TRIGGER update_regional_services_updated_at
   BEFORE UPDATE ON public.regional_services
   FOR EACH ROW

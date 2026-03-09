@@ -11,12 +11,14 @@ DROP POLICY IF EXISTS "Anyone can read registration selections" ON public.regist
 DROP POLICY IF EXISTS "public_read_registration_selections" ON public.registration_selections;
 
 -- Create permissive policies
+DROP POLICY IF EXISTS "Admins can manage registration selections" ON public.registration_selections;
 CREATE POLICY "Admins can manage registration selections"
 ON public.registration_selections
 FOR ALL
 USING (is_admin())
 WITH CHECK (is_admin());
 
+DROP POLICY IF EXISTS "Users can manage own registration selections" ON public.registration_selections;
 CREATE POLICY "Users can manage own registration selections"
 ON public.registration_selections
 FOR ALL
@@ -25,8 +27,8 @@ WITH CHECK (auth.uid() = user_id);
 
 -- Create restrictive policy to ensure only admin or owner even if other permissive policies exist
 CREATE POLICY "Restrict registration selections to admin or owner"
-AS RESTRICTIVE
 ON public.registration_selections
+AS RESTRICTIVE
 FOR ALL
 USING (is_admin() OR auth.uid() = user_id)
 WITH CHECK (is_admin() OR auth.uid() = user_id);

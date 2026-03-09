@@ -4,6 +4,7 @@ DROP POLICY IF EXISTS "Allow insert for video analytics" ON public.video_analyti
 DROP POLICY IF EXISTS "System can insert video analytics" ON public.video_analytics;
 
 -- Only allow authenticated users to insert video analytics
+DROP POLICY IF EXISTS "Authenticated users can insert video analytics" ON public.video_analytics;
 CREATE POLICY "Authenticated users can insert video analytics"
 ON public.video_analytics
 FOR INSERT
@@ -23,12 +24,14 @@ CREATE TABLE IF NOT EXISTS public.gmail_token_access_log (
 ALTER TABLE public.gmail_token_access_log ENABLE ROW LEVEL SECURITY;
 
 -- Only admins can view token access logs
+DROP POLICY IF EXISTS "Admin can view gmail token access logs" ON public.gmail_token_access_log;
 CREATE POLICY "Admin can view gmail token access logs"
 ON public.gmail_token_access_log
 FOR SELECT
 USING (is_admin());
 
 -- System can insert audit logs
+DROP POLICY IF EXISTS "System can insert gmail token access logs" ON public.gmail_token_access_log;
 CREATE POLICY "System can insert gmail token access logs"
 ON public.gmail_token_access_log
 FOR INSERT
