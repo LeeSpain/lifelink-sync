@@ -161,8 +161,8 @@ const DeviceIceSosPendant = () => {
               <div className="relative">
                 <div className="relative z-10">
                   <OptimizedImage
-                    src="/lovable-uploads/lifelink-pendant-hero.png"
-                    alt="LifeLink Sync Bluetooth Pendant with lanyard"
+                    src="/lovable-uploads/lifelink-pendant-product.png"
+                    alt="LifeLink Sync Smart SOS Button with accessories"
                     className="w-full max-w-lg mx-auto rounded-3xl shadow-2xl"
                     priority={true}
                     sizes={getImageSizes('hero')}
@@ -218,7 +218,7 @@ const DeviceIceSosPendant = () => {
 
             <div className="grid md:grid-cols-3 gap-8">
               {[
-                { src: "/lovable-uploads/5c1a45e0-5a70-4691-bc64-550668fe6e0f.png", alt: "Pendant with comfortable lanyard", title: "Comfortable Lanyard", desc: "Adjustable lanyard for daily wear" },
+                { src: "/lovable-uploads/lifelink-pendant-hero.png", alt: "Pendant with comfortable lanyard", title: "Comfortable Lanyard", desc: "Adjustable lanyard for daily wear" },
                 { src: "/lovable-uploads/51174548-f504-43a6-b947-a681fdfb6552.png", alt: "Pendant with secure carabiner clip", title: "Secure Clip", desc: "Carabiner attachment for bags & belts" },
                 { src: "/lovable-uploads/a9a98b5b-436a-488c-b4f0-4a9c3ba75614.png", alt: "Pendant with sport wristbands", title: "Sport Wristbands", desc: "Active wear in white & black options" },
               ].map((item, i) => (
