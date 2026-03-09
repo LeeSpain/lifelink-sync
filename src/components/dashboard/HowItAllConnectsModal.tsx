@@ -22,6 +22,7 @@ interface HowItAllConnectsModalProps {
 }
 
 const HowItAllConnectsModal: React.FC<HowItAllConnectsModalProps> = ({ isOpen, onClose }) => {
+  // Body scroll lock
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -30,6 +31,17 @@ const HowItAllConnectsModal: React.FC<HowItAllConnectsModalProps> = ({ isOpen, o
       document.body.style.overflow = '';
     };
   }, [isOpen]);
+
+  // ESC key to close
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    if (isOpen) {
+      window.addEventListener('keydown', handleEsc);
+    }
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -46,14 +58,14 @@ const HowItAllConnectsModal: React.FC<HowItAllConnectsModalProps> = ({ isOpen, o
     <>
       {/* Overlay */}
       <div
-        className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
+        className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm"
         onClick={onClose}
         aria-hidden="true"
       />
 
       {/* Modal container — full screen, white */}
       <div
-        className="fixed inset-0 z-50 bg-white flex flex-col overflow-hidden"
+        className="fixed inset-0 z-[70] bg-white flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
