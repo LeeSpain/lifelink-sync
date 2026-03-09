@@ -1873,7 +1873,10 @@
     "startTrial": "Gratis proefperiode starten",
     "legendMember": "Lid",
     "legendFeature": "Kernfunctie",
-    "legendAddOn": "Optionele add-on"
+    "legendAddOn": "Optionele add-on",
+    "memberPrice": "€9,99/mnd",
+    "freeTrialBadge": "7 dagen gratis",
+    "noCreditCard": "Geen creditcard vereist · 7 dagen gratis"
   },
   "howItWorks": {
     "title": "Van SOS naar veilig — in seconden.",

@@ -845,7 +845,10 @@
     "startTrial": "Start Free Trial",
     "legendMember": "Member",
     "legendFeature": "Core Feature",
-    "legendAddOn": "Optional Add-On"
+    "legendAddOn": "Optional Add-On",
+    "memberPrice": "€9.99/mo",
+    "freeTrialBadge": "7 days free",
+    "noCreditCard": "No credit card required · 7 days free"
   },
   "howItWorks": {
     "title": "From SOS to safe — in seconds.",

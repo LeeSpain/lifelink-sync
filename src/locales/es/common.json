@@ -835,7 +835,10 @@
     "startTrial": "Prueba gratuita",
     "legendMember": "Miembro",
     "legendFeature": "Función principal",
-    "legendAddOn": "Complemento opcional"
+    "legendAddOn": "Complemento opcional",
+    "memberPrice": "€9,99/mes",
+    "freeTrialBadge": "7 días gratis",
+    "noCreditCard": "No se requiere tarjeta de crédito · 7 días gratis"
   },
   "howItWorks": {
     "title": "De SOS a seguro — en segundos.",
