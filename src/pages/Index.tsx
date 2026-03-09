@@ -4,6 +4,7 @@ import Hero from "@/components/Hero";
 import StatsBar from "@/components/StatsBar";
 import HowItWorks from "@/components/HowItWorks";
 import Features from "@/components/Features";
+import EcosystemMapModal from "@/components/landing/EcosystemMapModal";
 import CallCentrePartner from "@/components/CallCentrePartner";
 import FamilySection from "@/components/FamilySection";
 import Pricing from "@/components/Pricing";
@@ -53,6 +54,13 @@ const Index = () => {
 
       {/* 4. Platform Features */}
       <Features />
+
+      {/* 4b. Ecosystem Map */}
+      <section className="py-12 bg-white">
+        <div className="container mx-auto px-4 text-center">
+          <EcosystemMapModal />
+        </div>
+      </section>
 
       {/* 5. Call Centre Partner */}
       <CallCentrePartner />
