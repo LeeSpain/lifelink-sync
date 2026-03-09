@@ -113,7 +113,7 @@ const DeviceIceSosPendant = () => {
                 </h1>
 
                 <p className="text-xl md:text-2xl mb-8 text-gray-600 leading-relaxed font-inter">
-                  Hands-free emergency protection. One button press alerts all your emergency contacts instantly with your exact location.
+                  Hands-free emergency protection. One button press on the pendant activates CLARA via your phone and alerts all your emergency contacts with your exact location.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8">
@@ -501,12 +501,12 @@ const DeviceIceSosPendant = () => {
 
             <Accordion type="single" collapsible className="space-y-3">
               {[
-                { q: "How does the emergency system work?", a: "One button press instantly alerts ALL emergency contacts with your exact GPS location. The system uses Bluetooth 5.0 for secure smartphone connection and professional-grade emergency protocols with 24/7 monitoring capabilities." },
+                { q: "How does the emergency system work?", a: "One button press on the pendant sends a signal via Bluetooth to your phone. The LifeLink app activates CLARA, which instantly alerts ALL emergency contacts with your exact GPS location, sends emergency calls, and shares your live location. Your phone must be within Bluetooth range (typically 10-30 metres)." },
                 { q: "What's the battery life and charging process?", a: "7+ days typical use with intelligent power management. Magnetic USB charging takes 2 hours for full charge. Low battery alerts ensure you're never caught unprepared." },
                 { q: "Is the device waterproof for all activities?", a: "IP67 certified waterproof rating for swimming, showering, and extreme weather. Saltwater resistant for beach activities with full functionality maintained underwater up to 1 metre." },
                 { q: "What wearing options are included?", a: "Complete package includes: adjustable lanyard for daily wear, secure carabiner clip for bags & belts, and comfortable sport wristbands in white and black. All attachments are tested for security and comfort." },
                 { q: "Which smartphones and smart homes are compatible?", a: "Universal compatibility: iOS 12+ and Android 8+. Bluetooth 5.0 LE pendant works with LifeLink Sync app. Amazon Alexa and Google Home integrations are coming soon." },
-                { q: "What's the range and connection reliability?", a: "100-metre professional range in open areas, 30–50m through walls. Automatic reconnection when back in range with missed alert notifications." },
+                { q: "What's the range and connection reliability?", a: "The pendant connects via Bluetooth to your phone, which must have the LifeLink app installed. Typical range is 10-30 metres depending on environment. Automatic reconnection when back in range with missed alert notifications." },
                 { q: "How much does the pendant cost?", a: "Device: €59.99 + €4.99 shipping. No monthly fees for basic emergency contacts. Optional professional monitoring services available." },
                 { q: "What privacy and security measures are in place?", a: "End-to-end encryption for all data. GDPR compliant with zero data sharing. Full control over who receives alerts and when." },
                 { q: "Is international travel supported?", a: "Global coverage with local emergency service integration in 50+ countries. Automatic regional compliance and language support." },
