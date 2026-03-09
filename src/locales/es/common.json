@@ -43,15 +43,6 @@
       "subtitle": "Portal de Gestión LifeLink Sync"
     }
   },
-  "dashboard": {
-    "signOut": "Cerrar sesión",
-    "greeting": {
-      "morning": "Buenos días",
-      "afternoon": "Buenas tardes",
-      "evening": "Buenas noches"
-    },
-    "title": "Panel"
-  },
   "pricing": {
     "subscribeNow": "Suscríbete",
     "details": "Detalles",
@@ -521,6 +512,19 @@
     "regionalAudit": "Registro de Auditoría"
   },
   "dashboard": {
+    "title": "Panel",
+    "loading": "Cargando tu panel...",
+    "welcomeBack": "Bienvenido/a, {{name}}",
+    "memberFallback": "Miembro",
+    "protectionOverview": "Tu resumen de protección y preparación de emergencia",
+    "activityTitle": "Actividad y Pruebas",
+    "activityDesc": "Ver actividad reciente y estado del sistema",
+    "subscriptionTitle": "Suscripción y Facturación",
+    "subscriptionDesc": "Gestiona tu plan, pagos y facturas",
+    "mobileAppTitle": "App Móvil",
+    "mobileAppDesc": "Configura y gestiona tu conexión con la app móvil",
+    "mobileDevTitle": "Panel de Desarrollo Móvil",
+    "mobileDevDesc": "Monitoriza la preparación y capacidades nativas de la app móvil",
     "greeting": {
       "morning": "Buenos días",
       "afternoon": "Buenas tardes",
@@ -577,7 +581,43 @@
     "familyCircleLabel": "Círculo Familiar",
     "home": "Inicio",
     "loadingDashboard": "Cargando tu panel...",
-    "authRequired": "Se requiere autenticación. Por favor, inicia sesión."
+    "authRequired": "Se requiere autenticación. Por favor, inicia sesión.",
+    "pwaInstall": {
+      "title": "Instalar LifeLink Sync",
+      "desc": "Añade a tu pantalla de inicio para acceso rápido en emergencias",
+      "installButton": "Instalar",
+      "learnMore": "Más información"
+    }
+  },
+  "onboarding": {
+    "welcome": "Bienvenido a LifeLink Sync",
+    "completeSteps": "Completa estos pasos para aprovechar al máximo tu protección",
+    "stepsCompleted": "{{completed}} de {{total}} pasos completados",
+    "start": "Comenzar",
+    "markDone": "Marcar hecho",
+    "complete": "Completado",
+    "markedComplete": "marcado como completado",
+    "onboardingComplete": "¡Configuración completa! Bienvenido/a.",
+    "allComplete": "¡Todo completado!",
+    "readyToUse": "Estás listo/a para usar LifeLink Sync",
+    "finishSetup": "Finalizar configuración",
+    "skipForNow": "Saltar por ahora",
+    "steps": {
+      "completeProfile": "Completar perfil",
+      "completeProfileDesc": "Añade tus datos personales e información de emergencia",
+      "addEmergencyContacts": "Añadir contactos de emergencia",
+      "addEmergencyContactsDesc": "Configura personas a contactar en una emergencia",
+      "configureSos": "Configurar ajustes SOS",
+      "configureSosDesc": "Personaliza tus preferencias de alerta de emergencia",
+      "inviteFamily": "Invitar familia",
+      "inviteFamilyDesc": "Conecta familiares a tu red de protección",
+      "enableNotifications": "Activar notificaciones",
+      "enableNotificationsDesc": "Mantente informado/a con alertas de emergencia en tiempo real",
+      "runSosTest": "Realizar prueba SOS",
+      "runSosTestDesc": "Prueba tu sistema de emergencia en modo seguro",
+      "installApp": "Instalar la app",
+      "installAppDesc": "Añade LifeLink Sync a tu pantalla de inicio para acceso rápido"
+    }
   },
   "familyCarerAccess": {
     "sectionBadge": "Apoyo Familiar y del Cuidador",
@@ -1678,7 +1718,10 @@
     "downloadError": "Error al descargar la factura.",
     "fillRequired": "Completa todos los campos obligatorios.",
     "inviteError": "Error al enviar la invitación.",
-    "portalError": "No se pudo abrir la gestión de suscripciones."
+    "portalError": "No se pudo abrir la gestión de suscripciones.",
+    "basic": "Básico",
+    "unknown": "Desconocido",
+    "successTitle": "Éxito"
   },
   "auth": {
     "welcome": "Bienvenido",
@@ -1961,6 +2004,7 @@
     "helpText": "Clara puede ayudarte con funciones, precios, preguntas sobre tu cuenta y más"
   },
   "checkout": {
+    "comingSoon": "Próximamente",
     "checkingAuth": "Verificando autenticación...",
     "preparingCheckout": "Preparando el pago",
     "settingUpPlan": "Configurando {{plan}}...",
@@ -2024,22 +2068,20 @@
     "accountActivated": "Cuenta activada",
     "paymentProcessed": "Pago procesado",
     "profileComplete": "Perfil completo",
-    "downloadYourApp": "Descarga tu app LifeLink Sync",
-    "getInstantAccessProtection": "Accede al instante a tu sistema de protección de emergencias",
-    "iosIphoneIpad": "iOS (iPhone/iPad)",
-    "requiresIos": "Requiere iOS 14.0 o posterior",
-    "scanWithIphone": "Escanea con la cámara de tu iPhone",
-    "downloadFromAppStore": "Descargar desde App Store",
-    "android": "Android",
-    "requiresAndroid": "Requiere Android 8.0 o posterior",
-    "scanWithAndroid": "Escanea con la cámara de tu Android",
-    "getItOnGooglePlay": "Consíguelo en Google Play",
-    "cantScanQR": "¿No puedes escanear códigos QR?",
-    "textIosLink": "Enviar enlace de iOS por SMS",
-    "textAndroidLink": "Enviar enlace de Android por SMS",
+    "downloadYourApp": "Instalar LifeLink Sync",
+    "getInstantAccessProtection": "Guarda en tu pantalla de inicio para acceso instantáneo en emergencias",
+    "installPwa": "Instalar LifeLink Sync",
+    "installPwaDesc": "Toca abajo para añadir la app directamente a tu pantalla de inicio — sin tienda de apps",
+    "alreadyInstalled": "LifeLink Sync está instalado",
+    "scanToOpen": "Escanea para abrir en otro dispositivo",
+    "textLinkToPhone": "Enviar enlace a mi teléfono",
+    "iosInstructions": "En iPhone/iPad: toca Compartir y luego \"Añadir a pantalla de inicio\"",
+    "androidInstructions": "En Android: toca el menú del navegador y luego \"Instalar app\"",
+    "desktopInstructions": "En escritorio: haz clic en el icono de instalación en la barra de direcciones",
+    "manualInstallTitle": "Instalación manual",
     "whatHappensNext": "¿Qué pasa después?",
-    "downloadAndInstall": "Descargar e instalar",
-    "installAppSignIn": "Instala la app en tu dispositivo e inicia sesión con tu correo registrado",
+    "saveToHomeScreen": "Guardar en pantalla de inicio",
+    "saveToHomeScreenDesc": "Añade LifeLink Sync a tu pantalla de inicio e inicia sesión con tu correo registrado",
     "setupComplete": "Configuración completa",
     "profileReadyTestFeatures": "¡Tu perfil está listo! Prueba las funciones de emergencia en modo seguro",
     "stayProtected": "Mantente protegido",
@@ -2701,7 +2743,14 @@
         "notifications": { "title": "Notificaciones", "desc": "Configura tus preferencias de alerta" }
       },
       "goToDashboard": "Ir a Tu Panel",
-      "needHelp": "¿Necesitas ayuda? Contáctanos en"
+      "needHelp": "¿Necesitas ayuda? Contáctanos en",
+      "installApp": {
+        "title": "Instalar la app",
+        "desc": "Añade LifeLink Sync a tu pantalla de inicio para acceso con un toque",
+        "button": "Instalar LifeLink Sync",
+        "installed": "App instalada",
+        "manualHint": "Para instrucciones de instalación, visita App Móvil en tu panel"
+      }
     },
     "validation": {
       "nameRequired": "Nombre Requerido",

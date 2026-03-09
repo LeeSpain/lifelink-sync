@@ -51,15 +51,6 @@
       "subtitle": "LifeLink Sync Management Portal"
     }
   },
-  "dashboard": {
-    "signOut": "Sign Out",
-    "greeting": {
-      "morning": "Good Morning",
-      "afternoon": "Good Afternoon",
-      "evening": "Good Evening"
-    },
-    "title": "Dashboard"
-  },
   "pricing": {
     "subscribeNow": "Subscribe Now",
     "details": "Details",
@@ -509,9 +500,22 @@
     "regionalAudit": "Audit Log"
   },
   "dashboard": {
+    "title": "Dashboard",
+    "loading": "Loading your dashboard...",
+    "welcomeBack": "Welcome back, {{name}}",
+    "memberFallback": "Member",
+    "protectionOverview": "Your protection overview and emergency readiness",
+    "activityTitle": "Activity & Testing",
+    "activityDesc": "View recent activity and system status",
+    "subscriptionTitle": "Subscription & Billing",
+    "subscriptionDesc": "Manage your plan, payments, and invoices",
+    "mobileAppTitle": "Mobile App",
+    "mobileAppDesc": "Set up and manage your mobile app connection",
+    "mobileDevTitle": "Mobile Development Dashboard",
+    "mobileDevDesc": "Monitor mobile app readiness and native capabilities",
     "greeting": {
       "morning": "Good morning",
-      "afternoon": "Good afternoon", 
+      "afternoon": "Good afternoon",
       "evening": "Good evening"
     },
     "signOut": "Sign Out",
@@ -565,7 +569,52 @@
     "familyCircleLabel": "Family Circle",
     "home": "Home",
     "loadingDashboard": "Loading your dashboard...",
-    "authRequired": "Authentication required. Please log in."
+    "authRequired": "Authentication required. Please log in.",
+    "welcomeBack": "Welcome back, {{name}}",
+    "protectionOverview": "Your protection overview and emergency readiness",
+    "memberFallback": "Member",
+    "activityTitle": "Activity & Testing",
+    "activityDesc": "View recent activity and system status",
+    "mobileAppTitle": "Mobile App",
+    "mobileAppDesc": "Set up and manage your mobile app connection",
+    "subscriptionTitle": "Subscription & Billing",
+    "subscriptionDesc": "Manage your plan, payments, and invoices",
+    "pwaInstall": {
+      "title": "Install LifeLink Sync",
+      "desc": "Add to your home screen for one-tap emergency access",
+      "installButton": "Install",
+      "learnMore": "Learn more"
+    }
+  },
+  "onboarding": {
+    "welcome": "Welcome to LifeLink Sync",
+    "completeSteps": "Complete these steps to get the most out of your protection",
+    "stepsCompleted": "{{completed}} of {{total}} steps completed",
+    "start": "Start",
+    "markDone": "Mark Done",
+    "complete": "Complete",
+    "markedComplete": "marked as complete",
+    "onboardingComplete": "Onboarding complete! Welcome aboard.",
+    "allComplete": "All Complete!",
+    "readyToUse": "You're all set to use LifeLink Sync",
+    "finishSetup": "Finish Setup",
+    "skipForNow": "Skip for Now",
+    "steps": {
+      "completeProfile": "Complete Profile",
+      "completeProfileDesc": "Add your personal details and emergency information",
+      "addEmergencyContacts": "Add Emergency Contacts",
+      "addEmergencyContactsDesc": "Set up people to contact in an emergency",
+      "configureSos": "Configure SOS Settings",
+      "configureSosDesc": "Customise your emergency alert preferences",
+      "inviteFamily": "Invite Family",
+      "inviteFamilyDesc": "Connect family members to your protection network",
+      "enableNotifications": "Enable Notifications",
+      "enableNotificationsDesc": "Stay informed with real-time emergency alerts",
+      "runSosTest": "Run SOS Test",
+      "runSosTestDesc": "Test your emergency system in safe mode",
+      "installApp": "Install the App",
+      "installAppDesc": "Add LifeLink Sync to your home screen for quick access"
+    }
   },
   "clara": {
     "title": "Clara AI Assistant",
@@ -1723,7 +1772,10 @@
     "downloadError": "Failed to download invoice.",
     "fillRequired": "Please fill in all required fields.",
     "inviteError": "Failed to send invitation.",
-    "portalError": "Unable to open subscription management."
+    "portalError": "Unable to open subscription management.",
+    "basic": "Basic",
+    "unknown": "Unknown",
+    "successTitle": "Success"
   },
   "family": {
     "appTitle": "LifeLink Family",
@@ -2158,6 +2210,7 @@
     "noParticipants": "No participants yet"
   },
   "checkout": {
+    "comingSoon": "Coming Soon",
     "checkingAuth": "Checking authentication...",
     "preparingCheckout": "Preparing Checkout",
     "settingUpPlan": "Setting up {{plan}}...",
@@ -2221,22 +2274,20 @@
     "accountActivated": "Account Activated",
     "paymentProcessed": "Payment Processed",
     "profileComplete": "Profile Complete",
-    "downloadYourApp": "Download Your LifeLink Sync App",
-    "getInstantAccessProtection": "Get instant access to your emergency protection system",
-    "iosIphoneIpad": "iOS (iPhone/iPad)",
-    "requiresIos": "Requires iOS 14.0 or later",
-    "scanWithIphone": "Scan with your iPhone camera",
-    "downloadFromAppStore": "Download from App Store",
-    "android": "Android",
-    "requiresAndroid": "Requires Android 8.0 or later",
-    "scanWithAndroid": "Scan with your Android camera",
-    "getItOnGooglePlay": "Get it on Google Play",
-    "cantScanQR": "Can't scan QR codes?",
-    "textIosLink": "Text iOS link to phone",
-    "textAndroidLink": "Text Android link to phone",
+    "downloadYourApp": "Install LifeLink Sync",
+    "getInstantAccessProtection": "Save to your home screen for instant emergency access",
+    "installPwa": "Install LifeLink Sync",
+    "installPwaDesc": "Tap below to add the app directly to your home screen — no app store needed",
+    "alreadyInstalled": "LifeLink Sync is installed",
+    "scanToOpen": "Scan to open on another device",
+    "textLinkToPhone": "Text link to my phone",
+    "iosInstructions": "On iPhone/iPad: tap Share then \"Add to Home Screen\"",
+    "androidInstructions": "On Android: tap the browser menu then \"Install app\"",
+    "desktopInstructions": "On desktop: click the install icon in your browser's address bar",
+    "manualInstallTitle": "Manual Install",
     "whatHappensNext": "What Happens Next?",
-    "downloadAndInstall": "Download & Install",
-    "installAppSignIn": "Install the app on your device and sign in with your registered email",
+    "saveToHomeScreen": "Save to Home Screen",
+    "saveToHomeScreenDesc": "Add LifeLink Sync to your home screen and sign in with your registered email",
     "setupComplete": "Setup Complete",
     "profileReadyTestFeatures": "Your profile is ready! Test the emergency features in safe mode",
     "stayProtected": "Stay Protected",
@@ -2919,7 +2970,14 @@
         "notifications": { "title": "Notifications", "desc": "Configure your alert preferences" }
       },
       "goToDashboard": "Go to Your Dashboard",
-      "needHelp": "Need help? Contact us at"
+      "needHelp": "Need help? Contact us at",
+      "installApp": {
+        "title": "Install the App",
+        "desc": "Add LifeLink Sync to your home screen for one-tap access",
+        "button": "Install LifeLink Sync",
+        "installed": "App Installed",
+        "manualHint": "For setup instructions, visit Mobile App in your dashboard"
+      }
     },
     "validation": {
       "nameRequired": "Name Required",

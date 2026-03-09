@@ -82,17 +82,6 @@ const DashboardRedirect = () => {
     return <Navigate to="/auth" replace />;
   }
 
-  // Check if user just completed payment - allow payment flow to complete
-  const justCompletedPayment = sessionStorage.getItem('payment-completed');
-  const fromPaymentSuccess = document.referrer.includes('/payment-success');
-  
-  if (justCompletedPayment || fromPaymentSuccess) {
-    console.debug('DashboardRedirect: DashboardRedirect: Payment flow detected, allowing welcome questionnaire');
-    // Clear the payment flag and redirect to welcome questionnaire
-    sessionStorage.removeItem('payment-completed');
-    return <Navigate to="/welcome-questionnaire" replace />;
-  }
-
   // Check onboarding for non-admin users
   if (needsOnboarding && !isAdmin && role !== 'admin') {
     console.debug('DashboardRedirect: DashboardRedirect: User needs onboarding, redirecting');

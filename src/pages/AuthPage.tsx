@@ -158,24 +158,25 @@ const AuthPage = () => {
       <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-3 sm:p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center px-4 sm:px-6 relative">
-            <div className="absolute top-2 right-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  // Enable dev bypass if not already, then show popup
-                  if (!devBypassEnabled) {
-                    localStorage.setItem('dev_bypass', '1');
-                    setDevBypassEnabled(true);
-                  }
-                  setShowDevPopup(true);
-                }}
-                className={`h-8 w-8 p-0 ${devBypassEnabled ? 'text-primary' : 'text-muted-foreground'} hover:text-foreground`}
-                title="Open Dev Quick Links"
-              >
-                <Settings className="h-4 w-4" />
-              </Button>
-            </div>
+            {import.meta.env.DEV && (
+              <div className="absolute top-2 right-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    if (!devBypassEnabled) {
+                      localStorage.setItem('dev_bypass', '1');
+                      setDevBypassEnabled(true);
+                    }
+                    setShowDevPopup(true);
+                  }}
+                  className={`h-8 w-8 p-0 ${devBypassEnabled ? 'text-primary' : 'text-muted-foreground'} hover:text-foreground`}
+                  title="Open Dev Quick Links"
+                >
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
             <div className="mb-2">
               <Button asChild variant="ghost" size="sm" className="min-h-[44px] text-muted-foreground hover:text-foreground">
                 <Link to="/">&larr; {t('auth.backToHomepage')}</Link>
@@ -248,8 +249,8 @@ const AuthPage = () => {
         </Card>
       </div>
 
-      {/* Dev Quick Links Popup */}
-      {showDevPopup && (
+      {/* Dev Quick Links Popup - Development only */}
+      {import.meta.env.DEV && showDevPopup && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowDevPopup(false)}>
           <div className="bg-white rounded-lg shadow-xl w-full max-w-sm mx-4 p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">

@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Download, Shield, Smartphone, UserCircle } from 'lucide-react';
-import QRCode from 'qrcode';
 import { PageSEO } from '@/components/PageSEO';
 
 
@@ -27,11 +26,9 @@ const PaymentSuccess = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [welcomeData, setWelcomeData] = useState<WelcomeData | null>(null);
-  const [iosQRCode, setIosQRCode] = useState<string>('');
-  const [androidQRCode, setAndroidQRCode] = useState<string>('');
 
-  const iosAppStoreUrl = 'https://apps.apple.com/app/your-app-id';
-  const androidPlayStoreUrl = 'https://play.google.com/store/apps/details?id=your.app.id';
+  // Native apps not yet published — show "Coming Soon" instead of fake URLs
+  const appsComingSoon = true;
 
   useEffect(() => {
     const initializeWelcomePage = async () => {
@@ -107,20 +104,7 @@ const PaymentSuccess = () => {
       }
     };
 
-    // Generate QR codes
-    const generateQRCodes = async () => {
-      try {
-        const iosQR = await QRCode.toDataURL(iosAppStoreUrl);
-        const androidQR = await QRCode.toDataURL(androidPlayStoreUrl);
-        setIosQRCode(iosQR);
-        setAndroidQRCode(androidQR);
-      } catch (error) {
-        console.error('Error generating QR codes:', error);
-      }
-    };
-
     initializeWelcomePage();
-    generateQRCodes();
   }, [user, navigate]);
 
   if (!welcomeData || !user) {
@@ -166,14 +150,9 @@ const PaymentSuccess = () => {
   console.log('Final totals:', { subscriptionTotal, productTotal, grandTotal });
 
   const handleDashboardAccess = () => {
-    // Set flag to indicate payment was completed for proper flow handling
-    sessionStorage.setItem('payment-completed', 'true');
-    navigate('/welcome-questionnaire');
+    navigate('/dashboard');
   };
 
-  const handleDirectDownload = (url: string) => {
-    window.open(url, '_blank');
-  };
 
   return (
     <div className="min-h-screen bg-gradient-hero">
@@ -186,14 +165,14 @@ const PaymentSuccess = () => {
           <div className="text-center mb-8">
             <div className="flex justify-center mb-6">
               <div className="relative">
-                <CheckCircle className="w-20 h-20 text-emergency" />
+                <CheckCircle className="w-20 h-20 text-primary" />
                 <div className="absolute inset-0 animate-ping">
-                  <CheckCircle className="w-20 h-20 text-emergency opacity-30" />
+                  <CheckCircle className="w-20 h-20 text-primary opacity-30" />
                 </div>
               </div>
             </div>
             
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            <h1 className="text-2xl font-bold text-white mb-4">
               {t('checkout.welcomeName', { name: welcomeData.firstName })}
             </h1>
 
@@ -201,7 +180,7 @@ const PaymentSuccess = () => {
               {t('checkout.protectionNowActive')}
             </p>
 
-            <Badge variant="secondary" className="bg-emergency/20 text-emergency border-emergency/30 px-4 py-2 text-lg">
+            <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 px-4 py-2 text-lg">
               <Shield className="w-5 h-5 mr-2" />
               {t('checkout.accountActivatedSuccessfully')}
             </Badge>
@@ -212,7 +191,7 @@ const PaymentSuccess = () => {
             <Card className="bg-white/95 backdrop-blur-sm shadow-xl">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-foreground">
-                  <CheckCircle className="w-6 h-6 text-emergency" />
+                  <CheckCircle className="w-6 h-6 text-primary" />
                   {t('checkout.purchaseConfirmation')}
                 </CardTitle>
               </CardHeader>
@@ -299,7 +278,7 @@ const PaymentSuccess = () => {
                   )}
                   <div className="flex justify-between text-lg font-bold border-t pt-2">
                     <span className="text-foreground">{t('checkout.totalPayment')}:</span>
-                    <span className="text-emergency">€{grandTotal.toFixed(2)}</span>
+                    <span className="text-primary">€{grandTotal.toFixed(2)}</span>
                   </div>
                 </div>
               </CardContent>
@@ -338,49 +317,25 @@ const PaymentSuccess = () => {
                 {/* Mobile App Download */}
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-emergency text-white flex items-center justify-center font-bold text-sm">2</div>
+                    <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">2</div>
                     <div className="flex-1">
                       <h4 className="font-semibold text-foreground">{t('checkout.downloadMobileApp')}</h4>
                       <p className="text-sm text-muted-foreground mb-3">
                         {t('checkout.getInstantAccessEmergency')}
                       </p>
                       
-                      {/* QR Codes */}
+                      {/* Native apps coming soon */}
                       <div className="grid grid-cols-2 gap-4 mb-4">
-                        <div className="text-center">
-                          <div className="bg-white p-3 rounded-lg shadow-sm border">
-                            {iosQRCode && <img src={iosQRCode} alt={t('checkout.iosQRCode')} className="w-24 h-24 mx-auto" loading="lazy" decoding="async" />}
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-2">{t('checkout.iosAppStore')}</p>
+                        <div className="text-center p-4 rounded-lg border bg-muted/50">
+                          <Smartphone className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                          <p className="text-xs font-medium">{t('checkout.iosAppStore')}</p>
+                          <Badge variant="secondary" className="mt-1">{t('checkout.comingSoon')}</Badge>
                         </div>
-                        <div className="text-center">
-                          <div className="bg-white p-3 rounded-lg shadow-sm border">
-                            {androidQRCode && <img src={androidQRCode} alt={t('checkout.androidQRCode')} className="w-24 h-24 mx-auto" loading="lazy" decoding="async" />}
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-2">{t('checkout.googlePlay')}</p>
+                        <div className="text-center p-4 rounded-lg border bg-muted/50">
+                          <Smartphone className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                          <p className="text-xs font-medium">{t('checkout.googlePlay')}</p>
+                          <Badge variant="secondary" className="mt-1">{t('checkout.comingSoon')}</Badge>
                         </div>
-                      </div>
-
-                      {/* Direct Download Buttons */}
-                      <div className="space-y-2">
-                        <Button 
-                          onClick={() => handleDirectDownload(iosAppStoreUrl)}
-                          variant="outline" 
-                          className="w-full border-primary text-primary hover:bg-primary hover:text-white"
-                          size="sm"
-                        >
-                          <Smartphone className="w-4 h-4 mr-2" />
-                          {t('checkout.downloadForIos')}
-                        </Button>
-                        <Button 
-                          onClick={() => handleDirectDownload(androidPlayStoreUrl)}
-                          variant="outline" 
-                          className="w-full border-emergency text-emergency hover:bg-emergency hover:text-white"
-                          size="sm"
-                        >
-                          <Download className="w-4 h-4 mr-2" />
-                          {t('checkout.downloadForAndroid')}
-                        </Button>
                       </div>
                     </div>
                   </div>
@@ -391,7 +346,6 @@ const PaymentSuccess = () => {
                   <h4 className="font-semibold text-foreground mb-2">{t('checkout.needHelp')}</h4>
                   <div className="text-sm text-muted-foreground space-y-1">
                     <p><strong>{t('checkout.email')}:</strong> support@lifelink-sync.com</p>
-                    <p><strong>{t('checkout.phone')}:</strong> +34 900 123 456</p>
                     <p><strong>{t('checkout.liveChat')}:</strong> {t('checkout.available247')}</p>
                   </div>
                 </div>

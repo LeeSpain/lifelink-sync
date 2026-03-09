@@ -31,6 +31,7 @@ import { MobileDashboard } from "@/components/mobile/MobileDashboard";
 import { useTranslation } from 'react-i18next';
 import { useRealTimeUpdates } from '@/hooks/useRealTimeUpdates';
 import LanguageCurrencySelector from '@/components/LanguageCurrencySelector';
+import { PWAInstallBanner } from '@/components/dashboard/PWAInstallBanner';
 
 const Dashboard = () => {
   const [subscription, setSubscription] = useState<any>(null);
@@ -153,7 +154,7 @@ const Dashboard = () => {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center space-y-4">
           <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-sm text-muted-foreground">Loading your dashboard...</p>
+          <p className="text-sm text-muted-foreground">{t('dashboard.loading')}</p>
         </div>
       </div>
     );
@@ -188,12 +189,14 @@ const Dashboard = () => {
                       {/* Welcome Header */}
                       <div className="mb-4 sm:mb-8">
                         <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-                          Welcome back, {profile?.first_name || 'Member'}
+                          {t('dashboard.welcomeBack', { name: profile?.first_name || t('dashboard.memberFallback') })}
                         </h1>
                         <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                          Your protection overview and emergency readiness
+                          {t('dashboard.protectionOverview')}
                         </p>
                       </div>
+
+                      <PWAInstallBanner />
 
                       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                         {/* Main Content */}
@@ -241,8 +244,8 @@ const Dashboard = () => {
                <Route path="activity" element={
                  <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
                    <div>
-                     <h1 className="text-2xl font-bold tracking-tight">Activity & Testing</h1>
-                     <p className="text-muted-foreground">View recent activity and system status</p>
+                     <h1 className="text-2xl font-bold tracking-tight">{t('dashboard.activityTitle')}</h1>
+                     <p className="text-muted-foreground">{t('dashboard.activityDesc')}</p>
                    </div>
                    <ActivityCard />
                  </div>
@@ -252,8 +255,8 @@ const Dashboard = () => {
                <Route path="subscription" element={
                  <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
                    <div>
-                     <h1 className="text-2xl font-bold tracking-tight">Subscription & Billing</h1>
-                     <p className="text-muted-foreground">Manage your plan, payments, and invoices</p>
+                     <h1 className="text-2xl font-bold tracking-tight">{t('dashboard.subscriptionTitle')}</h1>
+                     <p className="text-muted-foreground">{t('dashboard.subscriptionDesc')}</p>
                    </div>
                    <SubscriptionCard subscription={subscription} />
                    <AddOnMarketplace />
@@ -264,8 +267,8 @@ const Dashboard = () => {
                 <Route path="mobile-app" element={
                   <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
                     <div>
-                      <h1 className="text-2xl font-bold tracking-tight">Mobile App</h1>
-                      <p className="text-muted-foreground">Set up and manage your mobile app connection</p>
+                      <h1 className="text-2xl font-bold tracking-tight">{t('dashboard.mobileAppTitle')}</h1>
+                      <p className="text-muted-foreground">{t('dashboard.mobileAppDesc')}</p>
                     </div>
                     <MobileAppCard />
                   </div>
@@ -275,8 +278,8 @@ const Dashboard = () => {
                 <Route path="mobile-dashboard" element={
                   <div className="p-3 sm:p-6">
                     <div className="mb-6">
-                      <h1 className="text-2xl font-bold tracking-tight">Mobile Development Dashboard</h1>
-                      <p className="text-muted-foreground">Monitor mobile app readiness and native capabilities</p>
+                      <h1 className="text-2xl font-bold tracking-tight">{t('dashboard.mobileDevTitle')}</h1>
+                      <p className="text-muted-foreground">{t('dashboard.mobileDevDesc')}</p>
                     </div>
                     <div className="space-y-6">
                       <MobileDashboard />

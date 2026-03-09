@@ -50,8 +50,8 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
     } catch (error) {
       console.error('Error loading invoices:', error);
       toast({
-        title: "Error",
-        description: "Failed to load billing history.",
+        title: t('subscriptionCard.errorTitle'),
+        description: t('subscriptionCard.loadBillingError'),
         variant: "destructive"
       });
     } finally {
@@ -82,14 +82,14 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
       // Open PDF in new tab
       window.open(data.downloadUrl, '_blank');
       toast({
-        title: "Success",
-        description: `Invoice ${invoiceNumber} opened for download.`
+        title: t('subscriptionCard.successTitle'),
+        description: t('subscriptionCard.invoiceDownloaded', { number: invoiceNumber })
       });
     } catch (error) {
       console.error('Error downloading invoice:', error);
       toast({
-        title: "Error",
-        description: "Failed to download invoice.",
+        title: t('subscriptionCard.errorTitle'),
+        description: t('subscriptionCard.downloadError'),
         variant: "destructive"
       });
     }
@@ -99,8 +99,8 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
     try {
       if (!inviteForm.email || !inviteForm.name) {
         toast({
-          title: "Error",
-          description: "Please fill in all required fields.",
+          title: t('subscriptionCard.errorTitle'),
+          description: t('subscriptionCard.fillRequired'),
           variant: "destructive"
         });
         return;
@@ -112,7 +112,7 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
       if (error) throw error;
 
       toast({
-        title: "Success",
+        title: t('subscriptionCard.successTitle'),
         description: data.message
       });
 
@@ -122,8 +122,8 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
     } catch (error) {
       console.error('Error sending invite:', error);
       toast({
-        title: "Error",
-        description: "Failed to send invitation.",
+        title: t('subscriptionCard.errorTitle'),
+        description: t('subscriptionCard.inviteError'),
         variant: "destructive"
       });
     }
@@ -137,8 +137,8 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
     } catch (error) {
       console.error('Error opening customer portal:', error);
       toast({
-        title: "Error",
-        description: "Unable to open subscription management.",
+        title: t('subscriptionCard.errorTitle'),
+        description: t('subscriptionCard.portalError'),
         variant: "destructive"
       });
     }
@@ -187,7 +187,7 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
       declined: 'bg-muted text-foreground',
       expired: 'bg-muted text-foreground'
     };
-    return statusColors[status as keyof typeof statusColors] || 'bg-gray-100 text-gray-800';
+    return statusColors[status as keyof typeof statusColors] || 'bg-muted text-foreground';
   };
 
   return (
@@ -231,9 +231,11 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
                       <div>
                         <h4 className="font-semibold text-foreground">{t('subscriptionCard.freeTrialActive')}</h4>
                         <p className="text-sm text-muted-foreground">
-                          Ends {subscription.trial_end
-                            ? new Date(subscription.trial_end).toLocaleDateString()
-                            : 'soon'}
+                          {t('subscriptionCard.trialEnds', {
+                            date: subscription.trial_end
+                              ? new Date(subscription.trial_end).toLocaleDateString()
+                              : t('subscriptionCard.trialEndsSoon')
+                          })}
                         </p>
                       </div>
                       <Button
@@ -241,7 +243,7 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
                         className="w-full sm:w-auto"
                         onClick={() => window.location.href = '/pricing'}
                       >
-                        Subscribe Now
+                        {t('subscriptionCard.subscribeNow')}
                       </Button>
                     </div>
                   </div>
@@ -258,7 +260,7 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
                         </Badge>
                       ))}
                       {subscription.clara_complete_unlocked && (
-                        <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                        <Badge className="bg-primary text-primary-foreground">
                           CLARA Complete
                         </Badge>
                       )}
@@ -271,7 +273,7 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
                   <div className="p-4 bg-muted/50 rounded-lg border">
                     <h4 className="font-semibold text-foreground mb-1">{t('subscriptionCard.currentPlan')}</h4>
                     <p className="text-lg font-bold text-foreground capitalize">
-                      {subscription.subscription_tier?.replace('_', ' ') || 'Basic'}
+                      {subscription.subscription_tier?.replace('_', ' ') || t('subscriptionCard.basic')}
                     </p>
                   </div>
                   <div className="p-4 bg-muted/50 rounded-lg border">
@@ -279,7 +281,7 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
                     <p className="text-lg font-bold text-foreground">
                       {subscription.subscription_end
                         ? new Date(subscription.subscription_end).toLocaleDateString()
-                        : 'Unknown'
+                        : t('subscriptionCard.unknown')
                       }
                     </p>
                   </div>
@@ -294,30 +296,30 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
                   <h4 className="font-semibold mb-3">{t('subscriptionCard.paymentSummary')}</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span className="text-muted-foreground">Current Status:</span>
+                      <span className="text-muted-foreground">{t('subscriptionCard.currentStatus')}</span>
                       <span className="ml-2 font-semibold text-foreground">
                         {subscription.subscribed ? t('subscriptionCard.statusActive') : t('subscriptionCard.statusInactive')}
                       </span>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">Subscription End:</span>
+                      <span className="text-muted-foreground">{t('subscriptionCard.subscriptionEnd')}</span>
                       <span className="ml-2 font-semibold">
-                        {subscription.subscription_end 
+                        {subscription.subscription_end
                           ? new Date(subscription.subscription_end).toLocaleDateString()
-                          : 'Not available'
+                          : t('subscriptionCard.notAvailable')
                         }
                       </span>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">Plan Type:</span>
+                      <span className="text-muted-foreground">{t('subscriptionCard.planType')}</span>
                       <span className="ml-2 font-semibold capitalize">
-                        {subscription.subscription_tier?.replace('_', ' ') || 'Basic'}
+                        {subscription.subscription_tier?.replace('_', ' ') || t('subscriptionCard.basic')}
                       </span>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">Billing:</span>
+                      <span className="text-muted-foreground">{t('subscriptionCard.billing')}</span>
                       <span className="ml-2 font-semibold">
-                        {subscription.subscription_end ? 'Auto-Renewal Active' : 'Manage via Stripe'}
+                        {subscription.subscription_end ? t('subscriptionCard.autoRenewal') : t('subscriptionCard.manageViaStripe')}
                       </span>
                     </div>
                   </div>
@@ -328,42 +330,42 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
                   <h4 className="font-medium mb-3">{t('subscriptionCard.availableFeatures')}</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                      <span className="text-sm">Emergency SOS Button</span>
+                      <CheckCircle className="h-4 w-4 text-primary" />
+                      <span className="text-sm">{t('subscriptionCard.emergencySosButton')}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                      <span className="text-sm">Emergency Contact Management</span>
+                      <CheckCircle className="h-4 w-4 text-primary" />
+                      <span className="text-sm">{t('subscriptionCard.emergencyContactMgmt')}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                      <span className="text-sm">Profile & Medical Info</span>
+                      <CheckCircle className="h-4 w-4 text-primary" />
+                      <span className="text-sm">{t('subscriptionCard.profileMedicalInfo')}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                      <span className="text-sm">Dashboard Access</span>
+                      <CheckCircle className="h-4 w-4 text-primary" />
+                      <span className="text-sm">{t('subscriptionCard.dashboardAccess')}</span>
                     </div>
                     {subscription.subscription_tier?.includes('spain') && (
                       <>
                         <div className="flex items-center gap-2">
-                          <CheckCircle className="h-4 w-4 text-green-500" />
-                          <span className="text-sm">Spanish Call Center (€24.99/month)</span>
+                          <CheckCircle className="h-4 w-4 text-primary" />
+                          <span className="text-sm">{t('subscriptionCard.spanishCallCenter')}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <CheckCircle className="h-4 w-4 text-green-500" />
-                          <span className="text-sm">Local Emergency Response</span>
+                          <CheckCircle className="h-4 w-4 text-primary" />
+                          <span className="text-sm">{t('subscriptionCard.localEmergencyResponse')}</span>
                         </div>
                       </>
                     )}
                     {(subscription.subscription_tier?.includes('premium') || subscription.subscription_tier?.includes('family')) && (
                       <>
                         <div className="flex items-center gap-2">
-                          <CheckCircle className="h-4 w-4 text-green-500" />
-                          <span className="text-sm">Family Connection Features</span>
+                          <CheckCircle className="h-4 w-4 text-primary" />
+                          <span className="text-sm">{t('subscriptionCard.familyConnectionFeatures')}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <CheckCircle className="h-4 w-4 text-green-500" />
-                          <span className="text-sm">Enhanced Protection</span>
+                          <CheckCircle className="h-4 w-4 text-primary" />
+                          <span className="text-sm">{t('subscriptionCard.enhancedProtection')}</span>
                         </div>
                       </>
                     )}
@@ -372,7 +374,7 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
 
                 {/* Quick Actions */}
                 <div className="border-t pt-4">
-                  <h4 className="font-medium mb-3">Quick Actions</h4>
+                  <h4 className="font-medium mb-3">{t('subscriptionCard.quickActions')}</h4>
                   <div className="flex flex-wrap gap-2">
                     <Button onClick={handleManageSubscription} variant="outline" size="sm">
                       <Settings className="h-4 w-4 mr-2" />
@@ -380,11 +382,11 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
                     </Button>
                     <Button onClick={loadInvoices} variant="outline" size="sm">
                       <Download className="h-4 w-4 mr-2" />
-                      Download Latest Invoice
+                      {t('subscriptionCard.downloadLatestInvoice')}
                     </Button>
                     <Button variant="outline" size="sm">
                       <CreditCard className="h-4 w-4 mr-2" />
-                      Update Payment Method
+                      {t('subscriptionCard.updatePaymentMethod')}
                     </Button>
                   </div>
                 </div>
@@ -393,10 +395,10 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
               <div className="text-center py-6">
                 <AlertCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
                 <p className="text-muted-foreground mb-4">
-                  No active subscription found. Complete your subscription to access all emergency protection features.
+                  {t('subscriptionCard.noSubscription')}
                 </p>
                 <Button onClick={() => window.location.href = '/register'}>
-                  Complete Subscription
+                  {t('subscriptionCard.completeSubscriptionBtn')}
                 </Button>
               </div>
             )}
@@ -408,7 +410,7 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
               <h4 className="font-semibold text-sm">{t('subscriptionCard.billingHistoryTitle')}</h4>
               <Button onClick={loadInvoices} variant="outline" size="sm" disabled={isLoadingInvoices} className="w-full sm:w-auto">
                 <FileText className="h-4 w-4 mr-2" />
-                {isLoadingInvoices ? 'Loading...' : 'Refresh'}
+                {isLoadingInvoices ? t('subscriptionCard.loading') : t('subscriptionCard.refresh')}
               </Button>
             </div>
 
@@ -416,12 +418,12 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
             {subscription?.subscribed && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div className="p-4 bg-muted/50 rounded-lg border">
-                  <h5 className="font-semibold text-foreground mb-1">Total Invoices</h5>
+                  <h5 className="font-semibold text-foreground mb-1">{t('subscriptionCard.totalInvoices')}</h5>
                   <p className="text-lg font-bold text-foreground">{invoices.length}</p>
-                  <p className="text-xs text-muted-foreground">Available invoices</p>
+                  <p className="text-xs text-muted-foreground">{t('subscriptionCard.availableInvoices')}</p>
                 </div>
                 <div className="p-4 bg-muted/50 rounded-lg border">
-                  <h5 className="font-semibold text-foreground mb-1">Latest Invoice</h5>
+                  <h5 className="font-semibold text-foreground mb-1">{t('subscriptionCard.latestInvoice')}</h5>
                   <p className="text-lg font-bold text-foreground">
                     {invoices.length > 0 ? formatCurrency(invoices[0].amount_paid, invoices[0].currency) : '€0.00'}
                   </p>
@@ -434,7 +436,7 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
                   <p className="text-lg font-bold text-foreground">
                     {subscription.subscribed ? t('subscriptionCard.statusActive') : t('subscriptionCard.statusInactive')}
                   </p>
-                  <p className="text-xs text-muted-foreground">Subscription status</p>
+                  <p className="text-xs text-muted-foreground">{t('subscriptionCard.subscriptionStatus')}</p>
                 </div>
               </div>
             )}
@@ -447,22 +449,22 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
                 <p className="text-sm">{t('subscriptionCard.billingHistoryAppear')}</p>
                 {!subscription?.subscribed && (
                   <Button onClick={() => window.location.href = '/register'} className="mt-4">
-                    Start Subscription
+                    {t('subscriptionCard.startSubscription')}
                   </Button>
                 )}
               </div>
             ) : (
               <div className="space-y-4">
-                <h5 className="font-medium">Recent Invoices</h5>
+                <h5 className="font-medium">{t('subscriptionCard.recentInvoices')}</h5>
                 {invoices.map((invoice) => (
                   <div key={invoice.id} className="p-3 border rounded-lg hover:bg-muted/50 transition-colors">
                     <div className="flex flex-wrap items-center gap-2 mb-3">
                       <Badge variant="secondary">
                         {invoice.status.toUpperCase()}
                       </Badge>
-                      <span className="font-semibold text-base sm:text-lg">Invoice #{invoice.number}</span>
+                      <span className="font-semibold text-base sm:text-lg">{t('subscriptionCard.invoice', { number: invoice.number })}</span>
                       {invoice.paid && (
-                        <CheckCircle className="h-5 w-5 text-green-500" />
+                        <CheckCircle className="h-5 w-5 text-primary" />
                       )}
                       <span className="font-bold text-lg sm:text-xl ml-auto">
                         {formatCurrency(invoice.amount_paid || invoice.total, invoice.currency)}
@@ -474,7 +476,7 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
                         <span>{new Date(invoice.created * 1000).toLocaleDateString()}</span>
                       </div>
                       <div className="truncate">
-                        {invoice.description || 'Monthly Subscription'}
+                        {invoice.description || t('subscriptionCard.monthlySubscription')}
                       </div>
                       {invoice.period_start && invoice.period_end && (
                         <div className="text-xs">
@@ -490,7 +492,7 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
                           size="sm"
                         >
                           <Download className="h-4 w-4 mr-2" />
-                          PDF
+                          {t('subscriptionCard.pdf')}
                         </Button>
                       )}
                       <Button
@@ -499,7 +501,7 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
                         size="sm"
                       >
                         <FileText className="h-4 w-4 mr-2" />
-                        Details
+                        {t('subscriptionCard.details')}
                       </Button>
                     </div>
                   </div>

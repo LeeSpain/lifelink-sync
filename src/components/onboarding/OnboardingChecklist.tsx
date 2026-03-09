@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useOnboardingProgress, OnboardingSteps } from '@/hooks/useOnboardingProgress';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import {
   User,
   Phone,
@@ -12,11 +14,13 @@ import {
   Users,
   Bell,
   TestTube,
+  Smartphone,
   CheckCircle2,
   Circle,
   Loader2,
   PartyPopper
 } from 'lucide-react';
+import { usePWAFeatures } from '@/hooks/usePWAFeatures';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 
@@ -71,12 +75,60 @@ const STEPS: Step[] = [
     icon: <TestTube className="h-5 w-5" />,
     route: '/member-dashboard/family-sos',
   },
+  {
+    key: 'install_app',
+    title: 'onboarding.steps.installApp',
+    description: 'onboarding.steps.installAppDesc',
+    icon: <Smartphone className="h-5 w-5" />,
+    route: '/member-dashboard/mobile-app',
+  },
 ];
 
 export function OnboardingChecklist() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { user } = useAuth();
   const { progress, loading, updateStep, markComplete, progressPercentage } = useOnboardingProgress();
+  const { isInstalled } = usePWAFeatures();
+  const autoMarkedRef = useRef(false);
+
+  // Auto-mark steps already completed by the registration wizard
+  useEffect(() => {
+    if (!user?.id || !progress || autoMarkedRef.current || loading) return;
+    autoMarkedRef.current = true;
+
+    const autoMarkWizardSteps = async () => {
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('first_name, last_name, phone, emergency_contacts')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (!profile) return;
+
+        // If profile has name + phone, wizard already completed the profile step
+        if (profile.first_name && profile.phone && !progress.steps.complete_profile) {
+          await updateStep('complete_profile', true);
+        }
+
+        // If profile has emergency contacts, wizard already completed contacts step
+        const contacts = Array.isArray(profile.emergency_contacts) ? profile.emergency_contacts : [];
+        if (contacts.length > 0 && !progress.steps.add_emergency_contacts) {
+          await updateStep('add_emergency_contacts', true);
+        }
+
+        // If PWA is already installed, auto-mark install_app step
+        if (isInstalled && !progress.steps.install_app) {
+          await updateStep('install_app', true);
+        }
+      } catch (err) {
+        console.error('Error auto-marking wizard steps:', err);
+      }
+    };
+
+    autoMarkWizardSteps();
+  }, [user?.id, progress, loading, isInstalled]);
 
   if (loading) {
     return (
@@ -87,7 +139,7 @@ export function OnboardingChecklist() {
   }
 
   const completedCount = progress ? Object.values(progress.steps).filter(Boolean).length : 0;
-  const allComplete = completedCount === 6;
+  const allComplete = completedCount === STEPS.length;
 
   const handleStart = (step: Step) => {
     navigate(step.route);
@@ -121,7 +173,7 @@ export function OnboardingChecklist() {
             </Badge>
           </div>
           <p className="text-sm text-muted-foreground text-center">
-            {t('onboarding.stepsCompleted', { completed: completedCount, total: 6 })}
+            {t('onboarding.stepsCompleted', { completed: completedCount, total: STEPS.length })}
           </p>
         </CardContent>
       </Card>
@@ -133,10 +185,10 @@ export function OnboardingChecklist() {
           return (
             <Card
               key={step.key}
-              className={isComplete ? 'border-green-500/50 bg-green-50/50 dark:bg-green-950/20' : ''}
+              className={isComplete ? 'border-primary/50 bg-primary/5' : ''}
             >
               <CardContent className="flex items-center gap-4 p-4">
-                <div className={`p-2 rounded-full ${isComplete ? 'bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400' : 'bg-muted text-muted-foreground'}`}>
+                <div className={`p-2 rounded-full ${isComplete ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
                   {step.icon}
                 </div>
 
@@ -144,7 +196,7 @@ export function OnboardingChecklist() {
                   <div className="flex items-center gap-2">
                     <h3 className="font-medium">{t(step.title)}</h3>
                     {isComplete && (
-                      <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+                      <CheckCircle2 className="h-4 w-4 text-primary" />
                     )}
                   </div>
                   <p className="text-sm text-muted-foreground">{t(step.description)}</p>
@@ -170,7 +222,7 @@ export function OnboardingChecklist() {
                     </>
                   )}
                   {isComplete && (
-                    <Badge variant="outline" className="text-green-600 border-green-600">
+                    <Badge variant="outline" className="text-primary border-primary">
                       <Circle className="h-2 w-2 fill-current mr-1" />
                       {t('onboarding.complete')}
                     </Badge>

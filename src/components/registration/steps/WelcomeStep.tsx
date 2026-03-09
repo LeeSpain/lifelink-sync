@@ -27,10 +27,10 @@ const WelcomeStep: React.FC<WelcomeStepProps> = ({ onNext }) => {
         <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-primary shadow-primary">
           <Shield className="h-10 w-10 text-white" />
         </div>
-        <h2 className="text-3xl sm:text-4xl font-poppins font-bold text-foreground">
+        <h2 className="text-2xl font-bold text-foreground">
           {t('registration.welcome.title')}
         </h2>
-        <p className="text-lg text-muted-foreground max-w-lg mx-auto">
+        <p className="text-sm text-muted-foreground max-w-lg mx-auto">
           {t('registration.welcome.subtitle')}
         </p>
       </div>
@@ -52,13 +52,13 @@ const WelcomeStep: React.FC<WelcomeStepProps> = ({ onNext }) => {
 
       {/* Trust badges */}
       <div className="flex flex-wrap justify-center gap-2">
-        <Badge variant="secondary" className="bg-wellness/10 text-wellness border-wellness/20">
+        <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
           {t('registration.welcome.badge247')}
         </Badge>
-        <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">
+        <Badge variant="secondary" className="bg-muted text-muted-foreground">
           {t('registration.welcome.badgeGdpr')}
         </Badge>
-        <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-blue-200">
+        <Badge variant="secondary" className="bg-muted text-muted-foreground">
           {t('registration.welcome.badgeEncrypted')}
         </Badge>
       </div>

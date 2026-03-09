@@ -4,50 +4,40 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Download, Smartphone, QrCode, ArrowRight, Star, Shield } from 'lucide-react';
+import { CheckCircle, Download, Smartphone, QrCode, ArrowRight, Shield, Share2 } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import QRCode from 'qrcode';
 import SEO from '@/components/SEO';
+import { usePWAFeatures } from '@/hooks/usePWAFeatures';
 
 const RegistrationSuccess = () => {
   const { t } = useTranslation();
-  const [iosQR, setIosQR] = useState('');
-  const [androidQR, setAndroidQR] = useState('');
+  const { isInstalled, isInstallable, installApp } = usePWAFeatures();
+  const [webAppQR, setWebAppQR] = useState('');
 
-  // App Store URLs
-  const iosAppStoreUrl = 'https://apps.apple.com/app/lifelink-sync/id123456789';
-  const androidPlayStoreUrl = 'https://play.google.com/store/apps/details?id=com.lifelinksync';
+  const webAppUrl = typeof window !== 'undefined' ? window.location.origin : 'https://lifelink-sync.vercel.app';
 
   useEffect(() => {
-    // Generate QR codes
-    const generateQRCodes = async () => {
+    const generateQR = async () => {
       try {
-        const iosQRData = await QRCode.toDataURL(iosAppStoreUrl, {
+        const qrData = await QRCode.toDataURL(webAppUrl, {
           width: 200,
           margin: 2,
           color: { dark: '#000000', light: '#ffffff' }
         });
-        const androidQRData = await QRCode.toDataURL(androidPlayStoreUrl, {
-          width: 200,
-          margin: 2,
-          color: { dark: '#000000', light: '#ffffff' }
-        });
-        
-        setIosQR(iosQRData);
-        setAndroidQR(androidQRData);
+        setWebAppQR(qrData);
       } catch (error) {
-        console.error('Error generating QR codes:', error);
+        console.error('Error generating QR code:', error);
       }
     };
-
-    generateQRCodes();
-  }, []);
+    generateQR();
+  }, [webAppUrl]);
 
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "WebPage",
     "name": "Welcome to LifeLink Sync – Registration Complete",
-    "description": "Your LifeLink Sync registration is complete. Download the app and activate your emergency protection now.",
+    "description": "Your LifeLink Sync registration is complete. Install the app and activate your emergency protection now.",
     "provider": {
       "@type": "Organization",
       "name": "LifeLink Sync",
@@ -55,174 +45,144 @@ const RegistrationSuccess = () => {
     },
     "mainEntity": {
       "@type": "SoftwareApplication",
-      "name": "LifeLink Sync App",
-      "operatingSystem": ["iOS", "Android"],
-      "applicationCategory": "HealthApplication",
+      "name": "LifeLink Sync",
+      "applicationCategory": "WebApplication",
       "offers": {
         "@type": "Offer",
         "price": "0",
-        "priceCurrency": "USD"
+        "priceCurrency": "EUR"
       }
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-hero">
-      <SEO 
+      <SEO
         title="Welcome to LifeLink Sync – Registration Complete"
-        description="Your LifeLink Sync registration is complete. Download the app and activate your emergency protection now. Available on iOS and Android."
+        description="Your LifeLink Sync registration is complete. Install the app to your home screen and activate your emergency protection now."
         canonical="/welcome"
         structuredData={structuredData}
       />
       <Navigation />
-      
+
       <div className="container mx-auto px-4 py-24">
         <div className="max-w-4xl mx-auto">
           {/* Success Header */}
-          <Card className="bg-white/95 backdrop-blur-sm shadow-2xl border-0 mb-8">
-            <CardHeader className="text-center py-12 bg-gradient-to-r from-emerald-50 to-primary/5">
+          <Card className="border rounded-lg shadow-sm mb-8">
+            <CardHeader className="text-center py-12 bg-muted/50">
               <div className="flex justify-center mb-6">
-                <div className="relative">
-                  <div className="p-4 bg-emerald-100 rounded-full">
-                    <CheckCircle className="h-16 w-16 text-emerald-600" />
-                  </div>
-                  <div className="absolute -top-2 -right-2">
-                    <Star className="h-8 w-8 text-yellow-500 fill-current animate-pulse" />
-                  </div>
+                <div className="p-4 bg-primary/10 rounded-full">
+                  <CheckCircle className="h-16 w-16 text-primary" />
                 </div>
               </div>
-              
-              <CardTitle className="text-4xl font-bold text-foreground mb-4">
+
+              <CardTitle className="text-2xl font-bold text-foreground mb-4">
                 {t('checkout.welcomeToFamily')}
               </CardTitle>
 
-              <p className="text-xl text-muted-foreground mb-6 max-w-2xl mx-auto">
+              <p className="text-sm text-muted-foreground mb-6 max-w-2xl mx-auto">
                 {t('checkout.registrationComplete')}
               </p>
 
               <div className="flex flex-wrap justify-center gap-3">
-                <Badge variant="secondary" className="bg-emerald-100 text-emerald-800 px-4 py-2">
+                <Badge className="bg-primary/10 text-primary border-primary/20 px-4 py-2">
                   <Shield className="h-4 w-4 mr-2" />
                   {t('checkout.accountActivated')}
                 </Badge>
-                <Badge variant="secondary" className="bg-blue-100 text-blue-800 px-4 py-2">
+                <Badge variant="secondary" className="px-4 py-2">
                   {t('checkout.paymentProcessed')}
                 </Badge>
-                <Badge variant="secondary" className="bg-purple-100 text-purple-800 px-4 py-2">
+                <Badge variant="secondary" className="px-4 py-2">
                   {t('checkout.profileComplete')}
                 </Badge>
               </div>
             </CardHeader>
           </Card>
 
-          {/* Download Section */}
-          <Card className="bg-white/95 backdrop-blur-sm shadow-2xl border-0 mb-8">
+          {/* Install Section */}
+          <Card className="border rounded-lg shadow-sm mb-8">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl font-bold flex items-center justify-center gap-3">
-                <Smartphone className="h-8 w-8 text-primary" />
+                <Smartphone className="h-5 w-5 text-primary" />
                 {t('checkout.downloadYourApp')}
               </CardTitle>
-              <p className="text-muted-foreground text-lg">
+              <p className="text-sm text-muted-foreground">
                 {t('checkout.getInstantAccessProtection')}
               </p>
             </CardHeader>
-            
-            <CardContent>
-              <div className="grid md:grid-cols-2 gap-8">
-                {/* iOS Download */}
-                <div className="text-center space-y-6">
-                  <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl border-2 border-gray-200 hover:border-primary/30 transition-colors">
-                    <div className="mb-4">
-                      <h3 className="text-xl font-semibold mb-2 flex items-center justify-center gap-2">
-                        {t('checkout.iosIphoneIpad')}
-                      </h3>
-                      <p className="text-sm text-muted-foreground">
-                        {t('checkout.requiresIos')}
+
+            <CardContent className="space-y-6">
+              {/* Install Status */}
+              {isInstalled ? (
+                <div className="text-center p-4 rounded-lg bg-primary/5 border border-primary/20">
+                  <Badge className="bg-primary/10 text-primary border-primary/20 px-4 py-2">
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    {t('checkout.alreadyInstalled')}
+                  </Badge>
+                </div>
+              ) : (
+                <div className="text-center space-y-4">
+                  {isInstallable && (
+                    <div className="p-6 rounded-lg bg-primary/5 border border-primary/20">
+                      <p className="text-sm text-muted-foreground mb-4">
+                        {t('checkout.installPwaDesc')}
+                      </p>
+                      <Button size="lg" onClick={installApp} className="px-10">
+                        <Download className="h-4 w-4 mr-2" />
+                        {t('checkout.installPwa')}
+                      </Button>
+                    </div>
+                  )}
+
+                  {/* Manual Install Instructions */}
+                  <div className="p-6 rounded-lg bg-muted/50 border">
+                    <h4 className="text-sm font-semibold mb-3 flex items-center justify-center gap-2">
+                      <Share2 className="h-4 w-4" />
+                      {t('checkout.manualInstallTitle')}
+                    </h4>
+                    <div className="space-y-2 text-left max-w-md mx-auto">
+                      <p className="text-xs text-muted-foreground">
+                        <span className="font-medium text-foreground">1.</span>{' '}
+                        {t('checkout.iosInstructions')}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        <span className="font-medium text-foreground">2.</span>{' '}
+                        {t('checkout.androidInstructions')}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        <span className="font-medium text-foreground">3.</span>{' '}
+                        {t('checkout.desktopInstructions')}
                       </p>
                     </div>
-                    
-                    {iosQR && (
-                      <div className="mb-6">
-                        <img 
-                          src={iosQR} 
-                          alt={t('checkout.iosQRCode')}
-                          className="mx-auto rounded-lg shadow-md"
-                          loading="lazy"
-                          decoding="async"
-                        />
-                        <p className="text-xs text-muted-foreground mt-2">
-                          {t('checkout.scanWithIphone')}
-                        </p>
-                      </div>
-                    )}
-                    
-                    <Button 
-                      asChild 
-                      className="w-full bg-black hover:bg-black/90 text-white py-3"
-                    >
-                      <a href={iosAppStoreUrl} target="_blank" rel="noopener noreferrer">
-                        <Download className="h-4 w-4 mr-2" />
-                        {t('checkout.downloadFromAppStore')}
-                      </a>
-                    </Button>
                   </div>
                 </div>
+              )}
 
-                {/* Android Download */}
-                <div className="text-center space-y-6">
-                  <div className="p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl border-2 border-green-200 hover:border-primary/30 transition-colors">
-                    <div className="mb-4">
-                      <h3 className="text-xl font-semibold mb-2 flex items-center justify-center gap-2">
-                        {t('checkout.android')}
-                      </h3>
-                      <p className="text-sm text-muted-foreground">
-                        {t('checkout.requiresAndroid')}
-                      </p>
-                    </div>
-                    
-                    {androidQR && (
-                      <div className="mb-6">
-                        <img 
-                          src={androidQR} 
-                          alt={t('checkout.androidQRCode')}
-                          className="mx-auto rounded-lg shadow-md"
-                          loading="lazy"
-                          decoding="async"
-                        />
-                        <p className="text-xs text-muted-foreground mt-2">
-                          {t('checkout.scanWithAndroid')}
-                        </p>
-                      </div>
-                    )}
-                    
-                    <Button 
-                      asChild 
-                      className="w-full bg-green-600 hover:bg-green-700 text-white py-3"
-                    >
-                      <a href={androidPlayStoreUrl} target="_blank" rel="noopener noreferrer">
-                        <Download className="h-4 w-4 mr-2" />
-                        {t('checkout.getItOnGooglePlay')}
-                      </a>
-                    </Button>
+              {/* QR Code + SMS */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {webAppQR && (
+                  <div className="text-center p-4 rounded-lg border">
+                    <QrCode className="h-5 w-5 mx-auto mb-2 text-muted-foreground" />
+                    <img
+                      src={webAppQR}
+                      alt="LifeLink Sync QR Code"
+                      className="mx-auto rounded-lg shadow-sm"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {t('checkout.scanToOpen')}
+                    </p>
                   </div>
-                </div>
-              </div>
-
-              {/* Alternative Download Methods */}
-              <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
-                <h4 className="font-semibold text-center mb-4 flex items-center justify-center gap-2">
-                  <QrCode className="h-5 w-5" />
-                  {t('checkout.cantScanQR')}
-                </h4>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button variant="outline" asChild>
-                    <a href={`sms:?body=Download LifeLink Sync: ${iosAppStoreUrl}`}>
-                      {t('checkout.textIosLink')}
-                    </a>
-                  </Button>
-                  <Button variant="outline" asChild>
-                    <a href={`sms:?body=Download LifeLink Sync: ${androidPlayStoreUrl}`}>
-                      {t('checkout.textAndroidLink')}
+                )}
+                <div className="flex flex-col items-center justify-center p-4 rounded-lg border">
+                  <Smartphone className="h-5 w-5 mb-2 text-muted-foreground" />
+                  <p className="text-xs text-muted-foreground mb-3 text-center">
+                    {t('checkout.scanToOpen')}
+                  </p>
+                  <Button variant="outline" size="sm" asChild>
+                    <a href={`sms:?body=${encodeURIComponent(`LifeLink Sync: ${webAppUrl}`)}`}>
+                      {t('checkout.textLinkToPhone')}
                     </a>
                   </Button>
                 </div>
@@ -231,48 +191,48 @@ const RegistrationSuccess = () => {
           </Card>
 
           {/* Next Steps */}
-          <Card className="bg-white/95 backdrop-blur-sm shadow-2xl border-0">
+          <Card className="border rounded-lg shadow-sm">
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-center">
                 {t('checkout.whatHappensNext')}
               </CardTitle>
             </CardHeader>
-            
+
             <CardContent>
               <div className="grid md:grid-cols-3 gap-6">
-                <div className="text-center p-6 bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl">
-                  <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-xl font-bold text-primary">1</span>
+                <div className="text-center p-6 bg-primary/5 rounded-lg">
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-sm font-bold text-primary">1</span>
                   </div>
-                  <h3 className="font-semibold mb-2">{t('checkout.downloadAndInstall')}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {t('checkout.installAppSignIn')}
+                  <h3 className="text-sm font-semibold mb-2">{t('checkout.saveToHomeScreen')}</h3>
+                  <p className="text-xs text-muted-foreground">
+                    {t('checkout.saveToHomeScreenDesc')}
                   </p>
                 </div>
-                
-                <div className="text-center p-6 bg-gradient-to-br from-emerald-5 to-emerald-10 rounded-xl">
-                  <div className="w-12 h-12 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-xl font-bold text-emerald-600">2</span>
+
+                <div className="text-center p-6 bg-muted/50 rounded-lg">
+                  <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-sm font-bold text-foreground">2</span>
                   </div>
-                  <h3 className="font-semibold mb-2">{t('checkout.setupComplete')}</h3>
-                  <p className="text-sm text-muted-foreground">
+                  <h3 className="text-sm font-semibold mb-2">{t('checkout.setupComplete')}</h3>
+                  <p className="text-xs text-muted-foreground">
                     {t('checkout.profileReadyTestFeatures')}
                   </p>
                 </div>
-                
-                <div className="text-center p-6 bg-gradient-to-br from-orange-5 to-orange-10 rounded-xl">
-                  <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-xl font-bold text-orange-600">3</span>
+
+                <div className="text-center p-6 bg-muted/50 rounded-lg">
+                  <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-sm font-bold text-foreground">3</span>
                   </div>
-                  <h3 className="font-semibold mb-2">{t('checkout.stayProtected')}</h3>
-                  <p className="text-sm text-muted-foreground">
+                  <h3 className="text-sm font-semibold mb-2">{t('checkout.stayProtected')}</h3>
+                  <p className="text-xs text-muted-foreground">
                     {t('checkout.nowProtected247')}
                   </p>
                 </div>
               </div>
-              
+
               <div className="text-center mt-8">
-                <Button asChild size="lg" className="bg-primary hover:bg-primary/90">
+                <Button asChild size="lg">
                   <Link to="/member-dashboard">
                     {t('checkout.accessYourDashboard')}
                     <ArrowRight className="h-4 w-4 ml-2" />
@@ -283,19 +243,13 @@ const RegistrationSuccess = () => {
           </Card>
 
           {/* Support Info */}
-          <div className="text-center mt-8 p-6 bg-white/80 rounded-xl">
-            <p className="text-muted-foreground mb-2">
+          <div className="text-center mt-8 p-6 bg-background/80 rounded-lg">
+            <p className="text-sm text-muted-foreground mb-2">
               {t('checkout.needHelpSupport247')}
             </p>
             <div className="flex flex-wrap justify-center gap-4 text-sm">
               <a href="mailto:support@lifelink-sync.com" className="text-primary hover:underline">
-                📧 support@lifelink-sync.com
-              </a>
-              <a href="tel:+44123456789" className="text-primary hover:underline">
-                📞 +44 123 456 789
-              </a>
-              <a href="/help" className="text-primary hover:underline">
-                💬 Live Chat
+                support@lifelink-sync.com
               </a>
             </div>
           </div>

@@ -43,15 +43,6 @@
       "subtitle": "LifeLink Sync Beheerportal"
     }
   },
-  "dashboard": {
-    "signOut": "Uitloggen",
-    "greeting": {
-      "morning": "Goedemorgen",
-      "afternoon": "Goedemiddag",
-      "evening": "Goedenavond"
-    },
-    "title": "Dashboard"
-  },
   "pricing": {
     "subscribeNow": "Abonneer Nu",
     "details": "Details",
@@ -479,6 +470,19 @@
     "regionalAudit": "Audit Log"
   },
   "dashboard": {
+    "title": "Dashboard",
+    "loading": "Je dashboard laden...",
+    "welcomeBack": "Welkom terug, {{name}}",
+    "memberFallback": "Lid",
+    "protectionOverview": "Je beschermingsoverzicht en noodparaatheid",
+    "activityTitle": "Activiteit & Testen",
+    "activityDesc": "Bekijk recente activiteit en systeemstatus",
+    "subscriptionTitle": "Abonnement & Facturering",
+    "subscriptionDesc": "Beheer je plan, betalingen en facturen",
+    "mobileAppTitle": "Mobiele App",
+    "mobileAppDesc": "Stel je mobiele app-verbinding in en beheer deze",
+    "mobileDevTitle": "Mobiel Ontwikkelingsdashboard",
+    "mobileDevDesc": "Monitor de gereedheid en native mogelijkheden van de mobiele app",
     "greeting": {
       "morning": "Goedemorgen",
       "afternoon": "Goedemiddag",
@@ -535,7 +539,43 @@
     "familyCircleLabel": "Familiekring",
     "home": "Home",
     "loadingDashboard": "Je dashboard laden...",
-    "authRequired": "Authenticatie vereist. Log in alsjeblieft."
+    "authRequired": "Authenticatie vereist. Log in alsjeblieft.",
+    "pwaInstall": {
+      "title": "LifeLink Sync installeren",
+      "desc": "Voeg toe aan je startscherm voor noodtoegang met één tik",
+      "installButton": "Installeren",
+      "learnMore": "Meer informatie"
+    }
+  },
+  "onboarding": {
+    "welcome": "Welkom bij LifeLink Sync",
+    "completeSteps": "Voltooi deze stappen om het meeste uit je bescherming te halen",
+    "stepsCompleted": "{{completed}} van {{total}} stappen voltooid",
+    "start": "Starten",
+    "markDone": "Markeer als klaar",
+    "complete": "Voltooid",
+    "markedComplete": "gemarkeerd als voltooid",
+    "onboardingComplete": "Configuratie voltooid! Welkom aan boord.",
+    "allComplete": "Alles voltooid!",
+    "readyToUse": "Je bent klaar om LifeLink Sync te gebruiken",
+    "finishSetup": "Configuratie afronden",
+    "skipForNow": "Nu overslaan",
+    "steps": {
+      "completeProfile": "Profiel voltooien",
+      "completeProfileDesc": "Voeg je persoonlijke gegevens en noodinformatie toe",
+      "addEmergencyContacts": "Noodcontacten toevoegen",
+      "addEmergencyContactsDesc": "Stel contactpersonen in voor noodgevallen",
+      "configureSos": "SOS-instellingen configureren",
+      "configureSosDesc": "Pas je noodalertvoorkeuren aan",
+      "inviteFamily": "Familie uitnodigen",
+      "inviteFamilyDesc": "Verbind familieleden met je beschermingsnetwerk",
+      "enableNotifications": "Meldingen inschakelen",
+      "enableNotificationsDesc": "Blijf op de hoogte met realtime noodmeldingen",
+      "runSosTest": "SOS-test uitvoeren",
+      "runSosTestDesc": "Test je noodsysteem in veilige modus",
+      "installApp": "App installeren",
+      "installAppDesc": "Voeg LifeLink Sync toe aan je startscherm voor snelle toegang"
+    }
   },
   "familyCarerAccess": {
     "sectionBadge": "Familie & Verzorger Ondersteuning",
@@ -1556,7 +1596,10 @@
     "downloadError": "Kan factuur niet downloaden.",
     "fillRequired": "Vul alle verplichte velden in.",
     "inviteError": "Kan uitnodiging niet verzenden.",
-    "portalError": "Kan abonnementsbeheer niet openen."
+    "portalError": "Kan abonnementsbeheer niet openen.",
+    "basic": "Basis",
+    "unknown": "Onbekend",
+    "successTitle": "Gelukt"
   },
   "auth": {
     "welcome": "Welkom",
@@ -2501,7 +2544,14 @@
         "notifications": { "title": "Meldingen", "desc": "Stel je meldingsvoorkeuren in" }
       },
       "goToDashboard": "Ga naar Je Dashboard",
-      "needHelp": "Hulp nodig? Neem contact op via"
+      "needHelp": "Hulp nodig? Neem contact op via",
+      "installApp": {
+        "title": "App installeren",
+        "desc": "Voeg LifeLink Sync toe aan je startscherm voor toegang met één tik",
+        "button": "LifeLink Sync installeren",
+        "installed": "App geïnstalleerd",
+        "manualHint": "Voor installatie-instructies, bezoek Mobiele App in je dashboard"
+      }
     },
     "validation": {
       "nameRequired": "Naam Vereist",
@@ -2697,5 +2747,33 @@
         "readTime": "4 min"
       }
     }
+  },
+  "checkout": {
+    "comingSoon": "Binnenkort beschikbaar",
+    "welcomeToFamily": "Welkom bij de LifeLink Sync Familie!",
+    "registrationComplete": "Je registratie is voltooid! Clara heeft je persoonlijke veiligheidsprofiel opgezet. Je wordt nu beschermd door ons geavanceerde noodresponssysteem.",
+    "accountActivated": "Account geactiveerd",
+    "paymentProcessed": "Betaling verwerkt",
+    "profileComplete": "Profiel voltooid",
+    "downloadYourApp": "LifeLink Sync installeren",
+    "getInstantAccessProtection": "Bewaar op je startscherm voor directe noodtoegang",
+    "installPwa": "LifeLink Sync installeren",
+    "installPwaDesc": "Tik hieronder om de app direct aan je startscherm toe te voegen — geen app store nodig",
+    "alreadyInstalled": "LifeLink Sync is geïnstalleerd",
+    "scanToOpen": "Scan om te openen op een ander apparaat",
+    "textLinkToPhone": "Link naar mijn telefoon sturen",
+    "iosInstructions": "Op iPhone/iPad: tik op Delen en dan \"Zet op beginscherm\"",
+    "androidInstructions": "Op Android: tik op het browsermenu en dan \"App installeren\"",
+    "desktopInstructions": "Op desktop: klik op het installatiepictogram in de adresbalk",
+    "manualInstallTitle": "Handmatige installatie",
+    "whatHappensNext": "Wat gebeurt er nu?",
+    "saveToHomeScreen": "Bewaar op startscherm",
+    "saveToHomeScreenDesc": "Voeg LifeLink Sync toe aan je startscherm en log in met je geregistreerde e-mail",
+    "setupComplete": "Configuratie voltooid",
+    "profileReadyTestFeatures": "Je profiel is klaar! Test de noodfuncties in veilige modus",
+    "stayProtected": "Blijf beschermd",
+    "nowProtected247": "Je bent nu 24/7 beschermd door ons geavanceerde noodsysteem",
+    "needHelpSupport247": "Hulp nodig? Ons supportteam is 24/7 beschikbaar",
+    "accessYourDashboard": "Ga naar je dashboard"
   }
 }

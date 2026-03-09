@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, ArrowRight, Shield, Users, Phone, Bell } from 'lucide-react';
+import { CheckCircle, ArrowRight, Shield, Users, Phone, Bell, Smartphone, Download } from 'lucide-react';
+import { usePWAFeatures } from '@/hooks/usePWAFeatures';
 
 interface CompleteStepProps {
   firstName: string;
@@ -15,15 +16,16 @@ const NEXT_STEP_ICONS = [Shield, Users, Phone, Bell];
 
 const CompleteStep: React.FC<CompleteStepProps> = ({ firstName, isTrialSelected }) => {
   const { t } = useTranslation();
+  const { isInstalled, isInstallable, installApp } = usePWAFeatures();
 
   return (
     <div className="text-center space-y-8 max-w-lg mx-auto">
       {/* Success Icon */}
       <div className="space-y-4">
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-wellness/10">
-          <CheckCircle className="h-10 w-10 text-wellness" />
+        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10">
+          <CheckCircle className="h-10 w-10 text-primary" />
         </div>
-        <h2 className="text-3xl font-poppins font-bold text-foreground">
+        <h2 className="text-2xl font-bold text-foreground">
           {t('registration.complete.title', { name: firstName ? `, ${firstName}` : '' })}
         </h2>
         <p className="text-muted-foreground">
@@ -36,12 +38,12 @@ const CompleteStep: React.FC<CompleteStepProps> = ({ firstName, isTrialSelected 
 
       {/* Status badges */}
       <div className="flex flex-wrap justify-center gap-2">
-        <Badge className="bg-wellness/10 text-wellness border-wellness/20 px-3 py-1">
+        <Badge className="bg-primary/10 text-primary border-primary/20 px-3 py-1">
           <Shield className="h-3 w-3 mr-1.5" />
           {t('registration.complete.accountActive')}
         </Badge>
         {isTrialSelected ? (
-          <Badge className="bg-blue-100 text-blue-800 border-blue-200 px-3 py-1">
+          <Badge variant="secondary" className="px-3 py-1">
             {t('registration.complete.trialStarted')}
           </Badge>
         ) : (
@@ -49,9 +51,37 @@ const CompleteStep: React.FC<CompleteStepProps> = ({ firstName, isTrialSelected 
             {t('registration.complete.paymentConfirmed')}
           </Badge>
         )}
-        <Badge className="bg-purple-100 text-purple-800 border-purple-200 px-3 py-1">
+        <Badge variant="secondary" className="px-3 py-1">
           {t('registration.complete.profileComplete')}
         </Badge>
+      </div>
+
+      {/* PWA Install Prompt */}
+      <div className="bg-primary/5 rounded-lg p-4 space-y-3">
+        <div className="flex items-center justify-center gap-2">
+          <Smartphone className="h-5 w-5 text-primary" />
+          <h3 className="text-sm font-semibold text-foreground">
+            {t('registration.complete.installApp.title')}
+          </h3>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          {t('registration.complete.installApp.desc')}
+        </p>
+        {isInstalled ? (
+          <Badge className="bg-primary/10 text-primary border-primary/20">
+            <CheckCircle className="h-3 w-3 mr-1.5" />
+            {t('registration.complete.installApp.installed')}
+          </Badge>
+        ) : isInstallable ? (
+          <Button size="sm" onClick={installApp}>
+            <Download className="h-4 w-4 mr-2" />
+            {t('registration.complete.installApp.button')}
+          </Button>
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            {t('registration.complete.installApp.manualHint')}
+          </p>
+        )}
       </div>
 
       {/* Next Steps */}
@@ -74,7 +104,7 @@ const CompleteStep: React.FC<CompleteStepProps> = ({ firstName, isTrialSelected 
 
       {/* CTA */}
       <Button asChild size="lg" className="px-10">
-        <Link to="/member-dashboard">
+        <Link to="/dashboard">
           {t('registration.complete.goToDashboard')}
           <ArrowRight className="h-4 w-4 ml-2" />
         </Link>

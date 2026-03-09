@@ -17,8 +17,8 @@ const CheckoutCancelPage = () => {
       <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100">
-              <XCircle className="h-8 w-8 text-amber-600" />
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+              <XCircle className="h-8 w-8 text-muted-foreground" />
             </div>
             <CardTitle className="text-xl">{t('checkout.checkoutCancelled')}</CardTitle>
             <CardDescription>

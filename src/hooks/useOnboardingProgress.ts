@@ -9,6 +9,7 @@ export interface OnboardingSteps {
   invite_family: boolean;
   enable_notifications: boolean;
   run_sos_test: boolean;
+  install_app: boolean;
 }
 
 export interface OnboardingProgress {
@@ -27,7 +28,10 @@ const DEFAULT_STEPS: OnboardingSteps = {
   invite_family: false,
   enable_notifications: false,
   run_sos_test: false,
+  install_app: false,
 };
+
+const STEP_COUNT = Object.keys(DEFAULT_STEPS).length;
 
 export function useOnboardingProgress() {
   const { user } = useAuth();
@@ -128,7 +132,7 @@ export function useOnboardingProgress() {
   };
 
   const progressPercentage = progress
-    ? Math.round((Object.values(progress.steps).filter(Boolean).length / 6) * 100)
+    ? Math.round((Object.values(progress.steps).filter(Boolean).length / STEP_COUNT) * 100)
     : 0;
 
   return {

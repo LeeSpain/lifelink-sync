@@ -104,7 +104,7 @@ const PaymentForm = ({ clientSecret, customerId, plans, firstName, lastName, use
         onSuccess();
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Payment failed";
+      const errorMessage = error instanceof Error ? error.message : t('payment.paymentFailed');
       toast({
         title: t('payment.paymentFailed'),
         description: errorMessage,
@@ -162,7 +162,7 @@ const PaymentForm = ({ clientSecret, customerId, plans, firstName, lastName, use
       <Button
         type="submit" 
         disabled={!stripe || !elements || isProcessing || !elementReady} 
-        className="w-full bg-emergency hover:bg-emergency/90"
+        className="w-full"
         size="lg"
       >
         {isProcessing ? (
@@ -318,7 +318,7 @@ const initializePayment = async (retryCount = 0) => {
     console.error("❌", errorMsg);
     setInitializationError(errorMsg);
     toast({
-      title: "Error",
+      title: t('payment.paymentError'),
       description: t('payment.noItemsSelected'),
       variant: "destructive"
     });
