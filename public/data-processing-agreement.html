@@ -3,339 +3,341 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Processing Agreement (GDPR) - LifeLink Sync</title>
+    <title>Data Processing Agreement - LifeLink Sync</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
-        h1, h2 { color: #ef4444; }
-        .gdpr { background: #e3f2fd; border-left: 4px solid #1976d2; padding: 15px; margin: 20px 0; }
-        .legal { background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0; }
-        .data-categories { background: #fff3e0; border: 1px solid #ffb74d; padding: 15px; border-radius: 8px; }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background-color: #f2f2f2; font-weight: bold; }
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; color: #333; }
+        h1, h2, h3 { color: #ef4444; }
+        .summary-box { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 20px; margin: 20px 0; }
+        .warning-box { background: #fef2f2; border: 2px solid #ef4444; border-radius: 8px; padding: 16px; margin: 20px 0; }
+        .contact { background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #f9fafb; }
+        tr:nth-child(even) { background: #f9fafb; }
+        a { color: #ef4444; }
     </style>
 </head>
 <body>
-    <h1>Data Processing Agreement (GDPR Compliance)</h1>
-    <p><strong>Effective Date:</strong> January 29, 2025</p>
-    
-    <div class="gdpr">
-        <p><strong>GDPR Compliance Notice:</strong> This Data Processing Agreement outlines how LifeLink Sync processes personal data in compliance with the General Data Protection Regulation (EU) 2016/679 and other applicable privacy laws.</p>
+    <h1>Data Processing Agreement</h1>
+    <p><strong>Effective Date:</strong> March 2026 | <strong>Last Updated:</strong> March 2026 | <strong>Next Review:</strong> September 2026</p>
+    <p>This document is also available in <a href="/es/data-processing-agreement">Spanish</a> and <a href="/nl/data-processing-agreement">Dutch</a>.</p>
+
+    <div class="summary-box">
+        <h3>Summary</h3>
+        <ul>
+            <li>This agreement explains how LifeLink Sync processes your personal data as a data controller under GDPR.</li>
+            <li>We use trusted sub-processors (Supabase, Stripe, Resend, Twilio, Google Analytics, Sentry) to operate our platform.</li>
+            <li>All sub-processors have data processing agreements in place and meet EU data protection standards.</li>
+            <li>Your data is primarily processed within the EU/EEA, with US transfers covered by Standard Contractual Clauses.</li>
+            <li>We conduct regular audits of our sub-processors to ensure ongoing compliance.</li>
+        </ul>
     </div>
 
-    <h2>1. Definitions and Scope</h2>
-    
-    <h3>1.1 Key Definitions:</h3>
+    <h2>1. Definitions</h2>
     <ul>
-        <li><strong>Controller:</strong> LifeLink Sync (the entity determining purposes and means of processing)</li>
-        <li><strong>Data Subject:</strong> You (the individual whose personal data is processed)</li>
-        <li><strong>Personal Data:</strong> Any information relating to an identified or identifiable natural person</li>
-        <li><strong>Processing:</strong> Any operation performed on personal data (collection, storage, use, etc.)</li>
-        <li><strong>Special Categories:</strong> Health data, location data, biometric data</li>
+        <li><strong>Controller:</strong> LifeLink Sync (the entity determining purposes and means of processing).</li>
+        <li><strong>Data Subject:</strong> You, the member using LifeLink Sync.</li>
+        <li><strong>Personal Data:</strong> Any information relating to an identified or identifiable person.</li>
+        <li><strong>Special Category Data:</strong> Health data, biometric data, and other categories per GDPR Article 9.</li>
+        <li><strong>Processing:</strong> Any operation performed on personal data.</li>
+        <li><strong>Sub-processor:</strong> Third-party service provider processing data on our behalf.</li>
+        <li><strong>Supervisory Authority:</strong> AEPD (Spain), ICO (UK), or relevant local authority.</li>
     </ul>
 
-    <h3>1.2 Processing Scope:</h3>
-    <p>This agreement covers all personal data processing activities related to:</p>
+    <h2>2. Role of LifeLink Sync</h2>
     <ul>
-        <li>Emergency response services</li>
-        <li>User account management</li>
-        <li>Medical information storage</li>
-        <li>Location tracking and sharing</li>
-        <li>Communication with emergency contacts</li>
-        <li>Service analytics and improvement</li>
+        <li>LifeLink Sync acts as the <strong>Data Controller</strong> for all personal data collected through the platform.</li>
+        <li>We determine the purposes and means of processing.</li>
+        <li>We are responsible for ensuring compliance with GDPR and applicable data protection laws.</li>
+        <li>Our registered office is in Madrid, Spain.</li>
     </ul>
 
-    <h2>2. Legal Basis for Processing</h2>
-    
+    <h2>3. Processing Scope</h2>
     <table>
         <thead>
             <tr>
-                <th>Data Category</th>
-                <th>Legal Basis (GDPR Article 6)</th>
-                <th>Special Category Basis (Article 9)</th>
+                <th>Processing Activity</th>
+                <th>Data Categories</th>
                 <th>Purpose</th>
+                <th>Legal Basis</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>Account Information</td>
-                <td>Consent (6.1.a) / Contract (6.1.b)</td>
-                <td>N/A</td>
+                <td>Account management</td>
+                <td>Identity, contact data</td>
+                <td>Service provision</td>
+                <td>Art 6(1)(b) contract</td>
+            </tr>
+            <tr>
+                <td>Emergency response</td>
+                <td>Location, health, contacts</td>
+                <td>Life protection</td>
+                <td>Art 6(1)(d) vital interests + Art 9(2)(c)</td>
+            </tr>
+            <tr>
+                <td>Health data storage</td>
+                <td>Medical, wellbeing, medication</td>
+                <td>Emergency reference, monitoring</td>
+                <td>Art 6(1)(a) + Art 9(2)(a) consent</td>
+            </tr>
+            <tr>
+                <td>Family circle coordination</td>
+                <td>Identity, location, health summaries</td>
+                <td>Family protection</td>
+                <td>Art 6(1)(a) consent</td>
+            </tr>
+            <tr>
+                <td>CLARA AI processing</td>
+                <td>Conversations, profile, health</td>
+                <td>AI assistant services</td>
+                <td>Art 6(1)(a) + Art 9(2)(a) consent</td>
+            </tr>
+            <tr>
+                <td>Billing and payments</td>
+                <td>Financial, identity</td>
+                <td>Subscription management</td>
+                <td>Art 6(1)(b) contract + Art 6(1)(c) legal obligation</td>
+            </tr>
+            <tr>
+                <td>Analytics</td>
+                <td>Anonymised usage data</td>
+                <td>Service improvement</td>
+                <td>Art 6(1)(f) legitimate interests</td>
+            </tr>
+            <tr>
+                <td>Security monitoring</td>
+                <td>Technical, auth logs</td>
+                <td>Platform security</td>
+                <td>Art 6(1)(f) legitimate interests</td>
+            </tr>
+            <tr>
+                <td>Communications</td>
+                <td>Contact data, preferences</td>
+                <td>Service and marketing</td>
+                <td>Art 6(1)(a) consent / Art 6(1)(f) legitimate interests</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>4. Sub-Processors</h2>
+    <p>We use the following sub-processors to operate LifeLink Sync:</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Sub-Processor</th>
+                <th>Purpose</th>
+                <th>Data Processed</th>
+                <th>Location</th>
+                <th>Transfer Safeguard</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Supabase Inc</strong></td>
+                <td>Database, authentication, serverless functions</td>
+                <td>All application data (encrypted)</td>
+                <td>EU (Frankfurt, Germany)</td>
+                <td>EU processing, no transfer required</td>
+            </tr>
+            <tr>
+                <td><strong>Stripe Inc</strong></td>
+                <td>Payment processing, subscription management</td>
+                <td>Customer ID, email, payment tokens</td>
+                <td>EU/US</td>
+                <td>Standard Contractual Clauses (SCCs)</td>
+            </tr>
+            <tr>
+                <td><strong>Resend (formerly Loops)</strong></td>
+                <td>Transactional and marketing email delivery</td>
+                <td>Email addresses, names, message content</td>
+                <td>US</td>
+                <td>Standard Contractual Clauses (SCCs)</td>
+            </tr>
+            <tr>
+                <td><strong>Twilio Inc</strong></td>
+                <td>SMS, voice calls, WhatsApp (Spain regional)</td>
+                <td>Phone numbers, message content</td>
+                <td>US</td>
+                <td>Standard Contractual Clauses (SCCs)</td>
+            </tr>
+            <tr>
+                <td><strong>Google LLC (Analytics)</strong></td>
+                <td>Usage analytics and performance monitoring</td>
+                <td>Anonymised usage data, anonymised IP</td>
+                <td>US</td>
+                <td>Standard Contractual Clauses (SCCs)</td>
+            </tr>
+            <tr>
+                <td><strong>Sentry (Functional Software Inc)</strong></td>
+                <td>Error tracking, performance monitoring</td>
+                <td>Error data, browser info, session traces (10%)</td>
+                <td>US</td>
+                <td>Standard Contractual Clauses (SCCs)</td>
+            </tr>
+            <tr>
+                <td><strong>BigDataCloud</strong></td>
+                <td>Reverse geocoding (coordinates to address)</td>
+                <td>GPS coordinates only (no personal identifiers)</td>
+                <td>EU</td>
+                <td>EU processing</td>
+            </tr>
+            <tr>
+                <td><strong>Vercel Inc</strong></td>
+                <td>Application hosting and CDN</td>
+                <td>Served content, access logs (IP, user agent)</td>
+                <td>Global CDN (EU primary)</td>
+                <td>Standard Contractual Clauses (SCCs)</td>
+            </tr>
+        </tbody>
+    </table>
+    <p>We will notify you of any changes to sub-processors with <strong>30 days' notice</strong>. You may object to a new sub-processor by contacting <a href="mailto:dpo@lifelink-sync.com">dpo@lifelink-sync.com</a>.</p>
+
+    <h2>5. Data Subject Rights</h2>
+    <p>We will assist you in exercising your GDPR rights:</p>
+    <ul>
+        <li><strong>Access</strong> &mdash; requests responded to within 30 days.</li>
+        <li><strong>Rectification</strong> &mdash; processed promptly.</li>
+        <li><strong>Erasure</strong> &mdash; completed where legally permissible (emergency/financial records excluded per legal retention).</li>
+        <li><strong>Restriction</strong> &mdash; applied where requested during verification.</li>
+        <li><strong>Portability</strong> &mdash; provided in JSON or CSV format; health data in HL7 FHIR on request.</li>
+        <li><strong>Objection</strong> &mdash; reviewed within 30 days.</li>
+    </ul>
+    <p>All rights requests: <a href="mailto:privacy@lifelink-sync.com">privacy@lifelink-sync.com</a></p>
+
+    <h2>6. Security Obligations</h2>
+    <ul>
+        <li>AES-256 encryption at rest</li>
+        <li>TLS 1.3 encryption in transit</li>
+        <li>Row-level security (RLS) in database</li>
+        <li>Role-based access controls (RBAC)</li>
+        <li>Multi-factor authentication for staff access</li>
+        <li>Regular vulnerability scanning and penetration testing</li>
+        <li>Security incident response plan maintained and tested</li>
+        <li>Employee security awareness training</li>
+        <li>Physical security managed by sub-processors (SOC 2 compliance)</li>
+    </ul>
+
+    <h2>7. Data Breach Response</h2>
+    <ul>
+        <li><strong>Detection:</strong> Continuous monitoring via security audit logs and auth failure tracking.</li>
+        <li><strong>Assessment:</strong> Within 24 hours of detection, assess scope, impact, and affected data subjects.</li>
+        <li><strong>Authority notification:</strong> Within 72 hours of becoming aware, notify relevant supervisory authority (AEPD/ICO) per GDPR Article 33.</li>
+        <li><strong>Individual notification:</strong> Without undue delay where breach is likely to result in high risk to rights and freedoms per GDPR Article 34.</li>
+        <li><strong>Documentation:</strong> All breaches documented in breach register per GDPR Article 33(5).</li>
+        <li><strong>Remediation:</strong> Root cause analysis and corrective measures implemented.</li>
+    </ul>
+    <p>Contact for breach reporting: <a href="mailto:dpo@lifelink-sync.com">dpo@lifelink-sync.com</a></p>
+
+    <h2>8. Data Retention</h2>
+    <p>Aligned with our <a href="/privacy-policy">Privacy Policy</a>. Key periods:</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Retention</th>
+                <th>Basis</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Account data</td>
+                <td>Account + 2 years</td>
+                <td>Post-account support</td>
+            </tr>
+            <tr>
+                <td>Health data</td>
+                <td>Account + 5 years</td>
+                <td>Health record continuity</td>
+            </tr>
+            <tr>
+                <td>Emergency records</td>
+                <td>7 years</td>
+                <td>Legal requirement</td>
+            </tr>
+            <tr>
+                <td>Financial records</td>
+                <td>7 years</td>
+                <td>Financial regulations</td>
+            </tr>
+            <tr>
+                <td>Location data</td>
+                <td>90 days rolling</td>
+                <td>Data minimisation</td>
+            </tr>
+            <tr>
+                <td>AI conversations</td>
+                <td>90 days rolling</td>
                 <td>Service provision</td>
             </tr>
             <tr>
-                <td>Medical Data</td>
-                <td>Vital Interests (6.1.d)</td>
-                <td>Vital Interests (9.2.c)</td>
-                <td>Emergency medical response</td>
-            </tr>
-            <tr>
-                <td>Location Data</td>
-                <td>Consent (6.1.a) / Vital Interests (6.1.d)</td>
-                <td>N/A</td>
-                <td>Emergency location sharing</td>
-            </tr>
-            <tr>
-                <td>Emergency Contacts</td>
-                <td>Consent (6.1.a)</td>
-                <td>N/A</td>
-                <td>Emergency notifications</td>
-            </tr>
-            <tr>
-                <td>Usage Analytics</td>
-                <td>Legitimate Interests (6.1.f)</td>
-                <td>N/A</td>
-                <td>Service improvement</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <h2>3. Data Categories and Processing Activities</h2>
-    
-    <div class="data-categories">
-        <h3>3.1 Personal Data Categories:</h3>
-        
-        <h4>Identity Data:</h4>
-        <ul>
-            <li>Name, email address, phone number</li>
-            <li>User ID and account credentials</li>
-            <li>Profile photos and preferences</li>
-        </ul>
-
-        <h4>Special Category Data (Enhanced Protection):</h4>
-        <ul>
-            <li><strong>Health Data:</strong> Medical conditions, allergies, medications, blood type</li>
-            <li><strong>Location Data:</strong> GPS coordinates, geofence data, location history</li>
-            <li><strong>Biometric Data:</strong> Device authentication data (where applicable)</li>
-        </ul>
-
-        <h4>Contact Data:</h4>
-        <ul>
-            <li>Emergency contact information</li>
-            <li>Healthcare provider details</li>
-            <li>Family and carer contact information</li>
-        </ul>
-
-        <h4>Technical Data:</h4>
-        <ul>
-            <li>Device identifiers and specifications</li>
-            <li>Usage analytics and performance metrics</li>
-            <li>Security and audit logs</li>
-        </ul>
-    </div>
-
-    <h2>4. Processing Activities</h2>
-    
-    <h3>4.1 Emergency Response Processing:</h3>
-    <ul>
-        <li><strong>Purpose:</strong> Coordinate emergency assistance</li>
-        <li><strong>Data:</strong> Location, medical information, emergency contacts</li>
-        <li><strong>Recipients:</strong> Emergency services, medical responders, emergency contacts</li>
-        <li><strong>Retention:</strong> 7 years for emergency records (legal requirement)</li>
-        <li><strong>Legal Basis:</strong> Vital interests protection</li>
-    </ul>
-
-    <h3>4.2 Account Management Processing:</h3>
-    <ul>
-        <li><strong>Purpose:</strong> Service delivery and user authentication</li>
-        <li><strong>Data:</strong> Account credentials, profile information, preferences</li>
-        <li><strong>Recipients:</strong> Internal systems, authenticated service providers</li>
-        <li><strong>Retention:</strong> Duration of account plus 2 years</li>
-        <li><strong>Legal Basis:</strong> Contract performance and consent</li>
-    </ul>
-
-    <h3>4.3 Analytics Processing:</h3>
-    <ul>
-        <li><strong>Purpose:</strong> Service improvement and optimization</li>
-        <li><strong>Data:</strong> Usage patterns, performance metrics (anonymized)</li>
-        <li><strong>Recipients:</strong> Internal analytics team, approved analytics providers</li>
-        <li><strong>Retention:</strong> 25 months (Google Analytics compliance)</li>
-        <li><strong>Legal Basis:</strong> Legitimate interests</li>
-    </ul>
-
-    <h2>5. Data Subject Rights</h2>
-    
-    <div class="gdpr">
-        <h3>Your Rights Under GDPR:</h3>
-        
-        <h4>5.1 Right of Access (Article 15):</h4>
-        <ul>
-            <li>Request a copy of your personal data</li>
-            <li>Information about processing activities</li>
-            <li>Details about data recipients and retention</li>
-        </ul>
-
-        <h4>5.2 Right to Rectification (Article 16):</h4>
-        <ul>
-            <li>Correct inaccurate personal data</li>
-            <li>Complete incomplete data</li>
-            <li>Update medical information</li>
-        </ul>
-
-        <h4>5.3 Right to Erasure (Article 17):</h4>
-        <ul>
-            <li>Request deletion of personal data</li>
-            <li><strong>Limitation:</strong> Emergency data may be retained for legal compliance</li>
-            <li>Medical data erasure may be limited for safety reasons</li>
-        </ul>
-
-        <h4>5.4 Right to Restrict Processing (Article 18):</h4>
-        <ul>
-            <li>Limit how we process your data</li>
-            <li>Suspend processing during disputes</li>
-            <li><strong>Limitation:</strong> Cannot restrict emergency processing</li>
-        </ul>
-
-        <h4>5.5 Right to Data Portability (Article 20):</h4>
-        <ul>
-            <li>Receive data in a structured, machine-readable format</li>
-            <li>Transfer data to another service provider</li>
-            <li>Export emergency contact and medical information</li>
-        </ul>
-
-        <h4>5.6 Right to Object (Article 21):</h4>
-        <ul>
-            <li>Object to processing based on legitimate interests</li>
-            <li>Opt-out of direct marketing</li>
-            <li><strong>Limitation:</strong> Cannot object to vital interest processing</li>
-        </ul>
-    </div>
-
-    <h2>6. Data Protection Measures</h2>
-    
-    <h3>6.1 Technical Safeguards:</h3>
-    <ul>
-        <li><strong>Encryption:</strong> AES-256 encryption for data at rest and in transit</li>
-        <li><strong>Access Controls:</strong> Role-based access with multi-factor authentication</li>
-        <li><strong>Audit Logging:</strong> Comprehensive logging of all data access</li>
-        <li><strong>Data Minimization:</strong> Collect only necessary data for service provision</li>
-        <li><strong>Pseudonymization:</strong> Where possible, data is pseudonymized</li>
-    </ul>
-
-    <h3>6.2 Organizational Safeguards:</h3>
-    <ul>
-        <li><strong>Staff Training:</strong> Regular GDPR and privacy training</li>
-        <li><strong>Privacy by Design:</strong> Privacy considerations in all system development</li>
-        <li><strong>Data Protection Impact Assessments:</strong> Regular privacy impact assessments</li>
-        <li><strong>Vendor Management:</strong> GDPR compliance requirements for all suppliers</li>
-    </ul>
-
-    <h2>7. International Data Transfers</h2>
-    
-    <h3>7.1 Transfer Safeguards:</h3>
-    <ul>
-        <li><strong>EU/EEA Processing:</strong> Primary data processing within EU/EEA</li>
-        <li><strong>Adequacy Decisions:</strong> Transfers only to countries with adequacy decisions</li>
-        <li><strong>Standard Contractual Clauses:</strong> Where adequacy decisions don't exist</li>
-        <li><strong>Emergency Transfers:</strong> Vital interest transfers for emergency response</li>
-    </ul>
-
-    <h3>7.2 Emergency Service Transfers:</h3>
-    <p>During emergencies, data may be transferred internationally to:</p>
-    <ul>
-        <li>Emergency services in your location</li>
-        <li>Medical facilities providing care</li>
-        <li>Emergency contacts in other countries</li>
-        <li>International emergency response coordination centers</li>
-    </ul>
-
-    <h2>8. Data Retention Schedule</h2>
-    
-    <table>
-        <thead>
-            <tr>
-                <th>Data Type</th>
-                <th>Retention Period</th>
-                <th>Legal Basis</th>
-                <th>Disposal Method</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Account Data</td>
-                <td>Account duration + 2 years</td>
-                <td>Contract and legal obligations</td>
-                <td>Secure deletion</td>
-            </tr>
-            <tr>
-                <td>Emergency Records</td>
-                <td>7 years</td>
-                <td>Legal and regulatory requirements</td>
-                <td>Secure archival then deletion</td>
-            </tr>
-            <tr>
-                <td>Medical Data</td>
-                <td>Account duration + 5 years</td>
-                <td>Healthcare regulations</td>
-                <td>Secure deletion with audit trail</td>
-            </tr>
-            <tr>
-                <td>Location Data</td>
-                <td>90 days (rolling)</td>
-                <td>Service necessity</td>
-                <td>Automatic deletion</td>
-            </tr>
-            <tr>
-                <td>Analytics Data</td>
+                <td>Analytics</td>
                 <td>25 months</td>
-                <td>Business need and legal compliance</td>
-                <td>Anonymization then deletion</td>
+                <td>Trend analysis</td>
+            </tr>
+            <tr>
+                <td>Security logs</td>
+                <td>2 years</td>
+                <td>Security compliance</td>
             </tr>
         </tbody>
     </table>
 
-    <h2>9. Breach Notification</h2>
-    
-    <h3>9.1 Data Breach Response:</h3>
+    <h2>9. International Data Transfers</h2>
     <ul>
-        <li><strong>Detection:</strong> Automated monitoring and manual reporting</li>
-        <li><strong>Assessment:</strong> Risk evaluation within 24 hours</li>
-        <li><strong>Authority Notification:</strong> Supervisory authority notification within 72 hours</li>
-        <li><strong>Individual Notification:</strong> High-risk breaches notified within 72 hours</li>
-        <li><strong>Remediation:</strong> Immediate action to contain and resolve breaches</li>
+        <li><strong>Primary processing:</strong> EU/EEA (Supabase Frankfurt).</li>
+        <li><strong>UK transfers:</strong> Permitted under UK adequacy decision (28 June 2021, extended).</li>
+        <li><strong>US transfers:</strong> Covered by Standard Contractual Clauses (SCCs) adopted under Commission Decision 2021/914.</li>
+        <li><strong>Emergency transfers:</strong> Permitted under GDPR Article 49(1)(e) &mdash; vital interests.</li>
+        <li>We do not transfer data to countries without adequate protection unless covered by SCCs or other approved mechanisms.</li>
+        <li>Transfer impact assessments conducted for all US sub-processors.</li>
     </ul>
 
-    <h3>9.2 Emergency Data Breach Protocol:</h3>
-    <p>For breaches affecting emergency services:</p>
+    <h2>10. Audit Rights</h2>
     <ul>
-        <li>Immediate notification to emergency service partners</li>
-        <li>Priority restoration of emergency response capabilities</li>
-        <li>Enhanced monitoring during recovery period</li>
-        <li>Detailed incident reporting to relevant authorities</li>
+        <li>You may request information about our data processing practices.</li>
+        <li>We will provide evidence of compliance upon reasonable request.</li>
+        <li>We engage independent auditors for annual compliance reviews.</li>
+        <li>Audit results summaries available upon request to <a href="mailto:dpo@lifelink-sync.com">dpo@lifelink-sync.com</a>.</li>
     </ul>
 
-    <h2>10. Contact Information</h2>
-    
-    <div class="legal">
-        <h3>Data Protection Contacts:</h3>
-        <p><strong>Data Protection Officer:</strong> dpo@lifelink-sync.com</p>
-        <p><strong>Privacy Team:</strong> privacy@lifelink-sync.com</p>
-        <p><strong>Data Subject Rights:</strong> rights@lifelink-sync.com</p>
-        <p><strong>GDPR Compliance:</strong> gdpr@lifelink-sync.com</p>
-        
-        <h3>Supervisory Authority:</h3>
-        <p>For EU residents: Your local Data Protection Authority</p>
-        <p>For Spanish residents: Agencia Española de Protección de Datos (AEPD)</p>
-        <p>For general EU inquiries: European Data Protection Board (EDPB)</p>
+    <h2>11. Data Return and Deletion</h2>
+    <p>On account termination:</p>
+    <ul>
+        <li>You can request a complete data export before deletion.</li>
+        <li>Data export available in JSON format; health data in HL7 FHIR on request.</li>
+        <li>After export or upon request, personal data deleted within 30 days.</li>
+        <li>Exceptions: data retained under legal obligation (emergency records 7 years, financial records 7 years).</li>
+        <li>Anonymised analytics data may be retained indefinitely.</li>
+        <li>Backups purged within 90 days of deletion request.</li>
+    </ul>
+
+    <h2>12. Governing Law</h2>
+    <ul>
+        <li>This DPA is governed by the laws of Spain, in accordance with GDPR.</li>
+        <li>For UK data subjects, UK Data Protection Act 2018 applies.</li>
+        <li>Disputes subject to the jurisdiction of the courts of Madrid, Spain.</li>
+        <li>Without prejudice to the right to lodge complaints with supervisory authorities.</li>
+    </ul>
+
+    <h2>13. Contact</h2>
+    <div class="contact">
+        <h3>Data Protection Contacts</h3>
+        <p><strong>DPO:</strong> <a href="mailto:dpo@lifelink-sync.com">dpo@lifelink-sync.com</a></p>
+        <p><strong>Privacy:</strong> <a href="mailto:privacy@lifelink-sync.com">privacy@lifelink-sync.com</a></p>
+        <p><strong>Legal:</strong> <a href="mailto:legal@lifelink-sync.com">legal@lifelink-sync.com</a></p>
+
+        <h3>Supervisory Authorities</h3>
+        <p><strong>Spain:</strong> AEPD (<a href="https://www.aepd.es">www.aepd.es</a>)</p>
+        <p><strong>UK:</strong> ICO (<a href="https://ico.org.uk">ico.org.uk</a>)</p>
     </div>
 
-    <h2>11. Updates to this Agreement</h2>
-    
-    <p>This Data Processing Agreement may be updated to reflect:</p>
+    <h3>Related Documents</h3>
     <ul>
-        <li>Changes in applicable law or regulation</li>
-        <li>New processing activities or purposes</li>
-        <li>Enhanced data protection measures</li>
-        <li>Feedback from supervisory authorities</li>
+        <li><a href="/privacy-policy">Privacy Policy</a></li>
+        <li><a href="/terms-of-service">Terms of Service</a></li>
+        <li><a href="/medical-data-compliance">Medical Data Compliance</a></li>
+        <li><a href="/cookie-policy">Cookie Policy</a></li>
     </ul>
-
-    <p>Material changes will be communicated with 30 days advance notice.</p>
-
-    <div class="gdpr">
-        <p><strong>By using LifeLink Sync services, you acknowledge that you have read and understood this Data Processing Agreement and consent to the processing activities described herein, where consent is the legal basis for processing.</strong></p>
-    </div>
-
-    <p><em>Last updated: January 29, 2025</em></p>
-    <p><em>Next review: January 29, 2026</em></p>
 </body>
 </html>

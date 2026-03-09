@@ -152,7 +152,9 @@
       "Bash(grep -A 30 \"^      circle_permissions: {$\" /Users/leewakeman/lifelink-sync/lifelink-sync/src/integrations/supabase/types.ts)",
       "Read(//Users/leewakeman/**)",
       "Bash(git add src/components/Pricing.tsx src/components/registration/RegistrationWizard.tsx src/components/registration/steps/PaymentStep.tsx src/components/registration/steps/PlanStep.tsx src/locales/en/common.json src/locales/es/common.json src/locales/nl/common.json src/pages/DeviceIceSosPendant.tsx src/pages/TrialSignupPage.tsx public/lovable-uploads/lifelink-pendant-hero.png)",
-      "Bash(git add public/privacy-policy.html public/terms-of-service.html public/ai-data-policy.html public/cookie-policy.html .claude/settings.json)"
+      "Bash(git add public/privacy-policy.html public/terms-of-service.html public/ai-data-policy.html public/cookie-policy.html .claude/settings.json)",
+      "Bash(git -c http.postBuffer=52428800 push origin main)",
+      "Bash(git add .claude/settings.json public/data-processing-agreement.html public/emergency-liability.html public/medical-data-compliance.html)"
     ],
     "additionalDirectories": [
       "/Users/leewakeman/lifelink-sync/lifelink-sync/.claude",
