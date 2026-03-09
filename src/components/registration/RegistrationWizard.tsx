@@ -409,7 +409,7 @@ const RegistrationWizard: React.FC = () => {
 
         {/* Footer */}
         {currentStepId !== 'complete' && (
-          <div className="text-center mt-4">
+          <div className="text-center mt-4 space-y-1">
             <p className="text-xs text-white/60">
               {t('registration.alreadyHaveAccount')}{' '}
               <button
@@ -417,6 +417,14 @@ const RegistrationWizard: React.FC = () => {
                 className="text-white hover:underline font-medium"
               >
                 {t('registration.signIn')}
+              </button>
+            </p>
+            <p className="text-xs text-white/60">
+              <button
+                onClick={() => navigate('/')}
+                className="text-white/80 hover:text-white hover:underline font-medium"
+              >
+                ← Back to homepage
               </button>
             </p>
           </div>
