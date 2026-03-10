@@ -3340,5 +3340,29 @@
     "upgradeButton": "Upgrade — €9.99/mo",
     "trialDesc": "Free trial includes 1 emergency contact. Upgrade to Individual Plan for up to 5.",
     "paidDesc": "You can add up to {{max}} emergency contacts. {{remaining}} remaining."
+  },
+  "ecosystem": {
+    "triggerButton": "See How It All Connects",
+    "title": "How It All Connects",
+    "subtitle": "Your complete protection ecosystem — every feature working together.",
+    "memberTitle": "You — The Member",
+    "memberDesc": "At the centre of everything. One account, full protection.",
+    "claraTitle": "CLARA AI",
+    "claraDesc": "Your safety companion. Answers every SOS, assesses situations, coordinates response.",
+    "addOnsTitle": "Add-Ons",
+    "addOnsDesc": "Enhance your protection: Family Link, Daily Wellbeing, Medication Reminders.",
+    "familyTitle": "Family Network",
+    "familyDesc": "Up to 10 contacts coordinated simultaneously. Live GPS, calls, and alerts.",
+    "emergencyTitle": "Emergency Response",
+    "emergencyDesc": "SOS triggers instant response — contacts called, GPS shared, ETA shown.",
+    "pendantTitle": "SOS Pendant",
+    "pendantDesc": "Wearable Bluetooth button. No phone needed to trigger full platform response.",
+    "claraCompleteTitle": "CLARA Complete",
+    "claraCompleteDesc": "Everything included — base plan plus all add-ons in one package.",
+    "claraCompletePrice": "Best value",
+    "startTrial": "Start Free Trial",
+    "legendMember": "Member",
+    "legendFeature": "Core Feature",
+    "legendAddOn": "Optional Add-On"
   }
 }

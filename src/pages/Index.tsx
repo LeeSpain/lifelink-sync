@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import StatsBar from "@/components/StatsBar";
@@ -28,6 +29,7 @@ const Index = () => {
   useScrollToTop();
   usePerformanceMonitoring();
   const { openClaraChat } = useClaraChat();
+  const { t } = useTranslation();
   const [showEcosystem, setShowEcosystem] = useState(false);
 
   useEffect(() => {
@@ -67,7 +69,7 @@ const Index = () => {
             onClick={() => setShowEcosystem(true)}
             className="border border-primary text-primary hover:bg-primary/5 font-semibold px-8 py-3 rounded-xl transition-all duration-300"
           >
-            See How It All Connects
+            {t('ecosystem.triggerButton', 'See How It All Connects')}
           </button>
         </div>
       </section>

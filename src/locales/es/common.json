@@ -3352,5 +3352,29 @@
     "upgradeButton": "Actualizar — €9.99/mes",
     "trialDesc": "La prueba gratuita incluye 1 contacto de emergencia. Actualiza para hasta 5.",
     "paidDesc": "Puedes añadir hasta {{max}} contactos de emergencia. {{remaining}} restantes."
+  },
+  "ecosystem": {
+    "triggerButton": "Descubre cómo funciona todo",
+    "title": "Cómo se conecta todo",
+    "subtitle": "Tu ecosistema de protección completo — cada función trabajando en conjunto.",
+    "memberTitle": "Tú — El Miembro",
+    "memberDesc": "En el centro de todo. Una cuenta, protección completa.",
+    "claraTitle": "CLARA IA",
+    "claraDesc": "Tu compañera de seguridad. Responde a cada SOS, evalúa situaciones, coordina la respuesta.",
+    "addOnsTitle": "Complementos",
+    "addOnsDesc": "Mejora tu protección: Enlace Familiar, Bienestar Diario, Recordatorios de Medicación.",
+    "familyTitle": "Red Familiar",
+    "familyDesc": "Hasta 10 contactos coordinados simultáneamente. GPS en vivo, llamadas y alertas.",
+    "emergencyTitle": "Respuesta de Emergencia",
+    "emergencyDesc": "El SOS activa una respuesta inmediata — contactos llamados, GPS compartido, tiempo estimado mostrado.",
+    "pendantTitle": "Colgante SOS",
+    "pendantDesc": "Botón Bluetooth portátil. Sin necesidad de teléfono para activar la respuesta completa.",
+    "claraCompleteTitle": "CLARA Completo",
+    "claraCompleteDesc": "Todo incluido — plan base más todos los complementos en un solo paquete.",
+    "claraCompletePrice": "Mejor valor",
+    "startTrial": "Prueba gratuita",
+    "legendMember": "Miembro",
+    "legendFeature": "Función principal",
+    "legendAddOn": "Complemento opcional"
   }
 }
