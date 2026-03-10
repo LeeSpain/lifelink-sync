@@ -2,9 +2,10 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Shield, Check, Heart, Pill, Users, Sparkles } from 'lucide-react';
+import { Shield, Check, Heart, Pill, Users, Sparkles, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { usePricing } from '@/hooks/usePricing';
+import { cn } from '@/lib/utils';
 
 interface PlanStepProps {
   data: {
@@ -18,14 +19,21 @@ const PlanStep: React.FC<PlanStepProps> = ({ data, onChange }) => {
   const { t } = useTranslation();
   const { prices, formatPrice } = usePricing();
 
+  const isTrial = data.isTrialSelected !== false;
+
   const handleSelectTrial = () => {
     onChange('selectedPlanId', 'individual-plan');
     onChange('isTrialSelected', true);
   };
 
-  // Auto-select trial on mount
+  const handleSelectPaid = () => {
+    onChange('selectedPlanId', 'individual-plan');
+    onChange('isTrialSelected', false);
+  };
+
+  // Default to trial on mount
   React.useEffect(() => {
-    if (!data.selectedPlanId && !data.isTrialSelected) {
+    if (!data.selectedPlanId) {
       handleSelectTrial();
     }
   }, []);
@@ -92,9 +100,53 @@ const PlanStep: React.FC<PlanStepProps> = ({ data, onChange }) => {
         </div>
         <h2 className="text-2xl font-bold text-foreground">{t('pricingWizard.title', 'Choose Your Plan')}</h2>
         <p className="text-sm text-muted-foreground">{t('pricingWizard.subtitle', 'Start protecting yourself and your family today')}</p>
-        <Badge className="bg-primary/10 text-primary border-primary/20 mt-2">
-          {t('pricingWizard.trialBadge', '7-Day Free Trial · No Card Required')}
-        </Badge>
+      </div>
+
+      {/* Option Toggle */}
+      <div className="grid grid-cols-2 gap-3">
+        {/* Free Trial Option */}
+        <button
+          onClick={handleSelectTrial}
+          className={cn(
+            'rounded-xl border-2 p-4 text-left transition-all',
+            isTrial
+              ? 'border-primary bg-primary/5 shadow-md'
+              : 'border-border bg-background hover:border-primary/40'
+          )}
+        >
+          <div className="flex items-center justify-between mb-2">
+            <Badge className="bg-green-100 text-green-700 border-green-200 text-[10px]">RECOMMENDED</Badge>
+            {isTrial && <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center"><Check className="h-2.5 w-2.5 text-white" /></div>}
+          </div>
+          <p className="font-bold text-foreground text-sm">7-Day Free Trial</p>
+          <p className="text-xs text-muted-foreground mt-0.5">No card required · Try everything free</p>
+          <p className="text-xs font-medium text-primary mt-2">
+            Then {formatPrice(prices.individual_monthly)}/month
+          </p>
+        </button>
+
+        {/* Join Now Option */}
+        <button
+          onClick={handleSelectPaid}
+          className={cn(
+            'rounded-xl border-2 p-4 text-left transition-all',
+            !isTrial
+              ? 'border-primary bg-primary/5 shadow-md'
+              : 'border-border bg-background hover:border-primary/40'
+          )}
+        >
+          <div className="flex items-center justify-between mb-2">
+            <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px]">
+              <Zap className="h-2.5 w-2.5 mr-1 inline" />FULL ACCESS
+            </Badge>
+            {!isTrial && <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center"><Check className="h-2.5 w-2.5 text-white" /></div>}
+          </div>
+          <p className="font-bold text-foreground text-sm">Join Now</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Instant full access · All benefits today</p>
+          <p className="text-xs font-medium text-primary mt-2">
+            {formatPrice(prices.individual_monthly)}/month · Start immediately
+          </p>
+        </button>
       </div>
 
       {/* Main Plan Card */}
@@ -112,9 +164,14 @@ const PlanStep: React.FC<PlanStepProps> = ({ data, onChange }) => {
             </div>
           </div>
 
-          <div className="text-3xl font-bold text-foreground">
-            {formatPrice(prices.individual_monthly)}
-            <span className="text-sm font-normal text-muted-foreground">/{t('pricingWizard.month', 'month')}</span>
+          <div className="flex items-end gap-3">
+            <div className="text-3xl font-bold text-foreground">
+              {formatPrice(prices.individual_monthly)}
+              <span className="text-sm font-normal text-muted-foreground">/{t('pricingWizard.month', 'month')}</span>
+            </div>
+            {isTrial && (
+              <span className="text-sm text-green-600 font-medium pb-1">· 7 days free first</span>
+            )}
           </div>
 
           <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -126,16 +183,33 @@ const PlanStep: React.FC<PlanStepProps> = ({ data, onChange }) => {
             ))}
           </ul>
 
-          <Button
-            onClick={handleSelectTrial}
-            className="w-full bg-primary text-white hover:bg-primary/90 rounded-full text-base py-6"
-            size="lg"
-          >
-            {t('pricingWizard.ctaButton', 'Start Free Trial')}
-          </Button>
-          <p className="text-xs text-muted-foreground text-center">
-            {t('pricingWizard.ctaNote', `Then ${formatPrice(prices.individual_monthly)}/month · Cancel anytime`)}
-          </p>
+          {isTrial ? (
+            <>
+              <Button
+                onClick={handleSelectTrial}
+                className="w-full bg-primary text-white hover:bg-primary/90 rounded-full text-base py-6"
+                size="lg"
+              >
+                {t('pricingWizard.ctaButton', 'Start Free Trial')}
+              </Button>
+              <p className="text-xs text-muted-foreground text-center">
+                No card required · Then {formatPrice(prices.individual_monthly)}/month · Cancel anytime
+              </p>
+            </>
+          ) : (
+            <>
+              <Button
+                onClick={handleSelectPaid}
+                className="w-full bg-primary text-white hover:bg-primary/90 rounded-full text-base py-6"
+                size="lg"
+              >
+                Join Now — Get Full Access Today
+              </Button>
+              <p className="text-xs text-muted-foreground text-center">
+                {formatPrice(prices.individual_monthly)}/month · Full access from day 1 · Cancel anytime
+              </p>
+            </>
+          )}
         </CardContent>
       </Card>
 
