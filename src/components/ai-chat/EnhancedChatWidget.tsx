@@ -29,6 +29,12 @@ interface ChatWidgetProps {
   context?: string;
 }
 
+const LOCALE_MAP: Record<string, string> = {
+  en: 'en-US',
+  es: 'es-ES',
+  nl: 'nl-NL',
+};
+
 const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
   isOpen,
   onClose,
@@ -36,7 +42,7 @@ const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
   context = "registration"
 }) => {
   const { t, i18n } = useTranslation();
-  const { language, currency } = usePreferences();
+  const { currency } = usePreferences();
   const { trackChatInteraction } = useInteractionTracking();
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -67,11 +73,10 @@ const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
     i18n.changeLanguage(lang);
     setCurrentLanguage(lang);
 
+    // t() is called after changeLanguage so it returns the new language's string
     const systemMessage: Message = {
       id: Date.now().toString(),
-      content: lang === 'es'
-        ? 'Idioma cambiado a Espanol. Puedo ayudarte en espanol ahora!'
-        : 'Language changed to English. I can help you in English now!',
+      content: t('chatWidget.langChanged', { defaultValue: 'Language updated. I can help you in this language now!' }),
       isUser: false,
       timestamp: new Date()
     };
@@ -102,27 +107,23 @@ const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
 
       const callbackMessage: Message = {
         id: Date.now().toString(),
-        content: currentLanguage === 'es'
-          ? `Excelente! Nuestro equipo te llamara en menos de 60 segundos. ${type === 'video' ? 'Preparate para una videollamada.' : 'Manten tu telefono cerca.'}`
-          : `Great! Our team will call you back in less than 60 seconds. ${type === 'video' ? 'Get ready for a video call.' : 'Keep your phone nearby.'}`,
+        content: type === 'video'
+          ? t('chatWidget.callbackVideo', { defaultValue: "Great! Our team will call you back in less than 60 seconds. Get ready for a video call." })
+          : t('chatWidget.callbackVoice', { defaultValue: "Great! Our team will call you back in less than 60 seconds. Keep your phone nearby." }),
         isUser: false,
         timestamp: new Date()
       };
       setMessages(prev => [...prev, callbackMessage]);
 
       toast({
-        title: currentLanguage === 'es' ? 'Llamada Solicitada' : 'Callback Requested',
-        description: currentLanguage === 'es'
-          ? 'Te llamaremos en 60 segundos!'
-          : 'We\'ll call you in 60 seconds!',
+        title: t('chatWidget.callbackToastTitle', { defaultValue: 'Callback Requested' }),
+        description: t('chatWidget.callbackToastDesc', { defaultValue: "We'll call you in 60 seconds!" }),
       });
     } catch (error) {
       console.error('Error requesting callback:', error);
       toast({
         title: 'Error',
-        description: currentLanguage === 'es'
-          ? 'No pudimos solicitar la llamada. Por favor intenta de nuevo.'
-          : 'Unable to request callback. Please try again.',
+        description: t('chatWidget.callbackError', { defaultValue: 'Unable to request callback. Please try again.' }),
         variant: "destructive"
       });
     }
@@ -161,9 +162,7 @@ const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
 
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: data.response || (currentLanguage === 'es'
-          ? "Lo siento, no pude procesar esa solicitud. Por favor intenta de nuevo."
-          : "I'm sorry, I couldn't process that request. Please try again."),
+        content: data.response || t('chatWidget.processingError', { defaultValue: "I'm sorry, I couldn't process that request. Please try again." }),
         isUser: false,
         timestamp: new Date()
       };
@@ -176,9 +175,7 @@ const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
 
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: currentLanguage === 'es'
-          ? "Disculpa, estoy teniendo problemas de conexion. Por favor intenta de nuevo en un momento."
-          : "I apologize, but I'm having trouble connecting right now. Please try again in a moment.",
+        content: t('chatWidget.connectionError', { defaultValue: "I apologize, but I'm having trouble connecting right now. Please try again in a moment." }),
         isUser: false,
         timestamp: new Date()
       };
@@ -222,7 +219,7 @@ const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
                 <div className="flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
                   <span className="text-white/60 text-xs">
-                    {currentLanguage === 'es' ? 'En linea' : 'Online now'}
+                    {t('chatWidget.onlineStatus', { defaultValue: 'Online now' })}
                   </span>
                 </div>
               </div>
@@ -236,7 +233,7 @@ const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
                     variant="ghost"
                     size="sm"
                     className="text-white/70 hover:text-white hover:bg-white/10 h-8 w-8 p-0"
-                    title={currentLanguage === 'es' ? 'Cambiar idioma' : 'Change language'}
+                    title={t('chatWidget.changeLang', { defaultValue: 'Change language' })}
                   >
                     <Globe className="h-4 w-4" />
                   </Button>
@@ -246,7 +243,10 @@ const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
                     <span>EN</span> English {currentLanguage === 'en' && <span className="ml-auto text-primary">&#10003;</span>}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => changeLanguage('es')} className="gap-2">
-                    <span>ES</span> Espanol {currentLanguage === 'es' && <span className="ml-auto text-primary">&#10003;</span>}
+                    <span>ES</span> Español {currentLanguage === 'es' && <span className="ml-auto text-primary">&#10003;</span>}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => changeLanguage('nl')} className="gap-2">
+                    <span>NL</span> Nederlands {currentLanguage === 'nl' && <span className="ml-auto text-primary">&#10003;</span>}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -257,7 +257,7 @@ const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
                 variant="ghost"
                 size="sm"
                 className="text-white/70 hover:text-white hover:bg-white/10 h-8 w-8 p-0"
-                title={currentLanguage === 'es' ? 'Llamada de voz' : 'Voice call'}
+                title={t('chatWidget.voiceCall', { defaultValue: 'Voice call' })}
               >
                 <Phone className="h-4 w-4" />
               </Button>
@@ -268,7 +268,7 @@ const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
                 variant="ghost"
                 size="sm"
                 className="text-white/70 hover:text-white hover:bg-white/10 h-8 w-8 p-0"
-                title={currentLanguage === 'es' ? 'Videollamada' : 'Video call'}
+                title={t('chatWidget.videoCall', { defaultValue: 'Video call' })}
               >
                 <Video className="h-4 w-4" />
               </Button>
@@ -317,7 +317,7 @@ const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
                     <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{message.content}</p>
                   </div>
                   <p className={`text-[10px] mt-1 px-1 ${message.isUser ? 'text-right' : 'text-left'} text-muted-foreground/60`}>
-                    {message.timestamp.toLocaleTimeString(currentLanguage === 'es' ? 'es-ES' : 'en-US', {
+                    {message.timestamp.toLocaleTimeString(LOCALE_MAP[currentLanguage] || 'en-US', {
                       hour: '2-digit',
                       minute: '2-digit'
                     })}
@@ -356,29 +356,21 @@ const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border border-border hover:border-primary/30 hover:bg-primary/5 text-muted-foreground hover:text-foreground transition-all"
             >
               <PhoneCall className="h-3 w-3" />
-              {currentLanguage === 'es' ? 'Llamar' : 'Call Now'}
+              {t('chatWidget.callNow', { defaultValue: 'Call Now' })}
             </button>
             <button
-              onClick={() => {
-                setInputMessage(currentLanguage === 'es'
-                  ? 'Como funciona LifeLink Sync?'
-                  : 'How does LifeLink Sync work?');
-              }}
+              onClick={() => setInputMessage(t('chatWidget.howItWorksQuestion', { defaultValue: 'How does LifeLink Sync work?' }))}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border border-border hover:border-primary/30 hover:bg-primary/5 text-muted-foreground hover:text-foreground transition-all"
             >
               <Shield className="h-3 w-3" />
-              {currentLanguage === 'es' ? 'Como funciona?' : 'How it works?'}
+              {t('chatWidget.howItWorks', { defaultValue: 'How it works?' })}
             </button>
             <button
-              onClick={() => {
-                setInputMessage(currentLanguage === 'es'
-                  ? 'Cuanto cuesta?'
-                  : 'What are the pricing plans?');
-              }}
+              onClick={() => setInputMessage(t('chatWidget.pricingQuestion', { defaultValue: 'What are the pricing plans?' }))}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border border-border hover:border-primary/30 hover:bg-primary/5 text-muted-foreground hover:text-foreground transition-all"
             >
               <Sparkles className="h-3 w-3" />
-              {currentLanguage === 'es' ? 'Precios' : 'Pricing'}
+              {t('chatWidget.pricing', { defaultValue: 'Pricing' })}
             </button>
           </div>
 
@@ -388,9 +380,7 @@ const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder={currentLanguage === 'es'
-                ? 'Escribe tu mensaje...'
-                : 'Type your message...'}
+              placeholder={t('clara.placeholder', { defaultValue: 'Ask Clara about emergency protection...' })}
               disabled={isLoading}
               className="flex-1 rounded-full bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary/30 px-4 h-10"
             />
@@ -409,9 +399,7 @@ const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
           </div>
 
           <p className="text-[10px] text-muted-foreground/50 mt-2 text-center">
-            {currentLanguage === 'es'
-              ? 'Impulsado por LifeLink AI  |  Disponible 24/7'
-              : 'Powered by LifeLink AI  |  Available 24/7'}
+            {t('chatWidget.poweredBy', { defaultValue: 'Powered by LifeLink AI  |  Available 24/7' })}
           </p>
         </div>
       </div>
