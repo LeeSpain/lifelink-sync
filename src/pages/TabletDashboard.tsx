@@ -7,7 +7,7 @@ import { useEmergencySOS } from '@/hooks/useEmergencySOS';
 import { useTabletVoice } from '@/hooks/useTabletVoice';
 import { useTabletAlerts } from '@/hooks/useTabletAlerts';
 import { Button } from '@/components/ui/button';
-import { Phone, AlertTriangle, X, Download, Tablet, Loader2 } from 'lucide-react';
+import { Phone, AlertTriangle, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { usePWAFeatures } from '@/hooks/usePWAFeatures';
 import { TabletVitalsStrip } from '@/components/tablet/TabletVitalsStrip';
@@ -17,7 +17,7 @@ import { QuickInfoCards } from '@/components/tablet/QuickInfoCards';
 import { TabletClaraPanel } from '@/components/tablet/TabletClaraPanel';
 import { TabletAlertSystem } from '@/components/tablet/TabletAlertSystem';
 import { TabletVoiceIndicator } from '@/components/tablet/TabletVoiceIndicator';
-import { TabletPermissionsOverlay } from '@/components/tablet/TabletPermissionsOverlay';
+import { TabletSetupWizard } from '@/components/tablet/TabletSetupWizard';
 import type { FamilyMessage } from '@/components/tablet/FamilyMessagesCard';
 import { useToast } from '@/hooks/use-toast';
 import { KioskSetupGuide } from '@/components/tablet/KioskSetupGuide';
@@ -36,7 +36,7 @@ const TabletDashboard = () => {
   const { triggerEmergencySOS, isTriggering } = useEmergencySOS();
   const { toast } = useToast();
   const { t } = useTranslation();
-  const { isInstalled, isInstallable, installApp } = usePWAFeatures();
+  const { isInstalled } = usePWAFeatures();
 
   const [greetingKey, setGreetingKey] = useState(getGreetingKey());
   const [reminders, setReminders] = useState<Reminder[]>([]);
@@ -45,29 +45,22 @@ const TabletDashboard = () => {
   const [showContacts, setShowContacts] = useState(false);
   const [sosTriggered, setSosTriggered] = useState(false);
   const [familyOnline, setFamilyOnline] = useState(0);
-  const [installDismissed, setInstallDismissed] = useState(false);
-  const [waitingForPrompt, setWaitingForPrompt] = useState(true);
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-
-  // Permissions state
+  // Setup wizard state — shown on first load until owner completes it
+  const [setupComplete, setSetupComplete] = useState(
+    () => localStorage.getItem('tabletSetupComplete') === 'true'
+  );
   const [micPermission, setMicPermission] = useState<'granted' | 'denied' | 'skipped' | null>(
     () => localStorage.getItem('tabletMicPermission') as any
   );
-  const [notifPermission, setNotifPermission] = useState<'granted' | 'denied' | 'skipped' | null>(
-    () => localStorage.getItem('tabletNotificationPermission') as any
-  );
-  const showPermissions = micPermission === null && notifPermission === null;
 
   // Clara panel state
   const [claraPanelExpanded, setClaraPanelExpanded] = useState(false);
 
-  const handlePermissionsComplete = useCallback((mic: 'granted' | 'skipped', notif: 'granted' | 'skipped') => {
+  const handleSetupComplete = useCallback((mic: 'granted' | 'skipped', notif: 'granted' | 'skipped') => {
     setMicPermission(mic);
-    setNotifPermission(notif);
     localStorage.setItem('tabletMicPermission', mic);
     localStorage.setItem('tabletNotificationPermission', notif);
-    // Skip install overlay so user lands directly on the dashboard
-    setInstallDismissed(true);
+    setSetupComplete(true);
   }, []);
 
   // SOS trigger
@@ -108,40 +101,15 @@ const TabletDashboard = () => {
     },
   });
 
-  // Greeting on load (after permissions)
+  // Greeting on load (after setup wizard)
   useEffect(() => {
-    if (!showPermissions && !clara.hasGreeted && micPermission !== null) {
-      // Small delay to let the UI settle
+    if (setupComplete && !clara.hasGreeted && micPermission !== null) {
       const timer = setTimeout(() => clara.speakGreeting(), 1500);
       return () => clearTimeout(timer);
     }
-  }, [showPermissions, clara.hasGreeted, micPermission]);
+  }, [setupComplete, clara.hasGreeted, micPermission]);
 
   const firstName = user?.user_metadata?.first_name || t('dashboard.memberFallback');
-
-  // PWA install prompt timing
-  useEffect(() => {
-    if (isInstallable) {
-      setWaitingForPrompt(false);
-      return;
-    }
-    if (isIOS) {
-      setWaitingForPrompt(false);
-      return;
-    }
-    const timer = setTimeout(() => setWaitingForPrompt(false), 3000);
-    return () => clearTimeout(timer);
-  }, [isInstallable, isIOS]);
-
-  useEffect(() => {
-    if (isInstallable) setWaitingForPrompt(false);
-  }, [isInstallable]);
-
-  const showInstallOverlay = !isInstalled && !installDismissed;
-
-  const dismissInstallOverlay = () => {
-    setInstallDismissed(true);
-  };
 
   // Mark this device as tablet PWA
   useEffect(() => {
@@ -273,132 +241,13 @@ const TabletDashboard = () => {
     <div className={`h-screen flex text-white overflow-hidden select-none transition-colors duration-1000 ${
       sosTriggered ? 'bg-red-950' : familyOnline > 0 ? 'bg-[#0a1210]' : reminders.length > 0 ? 'bg-[#12100a]' : 'bg-slate-950'
     }`} style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-      {/* Permissions Overlay — shown before anything on first visit */}
-      {showPermissions && (
-        <TabletPermissionsOverlay onComplete={handlePermissionsComplete} />
-      )}
-
-      {/* Install Overlay */}
-      {!showPermissions && showInstallOverlay && (
-        <div className="fixed inset-0 z-[100] bg-slate-950 flex items-center justify-center p-8">
-          <div className="text-center max-w-lg w-full">
-            <div className="relative inline-block mb-6">
-              <div className="w-24 h-24 rounded-3xl bg-primary/20 border border-primary/40 flex items-center justify-center mx-auto">
-                <Tablet className="h-12 w-12 text-primary" />
-              </div>
-            </div>
-
-            <h2 className="text-3xl font-bold mb-2">{t('tablet.dashboard.installTitle', 'Install LifeLink Sync')}</h2>
-            <p className="text-slate-400 mb-8 text-base leading-relaxed">
-              {t('tablet.dashboard.installDesc', 'Add to your home screen for a full-screen, always-on care dashboard — one tap to launch, no browser needed.')}
-            </p>
-
-            <div className="flex flex-col gap-4 items-center w-full max-w-sm mx-auto">
-              {isInstallable ? (
-                <Button
-                  size="lg"
-                  className="w-full min-h-[64px] text-xl font-bold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30"
-                  onClick={async () => {
-                    await installApp();
-                    dismissInstallOverlay();
-                  }}
-                >
-                  <Download className="h-6 w-6 mr-3" />
-                  {t('tablet.dashboard.installButton', 'Install App Now')}
-                </Button>
-              ) : waitingForPrompt ? (
-                <div className="flex flex-col items-center gap-3 py-4 text-slate-400">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                  <p className="text-sm">{t('tablet.dashboard.preparingInstall', 'Preparing install…')}</p>
-                </div>
-              ) : isIOS ? (
-                <div className="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 text-left text-sm text-slate-300 w-full space-y-4">
-                  <p className="font-semibold text-white text-base">{t('tablet.dashboard.iosInstallTitle', 'Install on this iPad / iPhone:')}</p>
-                  <div className="flex items-start gap-3">
-                    <span className="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-white flex-shrink-0">1</span>
-                    <p className="mt-0.5">{t('tablet.dashboard.iosStep1', 'Open this page in Safari (not Chrome)')}</p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <span className="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-white flex-shrink-0">2</span>
-                    <p className="mt-0.5">{t('tablet.dashboard.iosStep2', 'Tap the Share button ⬆ at the bottom of the screen')}</p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <span className="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-white flex-shrink-0">3</span>
-                    <p className="mt-0.5">{t('tablet.dashboard.iosStep3', 'Tap "Add to Home Screen" then tap "Add"')}</p>
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 text-left text-sm text-slate-300 w-full space-y-4">
-                  <p className="font-semibold text-white text-base">{t('tablet.dashboard.androidInstallTitle', 'Install on this device:')}</p>
-                  <div className="flex items-start gap-3">
-                    <span className="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-white flex-shrink-0">1</span>
-                    <p className="mt-0.5">{t('tablet.dashboard.androidStep1', 'Tap the three-dot menu ⋮ in your browser (top-right)')}</p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <span className="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-white flex-shrink-0">2</span>
-                    <p className="mt-0.5">{t('tablet.dashboard.androidStep2', 'Tap "Add to Home Screen" or "Install App"')}</p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <span className="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-white flex-shrink-0">3</span>
-                    <p className="mt-0.5">{t('tablet.dashboard.androidStep3', 'Tap "Add" or "Install" to confirm')}</p>
-                  </div>
-                </div>
-              )}
-
-              <Button
-                size="lg"
-                variant="ghost"
-                className="w-full min-h-[48px] text-sm text-slate-500 hover:text-slate-300"
-                onClick={dismissInstallOverlay}
-              >
-                {t('tablet.dashboard.continueInBrowser', 'Continue in browser without installing')}
-              </Button>
-            </div>
-          </div>
-        </div>
+      {/* Setup Wizard — shown on first visit */}
+      {!setupComplete && (
+        <TabletSetupWizard onComplete={handleSetupComplete} />
       )}
 
       {/* Kiosk mode setup guide */}
       {isInstalled && <KioskSetupGuide />}
-
-      {/* Persistent install banner */}
-      {!isInstalled && installDismissed && (
-        <div className="fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 py-2.5 bg-primary/20 border-b border-primary/30 text-sm">
-          <span className="text-primary font-medium flex items-center gap-2">
-            <Download className="h-4 w-4" />
-            {t('tablet.dashboard.installBanner', 'Install as app for full-screen experience')}
-          </span>
-          {isInstallable ? (
-            <Button
-              size="sm"
-              className="bg-primary hover:bg-primary/90 h-7 px-4 text-xs font-semibold"
-              onClick={async () => {
-                await installApp();
-                dismissInstallOverlay();
-              }}
-            >
-              <Download className="h-3 w-3 mr-1" />
-              {t('tablet.dashboard.installNow', 'Install')}
-            </Button>
-          ) : (
-            <Button
-              size="sm"
-              variant="ghost"
-              className="text-primary hover:bg-primary/20 h-7 px-3"
-              onClick={() => setInstallDismissed(false)}
-            >
-              {t('tablet.dashboard.installBannerShow', 'How to install')}
-            </Button>
-          )}
-        </div>
-      )}
-
-      {/* Permission denied banner */}
-      {micPermission === 'skipped' && notifPermission === 'skipped' && (
-        <div className="fixed bottom-0 left-0 right-80 z-30 flex items-center justify-center px-4 py-2 bg-amber-500/10 border-t border-amber-500/20 text-xs text-amber-400">
-          Enable permissions in browser settings for full tablet experience
-        </div>
-      )}
 
       {/* Alert System Overlay */}
       <TabletAlertSystem
