@@ -651,6 +651,8 @@
     "managementDashboard": "Management Dashboard",
     "familyConnections": "Family Connections",
     "familyCircleLabel": "Family Circle",
+    "viewAll": "View all",
+    "devices": "Devices",
     "home": "Home",
     "loadingDashboard": "Loading your dashboard...",
     "authRequired": "Authentication required. Please log in.",
@@ -3507,5 +3509,129 @@
     "errorTitle": "Error",
     "loadError": "Failed to load blog posts",
     "loadPostError": "Failed to load blog post"
+  },
+  "tablet": {
+    "dashboard": {
+      "greetingMorning": "Good morning",
+      "greetingAfternoon": "Good afternoon",
+      "greetingEvening": "Good evening",
+      "installTitle": "Install LifeLink Sync",
+      "installDesc": "Install this app on your tablet for the best always-on experience. It will launch full-screen and keep your screen awake.",
+      "installButton": "Install Now",
+      "iosInstallTitle": "Install on this iPad / iPhone:",
+      "iosStep1": "Tap the Share button (□↑) at the bottom of Safari",
+      "iosStep2": "Scroll down and tap \"Add to Home Screen\"",
+      "iosStep3": "Tap \"Add\" — the app will appear on your home screen",
+      "androidInstallTitle": "Install on this device:",
+      "androidStep1": "Tap the three-dot menu (⋮) in your browser",
+      "androidStep2": "Tap \"Add to Home Screen\" or \"Install App\"",
+      "androidStep3": "Tap \"Add\" or \"Install\" to confirm",
+      "continueInBrowser": "Continue in Browser",
+      "installBanner": "Install as app for the best experience",
+      "installBannerShow": "Show me how",
+      "sosSending": "SENDING...",
+      "sosAlertSent": "ALERT SENT",
+      "sosEmergency": "EMERGENCY",
+      "callFamily": "CALL FAMILY",
+      "messagesTitle": "Messages from Family",
+      "noMessages": "No messages yet",
+      "messageFrom": "From {{name}}",
+      "contactsTitle": "Call Family",
+      "noContacts": "No emergency contacts set up",
+      "moreReminders": "+{{count}} more reminder",
+      "moreReminders_plural": "+{{count}} more reminders",
+      "newReminder": "New Reminder",
+      "newReminderDefault": "You have a new reminder",
+      "messageFromFamily": "Message from {{name}}"
+    },
+    "status": {
+      "appName": "LifeLink Sync",
+      "alwaysOn": "Always On"
+    },
+    "vitals": {
+      "heartRate": "bpm",
+      "steps": "steps",
+      "battery": "pendant"
+    },
+    "quickInfo": {
+      "wellness": "Wellness",
+      "allGood": "All good today",
+      "family": "Family",
+      "online": "{{count}} online",
+      "checking": "Checking...",
+      "medication": "Medication",
+      "noMedication": "None scheduled"
+    },
+    "messages": {
+      "title": "Messages",
+      "count": "{{count}} from family",
+      "empty": "No new messages"
+    },
+    "reminder": {
+      "empty": "No reminders right now",
+      "emptyDesc": "Your family can send you reminders anytime",
+      "title": "Next Reminder",
+      "dismiss": "Got it"
+    },
+    "ambient": {
+      "allClear": "All Clear",
+      "tapToWake": "Tap anywhere to return"
+    },
+    "clara": {
+      "micDenied": "Microphone access denied",
+      "disableVoice": "Disable voice commands",
+      "enableVoice": "Enable voice commands",
+      "voiceActiveTap": "Voice active — tap to disable",
+      "tapToEnable": "Tap to enable voice commands",
+      "unmute": "Unmute Clara",
+      "mute": "Mute Clara",
+      "mutedTap": "Muted — tap to unmute",
+      "tapToMute": "Tap to mute Clara"
+    },
+    "kiosk": {
+      "title": "Lock Screen Mode",
+      "description": "Keep this tablet locked to LifeLink Sync for the safest always-on experience.",
+      "android": {
+        "step1Title": "Enable Screen Pinning",
+        "step1Desc": "Settings → Security → Screen Pinning → On",
+        "step2Title": "Pin LifeLink Sync",
+        "step2Desc": "Open Recent Apps, tap the app icon, then \"Pin\"",
+        "step3Title": "Disable Screen Timeout",
+        "step3Desc": "Settings → Display → Screen Timeout → \"Never\"",
+        "tip": "Keep your tablet plugged in for unlimited always-on time."
+      },
+      "ipad": {
+        "title": "iPad / iPhone Setup",
+        "desc": "Go to Settings → Display & Brightness → Auto-Lock → Never. Enable Guided Access under Accessibility for kiosk mode."
+      },
+      "laterButton": "Later",
+      "doneButton": "Done",
+      "tipLabel": "Tip:"
+    }
+  },
+  "mobile": {
+    "nav": {
+      "home": "Home",
+      "family": "Family",
+      "map": "Map",
+      "activity": "Activity",
+      "more": "More"
+    },
+    "status": {
+      "circleHealth": "Circle",
+      "familyOnline": "Family",
+      "protection": "Protection",
+      "active": "Active"
+    },
+    "actions": {
+      "emergencyCall": "Emergency Call",
+      "shareLocation": "Share Location",
+      "quickCall": "Family",
+      "systemCheck": "System Check"
+    },
+    "sos": {
+      "holdToActivate": "Hold for SOS",
+      "label": "SOS"
+    }
   }
 }

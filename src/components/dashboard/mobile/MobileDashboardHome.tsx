@@ -63,7 +63,7 @@ export function MobileDashboardHome({ profile, subscription }: MobileDashboardHo
         <StatusPill
           icon={<ShieldCheck className="h-3.5 w-3.5" />}
           label={t("mobile.status.protection", { defaultValue: "Protection" })}
-          value={hasSubscription ? "Active" : "—"}
+          value={hasSubscription ? t("mobile.status.active", { defaultValue: "Active" }) : "—"}
           color={hasSubscription ? "emerald" : "amber"}
         />
       </div>

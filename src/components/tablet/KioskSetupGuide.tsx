@@ -74,7 +74,7 @@ export const KioskSetupGuide = () => {
               <div className="flex items-center gap-2">
                 <CheckCircle className="h-4 w-4 text-green-400 flex-shrink-0" />
                 <p className="text-xs text-slate-300">
-                  <strong>Tip:</strong> {t('tablet.kiosk.android.tip')}
+                  <strong>{t('tablet.kiosk.tipLabel')}</strong> {t('tablet.kiosk.android.tip')}
                 </p>
               </div>
             </div>

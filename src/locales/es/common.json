@@ -698,6 +698,8 @@
     "managementDashboard": "Dashboard de Gestión",
     "familyConnections": "Conexiones Familiares",
     "familyCircleLabel": "Círculo Familiar",
+    "viewAll": "Ver todo",
+    "devices": "Dispositivos",
     "home": "Inicio",
     "loadingDashboard": "Cargando tu panel...",
     "authRequired": "Se requiere autenticación. Por favor, inicia sesión.",
@@ -3519,5 +3521,129 @@
     "errorTitle": "Error",
     "loadError": "Error al cargar los artículos",
     "loadPostError": "Error al cargar el artículo"
+  },
+  "tablet": {
+    "dashboard": {
+      "greetingMorning": "Buenos días",
+      "greetingAfternoon": "Buenas tardes",
+      "greetingEvening": "Buenas noches",
+      "installTitle": "Instalar LifeLink Sync",
+      "installDesc": "Instala esta app en tu tablet para la mejor experiencia siempre activa. Se abrirá a pantalla completa y mantendrá la pantalla encendida.",
+      "installButton": "Instalar ahora",
+      "iosInstallTitle": "Instalar en este iPad / iPhone:",
+      "iosStep1": "Toca el botón Compartir (□↑) en la parte inferior de Safari",
+      "iosStep2": "Desplázate hacia abajo y toca \"Añadir a la pantalla de inicio\"",
+      "iosStep3": "Toca \"Añadir\" — la app aparecerá en tu pantalla de inicio",
+      "androidInstallTitle": "Instalar en este dispositivo:",
+      "androidStep1": "Toca el menú de tres puntos (⋮) en tu navegador",
+      "androidStep2": "Toca \"Añadir a la pantalla de inicio\" o \"Instalar app\"",
+      "androidStep3": "Toca \"Añadir\" o \"Instalar\" para confirmar",
+      "continueInBrowser": "Continuar en el navegador",
+      "installBanner": "Instalar como app para la mejor experiencia",
+      "installBannerShow": "Mostrar cómo",
+      "sosSending": "ENVIANDO...",
+      "sosAlertSent": "ALERTA ENVIADA",
+      "sosEmergency": "EMERGENCIA",
+      "callFamily": "LLAMAR FAMILIA",
+      "messagesTitle": "Mensajes de la familia",
+      "noMessages": "Sin mensajes aún",
+      "messageFrom": "De {{name}}",
+      "contactsTitle": "Llamar a la familia",
+      "noContacts": "No hay contactos de emergencia configurados",
+      "moreReminders": "+{{count}} recordatorio más",
+      "moreReminders_plural": "+{{count}} recordatorios más",
+      "newReminder": "Nuevo recordatorio",
+      "newReminderDefault": "Tienes un nuevo recordatorio",
+      "messageFromFamily": "Mensaje de {{name}}"
+    },
+    "status": {
+      "appName": "LifeLink Sync",
+      "alwaysOn": "Siempre activo"
+    },
+    "vitals": {
+      "heartRate": "ppm",
+      "steps": "pasos",
+      "battery": "colgante"
+    },
+    "quickInfo": {
+      "wellness": "Bienestar",
+      "allGood": "Todo bien hoy",
+      "family": "Familia",
+      "online": "{{count}} en línea",
+      "checking": "Comprobando...",
+      "medication": "Medicación",
+      "noMedication": "Ninguna programada"
+    },
+    "messages": {
+      "title": "Mensajes",
+      "count": "{{count}} de la familia",
+      "empty": "Sin mensajes nuevos"
+    },
+    "reminder": {
+      "empty": "Sin recordatorios ahora",
+      "emptyDesc": "Tu familia puede enviarte recordatorios en cualquier momento",
+      "title": "Próximo recordatorio",
+      "dismiss": "Entendido"
+    },
+    "ambient": {
+      "allClear": "Todo en orden",
+      "tapToWake": "Toca en cualquier lugar para volver"
+    },
+    "clara": {
+      "micDenied": "Acceso al micrófono denegado",
+      "disableVoice": "Desactivar comandos de voz",
+      "enableVoice": "Activar comandos de voz",
+      "voiceActiveTap": "Voz activa — toca para desactivar",
+      "tapToEnable": "Toca para activar comandos de voz",
+      "unmute": "Activar sonido de Clara",
+      "mute": "Silenciar a Clara",
+      "mutedTap": "Silenciada — toca para activar sonido",
+      "tapToMute": "Toca para silenciar a Clara"
+    },
+    "kiosk": {
+      "title": "Modo pantalla bloqueada",
+      "description": "Mantén esta tablet bloqueada en LifeLink Sync para la experiencia más segura siempre activa.",
+      "android": {
+        "step1Title": "Activar fijación de pantalla",
+        "step1Desc": "Ajustes → Seguridad → Fijación de pantalla → Activar",
+        "step2Title": "Fijar LifeLink Sync",
+        "step2Desc": "Abre Apps recientes, toca el icono de la app y luego \"Fijar\"",
+        "step3Title": "Desactivar tiempo de espera de pantalla",
+        "step3Desc": "Ajustes → Pantalla → Tiempo de espera → \"Nunca\"",
+        "tip": "Mantén tu tablet enchufada para tiempo siempre activo ilimitado."
+      },
+      "ipad": {
+        "title": "Configuración iPad / iPhone",
+        "desc": "Ve a Ajustes → Pantalla y brillo → Bloqueo automático → Nunca. Activa Acceso guiado en Accesibilidad para modo kiosco."
+      },
+      "laterButton": "Más tarde",
+      "doneButton": "Hecho",
+      "tipLabel": "Consejo:"
+    }
+  },
+  "mobile": {
+    "nav": {
+      "home": "Inicio",
+      "family": "Familia",
+      "map": "Mapa",
+      "activity": "Actividad",
+      "more": "Más"
+    },
+    "status": {
+      "circleHealth": "Círculo",
+      "familyOnline": "Familia",
+      "protection": "Protección",
+      "active": "Activa"
+    },
+    "actions": {
+      "emergencyCall": "Llamada de emergencia",
+      "shareLocation": "Compartir ubicación",
+      "quickCall": "Familia",
+      "systemCheck": "Verificación del sistema"
+    },
+    "sos": {
+      "holdToActivate": "Mantén para SOS",
+      "label": "SOS"
+    }
   }
 }

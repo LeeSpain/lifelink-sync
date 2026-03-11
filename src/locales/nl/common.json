@@ -667,6 +667,8 @@
     "managementDashboard": "Beheer Dashboard",
     "familyConnections": "Familieverbindingen",
     "familyCircleLabel": "Familiekring",
+    "viewAll": "Alles bekijken",
+    "devices": "Apparaten",
     "home": "Home",
     "loadingDashboard": "Je dashboard laden...",
     "authRequired": "Authenticatie vereist. Log in alsjeblieft.",
@@ -3519,5 +3521,129 @@
     "errorTitle": "Fout",
     "loadError": "Kan blogberichten niet laden",
     "loadPostError": "Kan blogbericht niet laden"
+  },
+  "tablet": {
+    "dashboard": {
+      "greetingMorning": "Goedemorgen",
+      "greetingAfternoon": "Goedemiddag",
+      "greetingEvening": "Goedenavond",
+      "installTitle": "Installeer LifeLink Sync",
+      "installDesc": "Installeer deze app op je tablet voor de beste altijd-aan ervaring. Het opent op volledig scherm en houdt je scherm wakker.",
+      "installButton": "Nu installeren",
+      "iosInstallTitle": "Installeren op deze iPad / iPhone:",
+      "iosStep1": "Tik op de Deel-knop (□↑) onderaan Safari",
+      "iosStep2": "Scroll naar beneden en tik op \"Zet op beginscherm\"",
+      "iosStep3": "Tik op \"Voeg toe\" — de app verschijnt op je beginscherm",
+      "androidInstallTitle": "Installeren op dit apparaat:",
+      "androidStep1": "Tik op het menu met drie puntjes (⋮) in je browser",
+      "androidStep2": "Tik op \"Toevoegen aan startscherm\" of \"App installeren\"",
+      "androidStep3": "Tik op \"Toevoegen\" of \"Installeren\" om te bevestigen",
+      "continueInBrowser": "Doorgaan in browser",
+      "installBanner": "Installeer als app voor de beste ervaring",
+      "installBannerShow": "Laat me zien hoe",
+      "sosSending": "VERZENDEN...",
+      "sosAlertSent": "ALARM VERZONDEN",
+      "sosEmergency": "NOODGEVAL",
+      "callFamily": "BEL FAMILIE",
+      "messagesTitle": "Berichten van familie",
+      "noMessages": "Nog geen berichten",
+      "messageFrom": "Van {{name}}",
+      "contactsTitle": "Bel familie",
+      "noContacts": "Geen noodcontacten ingesteld",
+      "moreReminders": "+{{count}} herinnering meer",
+      "moreReminders_plural": "+{{count}} herinneringen meer",
+      "newReminder": "Nieuwe herinnering",
+      "newReminderDefault": "Je hebt een nieuwe herinnering",
+      "messageFromFamily": "Bericht van {{name}}"
+    },
+    "status": {
+      "appName": "LifeLink Sync",
+      "alwaysOn": "Altijd aan"
+    },
+    "vitals": {
+      "heartRate": "bpm",
+      "steps": "stappen",
+      "battery": "hanger"
+    },
+    "quickInfo": {
+      "wellness": "Welzijn",
+      "allGood": "Alles goed vandaag",
+      "family": "Familie",
+      "online": "{{count}} online",
+      "checking": "Controleren...",
+      "medication": "Medicatie",
+      "noMedication": "Geen gepland"
+    },
+    "messages": {
+      "title": "Berichten",
+      "count": "{{count}} van familie",
+      "empty": "Geen nieuwe berichten"
+    },
+    "reminder": {
+      "empty": "Geen herinneringen op dit moment",
+      "emptyDesc": "Je familie kan je op elk moment herinneringen sturen",
+      "title": "Volgende herinnering",
+      "dismiss": "Begrepen"
+    },
+    "ambient": {
+      "allClear": "Alles in orde",
+      "tapToWake": "Tik ergens om terug te keren"
+    },
+    "clara": {
+      "micDenied": "Microfoontoegang geweigerd",
+      "disableVoice": "Spraakopdrachten uitschakelen",
+      "enableVoice": "Spraakopdrachten inschakelen",
+      "voiceActiveTap": "Spraak actief — tik om uit te schakelen",
+      "tapToEnable": "Tik om spraakopdrachten in te schakelen",
+      "unmute": "Clara dempen opheffen",
+      "mute": "Clara dempen",
+      "mutedTap": "Gedempt — tik om geluid aan te zetten",
+      "tapToMute": "Tik om Clara te dempen"
+    },
+    "kiosk": {
+      "title": "Schermvergrendelingsmodus",
+      "description": "Houd deze tablet vergrendeld op LifeLink Sync voor de veiligste altijd-aan ervaring.",
+      "android": {
+        "step1Title": "Scherm vastzetten inschakelen",
+        "step1Desc": "Instellingen → Beveiliging → Scherm vastzetten → Aan",
+        "step2Title": "LifeLink Sync vastzetten",
+        "step2Desc": "Open Recente apps, tik op het app-icoon en dan \"Vastzetten\"",
+        "step3Title": "Schermtime-out uitschakelen",
+        "step3Desc": "Instellingen → Scherm → Schermtime-out → \"Nooit\"",
+        "tip": "Houd je tablet aangesloten voor onbeperkte altijd-aan tijd."
+      },
+      "ipad": {
+        "title": "iPad / iPhone instelling",
+        "desc": "Ga naar Instellingen → Scherm en helderheid → Automatisch slot → Nooit. Schakel Begeleide toegang in onder Toegankelijkheid voor kioskmodus."
+      },
+      "laterButton": "Later",
+      "doneButton": "Klaar",
+      "tipLabel": "Tip:"
+    }
+  },
+  "mobile": {
+    "nav": {
+      "home": "Home",
+      "family": "Familie",
+      "map": "Kaart",
+      "activity": "Activiteit",
+      "more": "Meer"
+    },
+    "status": {
+      "circleHealth": "Kring",
+      "familyOnline": "Familie",
+      "protection": "Bescherming",
+      "active": "Actief"
+    },
+    "actions": {
+      "emergencyCall": "Noodoproep",
+      "shareLocation": "Locatie delen",
+      "quickCall": "Familie",
+      "systemCheck": "Systeemcontrole"
+    },
+    "sos": {
+      "holdToActivate": "Houd vast voor SOS",
+      "label": "SOS"
+    }
   }
 }

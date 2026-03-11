@@ -50,7 +50,7 @@ const TabletDashboard = () => {
     setInstallDismissed(true);
   };
 
-  const firstName = user?.user_metadata?.first_name || 'there';
+  const firstName = user?.user_metadata?.first_name || t('dashboard.memberFallback');
 
   // Swap manifest to tablet-specific version so PWA installs with
   // start_url="/tablet-dashboard", display="fullscreen", orientation="any"
@@ -158,8 +158,8 @@ const TabletDashboard = () => {
               },
               ...prev,
             ]);
-            toast({ title: 'New Reminder', description: d.message || 'You have a new reminder' });
-            speakAlertRef.current('reminder', d.from_name || 'Family', d.message || 'You have a new reminder');
+            toast({ title: t('tablet.dashboard.newReminder'), description: d.message || t('tablet.dashboard.newReminderDefault') });
+            speakAlertRef.current('reminder', d.from_name || t('tablet.quickInfo.family'), d.message || t('tablet.dashboard.newReminderDefault'));
           } else if (row.alert_type === 'family_message') {
             setMessages((prev) => [
               {
@@ -170,8 +170,8 @@ const TabletDashboard = () => {
               },
               ...prev,
             ]);
-            toast({ title: `Message from ${d.from_name || 'Family'}`, description: d.message });
-            speakAlertRef.current('message', d.from_name || 'Family', d.message || '');
+            toast({ title: t('tablet.dashboard.messageFromFamily', { name: d.from_name || t('tablet.quickInfo.family') }), description: d.message });
+            speakAlertRef.current('message', d.from_name || t('tablet.quickInfo.family'), d.message || '');
           }
         }
       )
@@ -350,7 +350,7 @@ const TabletDashboard = () => {
           <ReminderCard reminder={currentReminder} onDismiss={dismissReminder} />
           {reminders.length > 1 && (
             <p className="text-xs text-slate-500 text-center mt-2">
-              +{reminders.length - 1} more reminder{reminders.length > 2 ? 's' : ''}
+              {t('tablet.dashboard.moreReminders', { count: reminders.length - 1 })}
             </p>
           )}
         </div>
@@ -417,7 +417,7 @@ const TabletDashboard = () => {
                   <div key={msg.id} className="bg-slate-800 rounded-xl p-4">
                     <p className="text-white text-lg">{msg.message}</p>
                     <p className="text-sm text-slate-400 mt-2">
-                      From {msg.from_name} &middot;{' '}
+                      {t('tablet.dashboard.messageFrom', { name: msg.from_name })} &middot;{' '}
                       {new Date(msg.created_at).toLocaleString([], {
                         hour: '2-digit',
                         minute: '2-digit',
