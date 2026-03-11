@@ -701,10 +701,15 @@
     "loadingDashboard": "Cargando tu panel...",
     "authRequired": "Se requiere autenticación. Por favor, inicia sesión.",
     "pwaInstall": {
-      "title": "Instalar LifeLink Sync",
-      "desc": "Añade a tu pantalla de inicio para acceso rápido en emergencias",
-      "installButton": "Instalar",
-      "learnMore": "Más información"
+      "title_mobile": "Añade LifeLink a tu pantalla de inicio",
+      "title_tablet": "Instala la versión de pantalla ambiental",
+      "title_desktop": "Instala LifeLink en este ordenador",
+      "desc_mobile": "Acceso rápido SOS con un toque — sin tienda de apps",
+      "desc_tablet": "Instala la versión ambiental en esta tablet para seguridad familiar continua",
+      "desc_desktop": "Recibe notificaciones de escritorio y acceso de emergencia con un clic",
+      "installButton": "Instalar ahora",
+      "iosInstructions": "Toca el botón Compartir abajo y elige \"Añadir a pantalla de inicio\"",
+      "dismiss": "Cerrar"
     }
   },
   "onboarding": {
@@ -3330,6 +3335,44 @@
       },
       "laterButton": "Lo haré después",
       "doneButton": "Listo, ir a pantalla completa"
+    },
+    "vitals": {
+      "heartRate": "ppm",
+      "steps": "pasos",
+      "battery": "colgante"
+    },
+    "ambient": {
+      "allClear": "Todo bien",
+      "tapToWake": "Toca en cualquier lugar para volver"
+    },
+    "quickInfo": {
+      "medication": "Medicación",
+      "noMedication": "Ninguna programada"
+    }
+  },
+  "mobile": {
+    "nav": {
+      "home": "Inicio",
+      "family": "Familia",
+      "map": "Mapa",
+      "activity": "Actividad",
+      "more": "Más"
+    },
+    "sos": {
+      "holdToActivate": "Mantener para SOS",
+      "sending": "Enviando...",
+      "sent": "Enviado"
+    },
+    "status": {
+      "circleHealth": "Círculo",
+      "familyOnline": "Familia",
+      "protection": "Protección"
+    },
+    "actions": {
+      "emergencyCall": "Llamada de emergencia",
+      "shareLocation": "Compartir ubicación",
+      "quickCall": "Familia",
+      "systemCheck": "Verificar sistema"
     }
   },
   "pricingWizard": {

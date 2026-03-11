@@ -654,10 +654,15 @@
     "loadingDashboard": "Loading your dashboard...",
     "authRequired": "Authentication required. Please log in.",
     "pwaInstall": {
-      "title": "Install LifeLink Sync",
-      "desc": "Add to your home screen for one-tap emergency access",
-      "installButton": "Install",
-      "learnMore": "Learn more"
+      "title_mobile": "Add LifeLink to your home screen",
+      "title_tablet": "Install the ambient display version",
+      "title_desktop": "Install LifeLink on this computer",
+      "desc_mobile": "Quick SOS access with one tap — no app store needed",
+      "desc_tablet": "Install the ambient display version on this tablet for always-on family safety",
+      "desc_desktop": "Get instant desktop notifications and one-click emergency access",
+      "installButton": "Install Now",
+      "iosInstructions": "Tap the Share button below, then choose \"Add to Home Screen\"",
+      "dismiss": "Dismiss"
     }
   },
   "onboarding": {
@@ -2931,6 +2936,44 @@
       },
       "laterButton": "I'll do this later",
       "doneButton": "Done, go fullscreen"
+    },
+    "vitals": {
+      "heartRate": "bpm",
+      "steps": "steps",
+      "battery": "pendant"
+    },
+    "ambient": {
+      "allClear": "All Clear",
+      "tapToWake": "Tap anywhere to return"
+    },
+    "quickInfo": {
+      "medication": "Medication",
+      "noMedication": "None scheduled"
+    }
+  },
+  "mobile": {
+    "nav": {
+      "home": "Home",
+      "family": "Family",
+      "map": "Map",
+      "activity": "Activity",
+      "more": "More"
+    },
+    "sos": {
+      "holdToActivate": "Hold for SOS",
+      "sending": "Sending...",
+      "sent": "Sent"
+    },
+    "status": {
+      "circleHealth": "Circle",
+      "familyOnline": "Family",
+      "protection": "Protection"
+    },
+    "actions": {
+      "emergencyCall": "Emergency Call",
+      "shareLocation": "Share Location",
+      "quickCall": "Family",
+      "systemCheck": "System Check"
     }
   },
   "registration": {

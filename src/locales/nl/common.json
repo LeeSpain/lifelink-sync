@@ -670,10 +670,15 @@
     "loadingDashboard": "Je dashboard laden...",
     "authRequired": "Authenticatie vereist. Log in alsjeblieft.",
     "pwaInstall": {
-      "title": "LifeLink Sync installeren",
-      "desc": "Voeg toe aan je startscherm voor noodtoegang met één tik",
-      "installButton": "Installeren",
-      "learnMore": "Meer informatie"
+      "title_mobile": "Voeg LifeLink toe aan je startscherm",
+      "title_tablet": "Installeer de ambient display-versie",
+      "title_desktop": "Installeer LifeLink op deze computer",
+      "desc_mobile": "Snelle SOS-toegang met één tik — geen app store nodig",
+      "desc_tablet": "Installeer de ambient display-versie op deze tablet voor altijd-aan familieveiligheid",
+      "desc_desktop": "Ontvang directe desktopmeldingen en noodtoegang met één klik",
+      "installButton": "Nu installeren",
+      "iosInstructions": "Tik op de Deel-knop hieronder en kies \"Zet op beginscherm\"",
+      "dismiss": "Sluiten"
     }
   },
   "onboarding": {
@@ -3330,6 +3335,44 @@
       },
       "laterButton": "Ik doe dit later",
       "doneButton": "Klaar, ga naar volledig scherm"
+    },
+    "vitals": {
+      "heartRate": "bpm",
+      "steps": "stappen",
+      "battery": "hanger"
+    },
+    "ambient": {
+      "allClear": "Alles veilig",
+      "tapToWake": "Tik ergens om terug te keren"
+    },
+    "quickInfo": {
+      "medication": "Medicatie",
+      "noMedication": "Geen gepland"
+    }
+  },
+  "mobile": {
+    "nav": {
+      "home": "Home",
+      "family": "Familie",
+      "map": "Kaart",
+      "activity": "Activiteit",
+      "more": "Meer"
+    },
+    "sos": {
+      "holdToActivate": "Ingedrukt houden voor SOS",
+      "sending": "Verzenden...",
+      "sent": "Verzonden"
+    },
+    "status": {
+      "circleHealth": "Kring",
+      "familyOnline": "Familie",
+      "protection": "Bescherming"
+    },
+    "actions": {
+      "emergencyCall": "Noodoproep",
+      "shareLocation": "Locatie delen",
+      "quickCall": "Familie",
+      "systemCheck": "Systeemcontrole"
     }
   },
   "pricingWizard": {

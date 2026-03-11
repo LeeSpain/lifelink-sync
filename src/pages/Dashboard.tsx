@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
+import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import EmergencyActionsWidget from "@/components/dashboard/EmergencyActionsWidget";
 import { FamilyCircleOverview } from "@/components/dashboard/FamilyCircleOverview";
@@ -34,11 +35,18 @@ import { useRealTimeUpdates } from '@/hooks/useRealTimeUpdates';
 import LanguageCurrencySelector from '@/components/LanguageCurrencySelector';
 import { PWAInstallBanner } from '@/components/dashboard/PWAInstallBanner';
 
+// Mobile shell components
+import { MobileDashboardHeader } from "@/components/dashboard/mobile/MobileDashboardHeader";
+import { MobileBottomNav } from "@/components/dashboard/mobile/MobileBottomNav";
+import { FloatingSOSButton } from "@/components/dashboard/mobile/FloatingSOSButton";
+import { MobileDashboardHome } from "@/components/dashboard/mobile/MobileDashboardHome";
+
 const Dashboard = () => {
   const [subscription, setSubscription] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const initialLoadTimeoutRef = useRef<number | null>(null);
+  const { isMobile } = useBreakpoint();
 
   // Auto-scroll to top when navigating
   useScrollToTop();
@@ -54,7 +62,7 @@ const Dashboard = () => {
   useEffect(() => {
     console.log('[Dashboard] mount -> starting initial load');
     loadDashboardData();
-    
+
     // Auto-refresh every 2 minutes
     const interval = setInterval(() => {
       console.log('[Dashboard] auto-refresh tick');
@@ -161,11 +169,208 @@ const Dashboard = () => {
     );
   }
 
+  // ── Shared sub-routes used by both mobile and desktop shells ──
+  const dashboardRoutes = (
+    <Routes>
+      {/* Main Dashboard Overview - Default route */}
+      <Route
+        index
+        element={
+          isMobile ? (
+            <MobileDashboardHome
+              profile={profile}
+              subscription={subscription}
+            />
+          ) : (
+            <div className="p-3 sm:p-6">
+              <div className="max-w-none">
+                {/* Welcome Header */}
+                <div className="mb-4 sm:mb-8">
+                  <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+                    {t('dashboard.welcomeBack', { name: profile?.first_name || t('dashboard.memberFallback') })}
+                  </h1>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                    {t('dashboard.protectionOverview')}
+                  </p>
+                </div>
+
+                <PWAInstallBanner />
+
+                <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                  {/* Main Content */}
+                  <div className="xl:col-span-2 space-y-6">
+                    <FamilyCircleOverview />
+                    <EmergencyPreparedness
+                      profile={profile}
+                      subscription={subscription}
+                    />
+                  </div>
+
+                  {/* Sidebar */}
+                  <div className="space-y-6">
+                    <LiveFamilyStatus />
+                    <EmergencyActionsWidget profile={profile} subscription={subscription} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )
+        }
+      />
+
+      {/* Products Page */}
+       <Route path="products" element={
+         <div className="p-3 sm:p-6">
+          <EnhancedMyProductsPage />
+        </div>
+      } />
+
+      {/* Profile Page */}
+       <Route path="profile" element={
+         <div className="p-3 sm:p-6">
+          <EnhancedProfilePage />
+        </div>
+      } />
+
+      {/* Family SOS Live View */}
+       <Route path="family-sos" element={
+         <div className="p-3 sm:p-6">
+           <LiveSOSFamily />
+         </div>
+       } />
+
+       {/* Activity Page */}
+       <Route path="activity" element={
+         <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
+           <div>
+             <h1 className="text-2xl font-bold tracking-tight">{t('dashboard.activityTitle')}</h1>
+             <p className="text-muted-foreground">{t('dashboard.activityDesc')}</p>
+           </div>
+           <ActivityCard />
+         </div>
+       } />
+
+       {/* Subscription Page */}
+       <Route path="subscription" element={
+         <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
+           <div>
+             <h1 className="text-2xl font-bold tracking-tight">{t('dashboard.subscriptionTitle')}</h1>
+             <p className="text-muted-foreground">{t('dashboard.subscriptionDesc')}</p>
+           </div>
+           <SubscriptionCard subscription={subscription} />
+           <AddOnMarketplace />
+         </div>
+       } />
+
+       {/* Mobile App Page */}
+        <Route path="mobile-app" element={
+          <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight">{t('dashboard.mobileAppTitle')}</h1>
+              <p className="text-muted-foreground">{t('dashboard.mobileAppDesc')}</p>
+            </div>
+            <MobileAppCard />
+          </div>
+        } />
+
+       {/* Mobile Dashboard Page */}
+        <Route path="mobile-dashboard" element={
+          <div className="p-3 sm:p-6">
+            <div className="mb-6">
+              <h1 className="text-2xl font-bold tracking-tight">{t('dashboard.mobileDevTitle')}</h1>
+              <p className="text-muted-foreground">{t('dashboard.mobileDevDesc')}</p>
+            </div>
+            <div className="space-y-6">
+              <MobileDashboard />
+            </div>
+          </div>
+        } />
+
+      {/* Dashboard pages with full width */}
+      <Route path="family" element={<FamilyPage />} />
+       <Route path="family-setup" element={
+         <div className="p-3 sm:p-6">
+           <div className="max-w-4xl mx-auto">
+             <FamilyAccessSetup />
+           </div>
+         </div>
+       } />
+       <Route path="location" element={<LocationPage />} />
+       <Route path="notifications" element={
+         <div className="p-3 sm:p-6">
+           <NotificationsPage />
+         </div>
+       } />
+       <Route path="security" element={
+         <div className="p-3 sm:p-6">
+           <SecurityPage />
+         </div>
+       } />
+       <Route path="settings" element={
+         <div className="p-3 sm:p-6">
+           <SettingsPage />
+         </div>
+       } />
+       <Route path="support" element={
+         <div className="p-3 sm:p-6">
+           <SupportPage />
+         </div>
+       } />
+
+      {/* Live Map Routes */}
+      <Route path="live-map" element={
+        <MapScreen />
+      } />
+       <Route path="circles" element={
+         <div className="p-3 sm:p-6">
+           <MyCirclesPage />
+         </div>
+       } />
+       <Route path="places" element={
+         <div className="p-3 sm:p-6">
+           <PlacesManager />
+         </div>
+       } />
+       <Route path="location-history" element={
+         <div className="p-3 sm:p-6">
+           <LocationHistoryPage />
+         </div>
+        } />
+
+        {/* Connections Page */}
+        <Route path="connections" element={
+          <div className="p-3 sm:p-6">
+            <ConnectionsPage />
+          </div>
+        } />
+
+        {/* Devices & Integrations Page */}
+        <Route path="devices" element={
+          <DevicesIntegrationsPage />
+        } />
+    </Routes>
+  );
+
+  // ── Mobile shell ──
+  if (isMobile) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <MobileDashboardHeader />
+        <main className="flex-1 overflow-auto pt-12 pb-24">
+          {dashboardRoutes}
+        </main>
+        <FloatingSOSButton />
+        <MobileBottomNav />
+      </div>
+    );
+  }
+
+  // ── Desktop shell (unchanged) ──
   return (
     <SidebarProvider>
       <div className="min-h-screen w-full flex bg-gradient-to-br from-muted/20 to-muted/50">
         <DashboardSidebar />
-        
+
         <div className="flex-1 flex flex-col">
           {/* Header with Sidebar Toggle */}
           <header className="h-14 sm:h-16 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center px-3 sm:px-4 gap-2 sm:gap-4">
@@ -180,177 +385,7 @@ const Dashboard = () => {
 
           {/* Dashboard Content */}
           <div className="flex-1 overflow-auto">
-            <Routes>
-              {/* Main Dashboard Overview - Default route */}
-              <Route 
-                index 
-                element={
-                  <div className="p-3 sm:p-6">
-                    <div className="max-w-none">
-                      {/* Welcome Header */}
-                      <div className="mb-4 sm:mb-8">
-                        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-                          {t('dashboard.welcomeBack', { name: profile?.first_name || t('dashboard.memberFallback') })}
-                        </h1>
-                        <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                          {t('dashboard.protectionOverview')}
-                        </p>
-                      </div>
-
-                      <PWAInstallBanner />
-
-                      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                        {/* Main Content */}
-                        <div className="xl:col-span-2 space-y-6">
-                          <FamilyCircleOverview />
-                          <EmergencyPreparedness
-                            profile={profile}
-                            subscription={subscription}
-                          />
-                        </div>
-
-                        {/* Sidebar */}
-                        <div className="space-y-6">
-                          <LiveFamilyStatus />
-                          <EmergencyActionsWidget profile={profile} subscription={subscription} />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                } 
-              />
-
-              {/* Products Page */}
-               <Route path="products" element={
-                 <div className="p-3 sm:p-6">
-                  <EnhancedMyProductsPage />
-                </div>
-              } />
-
-              {/* Profile Page */}
-               <Route path="profile" element={
-                 <div className="p-3 sm:p-6">
-                  <EnhancedProfilePage />
-                </div>
-              } />
-
-              {/* Family SOS Live View */}
-               <Route path="family-sos" element={
-                 <div className="p-3 sm:p-6">
-                   <LiveSOSFamily />
-                 </div>
-               } />
-
-               {/* Activity Page */}
-               <Route path="activity" element={
-                 <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
-                   <div>
-                     <h1 className="text-2xl font-bold tracking-tight">{t('dashboard.activityTitle')}</h1>
-                     <p className="text-muted-foreground">{t('dashboard.activityDesc')}</p>
-                   </div>
-                   <ActivityCard />
-                 </div>
-               } />
-
-               {/* Subscription Page */}
-               <Route path="subscription" element={
-                 <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
-                   <div>
-                     <h1 className="text-2xl font-bold tracking-tight">{t('dashboard.subscriptionTitle')}</h1>
-                     <p className="text-muted-foreground">{t('dashboard.subscriptionDesc')}</p>
-                   </div>
-                   <SubscriptionCard subscription={subscription} />
-                   <AddOnMarketplace />
-                 </div>
-               } />
-
-               {/* Mobile App Page */}
-                <Route path="mobile-app" element={
-                  <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
-                    <div>
-                      <h1 className="text-2xl font-bold tracking-tight">{t('dashboard.mobileAppTitle')}</h1>
-                      <p className="text-muted-foreground">{t('dashboard.mobileAppDesc')}</p>
-                    </div>
-                    <MobileAppCard />
-                  </div>
-                } />
-
-               {/* Mobile Dashboard Page */}
-                <Route path="mobile-dashboard" element={
-                  <div className="p-3 sm:p-6">
-                    <div className="mb-6">
-                      <h1 className="text-2xl font-bold tracking-tight">{t('dashboard.mobileDevTitle')}</h1>
-                      <p className="text-muted-foreground">{t('dashboard.mobileDevDesc')}</p>
-                    </div>
-                    <div className="space-y-6">
-                      <MobileDashboard />
-                    </div>
-                  </div>
-                } />
-
-              {/* Dashboard pages with full width */}
-              <Route path="family" element={<FamilyPage />} />
-               <Route path="family-setup" element={
-                 <div className="p-3 sm:p-6">
-                   <div className="max-w-4xl mx-auto">
-                     <FamilyAccessSetup />
-                   </div>
-                 </div>
-               } />
-               <Route path="location" element={<LocationPage />} />
-               <Route path="notifications" element={
-                 <div className="p-3 sm:p-6">
-                   <NotificationsPage />
-                 </div>
-               } />
-               <Route path="security" element={
-                 <div className="p-3 sm:p-6">
-                   <SecurityPage />
-                 </div>
-               } />
-               <Route path="settings" element={
-                 <div className="p-3 sm:p-6">
-                   <SettingsPage />
-                 </div>
-               } />
-               <Route path="support" element={
-                 <div className="p-3 sm:p-6">
-                   <SupportPage />
-                 </div>
-               } />
-              
-              {/* Live Map Routes */}
-              <Route path="live-map" element={
-                <MapScreen />
-              } />
-               <Route path="circles" element={
-                 <div className="p-3 sm:p-6">
-                   <MyCirclesPage />
-                 </div>
-               } />
-               <Route path="places" element={
-                 <div className="p-3 sm:p-6">
-                   <PlacesManager />
-                 </div>
-               } />
-               <Route path="location-history" element={
-                 <div className="p-3 sm:p-6">
-                   <LocationHistoryPage />
-                 </div>
-                } />
-                
-                {/* Connections Page */}
-                <Route path="connections" element={
-                  <div className="p-3 sm:p-6">
-                    <ConnectionsPage />
-                  </div>
-                } />
-
-                {/* Devices & Integrations Page */}
-                <Route path="devices" element={
-                  <DevicesIntegrationsPage />
-                } />
-            </Routes>
+            {dashboardRoutes}
           </div>
         </div>
       </div>

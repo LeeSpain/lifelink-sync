@@ -10,6 +10,8 @@ import { Phone, AlertTriangle, X, Download, Tablet } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { usePWAFeatures } from '@/hooks/usePWAFeatures';
 import { TabletStatusBar } from '@/components/tablet/TabletStatusBar';
+import { TabletVitalsStrip } from '@/components/tablet/TabletVitalsStrip';
+import { TabletPhotoFrame } from '@/components/tablet/TabletPhotoFrame';
 import { ReminderCard, type Reminder } from '@/components/tablet/ReminderCard';
 import { QuickInfoCards } from '@/components/tablet/QuickInfoCards';
 import type { FamilyMessage } from '@/components/tablet/FamilyMessagesCard';
@@ -227,7 +229,9 @@ const TabletDashboard = () => {
   const currentReminder = reminders[0] || null;
 
   return (
-    <div className="h-screen flex flex-col bg-slate-950 text-white overflow-hidden select-none">
+    <div className={`h-screen flex flex-col text-white overflow-hidden select-none transition-colors duration-1000 ${
+      sosTriggered ? 'bg-red-950' : familyOnline > 0 ? 'bg-[#0a1210]' : reminders.length > 0 ? 'bg-[#12100a]' : 'bg-slate-950'
+    }`}>
       {/* Install Overlay — shown first time on a browser (not yet installed) */}
       {showInstallOverlay && (
         <div className="fixed inset-0 z-[100] bg-slate-950/95 flex items-center justify-center p-8">
@@ -285,6 +289,12 @@ const TabletDashboard = () => {
           onToggleListening: () => clara.setVoiceEnabled(!clara.voiceEnabled),
         }}
       />
+
+      {/* Vitals Strip — shows device data if available */}
+      <TabletVitalsStrip />
+
+      {/* Photo Frame idle mode — activates after 5 min of inactivity */}
+      <TabletPhotoFrame alertCount={reminders.length + messages.length} />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col justify-between p-6 md:p-10 max-w-6xl mx-auto w-full">
