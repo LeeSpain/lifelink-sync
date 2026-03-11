@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { usePWAFeatures } from '@/hooks/usePWAFeatures';
@@ -40,7 +40,6 @@ export function TabletSetupWizard({ onComplete }: TabletSetupWizardProps) {
   const { isInstalled, isInstallable, installApp } = usePWAFeatures();
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
-  const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
 
   // Step 1: Resident info
@@ -48,10 +47,28 @@ export function TabletSetupWizard({ onComplete }: TabletSetupWizardProps) {
   const existingLast = user?.user_metadata?.last_name || '';
   const [residentName, setResidentName] = useState(existingFirst ? `${existingFirst} ${existingLast}`.trim() : '');
 
-  // Step 2: Emergency contacts
+  // Skip Step 1 if name already known from account
+  const [step, setStep] = useState(existingFirst ? 2 : 1);
+
+  // Step 2: Emergency contacts — pre-loaded from DB below
   const [contacts, setContacts] = useState<ContactEntry[]>([
     { name: '', phone: '', relationship: '' },
   ]);
+
+  // Pre-load existing emergency contacts from Supabase
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from('emergency_contacts')
+      .select('name, phone, relationship')
+      .eq('user_id', user.id)
+      .order('priority', { ascending: true })
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          setContacts(data.map((c) => ({ name: c.name, phone: c.phone, relationship: c.relationship || '' })));
+        }
+      });
+  }, [user]);
 
   // Step 3: Permissions results
   const [micResult, setMicResult] = useState<'granted' | 'skipped' | null>(null);
@@ -81,6 +98,8 @@ export function TabletSetupWizard({ onComplete }: TabletSetupWizardProps) {
     setSaving(true);
     const valid = contacts.filter((c) => c.name.trim() && c.phone.trim());
     if (valid.length > 0) {
+      // Remove existing contacts first to avoid duplicates
+      await supabase.from('emergency_contacts').delete().eq('user_id', user.id);
       for (let i = 0; i < valid.length; i++) {
         await supabase.from('emergency_contacts').insert({
           user_id: user.id,
@@ -207,7 +226,6 @@ export function TabletSetupWizard({ onComplete }: TabletSetupWizardProps) {
                 onChange={(e) => setResidentName(e.target.value)}
                 placeholder={t('tablet.setup.namePlaceholder', 'Full name (e.g. Maria Garcia)')}
                 className="bg-slate-800 border-slate-600 text-white placeholder-slate-500 h-14 text-lg text-center"
-                autoFocus
               />
             </div>
 
