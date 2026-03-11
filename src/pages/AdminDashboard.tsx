@@ -56,6 +56,10 @@ import TrialManagementPage from '@/components/admin/pages/TrialManagementPage';
 import PricingEditorPage from '@/components/admin/pages/PricingEditorPage';
 import DashboardsAndApps from '@/components/admin/pages/DashboardsAndApps';
 import AdminProfile from '@/components/admin/pages/AdminProfile';
+import AIOverview from '@/components/admin/pages/AIOverview';
+import ClaraActivity from '@/components/admin/pages/ClaraActivity';
+import AISettings from '@/components/admin/pages/AISettings';
+import AIAnalytics from '@/components/admin/pages/AIAnalytics';
 
 const AdminDashboard: React.FC = () => {
   useScrollToTop();
@@ -77,7 +81,11 @@ const AdminDashboard: React.FC = () => {
         <Route path="video-analytics" element={<VideoAnalyticsPage />} />
         <Route path="revenue" element={<RevenueAnalyticsPage />} />
         <Route path="growth" element={<UserGrowthPage />} />
-        <Route path="ai-agent" element={<AIAgentPage />} />
+        <Route path="ai-overview" element={<AIOverview />} />
+        <Route path="clara-activity" element={<ClaraActivity />} />
+        <Route path="ai-settings" element={<AISettings />} />
+        <Route path="ai-analytics" element={<AIAnalytics />} />
+        <Route path="ai-agent" element={<Navigate to="/admin-dashboard/ai-settings" replace />} />
         <Route path="riven-marketing" element={<RivenMarketingAI />} />
         <Route path="email-management" element={<EmailManagement />} />
         <Route path="customers" element={<CustomersPage />} />
@@ -88,7 +96,7 @@ const AdminDashboard: React.FC = () => {
         <Route path="leads" element={<LeadsPage />} />
         <Route path="lead-intelligence" element={<LeadIntelligencePage />} />
         <Route path="conversations" element={<ConversationsPage />} />
-        <Route path="ai-metrics" element={<AIPerformancePage />} />
+        <Route path="ai-metrics" element={<Navigate to="/admin-dashboard/ai-analytics" replace />} />
         <Route path="contact-submissions" element={<ContactSubmissionsPage />} />
         <Route path="communication" element={<CommunicationPage />} />
         <Route path="whatsapp" element={<WhatsAppIntegrationPage />} />

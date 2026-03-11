@@ -48,7 +48,9 @@ import {
   User,
   Home,
   Clock,
-  LayoutGrid
+  LayoutGrid,
+  LayoutDashboard,
+  Settings2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -84,9 +86,11 @@ const useAdminMenuItems = () => {
     {
       title: t('admin.sidebarAI', 'AI'),
       items: [
-        { title: t('admin.claraAiAgent'), url: "/admin-dashboard/ai-agent", icon: Bot },
+        { title: 'AI Overview', url: "/admin-dashboard/ai-overview", icon: LayoutDashboard },
+        { title: 'Clara', url: "/admin-dashboard/clara-activity", icon: Bot },
         { title: t('admin.rivenMarketingAi'), url: "/admin-dashboard/riven-marketing", icon: Brain },
-        { title: t('admin.aiPerformance'), url: "/admin-dashboard/ai-metrics", icon: BarChart3 },
+        { title: 'AI Settings', url: "/admin-dashboard/ai-settings", icon: Settings2 },
+        { title: 'AI Analytics', url: "/admin-dashboard/ai-analytics", icon: BarChart3 },
       ]
     },
     {
