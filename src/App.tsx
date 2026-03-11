@@ -96,11 +96,11 @@ function AppWithTracking() {
       <ScrollToTop />
       <main id="main-content" className="min-h-screen bg-background text-foreground">
         <Routes>
-          {/* Public Landing Page */}
+          {/* Public Landing Page — redirect to tablet dashboard if running as tablet PWA */}
           <Route path="/" element={
-            <OptimizedSuspense skeletonType="card">
-              <Index />
-            </OptimizedSuspense>
+            window.matchMedia('(display-mode: fullscreen)').matches
+              ? <Navigate to="/tablet-dashboard" replace />
+              : <OptimizedSuspense skeletonType="card"><Index /></OptimizedSuspense>
           } />
                 
                 {/* Auth Page */}
