@@ -53,6 +53,11 @@ const TabletDashboard = () => {
   const firstName = user?.user_metadata?.first_name || t('dashboard.memberFallback');
 
   // Swap manifest to tablet-specific version so PWA installs with
+  // Mark this device as a tablet PWA so the app can redirect back here on launch
+  useEffect(() => {
+    localStorage.setItem('pwa_intent', 'tablet');
+  }, []);
+
   // start_url="/tablet-dashboard", display="fullscreen", orientation="any"
   // We remove-and-recreate the <link> to force the browser to re-evaluate
   // the manifest, which triggers a fresh beforeinstallprompt event.

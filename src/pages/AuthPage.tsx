@@ -121,7 +121,8 @@ const AuthPage = () => {
         const nextUrl = searchParams.get('next');
         const planParam = searchParams.get('plan');
 
-        let redirectTo = '/dashboard';
+        const isTabletPWA = localStorage.getItem('pwa_intent') === 'tablet';
+        let redirectTo = isTabletPWA ? '/tablet-dashboard' : '/dashboard';
         if (nextUrl) {
           redirectTo = nextUrl;
           if (planParam) {

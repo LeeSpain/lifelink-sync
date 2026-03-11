@@ -96,12 +96,16 @@ function AppWithTracking() {
       <ScrollToTop />
       <main id="main-content" className="min-h-screen bg-background text-foreground">
         <Routes>
-          {/* Public Landing Page — redirect to tablet dashboard if running as tablet PWA */}
-          <Route path="/" element={
-            window.matchMedia('(display-mode: fullscreen)').matches
+          {/* Public Landing Page — redirect to tablet dashboard if this device is configured as tablet PWA */}
+          <Route path="/" element={(() => {
+            const isTabletPWA = localStorage.getItem('pwa_intent') === 'tablet';
+            const isInstalledPWA = window.matchMedia('(display-mode: standalone)').matches
+              || window.matchMedia('(display-mode: fullscreen)').matches
+              || (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+            return isTabletPWA && isInstalledPWA
               ? <Navigate to="/tablet-dashboard" replace />
-              : <OptimizedSuspense skeletonType="card"><Index /></OptimizedSuspense>
-          } />
+              : <OptimizedSuspense skeletonType="card"><Index /></OptimizedSuspense>;
+          })()} />
                 
                 {/* Auth Page */}
                 <Route path="/auth" element={
