@@ -164,21 +164,34 @@ serve(async (req) => {
     }
 
     // 4. Insert all generated content into marketing_content
-    const contentRows = allPosts.map((post) => ({
-      campaign_id: campaign.id,
-      platform: post.platform,
-      content_type: post.content_type,
-      title: post.title,
-      body_text: post.body_text,
-      content_angle: post.content_angle,
-      hook_style: post.hook_style,
-      cta_type: post.cta_type,
-      week_number: post.week_number,
-      day_number: post.day_number,
-      scheduled_at: post.scheduled_at,
-      hashtags: post.hashtags,
-      status: "scheduled",
-    }));
+    const contentRows = allPosts.map((post) => {
+      const row: Record<string, unknown> = {
+        campaign_id: campaign.id,
+        platform: post.platform,
+        content_type: post.content_type,
+        title: post.title,
+        body_text: post.body_text,
+        content_angle: post.content_angle,
+        hook_style: post.hook_style,
+        cta_type: post.cta_type,
+        week_number: post.week_number,
+        day_number: post.day_number,
+        scheduled_at: post.scheduled_at,
+        hashtags: post.hashtags,
+        status: "scheduled",
+      };
+
+      // Add blog-specific SEO fields when platform is blog
+      if (post.platform === "blog") {
+        const plainText = (post.body_text || "").replace(/<[^>]*>/g, "");
+        row.excerpt = plainText.substring(0, 160).trim();
+        row.tags = post.hashtags?.slice(0, 5).map((h: string) => h.replace(/^#/, "")) || [];
+        row.seo_title = (post.title || "").substring(0, 60);
+        row.seo_description = plainText.substring(0, 155).trim();
+      }
+
+      return row;
+    });
 
     const { error: contentError } = await supabase
       .from("marketing_content")

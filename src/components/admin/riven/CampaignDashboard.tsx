@@ -2,10 +2,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Pause, Play, Zap, Calendar, List, BarChart3, Settings } from "lucide-react";
+import { Pause, Play, Zap, Calendar, List, BarChart3, BookOpen } from "lucide-react";
 import { ContentCalendar } from "./ContentCalendar";
 import { PostsList } from "./PostsList";
 import { CampaignAnalytics } from "./CampaignAnalytics";
+import { BlogManager } from "./BlogManager";
 import type { Campaign, CampaignContent } from "@/hooks/useRivenCampaign";
 
 interface CampaignDashboardProps {
@@ -118,6 +119,9 @@ export function CampaignDashboard({
           <TabsTrigger value="analytics" className="gap-1">
             <BarChart3 className="h-3 w-3" /> Analytics
           </TabsTrigger>
+          <TabsTrigger value="blog" className="gap-1">
+            <BookOpen className="h-3 w-3" /> Blog
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="calendar">
@@ -141,6 +145,10 @@ export function CampaignDashboard({
 
         <TabsContent value="analytics">
           <CampaignAnalytics content={content} campaign={campaign} />
+        </TabsContent>
+
+        <TabsContent value="blog">
+          <BlogManager />
         </TabsContent>
       </Tabs>
     </div>
