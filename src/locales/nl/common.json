@@ -1757,7 +1757,20 @@
     "loading": "Laden...",
     "quickLinksDev": "Snelle links (Dev)",
     "dashboards": "Dashboards",
-    "apps": "Apps"
+    "apps": "Apps",
+    "forgotPassword": "Wachtwoord vergeten?",
+    "resetPassword": "Wachtwoord resetten",
+    "resetPasswordDescription": "Voer je e-mailadres in en we sturen je een resetlink.",
+    "sendResetLink": "Resetlink versturen",
+    "sendingResetLink": "Verzenden...",
+    "resetLinkSent": "Resetlink verstuurd! Controleer je e-mail.",
+    "backToSignIn": "Terug naar inloggen",
+    "newPassword": "Nieuw wachtwoord",
+    "confirmPassword": "Wachtwoord bevestigen",
+    "passwordMismatch": "Wachtwoorden komen niet overeen.",
+    "updatePassword": "Wachtwoord bijwerken",
+    "updatingPassword": "Bijwerken...",
+    "passwordUpdated": "Wachtwoord succesvol bijgewerkt! Je wordt doorgestuurd..."
   },
   "family": {
     "appTitle": "LifeLink Familie",

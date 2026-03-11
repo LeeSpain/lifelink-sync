@@ -2149,7 +2149,20 @@
     "loading": "Loading...",
     "quickLinksDev": "Quick Links (Dev)",
     "dashboards": "Dashboards",
-    "apps": "Apps"
+    "apps": "Apps",
+    "forgotPassword": "Forgot your password?",
+    "resetPassword": "Reset Password",
+    "resetPasswordDescription": "Enter your email and we'll send you a reset link.",
+    "sendResetLink": "Send Reset Link",
+    "sendingResetLink": "Sending...",
+    "resetLinkSent": "Password reset link sent! Check your email.",
+    "backToSignIn": "Back to Sign In",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "passwordMismatch": "Passwords do not match.",
+    "updatePassword": "Update Password",
+    "updatingPassword": "Updating...",
+    "passwordUpdated": "Password updated successfully! Redirecting..."
   },
   "cta": {
     "title": "Start protecting your family today.",

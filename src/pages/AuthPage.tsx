@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Navigate, useSearchParams, Link, useNavigate } from 'react-router-dom';
@@ -13,6 +13,8 @@ import useRateLimit from '@/hooks/useRateLimit';
 import { PageSEO } from '@/components/PageSEO';
 import { logSecurityEvent } from '@/utils/security';
 
+type AuthView = 'signin' | 'forgot' | 'reset';
+
 const AuthPage = () => {
   const { t } = useTranslation();
   const { user, loading } = useAuth();
@@ -20,11 +22,31 @@ const AuthPage = () => {
   const [searchParams] = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [devBypassEnabled, setDevBypassEnabled] = useState(() => localStorage.getItem('dev_bypass') === '1');
   const [showDevPopup, setShowDevPopup] = useState(false);
+
+  // Determine initial view from URL params
+  const [view, setView] = useState<AuthView>(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'reset') return 'reset';
+    return 'signin';
+  });
+
+  // Listen for password recovery event from Supabase (email link click)
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setView('reset');
+        setError('');
+        setSuccess('');
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Rate limiting for auth attempts
   const {
@@ -32,12 +54,18 @@ const AuthPage = () => {
     recordAttempt,
     getRemainingTime,
     reset: resetRateLimit
-  } = useRateLimit('auth-attempts', { maxAttempts: 5, windowMs: 15 * 60 * 1000 }); // 5 attempts per 15 minutes
+  } = useRateLimit('auth-attempts', { maxAttempts: 5, windowMs: 15 * 60 * 1000 });
 
-  // Move all useCallback hooks here BEFORE any early returns
+  const switchView = useCallback((newView: AuthView) => {
+    setView(newView);
+    setError('');
+    setSuccess('');
+  }, []);
+
+  // Sign in handler
   const handleSignIn = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (isRateLimited()) {
       setError(t('auth.tooManyAttempts', { seconds: getRemainingTime() }));
       return;
@@ -66,8 +94,6 @@ const AuthPage = () => {
 
       if (error) {
         recordAttempt();
-
-        // Log failed sign in attempt
         setTimeout(() => {
           logSecurityEvent('signin_failure', {
             email: emailTrimmed,
@@ -82,7 +108,6 @@ const AuthPage = () => {
 
       if (data.user) {
         resetRateLimit();
-        // Log successful sign in
         setTimeout(() => {
           logSecurityEvent('signin_success', {
             user_id: data.user.id,
@@ -93,7 +118,6 @@ const AuthPage = () => {
           });
         }, 0);
 
-        // Check for 'next' parameter to redirect after login
         const nextUrl = searchParams.get('next');
         const planParam = searchParams.get('plan');
 
@@ -115,9 +139,70 @@ const AuthPage = () => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [email, password, isRateLimited, getRemainingTime, recordAttempt, resetRateLimit]);
+  }, [email, password, isRateLimited, getRemainingTime, recordAttempt, resetRateLimit, searchParams, navigate, t]);
 
-  // NOW do conditional returns AFTER all hooks
+  // Forgot password handler
+  const handleForgotPassword = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const emailTrimmed = email.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailTrimmed)) {
+      setError(t('auth.invalidEmail'));
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(emailTrimmed, {
+        redirectTo: `${window.location.origin}/auth?tab=reset`,
+      });
+      if (error) throw error;
+      setSuccess(t('auth.resetLinkSent'));
+    } catch (error: any) {
+      console.error('Password reset error:', error);
+      setError(error.message || t('auth.signInFailed'));
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [email, t]);
+
+  // Reset password handler (new password)
+  const handleResetPassword = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (password.length < 8) {
+      setError(t('auth.passwordTooShort'));
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError(t('auth.passwordMismatch'));
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const { error } = await supabase.auth.updateUser({ password });
+      if (error) throw error;
+      setSuccess(t('auth.passwordUpdated'));
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 1500);
+    } catch (error: any) {
+      console.error('Password update error:', error);
+      setError(error.message || t('auth.signInFailed'));
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [password, confirmPassword, navigate, t]);
+
+  // Loading state
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
@@ -129,26 +214,211 @@ const AuthPage = () => {
     );
   }
 
-  // Redirect logged-in users to dashboard (but NOT dev mock users)
-  if (user && user.id !== 'dev-test-user-00000000') {
+  // Redirect logged-in users to dashboard (but NOT dev mock users, and NOT during password reset)
+  if (user && user.id !== 'dev-test-user-00000000' && view !== 'reset') {
     return <Navigate to="/dashboard" replace />;
   }
 
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    "name": "Sign In to LifeLink Sync – Emergency Protection Access",
-    "description": "Access your LifeLink Sync emergency protection dashboard. Sign in to manage your safety profile and emergency contacts.",
-    "provider": {
-      "@type": "Organization",
-      "name": "LifeLink Sync",
-      "url": "https://lifelink-sync.com"
-    },
-    "mainEntity": {
-      "@type": "WebApplication",
-      "name": "LifeLink Sync Dashboard",
-      "applicationCategory": "HealthApplication",
-      "operatingSystem": "Web Browser"
+  // Render the card header based on view
+  const renderHeader = () => {
+    switch (view) {
+      case 'forgot':
+        return (
+          <>
+            <CardTitle className="text-xl sm:text-2xl font-bold">{t('auth.resetPassword')}</CardTitle>
+            <CardDescription>{t('auth.resetPasswordDescription')}</CardDescription>
+          </>
+        );
+      case 'reset':
+        return (
+          <>
+            <CardTitle className="text-xl sm:text-2xl font-bold">{t('auth.resetPassword')}</CardTitle>
+            <CardDescription>{t('auth.resetPasswordDescription')}</CardDescription>
+          </>
+        );
+      default:
+        return (
+          <>
+            <CardTitle className="text-xl sm:text-2xl font-bold">{t('auth.welcome')}</CardTitle>
+            <CardDescription>{t('auth.signInToAccount')}</CardDescription>
+          </>
+        );
+    }
+  };
+
+  // Render the form based on view
+  const renderForm = () => {
+    switch (view) {
+      case 'forgot':
+        return (
+          <>
+            <form onSubmit={handleForgotPassword} className="space-y-3 sm:space-y-4">
+              <div className="space-y-2">
+                <Input
+                  type="email"
+                  placeholder={t('auth.emailPlaceholder')}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              {error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+
+              {success && (
+                <Alert>
+                  <AlertDescription>{success}</AlertDescription>
+                </Alert>
+              )}
+
+              <Button
+                type="submit"
+                className="w-full min-h-[44px]"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? t('auth.sendingResetLink') : t('auth.sendResetLink')}
+              </Button>
+            </form>
+
+            <div className="mt-6 text-center">
+              <Button
+                variant="link"
+                className="p-0 h-auto font-medium"
+                onClick={() => switchView('signin')}
+              >
+                {t('auth.backToSignIn')}
+              </Button>
+            </div>
+          </>
+        );
+
+      case 'reset':
+        return (
+          <>
+            <form onSubmit={handleResetPassword} className="space-y-3 sm:space-y-4">
+              <div className="space-y-2">
+                <Input
+                  type="password"
+                  placeholder={t('auth.newPassword')}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={isSubmitting}
+                />
+              </div>
+              <div className="space-y-2">
+                <Input
+                  type="password"
+                  placeholder={t('auth.confirmPassword')}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              {error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+
+              {success && (
+                <Alert>
+                  <AlertDescription>{success}</AlertDescription>
+                </Alert>
+              )}
+
+              <Button
+                type="submit"
+                className="w-full min-h-[44px]"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? t('auth.updatingPassword') : t('auth.updatePassword')}
+              </Button>
+            </form>
+          </>
+        );
+
+      default:
+        return (
+          <>
+            <form onSubmit={handleSignIn} className="space-y-3 sm:space-y-4">
+              <div className="space-y-2">
+                <Input
+                  type="email"
+                  placeholder={t('auth.emailPlaceholder')}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  disabled={isSubmitting}
+                />
+              </div>
+              <div className="space-y-2">
+                <Input
+                  type="password"
+                  placeholder={t('auth.passwordPlaceholder')}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              <div className="text-right">
+                <Button
+                  type="button"
+                  variant="link"
+                  className="p-0 h-auto text-sm font-medium"
+                  onClick={() => switchView('forgot')}
+                >
+                  {t('auth.forgotPassword')}
+                </Button>
+              </div>
+
+              {error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+
+              {success && (
+                <Alert>
+                  <AlertDescription>{success}</AlertDescription>
+                </Alert>
+              )}
+
+              <Button
+                type="submit"
+                className="w-full min-h-[44px]"
+                disabled={isSubmitting || isRateLimited()}
+              >
+                {isSubmitting ? t('auth.signingIn') : t('auth.signIn')}
+              </Button>
+
+              {isRateLimited() && (
+                <p className="text-sm text-muted-foreground text-center">
+                  {t('auth.tooManyAttemptsShort', { seconds: getRemainingTime() })}
+                </p>
+              )}
+            </form>
+
+            {/* Link to registration */}
+            <div className="mt-6 text-center">
+              <p className="text-sm text-muted-foreground">
+                {t('auth.noAccount')}{" "}
+                <Button asChild variant="link" className="p-0 h-auto font-medium">
+                  <Link to="/register">{t('auth.registerHere')}</Link>
+                </Button>
+              </p>
+            </div>
+          </>
+        );
     }
   };
 
@@ -182,69 +452,10 @@ const AuthPage = () => {
                 <Link to="/">&larr; {t('auth.backToHomepage')}</Link>
               </Button>
             </div>
-            <CardTitle className="text-xl sm:text-2xl font-bold">{t('auth.welcome')}</CardTitle>
-            <CardDescription>{t('auth.signInToAccount')}</CardDescription>
+            {renderHeader()}
           </CardHeader>
           <CardContent className="px-4 sm:px-6">
-            <form onSubmit={handleSignIn} className="space-y-3 sm:space-y-4">
-              <div className="space-y-2">
-                <Input
-                  type="email"
-                  placeholder={t('auth.emailPlaceholder')}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  disabled={isSubmitting}
-                />
-              </div>
-              <div className="space-y-2">
-                <Input
-                  type="password"
-                  placeholder={t('auth.passwordPlaceholder')}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  disabled={isSubmitting}
-                />
-              </div>
-              
-              {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
-              
-              {success && (
-                <Alert>
-                  <AlertDescription>{success}</AlertDescription>
-                </Alert>
-              )}
-              
-              <Button
-                type="submit"
-                className="w-full min-h-[44px]"
-                disabled={isSubmitting || isRateLimited()}
-              >
-                {isSubmitting ? t('auth.signingIn') : t('auth.signIn')}
-              </Button>
-              
-              {isRateLimited() && (
-                <p className="text-sm text-muted-foreground text-center">
-                  {t('auth.tooManyAttemptsShort', { seconds: getRemainingTime() })}
-                </p>
-              )}
-            </form>
-            
-            {/* Link to registration */}
-            <div className="mt-6 text-center">
-              <p className="text-sm text-muted-foreground">
-                {t('auth.noAccount')}{" "}
-                <Button asChild variant="link" className="p-0 h-auto font-medium">
-                  <Link to="/register">{t('auth.registerHere')}</Link>
-                </Button>
-              </p>
-            </div>
-
+            {renderForm()}
           </CardContent>
         </Card>
       </div>
