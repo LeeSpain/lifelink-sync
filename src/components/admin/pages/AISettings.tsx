@@ -10,6 +10,7 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 import AIAgentPage from '@/components/admin/pages/AIAgentPage';
+import RivenAgentPage from '@/components/admin/pages/RivenAgentPage';
 
 type SelectedAgent = 'none' | 'clara' | 'riven';
 
@@ -69,7 +70,7 @@ const AISettings = () => {
 
   if (selected === 'riven') {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         <Button
           variant="ghost"
           size="sm"
@@ -79,98 +80,7 @@ const AISettings = () => {
           <ArrowLeft className="h-4 w-4" />
           Back to AI Agents
         </Button>
-
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Brain className="h-6 w-6 text-purple-500" />
-            Riven Settings
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Configure the Riven AI marketing engine
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm">Model Configuration</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Model</span>
-                <Badge variant="outline">claude-sonnet-4-20250514</Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Max Tokens</span>
-                <span className="text-sm font-medium">4,096</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Provider</span>
-                <span className="text-sm font-medium">Anthropic</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">API Key</span>
-                <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">Configured</Badge>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm">Content Settings</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Platforms</span>
-                <span className="text-sm font-medium">7 supported</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Default Word Count</span>
-                <span className="text-sm font-medium">500</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">SEO Optimization</span>
-                <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">Enabled</Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Timeout</span>
-                <span className="text-sm font-medium">50s</span>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm">Publishing Channels</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {['Twitter', 'LinkedIn', 'Facebook', 'Instagram', 'TikTok', 'Blog', 'Email'].map((p) => (
-                <div key={p} className="flex items-center justify-between">
-                  <span className="text-sm">{p}</span>
-                  <Badge variant="outline" className="text-[10px]">
-                    {['Blog', 'Email'].includes(p) ? 'Internal' : 'API'}
-                  </Badge>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm">Content Angles</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <p className="text-xs text-muted-foreground mb-2">
-                Riven rotates through these angles to prevent repetition:
-              </p>
-              <div className="flex flex-wrap gap-1.5">
-                {['Story', 'Statistic', 'Question', 'Testimonial', 'Educational', 'Urgent', 'Behind the Scenes', 'Myth Busting'].map((a) => (
-                  <Badge key={a} variant="secondary" className="text-[10px]">{a}</Badge>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <RivenAgentPage />
       </div>
     );
   }
