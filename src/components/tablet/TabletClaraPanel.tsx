@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bot, Send, ChevronRight, ChevronLeft, Volume2, VolumeX, Mic, MicOff, Loader2 } from 'lucide-react';
+import { Bot, Send, X, Volume2, VolumeX, Mic, MicOff, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import type { ChatMessage } from '@/hooks/useTabletVoice';
@@ -48,32 +48,37 @@ export function TabletClaraPanel({
     setInputText('');
   };
 
-  // Collapsed slim bar
-  if (!expanded) {
-    return (
-      <button
-        onClick={onToggleExpand}
-        className="fixed right-0 top-0 bottom-0 w-12 z-40 bg-slate-900/95 border-l border-slate-700 flex flex-col items-center justify-center gap-3 hover:bg-slate-800/95 transition-colors"
-      >
-        <ChevronLeft className="h-4 w-4 text-slate-400" />
-        <div className="relative">
-          <Bot className={`h-6 w-6 ${isSpeaking ? 'text-blue-400' : isListening ? 'text-emerald-400' : 'text-slate-400'}`} />
-          <span className={`absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full ${
-            isSpeaking ? 'bg-blue-400 animate-pulse' : isListening ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'
-          }`} />
-        </div>
-        <span className="text-[10px] text-slate-500 writing-mode-vertical" style={{ writingMode: 'vertical-rl' }}>
-          CLARA
-        </span>
-      </button>
-    );
-  }
-
   // Last 5 messages for display (all scroll, but keep it manageable)
   const visibleMessages = messages.slice(-20);
 
   return (
-    <div className="fixed right-0 top-0 bottom-0 w-80 z-40 bg-slate-900/95 backdrop-blur-sm border-l border-slate-700 flex flex-col">
+    <>
+      {/* Floating corner button — always visible */}
+      <button
+        onClick={onToggleExpand}
+        className={`fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full shadow-xl flex items-center justify-center transition-all duration-200 ${
+          expanded
+            ? 'bg-slate-700 hover:bg-slate-600'
+            : isSpeaking
+            ? 'bg-blue-500 hover:bg-blue-600 shadow-blue-500/40'
+            : isListening
+            ? 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/40'
+            : 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/30'
+        }`}
+      >
+        <div className="relative">
+          <Bot className="h-7 w-7 text-white" />
+          {(isSpeaking || isListening) && !expanded && (
+            <span className={`absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-white ${
+              isSpeaking ? 'bg-blue-300 animate-pulse' : 'bg-emerald-300 animate-pulse'
+            }`} />
+          )}
+        </div>
+      </button>
+
+      {/* Chat panel — floats above content, does not push layout */}
+      {expanded && (
+        <div className="fixed bottom-24 right-6 z-40 w-80 h-[520px] bg-slate-900/98 backdrop-blur-sm border border-slate-700 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700">
         <div className="flex items-center gap-3">
@@ -116,12 +121,12 @@ export function TabletClaraPanel({
             {isMuted ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}
           </button>
 
-          {/* Collapse */}
+          {/* Close */}
           <button
             onClick={onToggleExpand}
             className="p-1.5 rounded-full text-slate-500 hover:bg-slate-700 transition-colors"
           >
-            <ChevronRight className="h-3.5 w-3.5" />
+            <X className="h-3.5 w-3.5" />
           </button>
         </div>
       </div>
@@ -188,6 +193,8 @@ export function TabletClaraPanel({
           </Button>
         </div>
       </form>
-    </div>
+        </div>
+      )}
+    </>
   );
 }

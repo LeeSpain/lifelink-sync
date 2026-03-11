@@ -413,10 +413,8 @@ const TabletDashboard = () => {
         hasPermission={clara.hasPermission}
       />
 
-      {/* LEFT/CENTER: Main dashboard content */}
-      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${
-        claraPanelExpanded ? 'mr-80' : 'mr-12'
-      }`}>
+      {/* Main dashboard content — full width */}
+      <div className="flex-1 flex flex-col overflow-hidden">
         {/* Vitals Strip */}
         <TabletVitalsStrip />
 
@@ -471,7 +469,7 @@ const TabletDashboard = () => {
             <Button
               size="lg"
               variant="outline"
-              className="min-h-[80px] text-xl font-bold rounded-2xl border-slate-600 text-slate-200 hover:bg-slate-800"
+              className="min-h-[80px] text-xl font-bold rounded-2xl border-slate-600 bg-slate-800/60 text-slate-200 hover:bg-slate-700"
               onClick={() => setShowContacts(true)}
             >
               <Phone className="h-7 w-7 mr-3" />
