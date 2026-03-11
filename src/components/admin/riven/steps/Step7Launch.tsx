@@ -43,9 +43,11 @@ export function Step7Launch({
           </div>
         </div>
         <div>
-          <h2 className="text-xl font-bold">Campaign Launched!</h2>
+          <h2 className="text-xl font-bold">
+            {duration === 1 ? "Post Created!" : "Campaign Launched!"}
+          </h2>
           <p className="text-muted-foreground mt-1">
-            {totalPosts} posts generated across {enabledPlatforms.length} platforms
+            {totalPosts} {totalPosts === 1 ? "post" : "posts"} generated across {enabledPlatforms.length} {enabledPlatforms.length === 1 ? "platform" : "platforms"}
           </p>
         </div>
         <RivenSpeech text="Your campaign is live! Head to the dashboard to monitor progress and manage your content calendar." />
@@ -58,9 +60,11 @@ export function Step7Launch({
       <div className="space-y-6 text-center py-8">
         <Loader2 className="h-10 w-10 animate-spin mx-auto text-primary" />
         <div>
-          <h2 className="text-lg font-bold">Riven is generating your content...</h2>
+          <h2 className="text-lg font-bold">
+            {duration === 1 ? "Riven is writing your post..." : "Riven is generating your content..."}
+          </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Creating {totalPosts} unique posts
+            Creating {totalPosts} unique {totalPosts === 1 ? "post" : "posts"}
           </p>
         </div>
         <div className="max-w-md mx-auto">
@@ -101,7 +105,9 @@ export function Step7Launch({
             </div>
             <div>
               <Label className="text-xs text-muted-foreground">Duration</Label>
-              <p className="text-sm font-medium mt-2">{duration} days</p>
+              <p className="text-sm font-medium mt-2">
+                {duration === 1 ? "Single Post" : `${duration} days`}
+              </p>
             </div>
           </div>
 
@@ -115,8 +121,17 @@ export function Step7Launch({
               <p className="text-xs text-muted-foreground">Platforms</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold">{duration}</p>
-              <p className="text-xs text-muted-foreground">Days</p>
+              {duration === 1 ? (
+                <>
+                  <p className="text-2xl font-bold">1</p>
+                  <p className="text-xs text-muted-foreground">Post</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-2xl font-bold">{duration}</p>
+                  <p className="text-xs text-muted-foreground">Days</p>
+                </>
+              )}
             </div>
           </div>
 
