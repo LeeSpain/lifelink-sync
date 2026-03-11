@@ -48,6 +48,15 @@ export function TabletSetupWizard({ onComplete }: TabletSetupWizardProps) {
   // Skip Step 1 if name already known from account
   const [step, setStep] = useState(existingFirst ? 2 : 1);
 
+  // Auth loads async — advance past name step once user is available
+  useEffect(() => {
+    const first = user?.user_metadata?.first_name || '';
+    if (first && step === 1) {
+      setResidentName(`${first} ${user?.user_metadata?.last_name || ''}`.trim());
+      setStep(2);
+    }
+  }, [user]);
+
   // Step 3: Permissions results
   const [micResult, setMicResult] = useState<'granted' | 'skipped' | null>(null);
   const [notifResult, setNotifResult] = useState<'granted' | 'skipped' | null>(null);
