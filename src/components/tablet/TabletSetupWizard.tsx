@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { usePWAFeatures } from '@/hooks/usePWAFeatures';
+import { useBluetoothPendant } from '@/hooks/useBluetoothPendant';
 import { initAudio } from '@/utils/tabletSounds';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import {
   ShieldCheck,
   User,
-  Phone,
+  Bluetooth,
   Mic,
   Bell,
   Download,
@@ -18,18 +19,14 @@ import {
   ChevronRight,
   ChevronLeft,
   Loader2,
-  Plus,
-  Trash2,
+  HeartPulse,
+  Battery,
+  Speaker,
+  Wifi,
 } from 'lucide-react';
 
 interface TabletSetupWizardProps {
   onComplete: (micResult: 'granted' | 'skipped', notifResult: 'granted' | 'skipped') => void;
-}
-
-interface ContactEntry {
-  name: string;
-  phone: string;
-  relationship: string;
 }
 
 const TOTAL_STEPS = 5;
@@ -38,6 +35,7 @@ export function TabletSetupWizard({ onComplete }: TabletSetupWizardProps) {
   const { user } = useAuth();
   const { t } = useTranslation();
   const { isInstalled, isInstallable, installApp } = usePWAFeatures();
+  const ble = useBluetoothPendant();
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
   const [saving, setSaving] = useState(false);
@@ -49,26 +47,6 @@ export function TabletSetupWizard({ onComplete }: TabletSetupWizardProps) {
 
   // Skip Step 1 if name already known from account
   const [step, setStep] = useState(existingFirst ? 2 : 1);
-
-  // Step 2: Emergency contacts — pre-loaded from DB below
-  const [contacts, setContacts] = useState<ContactEntry[]>([
-    { name: '', phone: '', relationship: '' },
-  ]);
-
-  // Pre-load existing emergency contacts from Supabase
-  useEffect(() => {
-    if (!user) return;
-    supabase
-      .from('emergency_contacts')
-      .select('name, phone, relationship')
-      .eq('user_id', user.id)
-      .order('priority', { ascending: true })
-      .then(({ data }) => {
-        if (data && data.length > 0) {
-          setContacts(data.map((c) => ({ name: c.name, phone: c.phone, relationship: c.relationship || '' })));
-        }
-      });
-  }, [user]);
 
   // Step 3: Permissions results
   const [micResult, setMicResult] = useState<'granted' | 'skipped' | null>(null);
@@ -91,27 +69,6 @@ export function TabletSetupWizard({ onComplete }: TabletSetupWizardProps) {
     });
     setSaving(false);
     setStep(2);
-  };
-
-  const handleSaveContacts = async () => {
-    if (!user) return;
-    setSaving(true);
-    const valid = contacts.filter((c) => c.name.trim() && c.phone.trim());
-    if (valid.length > 0) {
-      // Remove existing contacts first to avoid duplicates
-      await supabase.from('emergency_contacts').delete().eq('user_id', user.id);
-      for (let i = 0; i < valid.length; i++) {
-        await supabase.from('emergency_contacts').insert({
-          user_id: user.id,
-          name: valid[i].name.trim(),
-          phone: valid[i].phone.trim(),
-          relationship: valid[i].relationship.trim() || 'Family',
-          priority: i + 1,
-        });
-      }
-    }
-    setSaving(false);
-    setStep(3);
   };
 
   const handlePermissions = async () => {
@@ -161,23 +118,9 @@ export function TabletSetupWizard({ onComplete }: TabletSetupWizardProps) {
     onComplete(micResult || 'skipped', notifResult || 'skipped');
   };
 
-  const addContact = () => {
-    if (contacts.length < 5) {
-      setContacts([...contacts, { name: '', phone: '', relationship: '' }]);
-    }
-  };
-
-  const removeContact = (index: number) => {
-    setContacts(contacts.filter((_, i) => i !== index));
-  };
-
-  const updateContact = (index: number, field: keyof ContactEntry, value: string) => {
-    setContacts(contacts.map((c, i) => (i === index ? { ...c, [field]: value } : c)));
-  };
-
   // --- Step content ---
 
-  const stepIcons = [User, Phone, ShieldCheck, Tablet, CheckCircle];
+  const stepIcons = [User, Bluetooth, ShieldCheck, Tablet, CheckCircle];
 
   return (
     <div className="fixed inset-0 z-[200] bg-slate-950 flex items-center justify-center p-6">
@@ -242,66 +185,96 @@ export function TabletSetupWizard({ onComplete }: TabletSetupWizardProps) {
           </div>
         )}
 
-        {/* Step 2: Emergency contacts */}
+        {/* Step 2: Connect devices */}
         {step === 2 && (
           <div>
             <div className="text-center mb-6">
-              <div className="w-20 h-20 rounded-3xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center mx-auto mb-6">
-                <Phone className="h-10 w-10 text-emerald-400" />
+              <div className="w-20 h-20 rounded-3xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center mx-auto mb-6">
+                <Bluetooth className="h-10 w-10 text-blue-400" />
               </div>
               <h2 className="text-3xl font-bold text-white mb-3">
-                {t('tablet.setup.contactsTitle', 'Emergency Contacts')}
+                {t('tablet.setup.devicesTitle', 'Connect Your Devices')}
               </h2>
               <p className="text-slate-400 text-base leading-relaxed">
-                {t('tablet.setup.contactsDesc', 'Add the people who should be notified in an emergency.')}
+                {t('tablet.setup.devicesDesc', 'Pair your ICE SOS Pendant and link smart speakers for voice alerts.')}
               </p>
             </div>
 
-            <div className="space-y-4 mb-6 max-h-[40vh] overflow-y-auto pr-1">
-              {contacts.map((contact, index) => (
-                <div key={index} className="bg-slate-800/60 border border-slate-700 rounded-xl p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-slate-400">
-                      {t('tablet.setup.contact', 'Contact')} {index + 1}
-                    </span>
-                    {contacts.length > 1 && (
-                      <button onClick={() => removeContact(index)} className="text-red-400 hover:text-red-300 p-1">
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+            <div className="space-y-4 mb-6">
+              {/* BLE Pendant */}
+              <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-5">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                    <Bluetooth className="h-5 w-5 text-blue-400" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-white font-medium">{t('tablet.setup.pendantTitle', 'ICE SOS Pendant')}</p>
+                    <p className="text-slate-400 text-sm">
+                      {ble.connected
+                        ? t('tablet.setup.pendantConnected', 'Connected — {{name}}', { name: ble.deviceName })
+                        : t('tablet.setup.pendantDesc', 'Pair via Bluetooth for heart rate & emergency button')}
+                    </p>
+                  </div>
+                  {ble.connected && <CheckCircle className="h-5 w-5 text-emerald-400 flex-shrink-0" />}
+                </div>
+
+                {ble.connected ? (
+                  <div className="flex items-center gap-6 py-2 px-3 bg-slate-900/60 rounded-lg">
+                    {ble.heartRate && (
+                      <div className="flex items-center gap-2 text-sm text-rose-400">
+                        <HeartPulse className="h-4 w-4" />
+                        <span className="font-medium">{ble.heartRate} bpm</span>
+                      </div>
+                    )}
+                    {ble.batteryPct != null && (
+                      <div className="flex items-center gap-2 text-sm text-amber-400">
+                        <Battery className="h-4 w-4" />
+                        <span className="font-medium">{ble.batteryPct}%</span>
+                      </div>
                     )}
                   </div>
-                  <Input
-                    value={contact.name}
-                    onChange={(e) => updateContact(index, 'name', e.target.value)}
-                    placeholder={t('tablet.setup.contactName', 'Name')}
-                    className="bg-slate-900 border-slate-600 text-white placeholder-slate-500 h-11"
-                  />
-                  <Input
-                    value={contact.phone}
-                    onChange={(e) => updateContact(index, 'phone', e.target.value)}
-                    placeholder={t('tablet.setup.contactPhone', 'Phone number')}
-                    type="tel"
-                    className="bg-slate-900 border-slate-600 text-white placeholder-slate-500 h-11"
-                  />
-                  <Input
-                    value={contact.relationship}
-                    onChange={(e) => updateContact(index, 'relationship', e.target.value)}
-                    placeholder={t('tablet.setup.contactRelation', 'Relationship (e.g. Daughter, Son, Carer)')}
-                    className="bg-slate-900 border-slate-600 text-white placeholder-slate-500 h-11"
-                  />
-                </div>
-              ))}
-            </div>
+                ) : (
+                  <Button
+                    size="sm"
+                    onClick={ble.connect}
+                    disabled={ble.connecting || !ble.supported}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white mt-1"
+                  >
+                    {ble.connecting ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : (
+                      <Bluetooth className="h-4 w-4 mr-2" />
+                    )}
+                    {ble.connecting
+                      ? t('tablet.setup.connecting', 'Connecting...')
+                      : !ble.supported
+                        ? t('tablet.setup.bluetoothUnsupported', 'Bluetooth not available on this browser')
+                        : t('tablet.setup.connectPendant', 'Connect Pendant')}
+                  </Button>
+                )}
+              </div>
 
-            {contacts.length < 5 && (
-              <button
-                onClick={addContact}
-                className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 mb-6"
-              >
-                <Plus className="h-4 w-4" />
-                {t('tablet.setup.addContact', 'Add another contact')}
-              </button>
-            )}
+              {/* Smart Speakers */}
+              <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-5">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                    <Speaker className="h-5 w-5 text-purple-400" />
+                  </div>
+                  <div>
+                    <p className="text-white font-medium">{t('tablet.setup.speakersTitle', 'Smart Speakers')}</p>
+                    <p className="text-slate-400 text-sm">
+                      {t('tablet.setup.speakersDesc', 'Link Alexa or Google Home for voice alerts (optional)')}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <div className="flex-1 flex items-center justify-center gap-2 h-10 rounded-lg bg-slate-900/60 border border-slate-700 text-sm text-slate-400">
+                    <Wifi className="h-4 w-4" />
+                    {t('tablet.setup.speakerSetupLater', 'Set up from Settings after install')}
+                  </div>
+                </div>
+              </div>
+            </div>
 
             <div className="flex gap-3">
               <Button
@@ -314,14 +287,12 @@ export function TabletSetupWizard({ onComplete }: TabletSetupWizardProps) {
               </Button>
               <Button
                 size="lg"
-                onClick={handleSaveContacts}
-                disabled={saving}
+                onClick={() => setStep(3)}
                 className="flex-1 min-h-[56px] text-lg font-bold bg-primary hover:bg-primary/90"
               >
-                {saving ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
-                {contacts[0]?.name?.trim()
-                  ? t('tablet.setup.saveContacts', 'Save & Continue')
-                  : t('tablet.setup.skipContacts', 'Skip for Now')}
+                {ble.connected
+                  ? t('tablet.setup.continue', 'Continue')
+                  : t('tablet.setup.skipDevices', 'Skip for Now')}
                 <ChevronRight className="h-5 w-5 ml-2" />
               </Button>
             </div>
@@ -509,13 +480,13 @@ export function TabletSetupWizard({ onComplete }: TabletSetupWizardProps) {
                 <CheckCircle className="h-4 w-4 text-emerald-400 ml-auto" />
               </div>
               <div className="flex items-center gap-3 bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3">
-                <Phone className="h-5 w-5 text-emerald-400 flex-shrink-0" />
+                <Bluetooth className="h-5 w-5 text-blue-400 flex-shrink-0" />
                 <span className="text-white">
-                  {contacts.filter((c) => c.name.trim()).length > 0
-                    ? t('tablet.setup.contactsSaved', '{{count}} contact(s) saved', { count: contacts.filter((c) => c.name.trim()).length })
-                    : t('tablet.setup.noContactsYet', 'No contacts added yet')}
+                  {ble.connected
+                    ? t('tablet.setup.pendantConnectedShort', 'Pendant connected — {{name}}', { name: ble.deviceName })
+                    : t('tablet.setup.pendantNotConnected', 'Pendant not connected')}
                 </span>
-                {contacts.filter((c) => c.name.trim()).length > 0 ? (
+                {ble.connected ? (
                   <CheckCircle className="h-4 w-4 text-emerald-400 ml-auto" />
                 ) : (
                   <span className="text-xs text-amber-400 ml-auto">{t('tablet.setup.optional', 'Optional')}</span>
