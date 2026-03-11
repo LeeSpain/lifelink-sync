@@ -152,11 +152,11 @@ const useAdminMenuItems = () => {
     {
       title: t('admin.sidebarSystem', 'System'),
       items: [
+        { title: 'Dashboards & Apps', url: "/admin-dashboard/dashboards-apps", icon: LayoutGrid },
         { title: t('admin.userActivity'), url: "/admin-dashboard/activity", icon: Activity },
         { title: t('admin.systemSettings'), url: "/admin-dashboard/settings", icon: Settings },
         { title: t('admin.reports'), url: "/admin-dashboard/reports", icon: FileText },
         { title: t('admin.appTesting'), url: "/admin-dashboard/app-testing", icon: Smartphone },
-        { title: 'Dashboards & Apps', url: "/admin-dashboard/dashboards-apps", icon: LayoutGrid },
       ]
     }
   ];
@@ -217,7 +217,7 @@ function AdminSidebar() {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(() => {
     // Auto-expand the section that contains the current active route
     const activeSection = adminMenuItems.find(group =>
-      group.items.some(item => item.url === currentPath)
+      group.items.some(item => currentPath === item.url || currentPath.startsWith(item.url + '/'))
     );
     return new Set(activeSection ? [activeSection.title] : []);
   });
