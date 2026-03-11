@@ -272,7 +272,7 @@ const TabletDashboard = () => {
   return (
     <div className={`h-screen flex text-white overflow-hidden select-none transition-colors duration-1000 ${
       sosTriggered ? 'bg-red-950' : familyOnline > 0 ? 'bg-[#0a1210]' : reminders.length > 0 ? 'bg-[#12100a]' : 'bg-slate-950'
-    }`}>
+    }`} style={{ paddingTop: 'env(safe-area-inset-top)' }}>
       {/* Permissions Overlay — shown before anything on first visit */}
       {showPermissions && (
         <TabletPermissionsOverlay onComplete={handlePermissionsComplete} />

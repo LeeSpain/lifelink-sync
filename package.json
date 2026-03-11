@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node -e \"const fs=require('fs');const h=fs.readFileSync('dist/index.html','utf8').replaceAll('/manifest.webmanifest','/tablet-manifest.json').replace('<meta name=\\\"theme-color\\\" content=\\\"#ef4444\\\">','<meta name=\\\"theme-color\\\" content=\\\"#020617\\\">');fs.writeFileSync('dist/tablet.html',h);\"",
+    "build": "vite build && node -e \"const fs=require('fs');let h=fs.readFileSync('dist/index.html','utf8');h=h.replaceAll('/manifest.webmanifest','/tablet-manifest.json');h=h.replace('<meta name=\\\"theme-color\\\" content=\\\"#ef4444\\\">','<meta name=\\\"theme-color\\\" content=\\\"#020617\\\">');h=h.replace('content=\\\"black-translucent\\\"','content=\\\"black\\\"');fs.writeFileSync('dist/tablet.html',h);\"",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview"
