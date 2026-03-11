@@ -47,7 +47,8 @@ import {
   LogOut,
   User,
   Home,
-  Clock
+  Clock,
+  LayoutGrid
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -155,10 +156,53 @@ const useAdminMenuItems = () => {
         { title: t('admin.systemSettings'), url: "/admin-dashboard/settings", icon: Settings },
         { title: t('admin.reports'), url: "/admin-dashboard/reports", icon: FileText },
         { title: t('admin.appTesting'), url: "/admin-dashboard/app-testing", icon: Smartphone },
+        { title: 'Dashboards & Apps', url: "/admin-dashboard/dashboards-apps", icon: LayoutGrid },
       ]
     }
   ];
 };
+
+function ProfileDropdown() {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const initials = user?.email ? user.email.substring(0, 2).toUpperCase() : 'AD';
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+          <Avatar className="h-9 w-9">
+            <AvatarImage src={user?.user_metadata?.avatar_url} />
+            <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuLabel className="font-normal">
+          <p className="text-sm font-medium truncate">{user?.email}</p>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => navigate('/admin-dashboard/profile')}>
+          <User className="mr-2 h-4 w-4" />
+          My Profile
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onClick={async () => {
+            await signOut();
+            navigate('/');
+          }}
+          className="text-red-600 focus:text-red-600"
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          Sign Out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 function AdminSidebar() {
   const { state } = useSidebar();
@@ -279,6 +323,27 @@ function AdminSidebar() {
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
+                <NavLink
+                  to="/admin-dashboard/profile"
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
+                      isActive
+                        ? 'bg-sidebar-primary text-sidebar-primary shadow-lg'
+                        : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                    }`
+                  }
+                >
+                  <div className="p-1.5 rounded-md bg-sidebar-accent/50">
+                    <User className="h-4 w-4" />
+                  </div>
+                  {state !== "collapsed" && (
+                    <span className="font-medium text-sm">My Profile</span>
+                  )}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
                 <button
                   onClick={async () => {
                     await signOut();
@@ -359,6 +424,7 @@ export default function AdminLayout() {
               <BlogNotificationBadge />
               <AdminNotificationCenter />
               <LanguageCurrencySelector compact />
+              <ProfileDropdown />
             </div>
           </header>
           <main className="flex-1 p-4 md:p-6 bg-gradient-to-br from-background via-background to-muted/5 overflow-x-hidden">
