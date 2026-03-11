@@ -6,6 +6,10 @@
   "devCommand": "npm run dev",
   "rewrites": [
     {
+      "source": "/tablet-dashboard",
+      "destination": "/tablet.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
@@ -47,6 +51,19 @@
         {
           "key": "Cache-Control",
           "value": "public, max-age=604800"
+        }
+      ]
+    },
+    {
+      "source": "/tablet-manifest.json",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/manifest+json"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
         }
       ]
     },

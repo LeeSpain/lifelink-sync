@@ -80,32 +80,6 @@ const TabletDashboard = () => {
     localStorage.setItem('pwa_intent', 'tablet');
   }, []);
 
-  // start_url="/tablet-dashboard", display="fullscreen", orientation="any"
-  // We remove-and-recreate the <link> to force the browser to re-evaluate
-  // the manifest, which triggers a fresh beforeinstallprompt event.
-  useEffect(() => {
-    const existing = document.querySelector('link[rel="manifest"]');
-    const originalHref = existing?.getAttribute('href') || '/manifest.webmanifest';
-
-    // Remove the old manifest link entirely so the browser forgets it
-    if (existing) existing.remove();
-
-    // Create a new manifest link pointing to the tablet version
-    const link = document.createElement('link');
-    link.rel = 'manifest';
-    link.href = '/tablet-manifest.json';
-    document.head.appendChild(link);
-
-    return () => {
-      // Restore original manifest when navigating away
-      link.remove();
-      const restore = document.createElement('link');
-      restore.rel = 'manifest';
-      restore.href = originalHref;
-      document.head.appendChild(restore);
-    };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
   // Update greeting every 5 minutes
   useEffect(() => {
     const timer = setInterval(() => setGreetingKey(getGreetingKey()), 5 * 60_000);
