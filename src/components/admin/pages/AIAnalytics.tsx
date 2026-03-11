@@ -34,6 +34,8 @@ import {
   Legend,
 } from 'recharts';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/components/ui/use-toast';
+import { useTranslation } from 'react-i18next';
 
 type DateRange = '7d' | '30d' | '90d';
 
@@ -54,6 +56,8 @@ interface ContentPerformance {
 const COLORS = ['#10b981', '#8b5cf6', '#3b82f6', '#f59e0b', '#ef4444'];
 
 const AIAnalytics = () => {
+  const { toast } = useToast();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [range, setRange] = useState<DateRange>('7d');
   const [kpis, setKpis] = useState({
@@ -180,7 +184,7 @@ const AIAnalytics = () => {
 
       setTopContent(bestContent || []);
     } catch (err) {
-      console.error('AIAnalytics load error:', err);
+      toast({ title: 'Load Error', description: 'Failed to load AI analytics data.', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -199,10 +203,10 @@ const AIAnalytics = () => {
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <BarChart3 className="h-6 w-6" />
-            AI Analytics
+            {t('ai.analytics.title')}
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Combined analytics for all AI agents
+            {t('ai.analytics.subtitle')}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -228,29 +232,29 @@ const AIAnalytics = () => {
         <Card className="p-3 text-center">
           <MessageSquare className="h-4 w-4 mx-auto mb-1 text-blue-500" />
           <p className="text-2xl font-bold">{kpis.totalInteractions.toLocaleString()}</p>
-          <p className="text-[10px] text-muted-foreground">Total Interactions</p>
+          <p className="text-[10px] text-muted-foreground">{t('ai.analytics.totalInteractions')}</p>
         </Card>
         <Card className="p-3 text-center">
           <Clock className="h-4 w-4 mx-auto mb-1 text-emerald-500" />
           <p className="text-2xl font-bold">{kpis.avgResponseTime}</p>
-          <p className="text-[10px] text-muted-foreground">Avg Response Time</p>
+          <p className="text-[10px] text-muted-foreground">{t('ai.analytics.avgResponseTime')}</p>
         </Card>
         <Card className="p-3 text-center">
           <TrendingUp className="h-4 w-4 mx-auto mb-1 text-purple-500" />
           <p className="text-2xl font-bold">{kpis.leadsGenerated}</p>
-          <p className="text-[10px] text-muted-foreground">Leads Generated</p>
+          <p className="text-[10px] text-muted-foreground">{t('ai.analytics.leadsGenerated')}</p>
         </Card>
         <Card className="p-3 text-center">
           <DollarSign className="h-4 w-4 mx-auto mb-1 text-amber-500" />
           <p className="text-2xl font-bold">{kpis.estimatedCost}</p>
-          <p className="text-[10px] text-muted-foreground">Est. Cost</p>
+          <p className="text-[10px] text-muted-foreground">{t('ai.analytics.estCost')}</p>
         </Card>
       </div>
 
       {/* Daily Interactions Chart */}
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Daily Interactions — Clara vs Riven</CardTitle>
+          <CardTitle className="text-sm">{t('ai.analytics.dailyInteractions')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-[280px]">
@@ -274,7 +278,7 @@ const AIAnalytics = () => {
         {/* Top Topics */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Top Conversation Topics</CardTitle>
+            <CardTitle className="text-sm">{t('ai.analytics.topTopics')}</CardTitle>
           </CardHeader>
           <CardContent>
             {topTopics.length > 0 ? (
@@ -290,7 +294,7 @@ const AIAnalytics = () => {
                 </ResponsiveContainer>
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-8">No topic data yet</p>
+              <p className="text-sm text-muted-foreground text-center py-8">{t('ai.analytics.noTopicData')}</p>
             )}
           </CardContent>
         </Card>
@@ -298,7 +302,7 @@ const AIAnalytics = () => {
         {/* Language Distribution */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Language Distribution</CardTitle>
+            <CardTitle className="text-sm">{t('ai.analytics.languageDistribution')}</CardTitle>
           </CardHeader>
           <CardContent>
             {langDist.length > 0 ? (
@@ -323,7 +327,7 @@ const AIAnalytics = () => {
                 </ResponsiveContainer>
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-8">No language data yet</p>
+              <p className="text-sm text-muted-foreground text-center py-8">{t('ai.analytics.noLanguageData')}</p>
             )}
           </CardContent>
         </Card>
@@ -332,19 +336,19 @@ const AIAnalytics = () => {
       {/* Best Performing Content */}
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Recent Riven Content</CardTitle>
+          <CardTitle className="text-sm">{t('ai.analytics.recentRivenContent')}</CardTitle>
         </CardHeader>
         <CardContent>
           {topContent.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">No content generated yet</p>
+            <p className="text-sm text-muted-foreground text-center py-8">{t('ai.analytics.noContent')}</p>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="text-xs">Title</TableHead>
-                  <TableHead className="text-xs">Platform</TableHead>
-                  <TableHead className="text-xs">Status</TableHead>
-                  <TableHead className="text-xs">Created</TableHead>
+                  <TableHead className="text-xs">{t('ai.analytics.titleCol')}</TableHead>
+                  <TableHead className="text-xs">{t('ai.analytics.platform')}</TableHead>
+                  <TableHead className="text-xs">{t('ai.analytics.status')}</TableHead>
+                  <TableHead className="text-xs">{t('ai.analytics.created')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

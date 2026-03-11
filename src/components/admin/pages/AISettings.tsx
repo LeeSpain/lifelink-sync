@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import AIAgentPage from '@/components/admin/pages/AIAgentPage';
 import RivenAgentPage from '@/components/admin/pages/RivenAgentPage';
+import { useTranslation } from 'react-i18next';
 
 type SelectedAgent = 'none' | 'clara' | 'riven';
 
@@ -49,6 +50,7 @@ const AGENTS: AgentCard[] = [
 ];
 
 const AISettings = () => {
+  const { t } = useTranslation();
   const [selected, setSelected] = useState<SelectedAgent>('none');
 
   if (selected === 'clara') {
@@ -61,7 +63,7 @@ const AISettings = () => {
           className="gap-1.5"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to AI Agents
+          {t('ai.settings.backToAgents')}
         </Button>
         <AIAgentPage />
       </div>
@@ -78,7 +80,7 @@ const AISettings = () => {
           className="gap-1.5"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to AI Agents
+          {t('ai.settings.backToAgents')}
         </Button>
         <RivenAgentPage />
       </div>
@@ -91,10 +93,10 @@ const AISettings = () => {
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <Settings2 className="h-6 w-6" />
-          AI Settings
+          {t('ai.settings.title')}
         </h1>
         <p className="text-muted-foreground text-sm mt-1">
-          Manage AI agents, model configuration, and system settings
+          {t('ai.settings.subtitle')}
         </p>
       </div>
 
@@ -118,7 +120,7 @@ const AISettings = () => {
                     : 'bg-gray-500/10 text-gray-500 border-gray-500/20'}
                 >
                   <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${agent.status === 'active' ? 'bg-emerald-500' : 'bg-gray-400'}`} />
-                  {agent.status === 'active' ? 'Active' : 'Idle'}
+                  {agent.status === 'active' ? t('ai.settings.active') : t('ai.settings.idle')}
                 </Badge>
               </div>
               <h3 className="font-semibold text-lg mb-1">{agent.name}</h3>
@@ -126,7 +128,7 @@ const AISettings = () => {
               <div className="flex items-center justify-between">
                 <Badge variant="secondary" className="text-[10px]">{agent.model}</Badge>
                 <Button variant="outline" size="sm" className="text-xs h-7">
-                  Configure
+                  {t('ai.settings.configure')}
                 </Button>
               </div>
             </CardContent>
@@ -139,8 +141,8 @@ const AISettings = () => {
             <div className="p-3 rounded-xl bg-muted/50 mb-3">
               <Plus className="h-7 w-7 text-muted-foreground" />
             </div>
-            <h3 className="font-semibold mb-1">Add New Agent</h3>
-            <Badge variant="secondary" className="text-[10px]">Coming Soon</Badge>
+            <h3 className="font-semibold mb-1">{t('ai.settings.addNewAgent')}</h3>
+            <Badge variant="secondary" className="text-[10px]">{t('ai.settings.comingSoon')}</Badge>
           </CardContent>
         </Card>
       </div>

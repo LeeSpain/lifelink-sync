@@ -15,7 +15,9 @@ import {
   FileText,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/components/ui/use-toast';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface AgentStatus {
   name: string;
@@ -36,6 +38,8 @@ interface RecentEvent {
 }
 
 const AIOverview = () => {
+  const { toast } = useToast();
+  const { t } = useTranslation();
   const [claraStats, setClaraStats] = useState({
     messagesToday: 0,
     activeSessions: 0,
@@ -128,7 +132,7 @@ const AIOverview = () => {
       events.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
       setRecentEvents(events.slice(0, 10));
     } catch (err) {
-      console.error('AIOverview load error:', err);
+      toast({ title: 'Load Error', description: 'Failed to load AI overview data.', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -140,13 +144,13 @@ const AIOverview = () => {
       icon: Bot,
       status: 'online',
       color: 'emerald',
-      description: 'AI Safety Assistant — handles conversations, leads, emergency guidance',
+      description: t('ai.overview.claraDesc'),
       route: '/admin-dashboard/clara-activity',
       metrics: [
-        { label: 'Messages Today', value: claraStats.messagesToday },
-        { label: 'Active Sessions', value: claraStats.activeSessions },
-        { label: 'Avg Response', value: claraStats.avgResponseTime },
-        { label: 'Total Conversations', value: claraStats.totalConversations },
+        { label: t('ai.overview.messagestoday'), value: claraStats.messagesToday },
+        { label: t('ai.overview.activeSessions'), value: claraStats.activeSessions },
+        { label: t('ai.overview.avgResponse'), value: claraStats.avgResponseTime },
+        { label: t('ai.overview.totalConversations'), value: claraStats.totalConversations },
       ],
     },
     {
@@ -154,13 +158,13 @@ const AIOverview = () => {
       icon: Brain,
       status: rivenStats.activeCampaigns > 0 ? 'online' : 'offline',
       color: 'purple',
-      description: 'AI Marketing Engine — campaigns, content generation, social publishing',
+      description: t('ai.overview.rivenDesc'),
       route: '/admin-dashboard/riven-marketing',
       metrics: [
-        { label: 'Active Campaigns', value: rivenStats.activeCampaigns },
-        { label: 'Scheduled Today', value: rivenStats.scheduledToday },
-        { label: 'Last Generation', value: rivenStats.lastGeneration },
-        { label: 'Total Content', value: rivenStats.totalContent },
+        { label: t('ai.overview.activeCampaigns'), value: rivenStats.activeCampaigns },
+        { label: t('ai.overview.scheduledToday'), value: rivenStats.scheduledToday },
+        { label: t('ai.overview.lastGeneration'), value: rivenStats.lastGeneration },
+        { label: t('ai.overview.totalContent'), value: rivenStats.totalContent },
       ],
     },
   ];
@@ -170,7 +174,7 @@ const AIOverview = () => {
     const now = new Date();
     const diffMs = now.getTime() - d.getTime();
     const mins = Math.floor(diffMs / 60000);
-    if (mins < 1) return 'Just now';
+    if (mins < 1) return t('ai.overview.justNow');
     if (mins < 60) return `${mins}m ago`;
     const hrs = Math.floor(mins / 60);
     if (hrs < 24) return `${hrs}h ago`;
@@ -179,11 +183,14 @@ const AIOverview = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">AI Overview</h1>
-        <p className="text-muted-foreground text-sm mt-1">
-          Summary of all AI activity across Clara and Riven
-        </p>
+      <div className="flex items-center gap-3">
+        <div className="p-2 bg-primary/10 rounded-lg">
+          <Activity className="h-6 w-6 text-primary" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold">{t('ai.overview.title')}</h1>
+          <p className="text-muted-foreground">{t('ai.overview.subtitle')}</p>
+        </div>
       </div>
 
       {/* Combined stats bar */}
@@ -191,22 +198,22 @@ const AIOverview = () => {
         <Card className="p-3 text-center">
           <Zap className="h-5 w-5 mx-auto mb-1 text-amber-500" />
           <p className="text-2xl font-bold">{totalInteractions}</p>
-          <p className="text-xs text-muted-foreground">AI Interactions Today</p>
+          <p className="text-xs text-muted-foreground">{t('ai.overview.interactionsToday')}</p>
         </Card>
         <Card className="p-3 text-center">
           <MessageSquare className="h-5 w-5 mx-auto mb-1 text-blue-500" />
           <p className="text-2xl font-bold">{claraStats.messagesToday}</p>
-          <p className="text-xs text-muted-foreground">Clara Messages</p>
+          <p className="text-xs text-muted-foreground">{t('ai.overview.claraMessages')}</p>
         </Card>
         <Card className="p-3 text-center">
           <FileText className="h-5 w-5 mx-auto mb-1 text-purple-500" />
           <p className="text-2xl font-bold">{rivenStats.scheduledToday}</p>
-          <p className="text-xs text-muted-foreground">Riven Posts Today</p>
+          <p className="text-xs text-muted-foreground">{t('ai.overview.rivenPostsToday')}</p>
         </Card>
         <Card className="p-3 text-center">
           <Users className="h-5 w-5 mx-auto mb-1 text-emerald-500" />
           <p className="text-2xl font-bold">{claraStats.activeSessions}</p>
-          <p className="text-xs text-muted-foreground">Active Sessions</p>
+          <p className="text-xs text-muted-foreground">{t('ai.overview.activeSessions')}</p>
         </Card>
       </div>
 
@@ -232,7 +239,7 @@ const AIOverview = () => {
                     : 'bg-gray-500/10 text-gray-500 border-gray-500/20'}
                 >
                   <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${agent.status === 'online' ? 'bg-emerald-500' : 'bg-gray-400'}`} />
-                  {agent.status === 'online' ? 'Online' : 'Idle'}
+                  {agent.status === 'online' ? t('ai.overview.online') : t('ai.overview.idle')}
                 </Badge>
               </div>
             </CardHeader>
@@ -247,7 +254,7 @@ const AIOverview = () => {
               </div>
               <Link to={agent.route}>
                 <Button variant="outline" size="sm" className="w-full text-xs">
-                  View Details <ArrowRight className="h-3 w-3 ml-1" />
+                  {t('ai.overview.viewDetails')} <ArrowRight className="h-3 w-3 ml-1" />
                 </Button>
               </Link>
             </CardContent>
@@ -260,14 +267,14 @@ const AIOverview = () => {
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             <Activity className="h-4 w-4" />
-            Recent AI Activity
+            {t('ai.overview.recentActivity')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <p className="text-sm text-muted-foreground text-center py-6">Loading...</p>
+            <p className="text-sm text-muted-foreground text-center py-6">{t('ai.overview.loading')}</p>
           ) : recentEvents.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-6">No recent activity</p>
+            <p className="text-sm text-muted-foreground text-center py-6">{t('ai.overview.noRecentActivity')}</p>
           ) : (
             <div className="space-y-2">
               {recentEvents.map((event) => (

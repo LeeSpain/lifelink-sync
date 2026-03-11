@@ -218,7 +218,7 @@ const RivenAgentPage: React.FC = () => {
         loadPerformanceData(),
       ]);
     } catch (err) {
-      console.error('RivenAgentPage load error:', err);
+      toast({ title: 'Load Error', description: 'Failed to load Riven data.', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -418,7 +418,7 @@ const RivenAgentPage: React.FC = () => {
 
       toast({ title: 'Settings Saved', description: 'Riven settings updated successfully.' });
     } catch (err) {
-      console.error('Save error:', err);
+      // Error already shown via toast below
       toast({ title: 'Save Failed', description: 'Could not save settings.', variant: 'destructive' });
     } finally {
       setSaving(false);
@@ -1387,7 +1387,7 @@ const RivenAgentPage: React.FC = () => {
           {/* Danger Zone */}
           <Card className="border-red-500/20">
             <CardHeader>
-              <CardTitle className="text-sm text-red-500">Danger Zone</CardTitle>
+              <CardTitle className="text-red-500">Danger Zone</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between">

@@ -13,13 +13,8 @@ import SubscriptionsPage from '@/components/admin/pages/SubscriptionsPage';
 import ActivityPage from '@/components/admin/pages/ActivityPage';
 import RevenueAnalyticsPage from '@/components/admin/pages/RevenueAnalyticsPage';
 import UserGrowthPage from '@/components/admin/pages/UserGrowthPage';
-import AIAgentPage from '@/components/admin/pages/AIAgentPage';
-import AITrainingPage from '@/components/admin/pages/AITrainingPage';
-import AIModelSettingsPage from '@/components/admin/pages/AIModelSettingsPage';
 import RivenMarketingAI from '@/components/admin/pages/RivenMarketingAI';
 import { EmailManagement } from '@/components/admin/EmailManagement';
-import BlogManagementPage from '@/components/admin/pages/BlogManagementPage';
-import { EnhancedMarketingCampaigns } from '@/components/admin/EnhancedMarketingCampaigns';
 import ProductsPage from '@/components/admin/pages/ProductsPage';
 import RegionalServicesPage from '@/components/admin/pages/RegionalServicesPage';
 import GlobalProtectionPlansPage from '@/components/admin/pages/GlobalProtectionPlansPage';
@@ -27,7 +22,6 @@ import CommunicationPage from '@/components/admin/pages/CommunicationPage';
 import FamilyAccountsPage from '@/components/admin/pages/FamilyAccountsPage';
 import SystemSettingsPage from '@/components/admin/pages/SystemSettingsPage';
 import ReportsPage from '@/components/admin/pages/ReportsPage';
-import SubscriptionPlansPage from '@/components/admin/pages/SubscriptionPlansPage';
 import AppTestingPage from '@/components/admin/pages/AppTestingPage';
 import FlicControlAdminPage from '@/components/admin/pages/FlicControlAdminPage';
 import ContactSubmissionsPage from '@/components/admin/pages/ContactSubmissionsPage';
@@ -36,7 +30,6 @@ import VideoAnalyticsPage from '@/components/admin/pages/VideoAnalyticsPage';
 import EmergencyIncidentsPage from '@/components/admin/pages/EmergencyIncidentsPage';
 import SafetyMonitoringPage from '@/components/admin/pages/SafetyMonitoringPage';
 import WhatsAppIntegrationPage from '@/components/admin/pages/WhatsAppIntegrationPage';
-import AIPerformancePage from '@/components/admin/pages/AIPerformancePage';
 import LiveMapMonitorPage from '@/components/admin/pages/LiveMapMonitorPage';
 import CircleAnalyticsPage from '@/components/admin/pages/CircleAnalyticsPage';
 import GeofenceAdminPage from '@/components/admin/pages/GeofenceAdminPage';
@@ -63,16 +56,7 @@ import AIAnalytics from '@/components/admin/pages/AIAnalytics';
 
 const AdminDashboard: React.FC = () => {
   useScrollToTop();
-  
-  console.log('🚀 AdminDashboard component is rendering at:', window.location.pathname);
-  console.log('🚀 AdminDashboard: Full URL details:', {
-    pathname: window.location.pathname,
-    href: window.location.href,
-    search: window.location.search,
-    hash: window.location.hash,
-    timestamp: new Date().toISOString()
-  });
-  
+
   return (
     <Routes>
       <Route path="/" element={<AdminLayout />}>

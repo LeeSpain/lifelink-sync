@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -35,6 +36,7 @@ import {
   Line,
 } from 'recharts';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/components/ui/use-toast';
 
 interface DailyVolume {
   date: string;
@@ -51,6 +53,8 @@ interface ConversationRow {
 const LANG_COLORS = ['#3b82f6', '#f59e0b', '#10b981', '#8b5cf6'];
 
 const ClaraActivity = () => {
+  const { toast } = useToast();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [metrics, setMetrics] = useState({
     activeSessions: 0,
@@ -207,7 +211,7 @@ const ClaraActivity = () => {
         }))
       );
     } catch (err) {
-      console.error('ClaraActivity load error:', err);
+      toast({ title: 'Load Error', description: 'Failed to load Clara activity data.', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -222,7 +226,7 @@ const ClaraActivity = () => {
     const now = new Date();
     const diffMs = now.getTime() - d.getTime();
     const mins = Math.floor(diffMs / 60000);
-    if (mins < 1) return 'Just now';
+    if (mins < 1) return t('ai.clara.justNow');
     if (mins < 60) return `${mins}m ago`;
     const hrs = Math.floor(mins / 60);
     if (hrs < 24) return `${hrs}h ago`;
@@ -235,15 +239,15 @@ const ClaraActivity = () => {
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <Bot className="h-6 w-6 text-emerald-500" />
-            Clara Activity
+            {t('ai.clara.title')}
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Live activity feed, metrics, and conversation analytics
+            {t('ai.clara.subtitle')}
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={loadData} disabled={loading}>
           <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${loading ? 'animate-spin' : ''}`} />
-          Refresh
+          {t('ai.clara.refresh')}
         </Button>
       </div>
 
@@ -252,32 +256,32 @@ const ClaraActivity = () => {
         <Card className="p-3 text-center">
           <MessageSquare className="h-4 w-4 mx-auto mb-1 text-blue-500" />
           <p className="text-xl font-bold">{metrics.activeSessions}</p>
-          <p className="text-[10px] text-muted-foreground">Active Sessions</p>
+          <p className="text-[10px] text-muted-foreground">{t('ai.clara.activeSessions')}</p>
         </Card>
         <Card className="p-3 text-center">
           <TrendingUp className="h-4 w-4 mx-auto mb-1 text-emerald-500" />
           <p className="text-xl font-bold">{metrics.messagesToday}</p>
-          <p className="text-[10px] text-muted-foreground">Messages Today</p>
+          <p className="text-[10px] text-muted-foreground">{t('ai.clara.messagesToday')}</p>
         </Card>
         <Card className="p-3 text-center">
           <Users className="h-4 w-4 mx-auto mb-1 text-purple-500" />
           <p className="text-xl font-bold">{metrics.leadsGenerated}</p>
-          <p className="text-[10px] text-muted-foreground">Leads Generated</p>
+          <p className="text-[10px] text-muted-foreground">{t('ai.clara.leadsGenerated')}</p>
         </Card>
         <Card className="p-3 text-center">
           <Clock className="h-4 w-4 mx-auto mb-1 text-amber-500" />
           <p className="text-xl font-bold">{metrics.avgMsgsPerSession}</p>
-          <p className="text-[10px] text-muted-foreground">Avg Msgs/Session</p>
+          <p className="text-[10px] text-muted-foreground">{t('ai.clara.avgMsgsPerSession')}</p>
         </Card>
         <Card className="p-3 text-center">
           <AlertTriangle className="h-4 w-4 mx-auto mb-1 text-red-500" />
           <p className="text-xl font-bold">{metrics.sosHandled}</p>
-          <p className="text-[10px] text-muted-foreground">SOS Handled</p>
+          <p className="text-[10px] text-muted-foreground">{t('ai.clara.sosHandled')}</p>
         </Card>
         <Card className="p-3 text-center">
           <Globe className="h-4 w-4 mx-auto mb-1 text-blue-400" />
           <p className="text-xl font-bold">{metrics.totalMessages}</p>
-          <p className="text-[10px] text-muted-foreground">Total Messages</p>
+          <p className="text-[10px] text-muted-foreground">{t('ai.clara.totalMessages')}</p>
         </Card>
       </div>
 
@@ -286,7 +290,7 @@ const ClaraActivity = () => {
         {/* Conversation Volume (7 days) */}
         <Card className="lg:col-span-2">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Conversation Volume (7 days)</CardTitle>
+            <CardTitle className="text-sm">{t('ai.clara.conversationVolume')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-[220px]">
@@ -306,7 +310,7 @@ const ClaraActivity = () => {
         {/* Language Distribution */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Language Distribution</CardTitle>
+            <CardTitle className="text-sm">{t('ai.clara.languageDistribution')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-[220px] flex items-center justify-center">
@@ -330,7 +334,7 @@ const ClaraActivity = () => {
                   </PieChart>
                 </ResponsiveContainer>
               ) : (
-                <p className="text-sm text-muted-foreground">No data</p>
+                <p className="text-sm text-muted-foreground">{t('ai.clara.noData')}</p>
               )}
             </div>
           </CardContent>
@@ -341,7 +345,7 @@ const ClaraActivity = () => {
       {topQuestions.length > 0 && (
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Top Questions Asked</CardTitle>
+            <CardTitle className="text-sm">{t('ai.clara.topQuestions')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-[200px]">
@@ -368,19 +372,19 @@ const ClaraActivity = () => {
       {/* Recent Conversations Table */}
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Recent Conversations</CardTitle>
+          <CardTitle className="text-sm">{t('ai.clara.recentConversations')}</CardTitle>
         </CardHeader>
         <CardContent>
           {recentConversations.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">No conversations yet</p>
+            <p className="text-sm text-muted-foreground text-center py-8">{t('ai.clara.noConversations')}</p>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="text-xs">Session</TableHead>
-                  <TableHead className="text-xs">Messages</TableHead>
-                  <TableHead className="text-xs">Language</TableHead>
-                  <TableHead className="text-xs">Last Active</TableHead>
+                  <TableHead className="text-xs">{t('ai.clara.session')}</TableHead>
+                  <TableHead className="text-xs">{t('ai.clara.messages')}</TableHead>
+                  <TableHead className="text-xs">{t('ai.clara.language')}</TableHead>
+                  <TableHead className="text-xs">{t('ai.clara.lastActive')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

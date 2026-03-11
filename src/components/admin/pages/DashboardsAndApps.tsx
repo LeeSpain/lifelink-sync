@@ -19,6 +19,7 @@ import {
   Chrome,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 
 interface AppCard {
   title: string;
@@ -128,6 +129,7 @@ const DashboardsAndApps = () => {
   const [search, setSearch] = useState("");
   const [copiedRoute, setCopiedRoute] = useState<string | null>(null);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const filtered = APP_CARDS.filter((card) => {
     if (!search) return true;
@@ -145,7 +147,7 @@ const DashboardsAndApps = () => {
     const fullUrl = `${window.location.origin}${route}`;
     await navigator.clipboard.writeText(fullUrl);
     setCopiedRoute(route);
-    toast({ title: "Link copied to clipboard" });
+    toast({ title: t('dashboards.linkCopied') });
     setTimeout(() => setCopiedRoute(null), 2000);
   };
 
@@ -156,9 +158,9 @@ const DashboardsAndApps = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Dashboards & Apps</h1>
+        <h1 className="text-2xl font-bold">{t('dashboards.title')}</h1>
         <p className="text-muted-foreground text-sm mt-1">
-          Every interface in the LifeLink platform
+          {t('dashboards.subtitle')}
         </p>
       </div>
 
@@ -166,7 +168,7 @@ const DashboardsAndApps = () => {
       <div className="relative max-w-md">
         <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search apps..."
+          placeholder={t('dashboards.searchPlaceholder')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="pl-9"
@@ -206,7 +208,7 @@ const DashboardsAndApps = () => {
                               : "text-[10px] bg-green-500/10 text-green-600 border-green-500/20"
                           }
                         >
-                          {isComingSoon ? "Coming Soon" : "Live"}
+                          {isComingSoon ? t('dashboards.comingSoon') : t('dashboards.live')}
                         </Badge>
                       </div>
                       <h3 className="font-semibold text-sm mb-1">{card.title}</h3>
@@ -221,7 +223,7 @@ const DashboardsAndApps = () => {
                             onClick={() => handleOpen(card.route)}
                           >
                             <ExternalLink className="h-3 w-3 mr-1" />
-                            Open
+                            {t('dashboards.open')}
                           </Button>
                           <Button
                             variant="outline"

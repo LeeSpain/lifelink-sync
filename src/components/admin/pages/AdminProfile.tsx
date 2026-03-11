@@ -113,10 +113,10 @@ const AdminProfile = () => {
         .eq("id", user.id);
 
       if (error) throw error;
-      toast({ title: "Profile updated successfully" });
+      toast({ title: t('profile.profileUpdated') });
     } catch (err) {
       toast({
-        title: "Failed to update profile",
+        title: t('profile.profileUpdateFailed'),
         description: (err as Error).message,
         variant: "destructive",
       });
@@ -152,10 +152,10 @@ const AdminProfile = () => {
         .update({ avatar_url: urlData.publicUrl })
         .eq("id", user.id);
 
-      toast({ title: "Avatar updated" });
+      toast({ title: t('profile.avatarUpdated') });
     } catch (err) {
       toast({
-        title: "Upload failed",
+        title: t('profile.uploadFailed'),
         description: (err as Error).message,
         variant: "destructive",
       });
@@ -168,14 +168,14 @@ const AdminProfile = () => {
   const handleChangePassword = async () => {
     if (newPassword !== confirmPassword) {
       toast({
-        title: "Passwords don't match",
+        title: t('profile.passwordsMismatch'),
         variant: "destructive",
       });
       return;
     }
     if (newPassword.length < 8) {
       toast({
-        title: "Password must be at least 8 characters",
+        title: t('profile.passwordTooShort'),
         variant: "destructive",
       });
       return;
@@ -192,10 +192,10 @@ const AdminProfile = () => {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-      toast({ title: "Password updated successfully" });
+      toast({ title: t('profile.passwordUpdated') });
     } catch (err) {
       toast({
-        title: "Password update failed",
+        title: t('profile.passwordUpdateFailed'),
         description: (err as Error).message,
         variant: "destructive",
       });
@@ -216,9 +216,9 @@ const AdminProfile = () => {
         document.documentElement.classList.remove("dark");
       }
 
-      toast({ title: "Preferences saved" });
+      toast({ title: t('profile.preferencesSaved') });
     } catch {
-      toast({ title: "Failed to save preferences", variant: "destructive" });
+      toast({ title: t('profile.preferencesFailed'), variant: "destructive" });
     } finally {
       setSavingPrefs(false);
     }
@@ -249,9 +249,9 @@ const AdminProfile = () => {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">My Profile</h1>
+        <h1 className="text-2xl font-bold">{t('profile.title')}</h1>
         <p className="text-muted-foreground text-sm mt-1">
-          Manage your admin account settings
+          {t('profile.subtitle')}
         </p>
       </div>
 
@@ -259,7 +259,7 @@ const AdminProfile = () => {
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <User className="h-4 w-4" /> Personal Details
+            <User className="h-4 w-4" /> {t('profile.personalDetails')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -304,14 +304,14 @@ const AdminProfile = () => {
               </p>
               <p className="text-xs text-muted-foreground">{user?.email}</p>
               <Badge variant="secondary" className="text-[10px] mt-1">
-                Administrator
+                {t('profile.administrator')}
               </Badge>
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <Label className="text-xs">First Name</Label>
+              <Label className="text-xs">{t('profile.firstName')}</Label>
               <Input
                 value={profile.first_name}
                 onChange={(e) =>
@@ -321,7 +321,7 @@ const AdminProfile = () => {
               />
             </div>
             <div>
-              <Label className="text-xs">Last Name</Label>
+              <Label className="text-xs">{t('profile.lastName')}</Label>
               <Input
                 value={profile.last_name}
                 onChange={(e) =>
@@ -333,7 +333,7 @@ const AdminProfile = () => {
           </div>
 
           <div>
-            <Label className="text-xs">Email</Label>
+            <Label className="text-xs">{t('profile.email')}</Label>
             <Input
               value={user?.email || ""}
               disabled
@@ -342,7 +342,7 @@ const AdminProfile = () => {
           </div>
 
           <div>
-            <Label className="text-xs">Phone Number</Label>
+            <Label className="text-xs">{t('profile.phone')}</Label>
             <Input
               value={profile.phone}
               onChange={(e) =>
@@ -359,7 +359,7 @@ const AdminProfile = () => {
             ) : (
               <Check className="h-4 w-4 mr-2" />
             )}
-            Save Changes
+            {t('profile.saveChanges')}
           </Button>
         </CardContent>
       </Card>
@@ -368,28 +368,28 @@ const AdminProfile = () => {
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <Shield className="h-4 w-4" /> Security
+            <Shield className="h-4 w-4" /> {t('profile.security')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Change Password */}
           <div className="space-y-3">
-            <h3 className="text-sm font-medium">Change Password</h3>
+            <h3 className="text-sm font-medium">{t('profile.changePassword')}</h3>
             <Input
               type="password"
-              placeholder="Current password"
+              placeholder={t('profile.currentPassword')}
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
             />
             <Input
               type="password"
-              placeholder="New password (min 8 characters)"
+              placeholder={t('profile.newPassword')}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
             />
             <Input
               type="password"
-              placeholder="Confirm new password"
+              placeholder={t('profile.confirmPassword')}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
@@ -401,7 +401,7 @@ const AdminProfile = () => {
               {savingPassword ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : null}
-              Update Password
+              {t('profile.updatePassword')}
             </Button>
           </div>
 
@@ -409,15 +409,15 @@ const AdminProfile = () => {
           <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
             <div>
               <p className="text-sm font-medium">
-                Two-Factor Authentication
+                {t('profile.twoFactor')}
               </p>
               <p className="text-xs text-muted-foreground">
-                Add an extra layer of security
+                {t('profile.twoFactorDesc')}
               </p>
             </div>
             <div className="flex items-center gap-2">
               <Badge variant="secondary" className="text-[10px]">
-                Coming Soon
+                {t('profile.comingSoon')}
               </Badge>
               <Switch disabled />
             </div>
@@ -425,19 +425,19 @@ const AdminProfile = () => {
 
           {/* Active Sessions */}
           <div>
-            <h3 className="text-sm font-medium mb-2">Active Sessions</h3>
+            <h3 className="text-sm font-medium mb-2">{t('profile.activeSessions')}</h3>
             <div className="p-3 rounded-lg border flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Monitor className="h-4 w-4 text-muted-foreground" />
                 <div>
-                  <p className="text-sm font-medium">Current Session</p>
+                  <p className="text-sm font-medium">{t('profile.currentSession')}</p>
                   <p className="text-xs text-muted-foreground">
                     {navigator.userAgent.includes("Mac")
                       ? "macOS"
                       : navigator.userAgent.includes("Win")
                       ? "Windows"
                       : "Browser"}{" "}
-                    · Last active now
+                    · {t('profile.lastActiveNow')}
                   </p>
                 </div>
               </div>
@@ -445,7 +445,7 @@ const AdminProfile = () => {
                 variant="outline"
                 className="text-[10px] text-green-600 border-green-500/20"
               >
-                Active
+                {t('profile.active')}
               </Badge>
             </div>
           </div>
@@ -456,13 +456,13 @@ const AdminProfile = () => {
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <Settings className="h-4 w-4" /> Preferences
+            <Settings className="h-4 w-4" /> {t('profile.preferences')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <Label className="text-xs">Language</Label>
+              <Label className="text-xs">{t('profile.language')}</Label>
               <Select value={language} onValueChange={setLanguage}>
                 <SelectTrigger className="mt-1">
                   <SelectValue />
@@ -475,7 +475,7 @@ const AdminProfile = () => {
               </Select>
             </div>
             <div>
-              <Label className="text-xs">Theme</Label>
+              <Label className="text-xs">{t('profile.theme')}</Label>
               <Select
                 value={theme}
                 onValueChange={(v) => setTheme(v as "light" | "dark" | "system")}
@@ -484,9 +484,9 @@ const AdminProfile = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="light">Light</SelectItem>
-                  <SelectItem value="dark">Dark</SelectItem>
-                  <SelectItem value="system">System</SelectItem>
+                  <SelectItem value="light">{t('profile.light')}</SelectItem>
+                  <SelectItem value="dark">{t('profile.dark')}</SelectItem>
+                  <SelectItem value="system">{t('profile.system')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -494,24 +494,24 @@ const AdminProfile = () => {
 
           <div className="space-y-3">
             <Label className="text-xs font-semibold">
-              Email Notifications
+              {t('profile.emailNotifications')}
             </Label>
             {[
               {
                 key: "riven_daily_summary" as const,
-                label: "Daily summary from Riven",
+                label: t('profile.rivenDailySummary'),
               },
               {
                 key: "new_member_alerts" as const,
-                label: "New member alerts",
+                label: t('profile.newMemberAlerts'),
               },
               {
                 key: "emergency_alerts" as const,
-                label: "Emergency alerts",
+                label: t('profile.emergencyAlerts'),
               },
               {
                 key: "system_health_alerts" as const,
-                label: "System health alerts",
+                label: t('profile.systemHealthAlerts'),
               },
             ].map(({ key, label }) => (
               <div
@@ -535,7 +535,7 @@ const AdminProfile = () => {
             ) : (
               <Check className="h-4 w-4 mr-2" />
             )}
-            Save Preferences
+            {t('profile.savePreferences')}
           </Button>
         </CardContent>
       </Card>
@@ -544,31 +544,31 @@ const AdminProfile = () => {
       <Card className="border-destructive/30">
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2 text-destructive">
-            <AlertTriangle className="h-4 w-4" /> Danger Zone
+            <AlertTriangle className="h-4 w-4" /> {t('profile.dangerZone')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium">Delete Admin Account</p>
+              <p className="text-sm font-medium">{t('profile.deleteAccount')}</p>
               <p className="text-xs text-muted-foreground">
-                Contact support to delete your admin account
+                {t('profile.deleteAccountDesc')}
               </p>
             </div>
             <Button variant="destructive" size="sm" disabled title="Contact support to delete admin account">
-              Delete Account
+              {t('profile.deleteAccountBtn')}
             </Button>
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium">Export My Data</p>
+              <p className="text-sm font-medium">{t('profile.exportData')}</p>
               <p className="text-xs text-muted-foreground">
-                Download your admin profile as JSON
+                {t('profile.exportDataDesc')}
               </p>
             </div>
             <Button variant="outline" size="sm" onClick={handleExportData}>
               <Download className="h-3.5 w-3.5 mr-1" />
-              Export
+              {t('profile.export')}
             </Button>
           </div>
         </CardContent>
