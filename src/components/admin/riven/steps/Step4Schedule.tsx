@@ -2,12 +2,11 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
 import { Minus, Plus } from "lucide-react";
 import { RivenSpeech } from "../RivenSpeech";
 import type { PlatformConfig } from "@/hooks/useRivenWizard";
 
-const DURATION_OPTIONS = [7, 14, 30, 60, 90];
+const DURATION_OPTIONS = [1, 7, 14, 30, 60, 90];
 const DAY_OPTIONS: Array<{ value: "all" | "weekdays" | "weekends"; label: string }> = [
   { value: "all", label: "Every day" },
   { value: "weekdays", label: "Weekdays" },
@@ -46,7 +45,7 @@ export function Step4Schedule({
               size="sm"
               onClick={() => onSetDuration(d)}
             >
-              {d} days
+              {d === 1 ? "Single Post" : `${d} days`}
             </Button>
           ))}
         </div>
@@ -142,8 +141,9 @@ export function Step4Schedule({
         <p className="text-sm">
           I'll create{" "}
           <span className="text-primary font-bold text-lg">{totalPosts}</span>{" "}
-          unique posts across {enabledPlatforms.length} platform
-          {enabledPlatforms.length !== 1 ? "s" : ""} over {duration} days
+          unique {totalPosts === 1 ? "post" : "posts"} across {enabledPlatforms.length} platform
+          {enabledPlatforms.length !== 1 ? "s" : ""}
+          {duration === 1 ? "" : ` over ${duration} days`}
         </p>
       </div>
     </div>
