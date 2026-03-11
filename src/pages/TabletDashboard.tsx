@@ -59,13 +59,15 @@ const TabletDashboard = () => {
   const showPermissions = micPermission === null && notifPermission === null;
 
   // Clara panel state
-  const [claraPanelExpanded, setClaraPanelExpanded] = useState(true);
+  const [claraPanelExpanded, setClaraPanelExpanded] = useState(false);
 
   const handlePermissionsComplete = useCallback((mic: 'granted' | 'skipped', notif: 'granted' | 'skipped') => {
     setMicPermission(mic);
     setNotifPermission(notif);
     localStorage.setItem('tabletMicPermission', mic);
     localStorage.setItem('tabletNotificationPermission', notif);
+    // Skip install overlay so user lands directly on the dashboard
+    setInstallDismissed(true);
   }, []);
 
   // SOS trigger
