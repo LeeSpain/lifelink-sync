@@ -4,7 +4,7 @@
   "short_name": "LifeLink Tablet",
   "description": "Always-on care dashboard for elderly support — reminders, SOS, family messages, and Clara AI voice assistant",
   "start_url": "/tablet-dashboard",
-  "scope": "/tablet-dashboard",
+  "scope": "/",
   "display": "fullscreen",
   "background_color": "#020617",
   "theme_color": "#020617",

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 interface ProtectedRouteProps {
@@ -10,6 +10,7 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, loading } = useAuth();
   const { t } = useTranslation();
+  const location = useLocation();
 
   // Allow access in development mode or with dev bypass
   const isDevMode = import.meta.env.DEV || localStorage.getItem('dev_bypass') === '1';
@@ -26,7 +27,9 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }
 
   if (!user && !isDevMode) {
-    return <Navigate to="/auth" replace />;
+    // Preserve the intended destination so auth redirects back after login
+    const next = location.pathname !== '/auth' ? `?next=${encodeURIComponent(location.pathname)}` : '';
+    return <Navigate to={`/auth${next}`} replace />;
   }
 
   return <>{children}</>;
