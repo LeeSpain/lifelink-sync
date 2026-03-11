@@ -2937,6 +2937,7 @@
         "title": "iPad / Other devices",
         "desc": "Go to Settings → Display & Brightness → Auto-Lock → set to \"Never\". For iPad, also enable Guided Access in Settings → Accessibility → Guided Access for kiosk mode."
       },
+      "tipLabel": "Tip:",
       "laterButton": "I'll do this later",
       "doneButton": "Done, go fullscreen"
     },
