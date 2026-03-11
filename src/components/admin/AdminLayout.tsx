@@ -264,7 +264,7 @@ function AdminSidebar() {
           return (
             <SidebarGroup key={group.title} className="px-3 py-1">
               <SidebarGroupLabel
-                className={`${state === "collapsed" ? 'hidden' : 'block'} text-sm font-medium px-2 py-1.5 mb-1 cursor-pointer hover:bg-sidebar-accent/50 rounded-md transition-colors text-sidebar-muted-foreground`}
+                className={`${state === "collapsed" ? 'hidden' : 'block'} text-xs font-semibold uppercase tracking-wider px-2 py-1.5 mb-1 cursor-pointer hover:bg-white/5 rounded-md transition-colors text-white/50`}
                 onClick={() => toggleSection(group.title)}
               >
                 {group.title}
@@ -281,16 +281,12 @@ function AdminSidebar() {
                             className={({ isActive }) =>
                               `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
                                 isActive
-                                  ? 'bg-sidebar-primary text-sidebar-primary shadow-lg scale-[1.02]'
-                                  : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:scale-[1.01]'
+                                  ? 'bg-red-500/10 text-red-500'
+                                  : 'text-white/80 hover:bg-white/5 hover:text-white'
                               }`
                             }
                           >
-                            <div className={`p-1.5 rounded-md transition-colors ${
-                              isActive(item.url)
-                                ? 'bg-white/20'
-                                : 'bg-sidebar-accent/50 group-hover:bg-sidebar-accent'
-                            }`}>
+                            <div className="p-1.5 rounded-md transition-colors">
                               <item.icon className="h-4 w-4" />
                             </div>
                             {state !== "collapsed" && (
@@ -314,9 +310,9 @@ function AdminSidebar() {
               <SidebarMenuButton asChild>
                 <NavLink
                   to="/"
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-white/80 hover:bg-white/5 hover:text-white"
                 >
-                  <div className="p-1.5 rounded-md bg-sidebar-accent/50">
+                  <div className="p-1.5 rounded-md transition-colors">
                     <Home className="h-4 w-4" />
                   </div>
                   {state !== "collapsed" && (
@@ -332,12 +328,12 @@ function AdminSidebar() {
                   className={({ isActive }) =>
                     `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
                       isActive
-                        ? 'bg-sidebar-primary text-sidebar-primary shadow-lg'
-                        : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                        ? 'bg-red-500/10 text-red-500'
+                        : 'text-white/80 hover:bg-white/5 hover:text-white'
                     }`
                   }
                 >
-                  <div className="p-1.5 rounded-md bg-sidebar-accent/50">
+                  <div className="p-1.5 rounded-md transition-colors">
                     <User className="h-4 w-4" />
                   </div>
                   {state !== "collapsed" && (
@@ -353,9 +349,9 @@ function AdminSidebar() {
                     await signOut();
                     navigate('/');
                   }}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sidebar-foreground hover:bg-red-50 dark:hover:bg-red-950/20 w-full"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-white/80 hover:bg-white/5 hover:text-white w-full"
                 >
-                  <div className="p-1.5 rounded-md bg-sidebar-accent/50 group-hover:bg-red-100">
+                  <div className="p-1.5 rounded-md transition-colors">
                     <LogOut className="h-4 w-4" />
                   </div>
                   {state !== "collapsed" && (
