@@ -59,6 +59,8 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
     { hash: 'pricing', label: t('nav.pricing', 'Pricing') },
   ];
 
+  const blogLink = { to: '/blog', label: t('nav.blog', 'Blog') };
+
   return (
     <>
       <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[60] focus:bg-primary focus:text-white focus:px-4 focus:py-2 focus:rounded">
@@ -88,6 +90,12 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
                 {label}
               </button>
             ))}
+            <Link
+              to={blogLink.to}
+              className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+            >
+              {blogLink.label}
+            </Link>
             <div className="border-l border-border/30 pl-6 ml-2">
               <LanguageCurrencySelector compact />
             </div>
@@ -171,6 +179,13 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
                   {label}
                 </button>
               ))}
+              <Link
+                to={blogLink.to}
+                onClick={() => setIsMenuOpen(false)}
+                className="text-sm font-medium text-foreground hover:text-primary px-4 py-2 text-left"
+              >
+                {blogLink.label}
+              </Link>
               <div className="flex flex-col space-y-3 pt-6 mt-4 border-t border-border mx-4">
                 {/* Mobile Clara Chat Button */}
                 <button

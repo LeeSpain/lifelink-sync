@@ -118,14 +118,17 @@ export function Step4Schedule({
                     className="h-7 text-xs mt-1"
                     placeholder="09:00, 12:00, 18:00"
                     value={config.times.join(", ")}
-                    onChange={(e) =>
-                      onUpdatePlatform(platform, {
-                        times: e.target.value
-                          .split(",")
-                          .map((t) => t.trim())
-                          .filter(Boolean),
-                      })
-                    }
+                    onChange={(e) => {
+                      const timeRegex = /^([01]\d|2[0-3]):[0-5]\d$/;
+                      const times = e.target.value
+                        .split(",")
+                        .map((t) => t.trim())
+                        .filter(Boolean);
+                      const valid = times.every((t) => timeRegex.test(t) || t === "");
+                      if (valid || e.target.value === "") {
+                        onUpdatePlatform(platform, { times });
+                      }
+                    }}
                   />
                 </div>
               </div>

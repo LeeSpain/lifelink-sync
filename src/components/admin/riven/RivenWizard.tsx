@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRivenWizard } from "@/hooks/useRivenWizard";
 import { useRivenCampaign } from "@/hooks/useRivenCampaign";
+import { useToast } from "@/hooks/use-toast";
 import { Step1Goal } from "./steps/Step1Goal";
 import { Step2Audience } from "./steps/Step2Audience";
 import { Step3Platforms } from "./steps/Step3Platforms";
@@ -22,17 +23,25 @@ interface RivenWizardProps {
 export function RivenWizard({ onComplete, onCancel }: RivenWizardProps) {
   const wizard = useRivenWizard();
   const campaign = useRivenCampaign();
+  const { toast } = useToast();
   const [launchComplete, setLaunchComplete] = useState(false);
+  const [launchError, setLaunchError] = useState<string | null>(null);
 
   const handleLaunch = async () => {
+    setLaunchError(null);
     try {
       const payload = wizard.buildPayload();
       await campaign.generateCampaign(payload);
       setLaunchComplete(true);
-      // Auto-navigate to dashboard after 3 seconds
       setTimeout(() => onComplete(), 3000);
     } catch (err) {
-      console.error("Launch failed:", err);
+      const message = err instanceof Error ? err.message : "Campaign generation failed";
+      setLaunchError(message);
+      toast({
+        title: "Launch Failed",
+        description: message,
+        variant: "destructive",
+      });
     }
   };
 

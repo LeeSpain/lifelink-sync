@@ -70,20 +70,34 @@ export function PostsList({ content, onPublish, onUpdate, onDelete }: PostsListP
     }
   };
 
+  const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
+
   const handleBulkDelete = () => {
+    if (!confirmBulkDelete) {
+      setConfirmBulkDelete(true);
+      return;
+    }
     selected.forEach((id) => onDelete(id));
     setSelected(new Set());
+    setConfirmBulkDelete(false);
   };
 
   const exportCSV = () => {
-    const headers = ["Platform", "Title", "Body", "Angle", "Scheduled", "Status"];
+    const headers = ["Platform", "Title", "Body", "Angle", "Hook Style", "CTA", "Hashtags", "Week", "Day", "Scheduled", "Status", "Post URL", "Platform Post ID"];
     const rows = filtered.map((c) => [
       c.platform,
       c.title || "",
       (c.body_text || "").replace(/"/g, '""'),
       c.content_angle || "",
+      c.hook_style || "",
+      c.cta_type || "",
+      (c.hashtags || []).join(" "),
+      c.week_number ?? "",
+      c.day_number ?? "",
       c.scheduled_at || "",
       c.status,
+      c.post_url || "",
+      c.platform_post_id || "",
     ]);
     const csv = [headers, ...rows].map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
@@ -138,9 +152,21 @@ export function PostsList({ content, onPublish, onUpdate, onDelete }: PostsListP
       {selected.size > 0 && (
         <div className="flex items-center gap-2 p-2 bg-muted rounded-lg">
           <span className="text-xs text-muted-foreground">{selected.size} selected</span>
-          <Button variant="destructive" size="sm" className="h-7 text-xs" onClick={handleBulkDelete}>
-            <Trash2 className="h-3 w-3 mr-1" /> Delete
-          </Button>
+          {confirmBulkDelete ? (
+            <>
+              <span className="text-xs text-destructive font-medium">Delete {selected.size} posts?</span>
+              <Button variant="destructive" size="sm" className="h-7 text-xs" onClick={handleBulkDelete}>
+                Confirm
+              </Button>
+              <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => setConfirmBulkDelete(false)}>
+                Cancel
+              </Button>
+            </>
+          ) : (
+            <Button variant="destructive" size="sm" className="h-7 text-xs" onClick={handleBulkDelete}>
+              <Trash2 className="h-3 w-3 mr-1" /> Delete
+            </Button>
+          )}
         </div>
       )}
 

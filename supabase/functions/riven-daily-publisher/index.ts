@@ -91,13 +91,20 @@ serve(async (req) => {
 
     // Only send summary if there were posts to process
     if (results.length > 0) {
-      await supabase.functions.invoke("send-customer-communication", {
-        body: {
-          type: "admin_notification",
-          subject: `Riven Summary: ${published} published, ${failed} failed`,
-          html_content: summaryHtml,
-        },
-      });
+      try {
+        const { error: emailError } = await supabase.functions.invoke("send-customer-communication", {
+          body: {
+            type: "admin_notification",
+            subject: `Riven Summary: ${published} published, ${failed} failed`,
+            html_content: summaryHtml,
+          },
+        });
+        if (emailError) {
+          console.error("Failed to send daily summary email:", emailError);
+        }
+      } catch (emailErr) {
+        console.error("Summary email invoke failed:", emailErr);
+      }
     }
 
     return new Response(

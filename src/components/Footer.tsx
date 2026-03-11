@@ -49,16 +49,19 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-white">Quick Links</h3>
+            <h3 className="font-semibold text-white">{t('footer.quickLinks', 'Quick Links')}</h3>
             <div className="space-y-2">
+              <Link to="/blog" className="block text-sm text-gray-400 hover:text-primary transition-colors" onClick={() => handleFooterLinkClick('content', '/blog', 'Blog')}>
+                {t('footer.blog', 'Blog')}
+              </Link>
               <Link to="/privacy" className="block text-sm text-gray-400 hover:text-primary transition-colors" onClick={() => handleFooterLinkClick('legal', '/privacy', 'Privacy Policy')}>
-                Privacy Policy
+                {t('footer.privacy', 'Privacy Policy')}
               </Link>
               <Link to="/terms" className="block text-sm text-gray-400 hover:text-primary transition-colors" onClick={() => handleFooterLinkClick('legal', '/terms', 'Terms of Service')}>
-                Terms of Service
+                {t('footer.terms', 'Terms of Service')}
               </Link>
               <Link to="/contact" className="block text-sm text-gray-400 hover:text-primary transition-colors" onClick={() => handleFooterLinkClick('contact', '/contact', 'Contact')}>
-                Contact
+                {t('footer.contactUs', 'Contact')}
               </Link>
             </div>
           </div>

@@ -15,7 +15,7 @@ const RivenMarketingAI = () => {
   const [activeTab, setActiveTab] = useState("campaigns");
 
   const activeCampaigns = campaign.campaigns.filter(
-    (c) => c.status === "active" || c.status === "processing" || c.status === "paused"
+    (c) => c.status === "active" || c.status === "processing" || c.status === "paused" || c.status === "completed"
   );
 
   if (campaign.loading) {

@@ -33,9 +33,11 @@ export function Step6Preview({
   const [previews, setPreviews] = useState<PreviewContent[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingPlatform, setLoadingPlatform] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const generatePreviews = async () => {
     setLoading(true);
+    setErrorMsg(null);
     try {
       const { data, error } = await supabase.functions.invoke("riven-content-single", {
         body: {
@@ -52,7 +54,7 @@ export function Step6Preview({
         setPreviews(data.content);
       }
     } catch (err) {
-      console.error("Preview generation failed:", err);
+      setErrorMsg(err instanceof Error ? err.message : "Preview generation failed. Check your API key configuration.");
     } finally {
       setLoading(false);
     }
@@ -60,6 +62,7 @@ export function Step6Preview({
 
   const regenerateSingle = async (platform: string) => {
     setLoadingPlatform(platform);
+    setErrorMsg(null);
     try {
       const { data, error } = await supabase.functions.invoke("riven-content-single", {
         body: {
@@ -78,7 +81,7 @@ export function Step6Preview({
         );
       }
     } catch (err) {
-      console.error("Regeneration failed:", err);
+      setErrorMsg(err instanceof Error ? err.message : "Regeneration failed");
     } finally {
       setLoadingPlatform(null);
     }
@@ -93,6 +96,12 @@ export function Step6Preview({
             : "Let me generate a Day 1 preview so you can approve the style before I build the full campaign."
         }
       />
+
+      {errorMsg && (
+        <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-sm text-destructive">
+          {errorMsg}
+        </div>
+      )}
 
       {previews.length === 0 && (
         <div className="text-center py-8">

@@ -36,8 +36,8 @@ ALTER TABLE riven_content_angles ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Admin full access to riven_content_angles"
   ON riven_content_angles FOR ALL
-  USING (true)
-  WITH CHECK (true);
+  USING (public.is_admin() = true)
+  WITH CHECK (public.is_admin() = true);
 
 -- Campaign calendar view
 CREATE OR REPLACE VIEW campaign_calendar AS

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -10,148 +10,65 @@ import {
   ArrowRight,
   BookOpen,
   Star,
-  Eye
+  Eye,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { PageSEO } from '@/components/PageSEO';
 import SEOBreadcrumbs from '@/components/SEOBreadcrumbs';
-import SEO from '@/components/SEO';
-
-interface BlogPost {
-  id: string;
-  title: string | null;
-  body_text: string | null;
-  slug: string | null;
-  seo_title?: string | null;
-  meta_description?: string | null;
-  keywords?: string[] | null;
-  featured_image_alt?: string | null;
-  reading_time?: number | null;
-  seo_score?: number | null;
-  created_at: string;
-  updated_at: string;
-  posted_at: string | null;
-  status: string;
-  image_url?: string | null;
-  content_type: string;
-  platform: string;
-}
+import { useBlogPosts, type BlogPostRow } from '@/hooks/useBlogPosts';
 
 const Blog = () => {
-  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
-  const [featuredPost, setFeaturedPost] = useState<BlogPost | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filteredPosts, setFilteredPosts] = useState<BlogPost[]>([]);
-  const { toast } = useToast();
+  const [activeTag, setActiveTag] = useState('');
+  const [page, setPage] = useState(1);
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  useEffect(() => {
-    loadBlogPosts();
-  }, []);
+  const { posts, totalCount, totalPages, allTags, isLoading } = useBlogPosts({
+    searchTerm,
+    tag: activeTag,
+    page,
+  });
 
-  useEffect(() => {
-    // Filter posts based on search term
-    if (searchTerm.trim()) {
-      const filtered = blogPosts.filter(post =>
-        post.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        post.body_text?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        post.keywords?.some(keyword => 
-          keyword.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      );
-      setFilteredPosts(filtered);
-    } else {
-      setFilteredPosts(blogPosts);
-    }
-  }, [searchTerm, blogPosts]);
+  const featuredPost = page === 1 && !searchTerm && !activeTag ? posts[0] : null;
+  const gridPosts = featuredPost ? posts.slice(1) : posts;
 
-  const loadBlogPosts = async () => {
-    try {
-      console.log('Loading published blog posts from marketing_content...');
-      
-      const { data: posts, error } = await supabase
-        .from('marketing_content')
-        .select('*')
-        .eq('platform', 'blog')
-        .eq('status', 'published')
-        .order('posted_at', { ascending: false });
+  const handleTagClick = (tag: string) => {
+    setActiveTag(activeTag === tag ? '' : tag);
+    setPage(1);
+  };
 
-      if (error) {
-        console.error('Error loading blog posts:', error);
-        throw error;
-      }
-
-      console.log('Loaded blog posts:', posts);
-
-      const blogPosts = (posts || []).map(post => ({
-        id: post.id,
-        title: post.title,
-        body_text: post.body_text,
-        slug: post.slug || (post.title ? post.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') : ''),
-        seo_title: post.seo_title,
-        meta_description: post.meta_description,
-        keywords: post.keywords,
-        featured_image_alt: post.featured_image_alt,
-        reading_time: post.reading_time,
-        seo_score: post.seo_score,
-        created_at: post.created_at,
-        updated_at: post.updated_at,
-        posted_at: post.posted_at,
-        status: post.status,
-        image_url: post.image_url,
-        content_type: post.content_type,
-        platform: post.platform
-      }));
-
-      setBlogPosts(blogPosts);
-      setFilteredPosts(blogPosts);
-      
-      // Set the most recent post as featured
-      if (blogPosts.length > 0) {
-        setFeaturedPost(blogPosts[0]);
-      }
-
-    } catch (error) {
-      console.error('Error loading blog posts:', error);
-      toast({
-        title: t('blog.errorTitle'),
-        description: t('blog.loadError'),
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
+    setPage(1);
   };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
-  const getExcerpt = (content: string, maxLength: number = 150) => {
-    if (!content) return '';
-    // Remove HTML tags and get plain text
-    const plainText = content.replace(/<[^>]*>/g, '');
+  const getExcerpt = (post: BlogPostRow, maxLength = 150) => {
+    if (post.excerpt) return post.excerpt;
+    if (!post.content) return '';
+    const plainText = post.content.replace(/<[^>]*>/g, '');
     if (plainText.length <= maxLength) return plainText;
     return plainText.substring(0, maxLength).trim() + '...';
   };
 
-  const handleReadMore = (post: BlogPost) => {
-    const slug = post.slug || (post.title ? post.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') : post.id);
-    navigate(`/blog/${slug}`);
+  const handleReadMore = (post: BlogPostRow) => {
+    navigate(`/blog/${post.slug}`);
   };
 
-  if (isLoading) {
+  if (isLoading && page === 1) {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
@@ -170,34 +87,34 @@ const Blog = () => {
       <PageSEO pageType="blog" />
       <Navigation />
       <SEOBreadcrumbs />
-      
-      {/* Hero Section with Background */}
+
+      {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-primary/10 via-secondary/5 to-background pt-page-top pb-section">
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
         <div className="container mx-auto px-4 relative">
           <div className="text-center max-w-4xl mx-auto">
             <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm text-primary px-6 py-3 rounded-full text-sm font-medium mb-8 shadow-lg">
               <BookOpen className="h-4 w-4" />
-              {t('blog.heroBadge')}
+              {t('blog.heroBadge', 'Safety & Protection Blog')}
             </div>
             <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
-              {t('blog.heroTitle1')}<br />
-              <span className="text-primary">{t('blog.heroTitle2')}</span>
+              {t('blog.heroTitle1', 'Expert Safety')}<br />
+              <span className="text-primary">{t('blog.heroTitle2', 'Insights & Updates')}</span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-              {t('blog.heroDescription')}
+              {t('blog.heroDescription', 'Stay informed with the latest emergency safety tips, family protection guides, and product updates from our AI-powered content team.')}
             </p>
-            
-            {/* Enhanced Search Bar */}
+
+            {/* Search Bar */}
             <div className="max-w-lg mx-auto relative">
               <div className="absolute inset-0 bg-white/20 backdrop-blur-sm rounded-xl -m-1"></div>
               <div className="relative bg-white rounded-lg shadow-xl">
                 <Search className="absolute left-4 top-4 h-5 w-5 text-muted-foreground" />
                 <Input
                   type="text"
-                  placeholder={t('blog.searchPlaceholder')}
+                  placeholder={t('blog.searchPlaceholder', 'Search articles...')}
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => handleSearch(e.target.value)}
                   className="pl-12 pr-4 py-6 text-lg border-0 focus:ring-2 focus:ring-primary/20 rounded-lg"
                 />
               </div>
@@ -207,12 +124,37 @@ const Blog = () => {
       </section>
 
       <main className="container mx-auto px-4 py-section">
+        {/* Tag Filter Bar */}
+        {allTags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-10">
+            <Button
+              variant={activeTag === '' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => handleTagClick('')}
+              className="rounded-full"
+            >
+              {t('blog.allTopics', 'All Topics')}
+            </Button>
+            {allTags.slice(0, 12).map((tag) => (
+              <Button
+                key={tag}
+                variant={activeTag === tag ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => handleTagClick(tag)}
+                className="rounded-full"
+              >
+                {tag}
+              </Button>
+            ))}
+          </div>
+        )}
+
         {/* Featured Post */}
         {featuredPost && (
           <section className="mb-20">
             <div className="flex items-center gap-2 mb-6">
               <Star className="h-6 w-6 text-yellow-500" />
-              <h2 className="text-2xl font-bold">{t('blog.featuredArticle')}</h2>
+              <h2 className="text-2xl font-bold">{t('blog.featuredArticle', 'Featured Article')}</h2>
             </div>
             <Card className="overflow-hidden border-0 shadow-xl bg-gradient-to-br from-white to-primary/5">
               <CardContent className="p-0">
@@ -220,54 +162,65 @@ const Blog = () => {
                   <div className="lg:col-span-2 p-10">
                     <div className="flex items-center gap-4 mb-6">
                       <Badge className="bg-gradient-to-r from-primary to-primary/80 text-white px-4 py-2 text-sm">
-                        {t('blog.featured')}
+                        {t('blog.featured', 'Featured')}
                       </Badge>
                       {featuredPost.reading_time && (
                         <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted px-3 py-1 rounded-full">
                           <Clock className="h-4 w-4" />
-                          {t('blog.minRead', { count: featuredPost.reading_time })}
+                          {t('blog.minRead', { count: featuredPost.reading_time, defaultValue: '{{count}} min read' })}
                         </div>
                       )}
-                      {featuredPost.seo_score && featuredPost.seo_score >= 80 && (
-                        <Badge className="bg-green-500/10 text-green-700 border-green-200">
-                          {t('blog.seoOptimized')}
-                        </Badge>
+                      {featuredPost.view_count != null && featuredPost.view_count > 0 && (
+                        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                          <Eye className="h-4 w-4" />
+                          {featuredPost.view_count.toLocaleString()}
+                        </div>
                       )}
                     </div>
                     <h3 className="text-3xl font-bold mb-6 text-foreground leading-tight">
-                      {featuredPost.seo_title || featuredPost.title || t('blog.untitledPost')}
+                      {featuredPost.seo_title || featuredPost.title}
                     </h3>
                     <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-                      {featuredPost.meta_description || getExcerpt(featuredPost.body_text || '', 200)}
+                      {featuredPost.meta_description || getExcerpt(featuredPost, 200)}
                     </p>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Calendar className="h-4 w-4" />
-                        {formatDate(featuredPost.posted_at || featuredPost.created_at)}
+                        {formatDate(featuredPost.published_at || featuredPost.created_at)}
                       </div>
-                      <Button 
-                        size="lg" 
+                      <Button
+                        size="lg"
                         className="group"
                         onClick={() => handleReadMore(featuredPost)}
                       >
-                        {t('blog.readFullArticle')}
+                        {t('blog.readFullArticle', 'Read Full Article')}
                         <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
                       </Button>
                     </div>
                   </div>
-                  <div className="bg-gradient-to-br from-primary/10 to-secondary/10 p-10 flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-6 shadow-lg mx-auto">
-                        <BookOpen className="h-12 w-12 text-primary" />
-                      </div>
-                      <p className="text-sm font-medium text-muted-foreground">
-                        {t('blog.aiGeneratedContent')}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        {t('blog.poweredByRiven')}
-                      </p>
+                  {featuredPost.featured_image ? (
+                    <div className="hidden lg:block">
+                      <img
+                        src={featuredPost.featured_image}
+                        alt={featuredPost.featured_image_alt || featuredPost.title}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
-                  </div>
+                  ) : (
+                    <div className="bg-gradient-to-br from-primary/10 to-secondary/10 p-10 flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-6 shadow-lg mx-auto">
+                          <BookOpen className="h-12 w-12 text-primary" />
+                        </div>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          {t('blog.aiGeneratedContent', 'AI-Generated Content')}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          {t('blog.poweredByRiven', 'Powered by Riven AI')}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -275,42 +228,64 @@ const Blog = () => {
         )}
 
         {/* Blog Posts Grid */}
-        {filteredPosts.length > 0 ? (
+        {gridPosts.length > 0 ? (
           <section className="space-y-10">
             <div className="flex items-center justify-between border-b border-border pb-4">
               <h2 className="text-3xl font-bold">
-                {searchTerm ? t('blog.searchResults') : t('blog.latestArticles')}
+                {searchTerm
+                  ? t('blog.searchResults', 'Search Results')
+                  : activeTag
+                    ? t('blog.tagResults', { tag: activeTag, defaultValue: 'Articles tagged "{{tag}}"' })
+                    : t('blog.latestArticles', 'Latest Articles')}
               </h2>
               <div className="flex items-center gap-4">
                 <div className="text-sm text-muted-foreground bg-muted px-3 py-1 rounded-full">
-                  {t('blog.articleCount', { count: filteredPosts.length })}
+                  {t('blog.articleCount', { count: totalCount, defaultValue: '{{count}} articles' })}
                 </div>
-                {searchTerm && (
-                  <Button variant="outline" size="sm" onClick={() => setSearchTerm('')}>
-                    {t('blog.clearSearch')}
+                {(searchTerm || activeTag) && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setSearchTerm('');
+                      setActiveTag('');
+                      setPage(1);
+                    }}
+                  >
+                    {t('blog.clearFilters', 'Clear Filters')}
                   </Button>
                 )}
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredPosts.slice(featuredPost ? 1 : 0).map((post) => (
-                <Card key={post.id} className="group hover:shadow-2xl transition-all duration-500 border-0 shadow-lg hover:-translate-y-2 bg-gradient-to-br from-white to-primary/[0.02] overflow-hidden">
-                  {/* Top gradient accent */}
-                  <div className="h-1 bg-gradient-to-r from-primary via-secondary to-primary"></div>
-                  
+              {gridPosts.map((post) => (
+                <Card
+                  key={post.id}
+                  className="group hover:shadow-2xl transition-all duration-500 border-0 shadow-lg hover:-translate-y-2 bg-gradient-to-br from-white to-primary/[0.02] overflow-hidden cursor-pointer"
+                  onClick={() => handleReadMore(post)}
+                >
+                  {/* Featured image or gradient accent */}
+                  {post.featured_image ? (
+                    <div className="h-48 overflow-hidden">
+                      <img
+                        src={post.featured_image}
+                        alt={post.featured_image_alt || post.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                  ) : (
+                    <div className="h-1 bg-gradient-to-r from-primary via-secondary to-primary"></div>
+                  )}
+
                   <CardHeader className="pb-6 pt-6">
-                    {/* Meta badges */}
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
-                        <Badge className="bg-primary/10 text-primary border-primary/20 font-medium text-xs px-3 py-1">
-                          {post.platform}
-                        </Badge>
-                        {post.seo_score && post.seo_score >= 80 && (
-                          <Badge className="bg-green-50 text-green-700 border-green-200 font-medium text-xs px-3 py-1">
-                            <Star className="h-3 w-3 mr-1" />
-                            {t('blog.seoOptimized')}
-                          </Badge>
+                        {post.view_count != null && post.view_count > 0 && (
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Eye className="h-3 w-3" />
+                            {post.view_count.toLocaleString()}
+                          </div>
                         )}
                       </div>
                       {post.reading_time && (
@@ -320,48 +295,55 @@ const Blog = () => {
                         </div>
                       )}
                     </div>
-                    
-                    {/* Title */}
                     <CardTitle className="group-hover:text-primary transition-colors duration-300 text-xl font-bold leading-tight line-clamp-2 mb-3 min-h-[3.5rem] flex items-start">
-                      {post.seo_title || post.title || t('blog.untitledPost')}
+                      {post.seo_title || post.title}
                     </CardTitle>
                   </CardHeader>
-                  
+
                   <CardContent className="pt-0">
-                    {/* Description */}
                     <p className="text-muted-foreground text-base leading-relaxed line-clamp-3 mb-6 min-h-[4.5rem]">
-                      {post.meta_description || getExcerpt(post.body_text || '', 120)}
+                      {post.meta_description || getExcerpt(post, 120)}
                     </p>
-                    
-                    {/* Keywords */}
+
                     {post.keywords && post.keywords.length > 0 && (
                       <div className="flex flex-wrap gap-2 mb-6 min-h-[2rem]">
                         {post.keywords.slice(0, 3).map((keyword, index) => (
-                          <Badge key={index} variant="secondary" className="text-xs bg-secondary/30 hover:bg-secondary/50 transition-colors font-normal px-2.5 py-1">
+                          <Badge
+                            key={index}
+                            variant="secondary"
+                            className="text-xs bg-secondary/30 hover:bg-secondary/50 transition-colors font-normal px-2.5 py-1"
+                          >
                             {keyword}
                           </Badge>
                         ))}
                         {post.keywords.length > 3 && (
-                          <Badge variant="outline" className="text-xs text-muted-foreground px-2.5 py-1">
-                            {t('blog.moreKeywords', { count: post.keywords.length - 3 })}
+                          <Badge
+                            variant="outline"
+                            className="text-xs text-muted-foreground px-2.5 py-1"
+                          >
+                            +{post.keywords.length - 3}
                           </Badge>
                         )}
                       </div>
                     )}
-                    
-                    {/* Footer */}
+
                     <div className="flex items-center justify-between pt-4 border-t border-border/50">
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Calendar className="h-4 w-4" />
-                        <span className="font-medium">{formatDate(post.posted_at || post.created_at)}</span>
+                        <span className="font-medium">
+                          {formatDate(post.published_at || post.created_at)}
+                        </span>
                       </div>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         className="group/btn hover:bg-primary/10 hover:text-primary text-sm font-medium px-4 py-2 h-auto"
-                        onClick={() => handleReadMore(post)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleReadMore(post);
+                        }}
                       >
-                        {t('blog.readArticle')}
+                        {t('blog.readArticle', 'Read')}
                         <ArrowRight className="h-4 w-4 ml-2 group-hover/btn:translate-x-1 transition-transform duration-300" />
                       </Button>
                     </div>
@@ -369,9 +351,59 @@ const Blog = () => {
                 </Card>
               ))}
             </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 pt-8">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page <= 1}
+                  onClick={() => setPage(page - 1)}
+                >
+                  <ChevronLeft className="h-4 w-4 mr-1" />
+                  {t('blog.previous', 'Previous')}
+                </Button>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+                    .reduce<(number | string)[]>((acc, p, idx, arr) => {
+                      if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push('...');
+                      acc.push(p);
+                      return acc;
+                    }, [])
+                    .map((item, idx) =>
+                      item === '...' ? (
+                        <span key={`ellipsis-${idx}`} className="px-2 text-muted-foreground">
+                          ...
+                        </span>
+                      ) : (
+                        <Button
+                          key={item}
+                          variant={page === item ? 'default' : 'outline'}
+                          size="sm"
+                          className="w-9 h-9 p-0"
+                          onClick={() => setPage(item as number)}
+                        >
+                          {item}
+                        </Button>
+                      )
+                    )}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page >= totalPages}
+                  onClick={() => setPage(page + 1)}
+                >
+                  {t('blog.next', 'Next')}
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
+            )}
           </section>
         ) : (
-          /* Enhanced Empty State */
+          /* Empty State */
           <section className="py-20">
             <Card className="text-center border-0 shadow-xl bg-gradient-to-br from-muted/50 to-background">
               <CardContent className="py-20">
@@ -379,32 +411,40 @@ const Blog = () => {
                   <BookOpen className="h-10 w-10 text-primary" />
                 </div>
                 <h3 className="text-2xl font-bold mb-4">
-                  {searchTerm ? t('blog.noArticlesFound') : t('blog.noPublishedContent')}
+                  {searchTerm || activeTag
+                    ? t('blog.noArticlesFound', 'No articles found')
+                    : t('blog.noPublishedContent', 'No published content yet')}
                 </h3>
                 <p className="text-muted-foreground mb-8 max-w-md mx-auto leading-relaxed">
                   {searchTerm
-                    ? t('blog.noArticlesMatch', { term: searchTerm })
-                    : t('blog.noPublishedContentDesc')
-                  }
+                    ? t('blog.noArticlesMatch', {
+                        term: searchTerm,
+                        defaultValue: 'No articles match "{{term}}". Try a different search.',
+                      })
+                    : t(
+                        'blog.noPublishedContentDesc',
+                        'Blog posts are automatically generated and published by our AI content engine. Check back soon!'
+                      )}
                 </p>
-                {searchTerm && (
-                  <Button variant="outline" onClick={() => setSearchTerm('')}>
+                {(searchTerm || activeTag) && (
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSearchTerm('');
+                      setActiveTag('');
+                      setPage(1);
+                    }}
+                  >
                     <Search className="h-4 w-4 mr-2" />
-                    {t('blog.clearSearch')}
+                    {t('blog.clearFilters', 'Clear Filters')}
                   </Button>
-                )}
-                {!searchTerm && (
-                  <div className="text-sm text-muted-foreground mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200 max-w-md mx-auto">
-                    <p className="font-semibold text-blue-800 mb-1">{t('blog.howToPublishTitle')}</p>
-                    <p className="text-blue-700">{t('blog.howToPublishDesc')}</p>
-                  </div>
                 )}
               </CardContent>
             </Card>
           </section>
         )}
 
-        {/* Enhanced AI Info Section */}
+        {/* AI Info Section */}
         <section className="mt-20">
           <Card className="border-0 shadow-xl bg-gradient-to-br from-blue-50 via-white to-indigo-50">
             <CardContent className="p-12 text-center">
@@ -412,31 +452,48 @@ const Blog = () => {
                 <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center mb-6 mx-auto shadow-lg">
                   <Star className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold mb-6">{t('blog.aiPoweredTitle')}</h3>
+                <h3 className="text-2xl font-bold mb-6">
+                  {t('blog.aiPoweredTitle', 'AI-Powered Safety Content')}
+                </h3>
                 <p className="text-muted-foreground mb-10 text-lg leading-relaxed">
-                  {t('blog.aiPoweredDesc')}
+                  {t(
+                    'blog.aiPoweredDesc',
+                    'Our blog content is generated by Riven AI, trained on emergency safety best practices, and reviewed by our editorial team.'
+                  )}
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   <div className="flex flex-col items-center gap-3 p-6 bg-white/60 rounded-xl">
                     <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
                       <BookOpen className="h-6 w-6 text-blue-600" />
                     </div>
-                    <span className="font-semibold">{t('blog.expertContent')}</span>
-                    <span className="text-sm text-muted-foreground text-center">{t('blog.expertContentDesc')}</span>
+                    <span className="font-semibold">
+                      {t('blog.expertContent', 'Expert Content')}
+                    </span>
+                    <span className="text-sm text-muted-foreground text-center">
+                      {t('blog.expertContentDesc', 'Research-backed safety articles')}
+                    </span>
                   </div>
                   <div className="flex flex-col items-center gap-3 p-6 bg-white/60 rounded-xl">
                     <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
                       <Star className="h-6 w-6 text-yellow-600" />
                     </div>
-                    <span className="font-semibold">{t('blog.seoOptimized')}</span>
-                    <span className="text-sm text-muted-foreground text-center">{t('blog.seoOptimizedDesc')}</span>
+                    <span className="font-semibold">
+                      {t('blog.seoOptimized', 'SEO Optimized')}
+                    </span>
+                    <span className="text-sm text-muted-foreground text-center">
+                      {t('blog.seoOptimizedDesc', 'Optimized for search engines')}
+                    </span>
                   </div>
                   <div className="flex flex-col items-center gap-3 p-6 bg-white/60 rounded-xl">
                     <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
                       <Eye className="h-6 w-6 text-green-600" />
                     </div>
-                    <span className="font-semibold">{t('blog.liveUpdates')}</span>
-                    <span className="text-sm text-muted-foreground text-center">{t('blog.liveUpdatesDesc')}</span>
+                    <span className="font-semibold">
+                      {t('blog.liveUpdates', 'Live Updates')}
+                    </span>
+                    <span className="text-sm text-muted-foreground text-center">
+                      {t('blog.liveUpdatesDesc', 'Fresh content published regularly')}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -444,7 +501,7 @@ const Blog = () => {
           </Card>
         </section>
       </main>
-      
+
       <Footer />
     </div>
   );

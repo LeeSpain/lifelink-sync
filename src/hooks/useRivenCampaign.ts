@@ -41,19 +41,26 @@ export function useRivenCampaign() {
   const [activeCampaign, setActiveCampaign] = useState<Campaign | null>(null);
   const [content, setContent] = useState<CampaignContent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
 
   // Load all campaigns
   const loadCampaigns = useCallback(async () => {
-    const { data, error } = await supabase
+    setError(null);
+    const { data, error: fetchError } = await supabase
       .from("marketing_campaigns")
       .select("*")
       .order("created_at", { ascending: false });
 
-    if (!error && data) {
+    if (fetchError) {
+      setError(fetchError.message);
+      setLoading(false);
+      return;
+    }
+
+    if (data) {
       setCampaigns(data as Campaign[]);
-      // Auto-select first active campaign
       const active = data.find(
         (c: Campaign) => c.status === "active" || c.status === "processing"
       );
@@ -111,7 +118,8 @@ export function useRivenCampaign() {
 
         return data;
       } catch (err) {
-        console.error("Campaign generation failed:", err);
+        const message = err instanceof Error ? err.message : "Campaign generation failed";
+        setError(message);
         throw err;
       } finally {
         setGenerating(false);
@@ -194,13 +202,22 @@ export function useRivenCampaign() {
   // Delete a content item
   const deleteContent = useCallback(
     async (contentId: string) => {
-      await supabase.from("marketing_content").delete().eq("id", contentId);
+      const { error: deleteError } = await supabase
+        .from("marketing_content")
+        .delete()
+        .eq("id", contentId);
+
+      if (deleteError) throw deleteError;
+
       if (activeCampaign) {
         await loadContent(activeCampaign.id);
       }
     },
     [activeCampaign, loadContent]
   );
+
+  // Clear error
+  const clearError = useCallback(() => setError(null), []);
 
   // Select a campaign
   const selectCampaign = useCallback(
@@ -276,6 +293,7 @@ export function useRivenCampaign() {
     activeCampaign,
     content,
     loading,
+    error,
     generating,
     generationProgress,
     stats,
@@ -287,5 +305,6 @@ export function useRivenCampaign() {
     toggleCampaignPause,
     updateContent,
     deleteContent,
+    clearError,
   };
 }
