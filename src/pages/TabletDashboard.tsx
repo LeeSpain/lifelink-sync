@@ -4,7 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useWakeLock } from '@/hooks/useWakeLock';
 import { useEmergencyContacts } from '@/hooks/useEmergencyContacts';
 import { useEmergencySOS } from '@/hooks/useEmergencySOS';
-import { useTabletClara } from '@/hooks/useTabletClara';
+import { useTabletVoice } from '@/hooks/useTabletVoice';
+import { useTabletAlerts } from '@/hooks/useTabletAlerts';
 import { Button } from '@/components/ui/button';
 import { Phone, AlertTriangle, X, Download, Tablet, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -13,6 +14,10 @@ import { TabletVitalsStrip } from '@/components/tablet/TabletVitalsStrip';
 import { TabletPhotoFrame } from '@/components/tablet/TabletPhotoFrame';
 import { ReminderCard, type Reminder } from '@/components/tablet/ReminderCard';
 import { QuickInfoCards } from '@/components/tablet/QuickInfoCards';
+import { TabletClaraPanel } from '@/components/tablet/TabletClaraPanel';
+import { TabletAlertSystem } from '@/components/tablet/TabletAlertSystem';
+import { TabletVoiceIndicator } from '@/components/tablet/TabletVoiceIndicator';
+import { TabletPermissionsOverlay } from '@/components/tablet/TabletPermissionsOverlay';
 import type { FamilyMessage } from '@/components/tablet/FamilyMessagesCard';
 import { useToast } from '@/hooks/use-toast';
 import { KioskSetupGuide } from '@/components/tablet/KioskSetupGuide';
@@ -40,27 +45,92 @@ const TabletDashboard = () => {
   const [showContacts, setShowContacts] = useState(false);
   const [sosTriggered, setSosTriggered] = useState(false);
   const [familyOnline, setFamilyOnline] = useState(0);
-  // Session-only dismiss — resets on every page visit so install is always accessible
   const [installDismissed, setInstallDismissed] = useState(false);
-  // Wait briefly for Chrome's beforeinstallprompt before showing manual instructions
   const [waitingForPrompt, setWaitingForPrompt] = useState(true);
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
+  // Permissions state
+  const [micPermission, setMicPermission] = useState<'granted' | 'denied' | 'skipped' | null>(
+    () => localStorage.getItem('tabletMicPermission') as any
+  );
+  const [notifPermission, setNotifPermission] = useState<'granted' | 'denied' | 'skipped' | null>(
+    () => localStorage.getItem('tabletNotificationPermission') as any
+  );
+  const showPermissions = micPermission === null && notifPermission === null;
+
+  // Clara panel state
+  const [claraPanelExpanded, setClaraPanelExpanded] = useState(true);
+
+  const handlePermissionsComplete = useCallback((mic: 'granted' | 'skipped', notif: 'granted' | 'skipped') => {
+    setMicPermission(mic);
+    setNotifPermission(notif);
+    localStorage.setItem('tabletMicPermission', mic);
+    localStorage.setItem('tabletNotificationPermission', notif);
+  }, []);
+
+  // SOS trigger
+  const handleSOS = useCallback(async () => {
+    try {
+      await triggerEmergencySOS();
+      setSosTriggered(true);
+      setTimeout(() => setSosTriggered(false), 10_000);
+    } catch {
+      // Error toast already shown by useEmergencySOS
+    }
+  }, [triggerEmergencySOS]);
+
+  // Clara voice + chat
+  const clara = useTabletVoice({ onSOSTrigger: handleSOS, micPermission });
+
+  // Alert system
+  const alertSystem = useTabletAlerts({
+    userId: user?.id,
+    onAlert: (alert) => {
+      // Auto-expand Clara panel when alert fires
+      setClaraPanelExpanded(true);
+
+      // Add alert as Clara message
+      const icon = alert.level === 'critical' ? '🚨' : alert.level === 'warning' ? '⚠️' : 'ℹ️';
+      const alertMsg = `${icon} Alert: ${alert.message}`;
+      clara.addClaraMessage(alertMsg, alert.level !== 'info');
+
+      // Clara speaks critical/warning alerts
+      if (alert.level === 'critical') {
+        const speech = `ALERT: ${alert.who || 'Someone'} has triggered an emergency SOS. ${
+          alert.location ? `Their location is ${alert.location}.` : ''
+        } Tap the screen to respond.`;
+        clara.speak(speech);
+      } else if (alert.level === 'warning') {
+        clara.speak(`Reminder: ${alert.message}`);
+      }
+    },
+  });
+
+  // Greeting on load (after permissions)
+  useEffect(() => {
+    if (!showPermissions && !clara.hasGreeted && micPermission !== null) {
+      // Small delay to let the UI settle
+      const timer = setTimeout(() => clara.speakGreeting(), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [showPermissions, clara.hasGreeted, micPermission]);
+
+  const firstName = user?.user_metadata?.first_name || t('dashboard.memberFallback');
+
+  // PWA install prompt timing
   useEffect(() => {
     if (isInstallable) {
       setWaitingForPrompt(false);
       return;
     }
-    // On iOS, native prompt never fires — skip wait immediately
     if (isIOS) {
       setWaitingForPrompt(false);
       return;
     }
-    const t = setTimeout(() => setWaitingForPrompt(false), 3000);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setWaitingForPrompt(false), 3000);
+    return () => clearTimeout(timer);
   }, [isInstallable, isIOS]);
 
-  // When prompt fires during the wait, clear the wait immediately
   useEffect(() => {
     if (isInstallable) setWaitingForPrompt(false);
   }, [isInstallable]);
@@ -71,10 +141,7 @@ const TabletDashboard = () => {
     setInstallDismissed(true);
   };
 
-  const firstName = user?.user_metadata?.first_name || t('dashboard.memberFallback');
-
-  // Swap manifest to tablet-specific version so PWA installs with
-  // Mark this device as a tablet PWA so the app can redirect back here on launch
+  // Mark this device as tablet PWA
   useEffect(() => {
     localStorage.setItem('pwa_intent', 'tablet');
   }, []);
@@ -99,10 +166,7 @@ const TabletDashboard = () => {
         .order('created_at', { ascending: false })
         .limit(20);
 
-      if (error) {
-        console.error('Failed to fetch alerts:', error);
-        return;
-      }
+      if (error) return;
 
       if (data) {
         const rems: Reminder[] = [];
@@ -133,7 +197,7 @@ const TabletDashboard = () => {
 
     fetchAlerts();
 
-    // Real-time subscription
+    // Real-time subscription for family alerts (reminders + messages)
     const channel = supabase
       .channel('tablet-alerts')
       .on(
@@ -159,7 +223,6 @@ const TabletDashboard = () => {
               ...prev,
             ]);
             toast({ title: t('tablet.dashboard.newReminder'), description: d.message || t('tablet.dashboard.newReminderDefault') });
-            speakAlertRef.current('reminder', d.from_name || t('tablet.quickInfo.family'), d.message || t('tablet.dashboard.newReminderDefault'));
           } else if (row.alert_type === 'family_message') {
             setMessages((prev) => [
               {
@@ -171,13 +234,12 @@ const TabletDashboard = () => {
               ...prev,
             ]);
             toast({ title: t('tablet.dashboard.messageFromFamily', { name: d.from_name || t('tablet.quickInfo.family') }), description: d.message });
-            speakAlertRef.current('message', d.from_name || t('tablet.quickInfo.family'), d.message || '');
           }
         }
       )
       .subscribe();
 
-    // Track family online count from live_presence
+    // Track family online count
     const fetchOnline = async () => {
       const { count } = await supabase
         .from('live_presence')
@@ -203,35 +265,21 @@ const TabletDashboard = () => {
     []
   );
 
-  // SOS trigger — calls the real emergency edge function
-  const handleSOS = useCallback(async () => {
-    try {
-      await triggerEmergencySOS();
-      setSosTriggered(true);
-      setTimeout(() => setSosTriggered(false), 10_000);
-    } catch {
-      // Error toast already shown by useEmergencySOS
-    }
-  }, [triggerEmergencySOS]);
-
-  // Clara AI — TTS for incoming alerts + voice activation
-  const clara = useTabletClara({ onSOSTrigger: handleSOS });
-
-  // Ref so the real-time subscription can call speakAlert without re-subscribing
-  const speakAlertRef = useRef(clara.speakAlert);
-  speakAlertRef.current = clara.speakAlert;
-
   const currentReminder = reminders[0] || null;
 
   return (
-    <div className={`h-screen flex flex-col text-white overflow-hidden select-none transition-colors duration-1000 ${
+    <div className={`h-screen flex text-white overflow-hidden select-none transition-colors duration-1000 ${
       sosTriggered ? 'bg-red-950' : familyOnline > 0 ? 'bg-[#0a1210]' : reminders.length > 0 ? 'bg-[#12100a]' : 'bg-slate-950'
     }`}>
-      {/* Install Overlay — shown first time on a browser (not yet installed) */}
-      {showInstallOverlay && (
+      {/* Permissions Overlay — shown before anything on first visit */}
+      {showPermissions && (
+        <TabletPermissionsOverlay onComplete={handlePermissionsComplete} />
+      )}
+
+      {/* Install Overlay */}
+      {!showPermissions && showInstallOverlay && (
         <div className="fixed inset-0 z-[100] bg-slate-950 flex items-center justify-center p-8">
           <div className="text-center max-w-lg w-full">
-            {/* Icon + badge */}
             <div className="relative inline-block mb-6">
               <div className="w-24 h-24 rounded-3xl bg-primary/20 border border-primary/40 flex items-center justify-center mx-auto">
                 <Tablet className="h-12 w-12 text-primary" />
@@ -245,7 +293,6 @@ const TabletDashboard = () => {
 
             <div className="flex flex-col gap-4 items-center w-full max-w-sm mx-auto">
               {isInstallable ? (
-                /* Chrome / Edge — native install prompt available */
                 <Button
                   size="lg"
                   className="w-full min-h-[64px] text-xl font-bold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/30"
@@ -258,13 +305,11 @@ const TabletDashboard = () => {
                   {t('tablet.dashboard.installButton', 'Install App Now')}
                 </Button>
               ) : waitingForPrompt ? (
-                /* Briefly wait for Chrome's beforeinstallprompt before showing manual steps */
                 <div className="flex flex-col items-center gap-3 py-4 text-slate-400">
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
                   <p className="text-sm">{t('tablet.dashboard.preparingInstall', 'Preparing install…')}</p>
                 </div>
               ) : isIOS ? (
-                /* Safari / iOS — manual steps */
                 <div className="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 text-left text-sm text-slate-300 w-full space-y-4">
                   <p className="font-semibold text-white text-base">{t('tablet.dashboard.iosInstallTitle', 'Install on this iPad / iPhone:')}</p>
                   <div className="flex items-start gap-3">
@@ -281,7 +326,6 @@ const TabletDashboard = () => {
                   </div>
                 </div>
               ) : (
-                /* Chrome / Android — manual steps (prompt didn't fire — already installed or 30-day cooldown) */
                 <div className="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 text-left text-sm text-slate-300 w-full space-y-4">
                   <p className="font-semibold text-white text-base">{t('tablet.dashboard.androidInstallTitle', 'Install on this device:')}</p>
                   <div className="flex items-start gap-3">
@@ -312,12 +356,12 @@ const TabletDashboard = () => {
         </div>
       )}
 
-      {/* Kiosk mode setup guide — shown after install, not during browser visit */}
+      {/* Kiosk mode setup guide */}
       {isInstalled && <KioskSetupGuide />}
 
-      {/* Persistent install banner — shown when overlay dismissed but not yet installed */}
+      {/* Persistent install banner */}
       {!isInstalled && installDismissed && (
-        <div className="flex items-center justify-between px-4 py-2.5 bg-primary/20 border-b border-primary/30 text-sm">
+        <div className="fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 py-2.5 bg-primary/20 border-b border-primary/30 text-sm">
           <span className="text-primary font-medium flex items-center gap-2">
             <Download className="h-4 w-4" />
             {t('tablet.dashboard.installBanner', 'Install as app for full-screen experience')}
@@ -347,69 +391,108 @@ const TabletDashboard = () => {
         </div>
       )}
 
-
-      {/* Vitals Strip — shows device data if available */}
-      <TabletVitalsStrip />
-
-      {/* Photo Frame idle mode — activates after 5 min of inactivity */}
-      <TabletPhotoFrame alertCount={reminders.length + messages.length} />
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col justify-between p-6 md:p-10 max-w-6xl mx-auto w-full">
-        {/* Greeting */}
-        <div className="text-center mb-6">
-          <h1 className="text-4xl md:text-5xl font-light text-white">
-            {t(greetingKey)}, <span className="font-semibold">{firstName}</span>
-          </h1>
+      {/* Permission denied banner */}
+      {micPermission === 'skipped' && notifPermission === 'skipped' && (
+        <div className="fixed bottom-0 left-0 right-80 z-30 flex items-center justify-center px-4 py-2 bg-amber-500/10 border-t border-amber-500/20 text-xs text-amber-400">
+          Enable permissions in browser settings for full tablet experience
         </div>
+      )}
 
-        {/* Reminder Card */}
-        <div className="mb-6">
-          <ReminderCard reminder={currentReminder} onDismiss={dismissReminder} />
-          {reminders.length > 1 && (
-            <p className="text-xs text-slate-500 text-center mt-2">
-              {t('tablet.dashboard.moreReminders', { count: reminders.length - 1 })}
-            </p>
-          )}
-        </div>
+      {/* Alert System Overlay */}
+      <TabletAlertSystem
+        activeAlert={alertSystem.activeAlert}
+        onAcknowledge={alertSystem.acknowledgeAlert}
+      />
 
-        {/* Quick Info Cards */}
-        <div className="mb-6">
-          <QuickInfoCards
-            familyOnline={familyOnline}
-            messages={messages}
-            onViewMessages={() => setShowMessages(true)}
-          />
-        </div>
+      {/* Voice Indicator — bottom-left corner */}
+      <TabletVoiceIndicator
+        isListening={clara.isListening}
+        isSpeaking={clara.isSpeaking}
+        hasPermission={clara.hasPermission}
+      />
 
-        {/* Bottom Action Buttons */}
-        <div className="grid grid-cols-2 gap-4">
-          <Button
-            size="lg"
-            variant={sosTriggered ? 'outline' : 'destructive'}
-            className={`min-h-[80px] text-xl font-bold rounded-2xl ${
-              sosTriggered
-                ? 'border-red-500 text-red-400 animate-pulse'
-                : 'bg-red-600 hover:bg-red-700'
-            }`}
-            onClick={handleSOS}
-            disabled={sosTriggered || isTriggering}
-          >
-            <AlertTriangle className="h-7 w-7 mr-3" />
-            {isTriggering ? t('tablet.dashboard.sosSending', 'SENDING...') : sosTriggered ? t('tablet.dashboard.sosAlertSent', 'ALERT SENT') : t('tablet.dashboard.sosEmergency', 'EMERGENCY')}
-          </Button>
+      {/* LEFT/CENTER: Main dashboard content */}
+      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${
+        claraPanelExpanded ? 'mr-80' : 'mr-12'
+      }`}>
+        {/* Vitals Strip */}
+        <TabletVitalsStrip />
 
-          <Button
-            size="lg"
-            variant="outline"
-            className="min-h-[80px] text-xl font-bold rounded-2xl border-slate-600 text-slate-200 hover:bg-slate-800"
-            onClick={() => setShowContacts(true)}
-          >
-            <Phone className="h-7 w-7 mr-3" />
-            {t('tablet.dashboard.callFamily', 'CALL FAMILY')}
-          </Button>
+        {/* Photo Frame idle mode */}
+        <TabletPhotoFrame alertCount={reminders.length + messages.length} />
+
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col justify-between p-6 md:p-10 max-w-6xl mx-auto w-full">
+          {/* Greeting */}
+          <div className="text-center mb-6">
+            <h1 className="text-4xl md:text-5xl font-light text-white">
+              {t(greetingKey)}, <span className="font-semibold">{firstName}</span>
+            </h1>
+          </div>
+
+          {/* Reminder Card */}
+          <div className="mb-6">
+            <ReminderCard reminder={currentReminder} onDismiss={dismissReminder} />
+            {reminders.length > 1 && (
+              <p className="text-xs text-slate-500 text-center mt-2">
+                {t('tablet.dashboard.moreReminders', { count: reminders.length - 1 })}
+              </p>
+            )}
+          </div>
+
+          {/* Quick Info Cards */}
+          <div className="mb-6">
+            <QuickInfoCards
+              familyOnline={familyOnline}
+              messages={messages}
+              onViewMessages={() => setShowMessages(true)}
+            />
+          </div>
+
+          {/* Bottom Action Buttons */}
+          <div className="grid grid-cols-2 gap-4">
+            <Button
+              size="lg"
+              variant={sosTriggered ? 'outline' : 'destructive'}
+              className={`min-h-[80px] text-xl font-bold rounded-2xl ${
+                sosTriggered
+                  ? 'border-red-500 text-red-400 animate-pulse'
+                  : 'bg-red-600 hover:bg-red-700'
+              }`}
+              onClick={handleSOS}
+              disabled={sosTriggered || isTriggering}
+            >
+              <AlertTriangle className="h-7 w-7 mr-3" />
+              {isTriggering ? t('tablet.dashboard.sosSending', 'SENDING...') : sosTriggered ? t('tablet.dashboard.sosAlertSent', 'ALERT SENT') : t('tablet.dashboard.sosEmergency', 'EMERGENCY')}
+            </Button>
+
+            <Button
+              size="lg"
+              variant="outline"
+              className="min-h-[80px] text-xl font-bold rounded-2xl border-slate-600 text-slate-200 hover:bg-slate-800"
+              onClick={() => setShowContacts(true)}
+            >
+              <Phone className="h-7 w-7 mr-3" />
+              {t('tablet.dashboard.callFamily', 'CALL FAMILY')}
+            </Button>
+          </div>
         </div>
       </div>
+
+      {/* RIGHT: Clara Panel */}
+      <TabletClaraPanel
+        messages={clara.messages}
+        isThinking={clara.isThinking}
+        isSpeaking={clara.isSpeaking}
+        isMuted={clara.isMuted}
+        isListening={clara.isListening}
+        voiceEnabled={clara.voiceEnabled}
+        onSendMessage={clara.sendMessage}
+        onToggleMute={clara.toggleMute}
+        onToggleVoice={clara.setVoiceEnabled}
+        expanded={claraPanelExpanded}
+        onToggleExpand={() => setClaraPanelExpanded((prev) => !prev)}
+      />
 
       {/* Messages Overlay */}
       {showMessages && (
