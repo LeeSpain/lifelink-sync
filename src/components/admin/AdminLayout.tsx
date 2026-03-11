@@ -214,9 +214,9 @@ function AdminSidebar() {
           const isExpanded = expandedSections.has(group.title);
 
           return (
-            <SidebarGroup key={group.title} className="px-3 py-2">
+            <SidebarGroup key={group.title} className="px-3 py-1">
               <SidebarGroupLabel
-                className={`${state === "collapsed" ? 'hidden' : 'block'} text-sm font-medium px-2 py-2 mb-3 cursor-pointer hover:bg-sidebar-accent/50 rounded-md transition-colors text-sidebar-muted-foreground`}
+                className={`${state === "collapsed" ? 'hidden' : 'block'} text-sm font-medium px-2 py-1.5 mb-1 cursor-pointer hover:bg-sidebar-accent/50 rounded-md transition-colors text-sidebar-muted-foreground`}
                 onClick={() => toggleSection(group.title)}
               >
                 {group.title}
