@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import Anthropic from "https://esm.sh/@anthropic-ai/sdk@0.30.1";
 
 const corsHeaders = {
@@ -7,6 +6,13 @@ const corsHeaders = {
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
 };
+
+function jsonResponse(body: Record<string, unknown>, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
 
 interface SingleContentRequest {
   goal: string;
@@ -18,18 +24,54 @@ interface SingleContentRequest {
   seo_optimize?: boolean;
 }
 
+// Wrap a promise with a timeout
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("TIMEOUT")), ms)
+    ),
+  ]);
+}
+
 serve(async (req) => {
+  // CORS preflight — always respond
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
   try {
-    const body: SingleContentRequest = await req.json();
-    const { goal, audience, tone, platforms, topic, word_count = 500, seo_optimize = false } = body;
+    const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
+    if (!apiKey) {
+      console.error("ANTHROPIC_API_KEY not configured");
+      return jsonResponse(
+        {
+          error: "AI content generation is not configured yet.",
+          code: "NOT_CONFIGURED",
+        },
+        503
+      );
+    }
 
-    const anthropic = new Anthropic({
-      apiKey: Deno.env.get("ANTHROPIC_API_KEY")!,
-    });
+    const body: SingleContentRequest = await req.json();
+    const {
+      goal,
+      audience,
+      tone,
+      platforms,
+      topic,
+      word_count = 500,
+      seo_optimize = false,
+    } = body;
+
+    if (!platforms?.length || !topic) {
+      return jsonResponse(
+        { error: "Missing required fields: platforms and topic", code: "BAD_REQUEST" },
+        400
+      );
+    }
+
+    const anthropic = new Anthropic({ apiKey });
 
     const contentTypeMap: Record<string, string> = {
       twitter: "tweet (max 280 chars, punchy, 3-5 hashtags)",
@@ -71,27 +113,58 @@ ${seo_optimize ? '- "seo_title": SEO-optimized title (blog only)\n- "meta_descri
 
 No markdown wrapping, no explanation. Just the JSON array.`;
 
-    const message = await anthropic.messages.create({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 4096,
-      messages: [{ role: "user", content: prompt }],
-    });
+    // 50-second timeout (Supabase limit is 60s, leave margin)
+    const message = await withTimeout(
+      anthropic.messages.create({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 4096,
+        messages: [{ role: "user", content: prompt }],
+      }),
+      50_000
+    );
 
     const text = message.content[0].type === "text" ? message.content[0].text : "";
     const jsonMatch = text.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) throw new Error("No JSON array in Claude response");
+    if (!jsonMatch) {
+      console.error("No JSON array in Claude response:", text.substring(0, 200));
+      return jsonResponse(
+        { error: "AI returned an unexpected format. Please try again.", code: "PARSE_ERROR" },
+        502
+      );
+    }
 
     const results = JSON.parse(jsonMatch[0]);
 
-    return new Response(
-      JSON.stringify({ success: true, content: results }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return jsonResponse({ success: true, content: results });
   } catch (error) {
-    console.error("riven-content-single error:", error);
-    return new Response(
-      JSON.stringify({ error: (error as Error).message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    const err = error as Error;
+    console.error("riven-content-single error:", err.message, err.stack);
+
+    if (err.message === "TIMEOUT") {
+      return jsonResponse(
+        { error: "Content generation timed out. Please try again.", code: "TIMEOUT" },
+        504
+      );
+    }
+
+    // Anthropic API errors
+    if (err.message?.includes("authentication") || err.message?.includes("401")) {
+      return jsonResponse(
+        { error: "AI API key is invalid. Contact admin.", code: "NOT_CONFIGURED" },
+        503
+      );
+    }
+
+    if (err.message?.includes("rate") || err.message?.includes("429")) {
+      return jsonResponse(
+        { error: "AI rate limit reached. Wait a moment and try again.", code: "RATE_LIMIT" },
+        429
+      );
+    }
+
+    return jsonResponse(
+      { error: "Content generation failed. Please try again.", code: "API_ERROR" },
+      500
     );
   }
 });
