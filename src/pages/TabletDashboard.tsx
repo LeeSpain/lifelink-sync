@@ -32,7 +32,7 @@ const TabletDashboard = () => {
   const { triggerEmergencySOS, isTriggering } = useEmergencySOS();
   const { toast } = useToast();
   const { t } = useTranslation();
-  const { isInstalled, isInstallable, installApp, resetPrompt } = usePWAFeatures();
+  const { isInstalled, isInstallable, installApp } = usePWAFeatures();
 
   const [greetingKey, setGreetingKey] = useState(getGreetingKey());
   const [reminders, setReminders] = useState<Reminder[]>([]);
@@ -41,14 +41,12 @@ const TabletDashboard = () => {
   const [showContacts, setShowContacts] = useState(false);
   const [sosTriggered, setSosTriggered] = useState(false);
   const [familyOnline, setFamilyOnline] = useState(0);
-  const [installDismissed, setInstallDismissed] = useState(
-    () => localStorage.getItem('tablet-install-dismissed') === '1'
-  );
+  // Session-only dismiss — resets on every page visit so install is always accessible
+  const [installDismissed, setInstallDismissed] = useState(false);
 
   const showInstallOverlay = !isInstalled && !installDismissed;
 
   const dismissInstallOverlay = () => {
-    localStorage.setItem('tablet-install-dismissed', '1');
     setInstallDismissed(true);
   };
 
@@ -70,9 +68,6 @@ const TabletDashboard = () => {
     link.rel = 'manifest';
     link.href = '/tablet-manifest.json';
     document.head.appendChild(link);
-
-    // Clear any previously captured install prompt (bound to the old manifest)
-    resetPrompt();
 
     return () => {
       // Restore original manifest when navigating away
@@ -241,11 +236,11 @@ const TabletDashboard = () => {
             <p className="text-lg text-slate-300 mb-8">
               {t('tablet.dashboard.installDesc', 'Install this app on your tablet for the best always-on experience. It will launch full-screen and keep your screen awake.')}
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <div className="flex flex-col gap-4 items-center w-full max-w-sm mx-auto">
               {isInstallable ? (
                 <Button
                   size="lg"
-                  className="min-h-[56px] px-10 text-lg"
+                  className="w-full min-h-[56px] text-lg"
                   onClick={async () => {
                     await installApp();
                     dismissInstallOverlay();
@@ -254,16 +249,43 @@ const TabletDashboard = () => {
                   <Download className="h-5 w-5 mr-2" />
                   {t('tablet.dashboard.installButton', 'Install Now')}
                 </Button>
+              ) : /iPad|iPhone|iPod/.test(navigator.userAgent) ? (
+                <div className="bg-slate-800 rounded-xl p-5 text-left text-sm text-slate-300 w-full space-y-3">
+                  <p className="font-semibold text-white text-base">{t('tablet.dashboard.iosInstallTitle', 'Install on this iPad / iPhone:')}</p>
+                  <div className="flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-white flex-shrink-0 mt-0.5">1</span>
+                    <p>{t('tablet.dashboard.iosStep1', 'Tap the Share button (□↑) at the bottom of Safari')}</p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-white flex-shrink-0 mt-0.5">2</span>
+                    <p>{t('tablet.dashboard.iosStep2', 'Scroll down and tap "Add to Home Screen"')}</p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-white flex-shrink-0 mt-0.5">3</span>
+                    <p>{t('tablet.dashboard.iosStep3', 'Tap "Add" — the app will appear on your home screen')}</p>
+                  </div>
+                </div>
               ) : (
-                <div className="bg-slate-800 rounded-xl p-4 text-left text-sm text-slate-300 max-w-sm mx-auto">
-                  <p className="font-medium text-white mb-2">{t('tablet.dashboard.installFallbackTitle', 'To install:')}</p>
-                  <p>{t('tablet.dashboard.installFallbackDesc', 'Open your browser menu and tap "Add to Home Screen" or "Install App"')}</p>
+                <div className="bg-slate-800 rounded-xl p-5 text-left text-sm text-slate-300 w-full space-y-3">
+                  <p className="font-semibold text-white text-base">{t('tablet.dashboard.androidInstallTitle', 'Install on this device:')}</p>
+                  <div className="flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-white flex-shrink-0 mt-0.5">1</span>
+                    <p>{t('tablet.dashboard.androidStep1', 'Tap the three-dot menu (⋮) in your browser')}</p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-white flex-shrink-0 mt-0.5">2</span>
+                    <p>{t('tablet.dashboard.androidStep2', 'Tap "Add to Home Screen" or "Install App"')}</p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-white flex-shrink-0 mt-0.5">3</span>
+                    <p>{t('tablet.dashboard.androidStep3', 'Tap "Add" or "Install" to confirm')}</p>
+                  </div>
                 </div>
               )}
               <Button
                 size="lg"
                 variant="outline"
-                className="min-h-[56px] px-10 text-lg border-slate-600 text-slate-300"
+                className="w-full min-h-[52px] text-base border-slate-600 text-slate-300"
                 onClick={dismissInstallOverlay}
               >
                 {t('tablet.dashboard.continueInBrowser', 'Continue in Browser')}
@@ -275,6 +297,24 @@ const TabletDashboard = () => {
 
       {/* Kiosk mode setup guide — shown after install, not during browser visit */}
       {isInstalled && <KioskSetupGuide />}
+
+      {/* Persistent install banner — shown when overlay dismissed but not yet installed */}
+      {!isInstalled && installDismissed && (
+        <div className="flex items-center justify-between px-4 py-2 bg-primary/20 border-b border-primary/30 text-sm">
+          <span className="text-primary font-medium flex items-center gap-2">
+            <Download className="h-4 w-4" />
+            {t('tablet.dashboard.installBanner', 'Install as app for the best experience')}
+          </span>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-primary hover:bg-primary/20 h-7 px-3"
+            onClick={() => setInstallDismissed(false)}
+          >
+            {t('tablet.dashboard.installBannerShow', 'Show me how')}
+          </Button>
+        </div>
+      )}
 
       {/* Status Bar */}
       <TabletStatusBar

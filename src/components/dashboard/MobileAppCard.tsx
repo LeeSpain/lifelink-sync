@@ -336,21 +336,21 @@ const MobileAppCard = () => {
             <div className="text-center p-5 bg-purple-50 border border-purple-200 rounded-lg mb-4">
               <Tablet className="h-8 w-8 text-purple-600 mx-auto mb-2" />
               <h5 className="font-semibold mb-1">
-                {t("mobileApp.tabletDownloadTitle", "Download Tablet Dashboard")}
+                {t("mobileApp.tabletDownloadTitle", "Open on Your Tablet")}
               </h5>
               <p className="text-sm text-muted-foreground mb-3">
-                {t("mobileApp.tabletDownloadDesc2", "Open the link on your tablet, then tap Install to add it to your home screen as a full-screen app.")}
+                {t("mobileApp.tabletDownloadDesc2", "Open this link on your tablet — you'll see an Install button to add it to your home screen as a full-screen app.")}
               </p>
               <div className="flex flex-col sm:flex-row gap-2 justify-center">
                 <Button asChild size="lg" className="min-h-[48px] px-8 bg-purple-600 hover:bg-purple-700">
                   <a href="/tablet-dashboard" target="_blank" rel="noopener">
                     <ExternalLink className="h-4 w-4 mr-2" />
-                    {t("mobileApp.tabletLaunch", "Launch Tablet Dashboard")}
+                    {t("mobileApp.tabletLaunch", "Open Tablet Dashboard")}
                   </a>
                 </Button>
               </div>
               <p className="text-[11px] text-muted-foreground mt-2">
-                {t("mobileApp.tabletInstallNote", "Opens full-screen with always-on display. No app store needed.")}
+                {t("mobileApp.tabletInstallNote", "Must open on the tablet itself — then tap Install when prompted.")}
               </p>
             </div>
 
