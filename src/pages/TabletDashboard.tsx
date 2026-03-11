@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { Phone, AlertTriangle, X, Download, Tablet, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { usePWAFeatures } from '@/hooks/usePWAFeatures';
-import { TabletStatusBar } from '@/components/tablet/TabletStatusBar';
 import { TabletVitalsStrip } from '@/components/tablet/TabletVitalsStrip';
 import { TabletPhotoFrame } from '@/components/tablet/TabletPhotoFrame';
 import { ReminderCard, type Reminder } from '@/components/tablet/ReminderCard';
@@ -348,19 +347,6 @@ const TabletDashboard = () => {
         </div>
       )}
 
-      {/* Status Bar */}
-      <TabletStatusBar
-        wakeLockActive={wakeLockActive}
-        claraState={{
-          isListening: clara.isListening,
-          isSpeaking: clara.isSpeaking,
-          isMuted: clara.isMuted,
-          hasPermission: clara.hasPermission,
-          transcript: clara.transcript,
-          onToggleMute: clara.toggleMute,
-          onToggleListening: () => clara.setVoiceEnabled(!clara.voiceEnabled),
-        }}
-      />
 
       {/* Vitals Strip — shows device data if available */}
       <TabletVitalsStrip />
