@@ -3582,6 +3582,7 @@
       "empty": "Sin mensajes nuevos"
     },
     "reminder": {
+      "fallback": "Recordatorio",
       "empty": "Sin recordatorios ahora",
       "emptyDesc": "Tu familia puede enviarte recordatorios en cualquier momento",
       "title": "Próximo recordatorio",

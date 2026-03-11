@@ -3582,6 +3582,7 @@
       "empty": "Geen nieuwe berichten"
     },
     "reminder": {
+      "fallback": "Herinnering",
       "empty": "Geen herinneringen op dit moment",
       "emptyDesc": "Je familie kan je op elk moment herinneringen sturen",
       "title": "Volgende herinnering",

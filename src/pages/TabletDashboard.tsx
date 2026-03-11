@@ -113,8 +113,8 @@ const TabletDashboard = () => {
           if (row.alert_type === 'family_reminder') {
             rems.push({
               id: row.id,
-              message: d.message || 'Reminder',
-              from_name: d.from_name || 'Family',
+              message: d.message || t('tablet.reminder.fallback'),
+              from_name: d.from_name || t('tablet.quickInfo.family'),
               scheduled_time: d.scheduled_time,
               created_at: row.created_at || '',
             });
@@ -122,7 +122,7 @@ const TabletDashboard = () => {
             msgs.push({
               id: row.id,
               message: d.message || '',
-              from_name: d.from_name || 'Family',
+              from_name: d.from_name || t('tablet.quickInfo.family'),
               created_at: row.created_at || '',
             });
           }
@@ -152,8 +152,8 @@ const TabletDashboard = () => {
             setReminders((prev) => [
               {
                 id: row.id,
-                message: d.message || 'Reminder',
-                from_name: d.from_name || 'Family',
+                message: d.message || t('tablet.reminder.fallback'),
+                from_name: d.from_name || t('tablet.quickInfo.family'),
                 scheduled_time: d.scheduled_time,
                 created_at: row.created_at || '',
               },
@@ -166,7 +166,7 @@ const TabletDashboard = () => {
               {
                 id: row.id,
                 message: d.message || '',
-                from_name: d.from_name || 'Family',
+                from_name: d.from_name || t('tablet.quickInfo.family'),
                 created_at: row.created_at || '',
               },
               ...prev,
