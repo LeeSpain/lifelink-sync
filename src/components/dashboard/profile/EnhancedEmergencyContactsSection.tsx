@@ -49,14 +49,14 @@ const EnhancedEmergencyContactsSection = ({ profile, onProfileUpdate }: Enhanced
   });
 
   const relationships = [
-    'Spouse/Partner',
-    'Parent',
-    'Child',
-    'Sibling',
-    'Friend',
-    'Neighbor',
-    'Doctor',
-    'Other'
+    { value: 'Spouse/Partner', label: t('profileSection.relSpouse') },
+    { value: 'Parent',         label: t('profileSection.relParent') },
+    { value: 'Child',          label: t('profileSection.relChild') },
+    { value: 'Sibling',        label: t('profileSection.relSibling') },
+    { value: 'Friend',         label: t('profileSection.relFriend') },
+    { value: 'Neighbor',       label: t('profileSection.relNeighbor') },
+    { value: 'Doctor',         label: t('profileSection.relDoctor') },
+    { value: 'Other',          label: t('profileSection.relOther') },
   ];
 
   const resetForm = () => {
@@ -267,7 +267,7 @@ const EnhancedEmergencyContactsSection = ({ profile, onProfileUpdate }: Enhanced
                     </SelectTrigger>
                     <SelectContent>
                       {relationships.map((rel) => (
-                        <SelectItem key={rel} value={rel}>{rel}</SelectItem>
+                        <SelectItem key={rel.value} value={rel.value}>{rel.label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>

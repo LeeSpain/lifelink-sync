@@ -45,11 +45,8 @@ const PersonalInformationSection = ({ profile, onProfileUpdate }: PersonalInform
 
   const languages = [
     { code: 'en', name: 'English' },
-    { code: 'es', name: 'Spanish' },
-    { code: 'fr', name: 'French' },
-    { code: 'de', name: 'German' },
-    { code: 'it', name: 'Italian' },
-    { code: 'pt', name: 'Portuguese' }
+    { code: 'es', name: 'Español' },
+    { code: 'nl', name: 'Nederlands' },
   ];
 
   const handleInputChange = (field: keyof PersonalInfo, value: string) => {
@@ -302,7 +299,7 @@ const PersonalInformationSection = ({ profile, onProfileUpdate }: PersonalInform
               {t('profileSection.language')}
             </Label>
             <Badge variant="outline">
-              {languages.find(lang => lang.code === formData.language_preference)?.name || 'English'}
+              {languages.find(lang => lang.code === formData.language_preference)?.name || 'English (EN)'}
             </Badge>
           </div>
         </div>
