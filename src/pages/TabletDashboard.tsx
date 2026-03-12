@@ -412,17 +412,17 @@ function TabletDashboardContent() {
       {/* Messages Overlay */}
       {showMessages && (
         <div
-          className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-6"
-          onClick={() => setShowMessages(false)}
+          className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-6 select-auto"
+          onPointerDown={() => setShowMessages(false)}
         >
           <div
             className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg max-h-[70vh] overflow-y-auto p-6"
-            onClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">{t('tablet.dashboard.messagesTitle', 'Messages from Family')}</h2>
-              <Button variant="ghost" size="sm" onClick={() => setShowMessages(false)}>
-                <X className="h-5 w-5" />
+              <Button variant="ghost" size="icon" className="h-10 w-10" onPointerDown={() => setShowMessages(false)}>
+                <X className="h-6 w-6" />
               </Button>
             </div>
             {messages.length === 0 ? (
@@ -445,6 +445,13 @@ function TabletDashboardContent() {
                 ))}
               </div>
             )}
+            <Button
+              variant="outline"
+              className="w-full mt-4 min-h-[48px] text-base border-slate-600 text-slate-300"
+              onPointerDown={() => setShowMessages(false)}
+            >
+              {t('tablet.settings.close', 'Close')}
+            </Button>
           </div>
         </div>
       )}
@@ -452,23 +459,23 @@ function TabletDashboardContent() {
       {/* Settings Overlay */}
       {showSettings && (
         <div
-          className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-6"
-          onClick={() => setShowSettings(false)}
+          className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-6 select-auto"
+          onPointerDown={() => setShowSettings(false)}
         >
           <div
             className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg p-6"
-            onClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold">{t('tablet.dashboard.settings', 'Settings')}</h2>
-              <Button variant="ghost" size="sm" onClick={() => setShowSettings(false)}>
-                <X className="h-5 w-5" />
+              <Button variant="ghost" size="icon" className="h-10 w-10" onPointerDown={() => setShowSettings(false)}>
+                <X className="h-6 w-6" />
               </Button>
             </div>
             <div className="space-y-3">
               <button
                 className="w-full flex items-center gap-4 bg-slate-800 hover:bg-slate-700 rounded-xl p-4 transition-colors text-left"
-                onClick={() => {
+                onPointerDown={() => {
                   localStorage.removeItem('tabletSetupComplete');
                   window.location.reload();
                 }}
@@ -480,6 +487,13 @@ function TabletDashboardContent() {
                 </div>
               </button>
             </div>
+            <Button
+              variant="outline"
+              className="w-full mt-6 min-h-[48px] text-base border-slate-600 text-slate-300"
+              onPointerDown={() => setShowSettings(false)}
+            >
+              {t('tablet.settings.close', 'Close')}
+            </Button>
           </div>
         </div>
       )}
@@ -487,17 +501,17 @@ function TabletDashboardContent() {
       {/* Contacts Overlay */}
       {showContacts && (
         <div
-          className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-6"
-          onClick={() => setShowContacts(false)}
+          className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center p-6 select-auto"
+          onPointerDown={() => setShowContacts(false)}
         >
           <div
             className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg p-6"
-            onClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">{t('tablet.dashboard.contactsTitle', 'Call Family')}</h2>
-              <Button variant="ghost" size="sm" onClick={() => setShowContacts(false)}>
-                <X className="h-5 w-5" />
+              <Button variant="ghost" size="icon" className="h-10 w-10" onPointerDown={() => setShowContacts(false)}>
+                <X className="h-6 w-6" />
               </Button>
             </div>
             {contacts.length === 0 ? (
@@ -521,6 +535,13 @@ function TabletDashboardContent() {
                 ))}
               </div>
             )}
+            <Button
+              variant="outline"
+              className="w-full mt-4 min-h-[48px] text-base border-slate-600 text-slate-300"
+              onPointerDown={() => setShowContacts(false)}
+            >
+              {t('tablet.settings.close', 'Close')}
+            </Button>
           </div>
         </div>
       )}
