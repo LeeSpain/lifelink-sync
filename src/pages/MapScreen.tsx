@@ -162,7 +162,7 @@ export default function MapScreen() {
   }, [presences]);
 
   return (
-    <div className="h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] w-full relative bg-background overflow-hidden">
+    <div className="h-[calc(100vh-12rem)] min-h-[400px] w-full relative bg-background overflow-hidden">
       {/* Top Controls */}
       <div className="absolute top-3 left-3 right-3 z-20 flex flex-col gap-2">
         {/* Circle switcher + status bar */}

@@ -93,7 +93,7 @@ const DeviceIceSosPendant = () => {
         {/* ============================================================ */}
         {/* 1. Hero */}
         {/* ============================================================ */}
-        <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-[#FAFAF9]">
+        <section className="relative min-h-[60vh] md:min-h-[85vh] flex items-center justify-center overflow-hidden bg-[#FAFAF9]">
           <div className="absolute inset-0 opacity-[0.03]" style={{
             backgroundImage: 'radial-gradient(#DC2626 1px, transparent 1px)',
             backgroundSize: '24px 24px'

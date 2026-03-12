@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { Outlet, useLocation, Navigate, useNavigate } from 'react-router-dom';
+import { useBreakpoint } from '@/hooks/useBreakpoint';
 import {
   Sidebar,
   SidebarContent,
@@ -370,6 +371,7 @@ function AdminSidebar() {
 export default function AdminLayout() {
   console.log('🏗️ AdminLayout is rendering');
   const { t } = useTranslation();
+  const { isMobile, isTablet } = useBreakpoint();
   
   // Emergency cleanup for stuck modal overlays
   React.useEffect(() => {
@@ -405,7 +407,7 @@ export default function AdminLayout() {
   
   
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={!(isMobile || isTablet)}>
       <div className="min-h-screen flex w-full">
         <AdminSidebar />
         <div className="flex-1 flex flex-col min-h-screen">
@@ -421,9 +423,9 @@ export default function AdminLayout() {
               </div>
             </div>
             <div className="ml-auto flex items-center gap-2 md:gap-4">
-              <BlogNotificationBadge />
+              <div className="hidden sm:block"><BlogNotificationBadge /></div>
               <AdminNotificationCenter />
-              <LanguageCurrencySelector compact />
+              <div className="hidden sm:block"><LanguageCurrencySelector compact /></div>
               <ProfileDropdown />
             </div>
           </header>

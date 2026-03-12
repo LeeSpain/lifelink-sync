@@ -41,7 +41,7 @@ export const QuickInfoCards = ({
           : t('tablet.quickInfo.claraReady', 'Ready');
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
       <FamilyMessagesCard messages={messages} onViewAll={onViewMessages} />
 
       <div className="bg-slate-800/60 border border-slate-700 rounded-2xl p-6">

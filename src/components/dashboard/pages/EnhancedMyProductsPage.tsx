@@ -320,7 +320,7 @@ const EnhancedMyProductsPage = () => {
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
           <TabsTrigger value="overview">{t('products.overview')}</TabsTrigger>
           <TabsTrigger value="devices">{t('products.connectedDevices')}</TabsTrigger>
           <TabsTrigger value="subscriptions">{t('products.subscriptions')}</TabsTrigger>

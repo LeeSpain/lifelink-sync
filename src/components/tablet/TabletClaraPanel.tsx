@@ -54,7 +54,7 @@ export function TabletClaraPanel({
   return (
     <>
       {/* Chat panel — floats above content, does not push layout */}
-      <div className="fixed bottom-6 right-6 z-40 w-80 h-[520px] bg-slate-900/98 backdrop-blur-sm border border-slate-700 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+      <div className="fixed bottom-3 right-3 sm:bottom-6 sm:right-6 z-40 w-80 max-w-[calc(100vw-1.5rem)] h-[520px] max-h-[calc(100vh-3rem)] bg-slate-900/98 backdrop-blur-sm border border-slate-700 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700">
         <div className="flex items-center gap-3">

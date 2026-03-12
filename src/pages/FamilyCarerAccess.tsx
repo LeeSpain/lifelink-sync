@@ -23,7 +23,7 @@ const FamilyCarerAccessPage = () => {
       
       <main>
         {/* Hero Section - matching homepage layout */}
-        <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden bg-gradient-hero shadow-2xl">
+        <section className="relative min-h-[60vh] md:min-h-[80vh] flex items-center justify-center overflow-hidden bg-gradient-hero shadow-2xl">
           <div className="container mx-auto px-4 py-16 relative z-10">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               {/* Content */}

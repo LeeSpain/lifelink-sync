@@ -102,12 +102,12 @@ function FamilyTabs() {
   const { t } = useTranslation();
   return (
     <Tabs defaultValue="connections" className="space-y-6 p-3 sm:p-6">
-      <TabsList className="grid w-full grid-cols-5">
-        <TabsTrigger value="connections">{t('dashboard.tabConnections', { defaultValue: 'Connections' })}</TabsTrigger>
-        <TabsTrigger value="live-map">{t('dashboard.tabLiveMap', { defaultValue: 'Live Map' })}</TabsTrigger>
-        <TabsTrigger value="circles">{t('dashboard.tabCircles', { defaultValue: 'Circles' })}</TabsTrigger>
-        <TabsTrigger value="places">{t('dashboard.tabPlaces', { defaultValue: 'Places' })}</TabsTrigger>
-        <TabsTrigger value="history">{t('dashboard.tabHistory', { defaultValue: 'History' })}</TabsTrigger>
+      <TabsList className="flex w-full overflow-x-auto">
+        <TabsTrigger value="connections" className="shrink-0">{t('dashboard.tabConnections', { defaultValue: 'Connections' })}</TabsTrigger>
+        <TabsTrigger value="live-map" className="shrink-0">{t('dashboard.tabLiveMap', { defaultValue: 'Live Map' })}</TabsTrigger>
+        <TabsTrigger value="circles" className="shrink-0">{t('dashboard.tabCircles', { defaultValue: 'Circles' })}</TabsTrigger>
+        <TabsTrigger value="places" className="shrink-0">{t('dashboard.tabPlaces', { defaultValue: 'Places' })}</TabsTrigger>
+        <TabsTrigger value="history" className="shrink-0">{t('dashboard.tabHistory', { defaultValue: 'History' })}</TabsTrigger>
       </TabsList>
       <TabsContent value="connections">
         <ConnectionsPage />
@@ -159,7 +159,7 @@ const Dashboard = () => {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const initialLoadTimeoutRef = useRef<number | null>(null);
-  const { isMobile } = useBreakpoint();
+  const { isMobile, isTablet } = useBreakpoint();
 
   // Auto-scroll to top when navigating
   useScrollToTop();
@@ -422,7 +422,7 @@ const Dashboard = () => {
 
   // ── Desktop shell ──
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={!isTablet}>
       <div className="min-h-screen w-full flex bg-gradient-to-br from-muted/20 to-muted/50">
         <DashboardSidebar />
 

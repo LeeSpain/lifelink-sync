@@ -48,7 +48,7 @@ const RegionalCenterSpain: React.FC = () => {
         />
         
         {/* Hero Section - Matching brand style */}
-        <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden bg-gradient-hero shadow-2xl mb-4">
+        <section className="relative min-h-[60vh] md:min-h-[80vh] flex items-center justify-center overflow-hidden bg-gradient-hero shadow-2xl mb-4">
           <div className="container mx-auto px-4 py-section relative z-10">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               {/* Content */}
