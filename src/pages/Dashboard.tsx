@@ -422,7 +422,7 @@ const Dashboard = () => {
 
   // ── Desktop shell ──
   return (
-    <SidebarProvider defaultOpen={!isTablet}>
+    <SidebarProvider>
       <div className="min-h-screen w-full flex bg-gradient-to-br from-muted/20 to-muted/50">
         <DashboardSidebar />
 
