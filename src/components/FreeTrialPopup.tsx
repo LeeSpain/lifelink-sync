@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { X, Gift, Shield, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +17,7 @@ interface FreeTrialPopupProps {
 
 export const FreeTrialPopup = ({ onClose }: FreeTrialPopupProps) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -64,12 +66,6 @@ export const FreeTrialPopup = ({ onClose }: FreeTrialPopupProps) => {
         throw error;
       }
 
-      toast({
-        title: t('trialPopup.trialActivated'),
-        description: t('trialPopup.checkEmail'),
-        duration: 5000
-      });
-
       // Track successful signup
       await trackCustomEvent('trial_signup_completed', {
         popup_type: 'free_trial',
@@ -83,6 +79,14 @@ export const FreeTrialPopup = ({ onClose }: FreeTrialPopupProps) => {
       // Store in localStorage to prevent showing again
       localStorage.setItem('lifelinksync-trial-signup', 'true');
       onClose();
+
+      // Redirect to full registration with pre-filled data
+      const params = new URLSearchParams({
+        trial: 'true',
+        email: formData.email,
+        name: formData.name,
+      });
+      navigate(`/register?${params.toString()}`);
 
     } catch (error: any) {
       console.error('Trial signup error:', error);

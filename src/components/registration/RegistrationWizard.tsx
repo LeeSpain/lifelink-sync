@@ -78,10 +78,20 @@ const RegistrationWizard: React.FC = () => {
 
   const STEPS = STEP_IDS.map(id => ({ id, label: t(`registration.steps.${id}`) }));
 
-  // Pre-select trial if coming from /trial-signup
+  // Pre-fill from query params (e.g., from FreeTrialPopup)
   useEffect(() => {
-    if (searchParams.get('trial') === 'true') {
-      setData(prev => ({ ...prev, isTrialSelected: true }));
+    const updates: Partial<WizardData> = {};
+    if (searchParams.get('trial') === 'true') updates.isTrialSelected = true;
+    const qEmail = searchParams.get('email');
+    if (qEmail && !data.email) updates.email = qEmail;
+    const qName = searchParams.get('name');
+    if (qName && !data.firstName) {
+      const parts = qName.trim().split(/\s+/);
+      updates.firstName = parts[0];
+      if (parts.length > 1) updates.lastName = parts.slice(1).join(' ');
+    }
+    if (Object.keys(updates).length > 0) {
+      setData(prev => ({ ...prev, ...updates }));
     }
   }, [searchParams]);
 

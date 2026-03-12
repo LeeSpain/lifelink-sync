@@ -105,10 +105,14 @@ const CompleteStep: React.FC<CompleteStepProps> = ({ firstName, isTrialSelected 
       {/* CTA */}
       <Button asChild size="lg" className="px-10">
         <Link to="/dashboard">
-          {t('registration.complete.goToDashboard')}
+          {t('registration.complete.goToDashboard', { defaultValue: 'Go to Your Dashboard' })}
           <ArrowRight className="h-4 w-4 ml-2" />
         </Link>
       </Button>
+
+      <p className="text-xs text-muted-foreground">
+        {t('registration.complete.noEmailNeeded', { defaultValue: 'No email confirmation required — you can sign in right away.' })}
+      </p>
 
       {/* Support */}
       <p className="text-xs text-muted-foreground">
