@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useWakeLock } from '@/hooks/useWakeLock';
@@ -29,7 +29,30 @@ function getGreetingKey(): string {
   return 'tablet.dashboard.greetingEvening';
 }
 
+// ─── Wrapper: shows wizard OR dashboard (never both) ───────────────────────────
+
 const TabletDashboard = () => {
+  const [setupComplete, setSetupComplete] = useState(
+    () => localStorage.getItem('tabletSetupComplete') === 'true'
+  );
+
+  const handleSetupComplete = useCallback((mic: 'granted' | 'skipped', notif: 'granted' | 'skipped') => {
+    localStorage.setItem('tabletMicPermission', mic);
+    localStorage.setItem('tabletNotificationPermission', notif);
+    setSetupComplete(true);
+  }, []);
+
+  // Show wizard on first visit — nothing else renders, no hooks flickering
+  if (!setupComplete) {
+    return <TabletSetupWizard onComplete={handleSetupComplete} />;
+  }
+
+  return <TabletDashboardContent />;
+};
+
+// ─── Actual dashboard (hooks only run AFTER setup is done) ─────────────────────
+
+function TabletDashboardContent() {
   const { user } = useAuth();
   const { isActive: wakeLockActive } = useWakeLock(true);
   const { contacts } = useEmergencyContacts();
@@ -38,6 +61,8 @@ const TabletDashboard = () => {
   const { t } = useTranslation();
   const { isInstalled } = usePWAFeatures();
 
+  const micPermission = localStorage.getItem('tabletMicPermission') as 'granted' | 'skipped' | null;
+
   const [greetingKey, setGreetingKey] = useState(getGreetingKey());
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [messages, setMessages] = useState<FamilyMessage[]>([]);
@@ -45,23 +70,9 @@ const TabletDashboard = () => {
   const [showContacts, setShowContacts] = useState(false);
   const [sosTriggered, setSosTriggered] = useState(false);
   const [familyOnline, setFamilyOnline] = useState(0);
-  // Setup wizard state — shown on first load until owner completes it
-  const [setupComplete, setSetupComplete] = useState(
-    () => localStorage.getItem('tabletSetupComplete') === 'true'
-  );
-  const [micPermission, setMicPermission] = useState<'granted' | 'denied' | 'skipped' | null>(
-    () => localStorage.getItem('tabletMicPermission') as any
-  );
 
   // Clara panel state
   const [claraPanelExpanded, setClaraPanelExpanded] = useState(false);
-
-  const handleSetupComplete = useCallback((mic: 'granted' | 'skipped', notif: 'granted' | 'skipped') => {
-    setMicPermission(mic);
-    localStorage.setItem('tabletMicPermission', mic);
-    localStorage.setItem('tabletNotificationPermission', notif);
-    setSetupComplete(true);
-  }, []);
 
   // SOS trigger
   const handleSOS = useCallback(async () => {
@@ -101,13 +112,13 @@ const TabletDashboard = () => {
     },
   });
 
-  // Greeting on load (after setup wizard)
+  // Greeting on load
   useEffect(() => {
-    if (setupComplete && !clara.hasGreeted && micPermission !== null) {
+    if (!clara.hasGreeted && micPermission !== null) {
       const timer = setTimeout(() => clara.speakGreeting(), 1500);
       return () => clearTimeout(timer);
     }
-  }, [setupComplete, clara.hasGreeted, micPermission]);
+  }, [clara.hasGreeted, micPermission]);
 
   const firstName = user?.user_metadata?.first_name || t('dashboard.memberFallback');
 
@@ -241,11 +252,6 @@ const TabletDashboard = () => {
     <div className={`h-screen flex text-white overflow-hidden select-none transition-colors duration-1000 ${
       sosTriggered ? 'bg-red-950' : familyOnline > 0 ? 'bg-[#0a1210]' : reminders.length > 0 ? 'bg-[#12100a]' : 'bg-slate-950'
     }`} style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-      {/* Setup Wizard — shown on first visit */}
-      {!setupComplete && (
-        <TabletSetupWizard onComplete={handleSetupComplete} />
-      )}
-
       {/* Kiosk mode setup guide */}
       {isInstalled && <KioskSetupGuide />}
 
@@ -425,6 +431,6 @@ const TabletDashboard = () => {
       )}
     </div>
   );
-};
+}
 
 export default TabletDashboard;
