@@ -71,6 +71,15 @@ export function TabletPhotoFrame({ alertCount }: TabletPhotoFrameProps) {
         <div className="w-96 h-96 rounded-full bg-primary blur-3xl" />
       </div>
 
+      {/* Logo */}
+      <div className="relative z-10 mb-8 opacity-15">
+        <img
+          src="/lovable-uploads/lifelink-sync-icon-512.png"
+          alt="LifeLink Sync"
+          className="w-16 h-16 mx-auto"
+        />
+      </div>
+
       {/* Clock */}
       <div className="relative z-10 text-center">
         <p className="text-7xl md:text-8xl font-extralight text-white tracking-tight">

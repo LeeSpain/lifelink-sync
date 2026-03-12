@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
@@ -15,8 +16,6 @@ import EnhancedMyProductsPage from "@/components/dashboard/pages/EnhancedMyProdu
 import SubscriptionCard from "@/components/dashboard/SubscriptionCard";
 import MobileAppCard from "@/components/dashboard/MobileAppCard";
 import ActivityCard from "@/components/dashboard/ActivityCard";
-import { FamilyPage } from "@/components/dashboard/pages/FamilyPage";
-import { LocationPage } from "@/components/dashboard/pages/LocationPage";
 import { NotificationsPage } from "@/components/dashboard/pages/NotificationsPage";
 import { SecurityPage } from "@/components/dashboard/pages/SecurityPage";
 import { SettingsPage } from "@/components/dashboard/pages/SettingsPage";
@@ -40,6 +39,120 @@ import { MobileDashboardHeader } from "@/components/dashboard/mobile/MobileDashb
 import { MobileBottomNav } from "@/components/dashboard/mobile/MobileBottomNav";
 import { FloatingSOSButton } from "@/components/dashboard/mobile/FloatingSOSButton";
 import { MobileDashboardHome } from "@/components/dashboard/mobile/MobileDashboardHome";
+
+// ── Tabbed page components ──
+
+function ProfileTabs() {
+  const { t } = useTranslation();
+  return (
+    <div className="p-3 sm:p-6">
+      <Tabs defaultValue="profile" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="profile">{t('dashboard.tabProfile', { defaultValue: 'Profile' })}</TabsTrigger>
+          <TabsTrigger value="activity">{t('dashboard.tabActivity', { defaultValue: 'Activity' })}</TabsTrigger>
+          <TabsTrigger value="app">{t('dashboard.tabGetApp', { defaultValue: 'Get the App' })}</TabsTrigger>
+        </TabsList>
+        <TabsContent value="profile">
+          <EnhancedProfilePage />
+        </TabsContent>
+        <TabsContent value="activity" className="space-y-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">{t('dashboard.activityTitle')}</h1>
+            <p className="text-muted-foreground">{t('dashboard.activityDesc')}</p>
+          </div>
+          <ActivityCard />
+        </TabsContent>
+        <TabsContent value="app" className="space-y-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">{t('dashboard.mobileAppTitle')}</h1>
+            <p className="text-muted-foreground">{t('dashboard.mobileAppDesc')}</p>
+          </div>
+          <MobileAppCard />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
+
+function ProductsTabs() {
+  const { t } = useTranslation();
+  return (
+    <div className="p-3 sm:p-6">
+      <Tabs defaultValue="products" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="products">{t('dashboard.tabMyProducts', { defaultValue: 'My Products' })}</TabsTrigger>
+          <TabsTrigger value="devices">{t('dashboard.tabDevices', { defaultValue: 'Devices' })}</TabsTrigger>
+          <TabsTrigger value="addons">{t('dashboard.tabAddOns', { defaultValue: 'Add-ons' })}</TabsTrigger>
+        </TabsList>
+        <TabsContent value="products">
+          <EnhancedMyProductsPage />
+        </TabsContent>
+        <TabsContent value="devices">
+          <DevicesIntegrationsPage />
+        </TabsContent>
+        <TabsContent value="addons">
+          <AddOnMarketplace />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
+
+function FamilyTabs() {
+  const { t } = useTranslation();
+  return (
+    <Tabs defaultValue="connections" className="space-y-6 p-3 sm:p-6">
+      <TabsList className="grid w-full grid-cols-5">
+        <TabsTrigger value="connections">{t('dashboard.tabConnections', { defaultValue: 'Connections' })}</TabsTrigger>
+        <TabsTrigger value="live-map">{t('dashboard.tabLiveMap', { defaultValue: 'Live Map' })}</TabsTrigger>
+        <TabsTrigger value="circles">{t('dashboard.tabCircles', { defaultValue: 'Circles' })}</TabsTrigger>
+        <TabsTrigger value="places">{t('dashboard.tabPlaces', { defaultValue: 'Places' })}</TabsTrigger>
+        <TabsTrigger value="history">{t('dashboard.tabHistory', { defaultValue: 'History' })}</TabsTrigger>
+      </TabsList>
+      <TabsContent value="connections">
+        <ConnectionsPage />
+      </TabsContent>
+      <TabsContent value="live-map" className="-mx-3 sm:-mx-6 -mb-3 sm:-mb-6">
+        <MapScreen />
+      </TabsContent>
+      <TabsContent value="circles">
+        <MyCirclesPage />
+      </TabsContent>
+      <TabsContent value="places">
+        <PlacesManager />
+      </TabsContent>
+      <TabsContent value="history">
+        <LocationHistoryPage />
+      </TabsContent>
+    </Tabs>
+  );
+}
+
+function SettingsTabs() {
+  const { t } = useTranslation();
+  return (
+    <div className="p-3 sm:p-6">
+      <Tabs defaultValue="notifications" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="notifications">{t('dashboard.tabNotifications', { defaultValue: 'Notifications' })}</TabsTrigger>
+          <TabsTrigger value="security">{t('dashboard.tabSecurity', { defaultValue: 'Security' })}</TabsTrigger>
+          <TabsTrigger value="preferences">{t('dashboard.tabPreferences', { defaultValue: 'Preferences' })}</TabsTrigger>
+        </TabsList>
+        <TabsContent value="notifications">
+          <NotificationsPage />
+        </TabsContent>
+        <TabsContent value="security">
+          <SecurityPage />
+        </TabsContent>
+        <TabsContent value="preferences">
+          <SettingsPage />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
+
+// ── Dashboard ──
 
 const Dashboard = () => {
   const [subscription, setSubscription] = useState<any>(null);
@@ -218,136 +331,78 @@ const Dashboard = () => {
         }
       />
 
-      {/* Products Page */}
-       <Route path="products" element={
-         <div className="p-3 sm:p-6">
-          <EnhancedMyProductsPage />
+      {/* Profile — 3 tabs: Profile | Activity | Get the App */}
+      <Route path="profile" element={<ProfileTabs />} />
+
+      {/* Products — 3 tabs: My Products | Devices | Add-ons */}
+      <Route path="products" element={<ProductsTabs />} />
+
+      {/* Family — 5 tabs: Connections | Live Map | Circles | Places | History */}
+      <Route path="family" element={<FamilyTabs />} />
+
+      {/* Settings — 3 tabs: Notifications | Security | Preferences */}
+      <Route path="settings" element={<SettingsTabs />} />
+
+      {/* Subscription Page */}
+      <Route path="subscription" element={
+        <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">{t('dashboard.subscriptionTitle')}</h1>
+            <p className="text-muted-foreground">{t('dashboard.subscriptionDesc')}</p>
+          </div>
+          <SubscriptionCard subscription={subscription} />
+          <AddOnMarketplace />
         </div>
       } />
 
-      {/* Profile Page */}
-       <Route path="profile" element={
-         <div className="p-3 sm:p-6">
-          <EnhancedProfilePage />
+      {/* Support Page */}
+      <Route path="support" element={
+        <div className="p-3 sm:p-6">
+          <SupportPage />
         </div>
       } />
 
       {/* Family SOS Live View */}
-       <Route path="family-sos" element={
-         <div className="p-3 sm:p-6">
-           <LiveSOSFamily />
-         </div>
-       } />
-
-       {/* Activity Page */}
-       <Route path="activity" element={
-         <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
-           <div>
-             <h1 className="text-2xl font-bold tracking-tight">{t('dashboard.activityTitle')}</h1>
-             <p className="text-muted-foreground">{t('dashboard.activityDesc')}</p>
-           </div>
-           <ActivityCard />
-         </div>
-       } />
-
-       {/* Subscription Page */}
-       <Route path="subscription" element={
-         <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
-           <div>
-             <h1 className="text-2xl font-bold tracking-tight">{t('dashboard.subscriptionTitle')}</h1>
-             <p className="text-muted-foreground">{t('dashboard.subscriptionDesc')}</p>
-           </div>
-           <SubscriptionCard subscription={subscription} />
-           <AddOnMarketplace />
-         </div>
-       } />
-
-       {/* Mobile App Page */}
-        <Route path="mobile-app" element={
-          <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight">{t('dashboard.mobileAppTitle')}</h1>
-              <p className="text-muted-foreground">{t('dashboard.mobileAppDesc')}</p>
-            </div>
-            <MobileAppCard />
-          </div>
-        } />
-
-       {/* Mobile Dashboard Page */}
-        <Route path="mobile-dashboard" element={
-          <div className="p-3 sm:p-6">
-            <div className="mb-6">
-              <h1 className="text-2xl font-bold tracking-tight">{t('dashboard.mobileDevTitle')}</h1>
-              <p className="text-muted-foreground">{t('dashboard.mobileDevDesc')}</p>
-            </div>
-            <div className="space-y-6">
-              <MobileDashboard />
-            </div>
-          </div>
-        } />
-
-      {/* Dashboard pages with full width */}
-      <Route path="family" element={<FamilyPage />} />
-       <Route path="family-setup" element={
-         <div className="p-3 sm:p-6">
-           <div className="max-w-4xl mx-auto">
-             <FamilyAccessSetup />
-           </div>
-         </div>
-       } />
-       <Route path="location" element={<LocationPage />} />
-       <Route path="notifications" element={
-         <div className="p-3 sm:p-6">
-           <NotificationsPage />
-         </div>
-       } />
-       <Route path="security" element={
-         <div className="p-3 sm:p-6">
-           <SecurityPage />
-         </div>
-       } />
-       <Route path="settings" element={
-         <div className="p-3 sm:p-6">
-           <SettingsPage />
-         </div>
-       } />
-       <Route path="support" element={
-         <div className="p-3 sm:p-6">
-           <SupportPage />
-         </div>
-       } />
-
-      {/* Live Map Routes */}
-      <Route path="live-map" element={
-        <MapScreen />
+      <Route path="family-sos" element={
+        <div className="p-3 sm:p-6">
+          <LiveSOSFamily />
+        </div>
       } />
-       <Route path="circles" element={
-         <div className="p-3 sm:p-6">
-           <MyCirclesPage />
-         </div>
-       } />
-       <Route path="places" element={
-         <div className="p-3 sm:p-6">
-           <PlacesManager />
-         </div>
-       } />
-       <Route path="location-history" element={
-         <div className="p-3 sm:p-6">
-           <LocationHistoryPage />
-         </div>
-        } />
 
-        {/* Connections Page */}
-        <Route path="connections" element={
-          <div className="p-3 sm:p-6">
-            <ConnectionsPage />
+      {/* Family Setup */}
+      <Route path="family-setup" element={
+        <div className="p-3 sm:p-6">
+          <div className="max-w-4xl mx-auto">
+            <FamilyAccessSetup />
           </div>
-        } />
+        </div>
+      } />
 
-        {/* Devices & Integrations Page */}
-        <Route path="devices" element={
-          <DevicesIntegrationsPage />
-        } />
+      {/* Mobile Dashboard */}
+      <Route path="mobile-dashboard" element={
+        <div className="p-3 sm:p-6">
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold tracking-tight">{t('dashboard.mobileDevTitle')}</h1>
+            <p className="text-muted-foreground">{t('dashboard.mobileDevDesc')}</p>
+          </div>
+          <div className="space-y-6">
+            <MobileDashboard />
+          </div>
+        </div>
+      } />
+
+      {/* Redirects for old routes → merged pages */}
+      <Route path="activity"          element={<Navigate to="../profile"  replace />} />
+      <Route path="mobile-app"        element={<Navigate to="../profile"  replace />} />
+      <Route path="devices"           element={<Navigate to="../products" replace />} />
+      <Route path="connections"       element={<Navigate to="../family"   replace />} />
+      <Route path="live-map"          element={<Navigate to="../family"   replace />} />
+      <Route path="circles"           element={<Navigate to="../family"   replace />} />
+      <Route path="places"            element={<Navigate to="../family"   replace />} />
+      <Route path="location-history"  element={<Navigate to="../family"   replace />} />
+      <Route path="location"          element={<Navigate to="../family"   replace />} />
+      <Route path="notifications"     element={<Navigate to="../settings" replace />} />
+      <Route path="security"          element={<Navigate to="../settings" replace />} />
     </Routes>
   );
 
@@ -365,7 +420,7 @@ const Dashboard = () => {
     );
   }
 
-  // ── Desktop shell (unchanged) ──
+  // ── Desktop shell ──
   return (
     <SidebarProvider>
       <div className="min-h-screen w-full flex bg-gradient-to-br from-muted/20 to-muted/50">
