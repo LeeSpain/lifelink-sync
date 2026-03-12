@@ -53,32 +53,8 @@ export function TabletClaraPanel({
 
   return (
     <>
-      {/* Floating corner button — always visible */}
-      <button
-        onClick={onToggleExpand}
-        className={`fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full shadow-xl flex items-center justify-center transition-all duration-200 ${
-          expanded
-            ? 'bg-slate-700 hover:bg-slate-600'
-            : isSpeaking
-            ? 'bg-blue-500 hover:bg-blue-600 shadow-blue-500/40'
-            : isListening
-            ? 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/40'
-            : 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/30'
-        }`}
-      >
-        <div className="relative">
-          <Bot className="h-7 w-7 text-white" />
-          {(isSpeaking || isListening) && !expanded && (
-            <span className={`absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-white ${
-              isSpeaking ? 'bg-blue-300 animate-pulse' : 'bg-emerald-300 animate-pulse'
-            }`} />
-          )}
-        </div>
-      </button>
-
       {/* Chat panel — floats above content, does not push layout */}
-      {expanded && (
-        <div className="fixed bottom-24 right-6 z-40 w-80 h-[520px] bg-slate-900/98 backdrop-blur-sm border border-slate-700 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+      <div className="fixed bottom-6 right-6 z-40 w-80 h-[520px] bg-slate-900/98 backdrop-blur-sm border border-slate-700 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700">
         <div className="flex items-center gap-3">
@@ -193,8 +169,7 @@ export function TabletClaraPanel({
           </Button>
         </div>
       </form>
-        </div>
-      )}
+      </div>
     </>
   );
 }

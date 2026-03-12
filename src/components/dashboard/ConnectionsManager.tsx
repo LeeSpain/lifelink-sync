@@ -3,9 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
+import {
   Users, Crown, Shield, Plus, MoreVertical, Mail, Phone, ArrowUp, ArrowDown,
-  CheckCircle, Clock, XCircle, AlertTriangle, Edit, Trash2, UserMinus, UserPlus
+  CheckCircle, Clock, XCircle, AlertTriangle, Edit, Trash2, UserMinus, UserPlus,
+  Download, Share2
 } from 'lucide-react';
 import { 
   DropdownMenu, 
@@ -87,6 +88,32 @@ export const ConnectionsManager: React.FC = () => {
     }
   };
 
+  const shareAppLink = async (connection: Connection) => {
+    const appUrl = `${window.location.origin}/family-dashboard`;
+    const shareText = t('connections.shareAppText', {
+      defaultValue: 'Install LifeLink Sync on your phone to stay connected with your family. Open this link and add to your home screen: {{url}}',
+      url: appUrl,
+    });
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'LifeLink Sync',
+          text: shareText,
+          url: appUrl,
+        });
+        return;
+      } catch {
+        // User cancelled or share failed — fall through to clipboard
+      }
+    }
+    await navigator.clipboard.writeText(appUrl);
+    toast({
+      title: t('connections.appLinkCopied', { defaultValue: 'App link copied' }),
+      description: t('connections.appLinkCopiedDesc', { defaultValue: 'Send this link to your family member so they can install the app on their home screen.' }),
+    });
+  };
+
   const ConnectionCard = ({ connection }: { connection: Connection }) => (
     <Card className="mb-4">
       <CardContent className="p-4">
@@ -130,15 +157,19 @@ export const ConnectionsManager: React.FC = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => shareAppLink(connection)}>
+                <Download className="h-4 w-4 mr-2" />
+                {t('connections.shareAppLink', { defaultValue: 'Share App Download' })}
+              </DropdownMenuItem>
               {connection.status === 'pending' && (
                 <>
                   <DropdownMenuItem onClick={() => copyInviteUrl(connection)}>
                     <Mail className="h-4 w-4 mr-2" />
                     {t('connections.copyInviteLink')}
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
                 </>
               )}
+              <DropdownMenuSeparator />
               
               {connection.type === 'trusted_contact' && connection.status === 'active' && (
                 <DropdownMenuItem onClick={() => handlePromote(connection.id)}>

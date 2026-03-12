@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useWakeLock } from '@/hooks/useWakeLock';
@@ -7,7 +7,7 @@ import { useEmergencySOS } from '@/hooks/useEmergencySOS';
 import { useTabletVoice } from '@/hooks/useTabletVoice';
 import { useTabletAlerts } from '@/hooks/useTabletAlerts';
 import { Button } from '@/components/ui/button';
-import { Phone, AlertTriangle, X } from 'lucide-react';
+import { Phone, AlertTriangle, X, Settings } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { usePWAFeatures } from '@/hooks/usePWAFeatures';
 import { TabletVitalsStrip } from '@/components/tablet/TabletVitalsStrip';
@@ -88,6 +88,9 @@ function TabletDashboardContent() {
   // Clara panel state
   const [claraPanelExpanded, setClaraPanelExpanded] = useState(false);
 
+  // Settings overlay
+  const [showSettings, setShowSettings] = useState(false);
+
   // SOS trigger
   const handleSOS = useCallback(async () => {
     try {
@@ -135,6 +138,43 @@ function TabletDashboardContent() {
   }, [clara.hasGreeted, micPermission]);
 
   const firstName = user?.user_metadata?.first_name || profileName || t('dashboard.memberFallback');
+
+  // Stable Clara status — debounce "listening" to avoid flashing during speech recognition restart gaps
+  const [claraStatus, setClaraStatus] = useState<ClaraStatus>('idle');
+  const listeningTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    let newStatus: ClaraStatus;
+    if (clara.isSpeaking) {
+      newStatus = 'speaking';
+    } else if (clara.isListening) {
+      newStatus = 'listening';
+    } else if (clara.hasPermission === false) {
+      newStatus = 'offline';
+    } else {
+      newStatus = 'idle';
+    }
+
+    // If transitioning FROM listening to idle, delay so brief gaps don't flash
+    if (claraStatus === 'listening' && newStatus === 'idle') {
+      if (!listeningTimerRef.current) {
+        listeningTimerRef.current = setTimeout(() => {
+          listeningTimerRef.current = null;
+          setClaraStatus('idle');
+        }, 2000);
+      }
+      return;
+    }
+
+    // For any other transition, update immediately and cancel pending timer
+    if (listeningTimerRef.current) {
+      clearTimeout(listeningTimerRef.current);
+      listeningTimerRef.current = null;
+    }
+    if (newStatus !== claraStatus) {
+      setClaraStatus(newStatus);
+    }
+  }, [clara.isSpeaking, clara.isListening, clara.hasPermission, claraStatus]);
 
   // Mark this device as tablet PWA
   useEffect(() => {
@@ -284,7 +324,16 @@ function TabletDashboardContent() {
         <TabletPhotoFrame alertCount={reminders.length + messages.length} />
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col justify-between p-6 md:p-10 max-w-6xl mx-auto w-full">
+        <div className="flex-1 flex flex-col justify-between p-6 md:p-10 max-w-6xl mx-auto w-full relative">
+          {/* Settings icon — top right */}
+          <button
+            onClick={() => setShowSettings(true)}
+            className="absolute top-6 right-6 md:top-10 md:right-10 p-2 rounded-full text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors z-10"
+            aria-label={t('tablet.dashboard.settings', 'Settings')}
+          >
+            <Settings className="h-6 w-6" />
+          </button>
+
           {/* Greeting */}
           <div className="text-center mb-6">
             <h1 className="text-4xl md:text-5xl font-light text-white">
@@ -308,12 +357,7 @@ function TabletDashboardContent() {
               familyOnline={familyOnline}
               messages={messages}
               onViewMessages={() => setShowMessages(true)}
-              claraStatus={
-                clara.isSpeaking ? 'speaking'
-                  : clara.isListening ? 'listening'
-                    : clara.hasPermission === false ? 'offline'
-                      : 'idle' as ClaraStatus
-              }
+              claraStatus={claraStatus}
               onClaraClick={() => setClaraPanelExpanded(true)}
             />
           </div>
@@ -348,20 +392,22 @@ function TabletDashboardContent() {
         </div>
       </div>
 
-      {/* RIGHT: Clara Panel */}
-      <TabletClaraPanel
-        messages={clara.messages}
-        isThinking={clara.isThinking}
-        isSpeaking={clara.isSpeaking}
-        isMuted={clara.isMuted}
-        isListening={clara.isListening}
-        voiceEnabled={clara.voiceEnabled}
-        onSendMessage={clara.sendMessage}
-        onToggleMute={clara.toggleMute}
-        onToggleVoice={clara.setVoiceEnabled}
-        expanded={claraPanelExpanded}
-        onToggleExpand={() => setClaraPanelExpanded((prev) => !prev)}
-      />
+      {/* Clara Panel — only rendered when expanded (Clara card in QuickInfoCards is the entry point) */}
+      {claraPanelExpanded && (
+        <TabletClaraPanel
+          messages={clara.messages}
+          isThinking={clara.isThinking}
+          isSpeaking={clara.isSpeaking}
+          isMuted={clara.isMuted}
+          isListening={clara.isListening}
+          voiceEnabled={clara.voiceEnabled}
+          onSendMessage={clara.sendMessage}
+          onToggleMute={clara.toggleMute}
+          onToggleVoice={clara.setVoiceEnabled}
+          expanded={claraPanelExpanded}
+          onToggleExpand={() => setClaraPanelExpanded(false)}
+        />
+      )}
 
       {/* Messages Overlay */}
       {showMessages && (
@@ -399,6 +445,41 @@ function TabletDashboardContent() {
                 ))}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Settings Overlay */}
+      {showSettings && (
+        <div
+          className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-6"
+          onClick={() => setShowSettings(false)}
+        >
+          <div
+            className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold">{t('tablet.dashboard.settings', 'Settings')}</h2>
+              <Button variant="ghost" size="sm" onClick={() => setShowSettings(false)}>
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+            <div className="space-y-3">
+              <button
+                className="w-full flex items-center gap-4 bg-slate-800 hover:bg-slate-700 rounded-xl p-4 transition-colors text-left"
+                onClick={() => {
+                  localStorage.removeItem('tabletSetupComplete');
+                  window.location.reload();
+                }}
+              >
+                <Settings className="h-5 w-5 text-slate-400" />
+                <div>
+                  <p className="text-white font-medium">{t('tablet.settings.runSetup', 'Run Setup Wizard Again')}</p>
+                  <p className="text-sm text-slate-400">{t('tablet.settings.runSetupDesc', 'Re-configure name, devices, and permissions')}</p>
+                </div>
+              </button>
+            </div>
           </div>
         </div>
       )}

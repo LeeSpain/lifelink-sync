@@ -427,12 +427,18 @@ const Dashboard = () => {
         <DashboardSidebar />
 
         <div className="flex-1 flex flex-col">
-          {/* Header with Sidebar Toggle */}
+          {/* Header with Sidebar Toggle + Logo */}
           <header className="h-14 sm:h-16 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center px-3 sm:px-4 gap-2 sm:gap-4">
             <SidebarTrigger />
-            <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <img
+                src="/lovable-uploads/lifelink-sync-icon-192.png"
+                alt="LifeLink Sync"
+                className="h-7 w-7 rounded-lg"
+              />
               <h1 className="text-lg sm:text-xl font-semibold truncate">{t('dashboard.title', { defaultValue: 'Dashboard' })}</h1>
             </div>
+            <div className="flex-1" />
             <div className="hidden sm:block">
               <LanguageCurrencySelector compact />
             </div>
