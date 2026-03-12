@@ -16,7 +16,7 @@ import { ReminderCard, type Reminder } from '@/components/tablet/ReminderCard';
 import { QuickInfoCards } from '@/components/tablet/QuickInfoCards';
 import { TabletClaraPanel } from '@/components/tablet/TabletClaraPanel';
 import { TabletAlertSystem } from '@/components/tablet/TabletAlertSystem';
-import { TabletVoiceIndicator } from '@/components/tablet/TabletVoiceIndicator';
+import type { ClaraStatus } from '@/components/tablet/QuickInfoCards';
 import { TabletSetupWizard } from '@/components/tablet/TabletSetupWizard';
 import type { FamilyMessage } from '@/components/tablet/FamilyMessagesCard';
 import { useToast } from '@/hooks/use-toast';
@@ -62,6 +62,20 @@ function TabletDashboardContent() {
   const { isInstalled } = usePWAFeatures();
 
   const micPermission = localStorage.getItem('tabletMicPermission') as 'granted' | 'skipped' | null;
+
+  // Profile fetch for reliable name display
+  const [profileName, setProfileName] = useState<string | null>(null);
+  useEffect(() => {
+    if (!user?.id) return;
+    supabase
+      .from('profiles')
+      .select('first_name')
+      .eq('user_id', user.id)
+      .single()
+      .then(({ data }) => {
+        if (data?.first_name) setProfileName(data.first_name);
+      });
+  }, [user?.id]);
 
   const [greetingKey, setGreetingKey] = useState(getGreetingKey());
   const [reminders, setReminders] = useState<Reminder[]>([]);
@@ -120,7 +134,7 @@ function TabletDashboardContent() {
     }
   }, [clara.hasGreeted, micPermission]);
 
-  const firstName = user?.user_metadata?.first_name || t('dashboard.memberFallback');
+  const firstName = user?.user_metadata?.first_name || profileName || t('dashboard.memberFallback');
 
   // Mark this device as tablet PWA
   useEffect(() => {
@@ -261,13 +275,6 @@ function TabletDashboardContent() {
         onAcknowledge={alertSystem.acknowledgeAlert}
       />
 
-      {/* Voice Indicator — bottom-left corner */}
-      <TabletVoiceIndicator
-        isListening={clara.isListening}
-        isSpeaking={clara.isSpeaking}
-        hasPermission={clara.hasPermission}
-      />
-
       {/* Main dashboard content — full width */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Vitals Strip */}
@@ -301,6 +308,13 @@ function TabletDashboardContent() {
               familyOnline={familyOnline}
               messages={messages}
               onViewMessages={() => setShowMessages(true)}
+              claraStatus={
+                clara.isSpeaking ? 'speaking'
+                  : clara.isListening ? 'listening'
+                    : clara.hasPermission === false ? 'offline'
+                      : 'idle' as ClaraStatus
+              }
+              onClaraClick={() => setClaraPanelExpanded(true)}
             />
           </div>
 

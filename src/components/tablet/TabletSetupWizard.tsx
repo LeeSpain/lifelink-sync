@@ -33,12 +33,33 @@ interface TabletSetupWizardProps {
 
 interface DeviceStepProps {
   onBack: () => void;
-  onContinue: (connected: boolean, deviceName: string) => void;
+  onContinue: (connected: boolean, deviceName: string, speakers: { alexa: boolean; google: boolean }) => void;
+  userId?: string;
   t: (key: string, fallback?: string, opts?: object) => string;
 }
 
-function DeviceStep({ onBack, onContinue, t }: DeviceStepProps) {
+function DeviceStep({ onBack, onContinue, userId, t }: DeviceStepProps) {
   const ble = useBluetoothPendant();
+  const [alexaLinked, setAlexaLinked] = useState(false);
+  const [googleLinked, setGoogleLinked] = useState(false);
+  const [showAlexaInfo, setShowAlexaInfo] = useState(false);
+  const [showGoogleInfo, setShowGoogleInfo] = useState(false);
+
+  // Check existing speaker links
+  useEffect(() => {
+    if (!userId) return;
+    supabase
+      .from('device_smart_speaker_links')
+      .select('platform, status')
+      .eq('user_id', userId)
+      .eq('status', 'active')
+      .then(({ data }) => {
+        if (data) {
+          setAlexaLinked(data.some((r) => r.platform === 'alexa'));
+          setGoogleLinked(data.some((r) => r.platform === 'google_home'));
+        }
+      });
+  }, [userId]);
 
   return (
     <div>
@@ -110,7 +131,7 @@ function DeviceStep({ onBack, onContinue, t }: DeviceStepProps) {
 
         {/* Smart Speakers */}
         <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-5">
-          <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
               <Speaker className="h-5 w-5 text-purple-400" />
             </div>
@@ -121,9 +142,95 @@ function DeviceStep({ onBack, onContinue, t }: DeviceStepProps) {
               </p>
             </div>
           </div>
-          <div className="flex items-center justify-center gap-2 h-10 rounded-lg bg-slate-900/60 border border-slate-700 text-sm text-slate-400">
-            <Wifi className="h-4 w-4" />
-            {t('tablet.setup.speakerSetupLater', 'Set up from Settings after install')}
+
+          <div className="space-y-3">
+            {/* Amazon Alexa */}
+            <div className="bg-slate-900/60 border border-slate-700 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-cyan-500/20 flex items-center justify-center">
+                    <span className="text-cyan-400 font-bold text-sm">A</span>
+                  </div>
+                  <span className="text-white font-medium text-sm">{t('tablet.setup.alexaTitle', 'Amazon Alexa')}</span>
+                </div>
+                {alexaLinked && (
+                  <span className="flex items-center gap-1 text-xs text-emerald-400">
+                    <CheckCircle className="h-3.5 w-3.5" />
+                    {t('tablet.setup.speakerLinked', 'Linked')}
+                  </span>
+                )}
+              </div>
+              <p className="text-slate-400 text-xs mb-3">
+                {t('tablet.setup.alexaDesc', 'Say "Alexa, help help help" for emergency SOS')}
+              </p>
+              {alexaLinked ? (
+                <div className="h-8 flex items-center text-xs text-emerald-400/70">
+                  {t('tablet.setup.speakerActive', 'Connected and ready for voice commands')}
+                </div>
+              ) : showAlexaInfo ? (
+                <div className="bg-slate-800/80 rounded-lg p-3 text-xs text-slate-300 space-y-2">
+                  <p>{t('tablet.setup.alexaStep1', '1. Open the Alexa app on your phone')}</p>
+                  <p>{t('tablet.setup.alexaStep2', '2. Go to Skills & Games → search "LifeLink"')}</p>
+                  <p>{t('tablet.setup.alexaStep3', '3. Enable the skill and link your account')}</p>
+                  <button onClick={() => setShowAlexaInfo(false)} className="text-cyan-400 mt-1">
+                    {t('tablet.setup.hideInstructions', 'Hide')}
+                  </button>
+                </div>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setShowAlexaInfo(true)}
+                  className="w-full h-8 text-xs border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10"
+                >
+                  {t('tablet.setup.linkAccount', 'How to Link')}
+                </Button>
+              )}
+            </div>
+
+            {/* Google Home */}
+            <div className="bg-slate-900/60 border border-slate-700 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
+                    <span className="text-amber-400 font-bold text-sm">G</span>
+                  </div>
+                  <span className="text-white font-medium text-sm">{t('tablet.setup.googleTitle', 'Google Home')}</span>
+                </div>
+                {googleLinked && (
+                  <span className="flex items-center gap-1 text-xs text-emerald-400">
+                    <CheckCircle className="h-3.5 w-3.5" />
+                    {t('tablet.setup.speakerLinked', 'Linked')}
+                  </span>
+                )}
+              </div>
+              <p className="text-slate-400 text-xs mb-3">
+                {t('tablet.setup.googleDesc', 'Say "Hey Google, emergency" for SOS alerts')}
+              </p>
+              {googleLinked ? (
+                <div className="h-8 flex items-center text-xs text-emerald-400/70">
+                  {t('tablet.setup.speakerActive', 'Connected and ready for voice commands')}
+                </div>
+              ) : showGoogleInfo ? (
+                <div className="bg-slate-800/80 rounded-lg p-3 text-xs text-slate-300 space-y-2">
+                  <p>{t('tablet.setup.googleStep1', '1. Open the Google Home app on your phone')}</p>
+                  <p>{t('tablet.setup.googleStep2', '2. Go to Settings → Works with Google')}</p>
+                  <p>{t('tablet.setup.googleStep3', '3. Search "LifeLink" and link your account')}</p>
+                  <button onClick={() => setShowGoogleInfo(false)} className="text-amber-400 mt-1">
+                    {t('tablet.setup.hideInstructions', 'Hide')}
+                  </button>
+                </div>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setShowGoogleInfo(true)}
+                  className="w-full h-8 text-xs border-amber-500/30 text-amber-400 hover:bg-amber-500/10"
+                >
+                  {t('tablet.setup.linkAccount', 'How to Link')}
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -139,7 +246,7 @@ function DeviceStep({ onBack, onContinue, t }: DeviceStepProps) {
         </Button>
         <Button
           size="lg"
-          onClick={() => onContinue(ble.connected, ble.deviceName)}
+          onClick={() => onContinue(ble.connected, ble.deviceName, { alexa: alexaLinked, google: googleLinked })}
           className="flex-1 min-h-[56px] text-lg font-bold bg-primary hover:bg-primary/90"
         >
           {ble.connected
@@ -201,16 +308,25 @@ export function TabletSetupWizard({ onComplete }: TabletSetupWizardProps) {
     if (!residentName.trim() || !user) return;
     setSaving(true);
     const parts = residentName.trim().split(/\s+/);
-    await supabase.auth.updateUser({
-      data: { first_name: parts[0], last_name: parts.slice(1).join(' ') },
-    });
+    const first = parts[0];
+    const last = parts.slice(1).join(' ');
+    await supabase.auth.updateUser({ data: { first_name: first, last_name: last } });
+    // Also save to profiles table so the dashboard can read it immediately
+    await supabase.from('profiles').upsert(
+      { user_id: user.id, first_name: first, last_name: last },
+      { onConflict: 'user_id' }
+    );
     setSaving(false);
     setStep(2);
   };
 
-  const handleDeviceContinue = (connected: boolean, deviceName: string) => {
+  // Speaker link status (captured when leaving DeviceStep)
+  const [speakerStatus, setSpeakerStatus] = useState({ alexa: false, google: false });
+
+  const handleDeviceContinue = (connected: boolean, deviceName: string, speakers: { alexa: boolean; google: boolean }) => {
     setPendantConnected(connected);
     setPendantName(deviceName);
+    setSpeakerStatus(speakers);
     setStep(3);
   };
 
@@ -333,6 +449,7 @@ export function TabletSetupWizard({ onComplete }: TabletSetupWizardProps) {
           <DeviceStep
             onBack={() => setStep(1)}
             onContinue={handleDeviceContinue}
+            userId={user?.id}
             t={t as DeviceStepProps['t']}
           />
         )}
@@ -516,6 +633,21 @@ export function TabletSetupWizard({ onComplete }: TabletSetupWizardProps) {
                     : t('tablet.setup.pendantNotConnected', 'Pendant not connected')}
                 </span>
                 {pendantConnected ? (
+                  <CheckCircle className="h-4 w-4 text-emerald-400 ml-auto" />
+                ) : (
+                  <span className="text-xs text-amber-400 ml-auto">{t('tablet.setup.optional', 'Optional')}</span>
+                )}
+              </div>
+              <div className="flex items-center gap-3 bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3">
+                <Speaker className="h-5 w-5 text-purple-400 flex-shrink-0" />
+                <span className="text-white">
+                  {speakerStatus.alexa || speakerStatus.google
+                    ? t('tablet.setup.speakersLinkedSummary', 'Speakers linked ({{list}})', {
+                        list: [speakerStatus.alexa && 'Alexa', speakerStatus.google && 'Google'].filter(Boolean).join(', '),
+                      })
+                    : t('tablet.setup.speakersNotLinked', 'No speakers linked')}
+                </span>
+                {speakerStatus.alexa || speakerStatus.google ? (
                   <CheckCircle className="h-4 w-4 text-emerald-400 ml-auto" />
                 ) : (
                   <span className="text-xs text-amber-400 ml-auto">{t('tablet.setup.optional', 'Optional')}</span>

@@ -3350,7 +3350,12 @@
     },
     "quickInfo": {
       "medication": "Medicatie",
-      "noMedication": "Geen gepland"
+      "noMedication": "Geen gepland",
+      "clara": "Clara",
+      "claraListening": "Luistert...",
+      "claraSpeaking": "Spreekt...",
+      "claraOffline": "Microfoon uit",
+      "claraReady": "Klaar"
     }
   },
   "mobile": {

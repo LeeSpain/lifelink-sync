@@ -3503,7 +3503,12 @@
       "online": "{{count}} online",
       "checking": "Checking...",
       "medication": "Medication",
-      "noMedication": "None scheduled"
+      "noMedication": "None scheduled",
+      "clara": "Clara",
+      "claraListening": "Listening...",
+      "claraSpeaking": "Speaking...",
+      "claraOffline": "Mic off",
+      "claraReady": "Ready"
     },
     "messages": {
       "title": "Messages",
