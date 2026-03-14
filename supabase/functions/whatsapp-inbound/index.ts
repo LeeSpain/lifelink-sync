@@ -62,33 +62,29 @@ function stripMarkdown(text: string): string {
 
 // ── Send WhatsApp reply via Twilio ─────────────────────────────
 async function sendWhatsApp(to: string, body: string): Promise<boolean> {
-  const toAddr = to.startsWith('whatsapp:') ? to : `whatsapp:${to}`;
-  const url = `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`;
+  const fromNumber = to.startsWith('whatsapp:') ? to : `whatsapp:${to}`;
 
-  // Manual encoding to preserve + in phone numbers
-  // URLSearchParams encodes + as %2B which some Twilio endpoints misread
-  const formBody = `To=${encodeURIComponent(toAddr)}&From=${encodeURIComponent(twilioFrom)}&Body=${encodeURIComponent(body)}`;
+  const replyResult = await fetch(
+    `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Basic ' + btoa(`${twilioSid}:${twilioToken}`),
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        To: fromNumber,
+        From: Deno.env.get('TWILIO_WHATSAPP_FROM')!,
+        Body: body,
+      }).toString(),
+    }
+  );
 
-  console.log('Twilio send:', { To: toAddr, From: twilioFrom, bodyLength: body.length });
+  console.log('Reply send status:', replyResult.status);
+  const replyBody = await replyResult.text();
+  console.log('Reply send body:', replyBody);
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Authorization': 'Basic ' + btoa(`${twilioSid}:${twilioToken}`),
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: formBody,
-  });
-
-  const responseText = await response.text();
-
-  if (!response.ok) {
-    console.error('Twilio send FAILED:', response.status, responseText);
-    return false;
-  }
-
-  console.log('Twilio send OK:', response.status);
-  return true;
+  return replyResult.ok;
 }
 
 // ── CLARA system prompt ────────────────────────────────────────
