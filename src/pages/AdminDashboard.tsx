@@ -46,6 +46,7 @@ import GoLivePreparationPage from '@/components/admin/pages/GoLivePreparationPag
 import TransferToCare from '@/pages/admin/TransferToCare';
 import AddonManagementPage from '@/components/admin/pages/AddonManagementPage';
 import TrialManagementPage from '@/components/admin/pages/TrialManagementPage';
+import GiftManagementPage from '@/components/admin/pages/GiftManagementPage';
 import PricingEditorPage from '@/components/admin/pages/PricingEditorPage';
 import DashboardsAndApps from '@/components/admin/pages/DashboardsAndApps';
 import AdminProfile from '@/components/admin/pages/AdminProfile';
@@ -109,6 +110,7 @@ const AdminDashboard: React.FC = () => {
         <Route path="transfer-to-care" element={<TransferToCare />} />
         <Route path="addon-management" element={<AddonManagementPage />} />
         <Route path="trial-management" element={<TrialManagementPage />} />
+        <Route path="gift-management" element={<GiftManagementPage />} />
         <Route path="pricing" element={<PricingEditorPage />} />
         <Route path="dashboards-apps" element={<DashboardsAndApps />} />
         <Route path="profile" element={<AdminProfile />} />

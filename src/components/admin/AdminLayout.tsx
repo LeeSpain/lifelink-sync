@@ -51,7 +51,8 @@ import {
   Clock,
   LayoutGrid,
   LayoutDashboard,
-  Settings2
+  Settings2,
+  Gift
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -151,6 +152,7 @@ const useAdminMenuItems = () => {
         { title: t('admin.subscriptionPlans'), url: "/admin-dashboard/protection-plans", icon: Shield },
         { title: 'Add-On Management', url: "/admin-dashboard/addon-management", icon: Package },
         { title: 'Trial Management', url: "/admin-dashboard/trial-management", icon: Clock },
+        { title: 'Gift Management', url: "/admin-dashboard/gift-management", icon: Gift },
         { title: t('admin.flickControl'), url: "/admin-dashboard/flic-control", icon: Bluetooth },
       ]
     },

@@ -84,6 +84,26 @@ serve(async (req) => {
       .eq('status', 'amber_escalation')
       .gte('updated_at', yesterdayISO);
 
+    // ── Gift subscriptions this week ───────────────────────────
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+    const { count: giftsSoldWeek } = await supabase
+      .from('gift_subscriptions')
+      .select('id', { count: 'exact' })
+      .gte('created_at', weekAgo)
+      .neq('status', 'pending_payment');
+
+    const { count: giftsRedeemedWeek } = await supabase
+      .from('gift_subscriptions')
+      .select('id', { count: 'exact' })
+      .eq('status', 'redeemed')
+      .gte('redeemed_at', weekAgo);
+
+    const { count: giftsPending } = await supabase
+      .from('gift_subscriptions')
+      .select('id', { count: 'exact' })
+      .in('status', ['paid', 'delivered']);
+
     // ── Build the briefing message ─────────────────────────────
     const dayName = now.toLocaleDateString('en-GB', { weekday: 'long' });
     const dateStr = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -103,6 +123,10 @@ serve(async (req) => {
       `Expiring today: ${expiringToday ?? 0}`,
       '',
       `Active subscribers: ${activeSubscribers ?? 0}`,
+      '',
+      `Gifts sold this week: ${giftsSoldWeek ?? 0}`,
+      `Gifts redeemed this week: ${giftsRedeemedWeek ?? 0}`,
+      `Gifts pending: ${giftsPending ?? 0}`,
       '',
       `Chat messages: ${recentConversations ?? 0}`,
       `WhatsApp messages: ${waMessages ?? 0}`,
@@ -144,6 +168,9 @@ serve(async (req) => {
           chat_messages: recentConversations ?? 0,
           whatsapp_messages: waMessages ?? 0,
           amber_escalations: amberCount ?? 0,
+          gifts_sold_week: giftsSoldWeek ?? 0,
+          gifts_redeemed_week: giftsRedeemedWeek ?? 0,
+          gifts_pending: giftsPending ?? 0,
         },
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
