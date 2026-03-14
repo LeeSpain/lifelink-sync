@@ -2764,6 +2764,7 @@
     "startTrial": "Iniciar Prueba Gratuita",
     "alreadyHaveAccount": "¿Ya tienes una cuenta?",
     "signIn": "Iniciar Sesión",
+    "backToHomepage": "Volver a la página principal",
     "welcome": {
       "title": "Bienvenido a LifeLink Sync",
       "subtitle": "Tu plataforma completa de protección de emergencia. Te configuramos en solo unos minutos.",
@@ -3452,6 +3453,17 @@
     "claraCompleteText": "Activa Bienestar y Medicación y CLARA Completo se desbloquea GRATIS — informes semanales IA y monitorización mejorada incluidos automáticamente.",
     "claraCompleteBadge": "MEJOR VALOR",
     "bottomNote": "Precios en EUR · Cancela cuando quieras · Sin contratos · Cumple RGPD",
+    "badgeRecommended": "RECOMENDADO",
+    "badgeFullAccess": "ACCESO COMPLETO",
+    "trialTitle": "7 días gratis",
+    "trialSubtitle": "Sin tarjeta · Prueba todo gratis",
+    "joinNowTitle": "Únete ahora",
+    "joinNowSubtitle": "Acceso completo · Todos los beneficios hoy",
+    "startImmediately": "Empieza ya",
+    "trialNote": "7 días gratis primero",
+    "trialCtaNote": "Sin tarjeta · Después {{price}}/mes · Cancela cuando quieras",
+    "joinNowButton": "Únete ahora — Acceso completo hoy",
+    "paidCtaNote": "{{price}}/mes · Acceso completo desde el día 1 · Cancela cuando quieras",
     "features": {
       "claraAi": "CLARA IA — asistente de seguridad 24/7",
       "appSos": "Botón SOS en la app (un toque)",
@@ -3476,7 +3488,10 @@
     "upgradeDesc": "Actualiza al Plan Individual para hasta 5 contactos de emergencia.",
     "upgradeButton": "Actualizar — €9.99/mes",
     "trialDesc": "La prueba gratuita incluye 1 contacto de emergencia. Actualiza para hasta 5.",
-    "paidDesc": "Puedes añadir hasta {{max}} contactos de emergencia. {{remaining}} restantes."
+    "paidDesc": "Puedes añadir hasta {{max}} contactos de emergencia. {{remaining}} restantes.",
+    "freeLimit": "El plan gratuito incluye 1 contacto de emergencia",
+    "upgradeTo5": "Actualiza al Plan Individual (€9,99/mes) para añadir hasta 5 contactos",
+    "upgradeNow": "Actualizar ahora"
   },
   "blog": {
     "heroBadge": "Blog de Seguridad y Protección",

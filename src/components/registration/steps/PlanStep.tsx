@@ -19,7 +19,7 @@ const PlanStep: React.FC<PlanStepProps> = ({ data, onChange }) => {
   const { t } = useTranslation();
   const { prices, formatPrice } = usePricing();
 
-  const isTrial = data.isTrialSelected !== false;
+  const isTrial = data.isTrialSelected === true;
 
   const handleSelectTrial = () => {
     onChange('selectedPlanId', 'individual-plan');
@@ -115,13 +115,13 @@ const PlanStep: React.FC<PlanStepProps> = ({ data, onChange }) => {
           )}
         >
           <div className="flex items-center justify-between mb-2">
-            <Badge className="bg-green-100 text-green-700 border-green-200 text-[10px]">RECOMMENDED</Badge>
+            <Badge className="bg-green-100 text-green-700 border-green-200 text-[10px]">{t('pricingWizard.badgeRecommended', 'RECOMMENDED')}</Badge>
             {isTrial && <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center"><Check className="h-2.5 w-2.5 text-white" /></div>}
           </div>
-          <p className="font-bold text-foreground text-sm">7-Day Free Trial</p>
-          <p className="text-xs text-muted-foreground mt-0.5">No card required · Try everything free</p>
+          <p className="font-bold text-foreground text-sm">{t('pricingWizard.trialTitle', '7-Day Free Trial')}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{t('pricingWizard.trialSubtitle', 'No card required · Try everything free')}</p>
           <p className="text-xs font-medium text-primary mt-2">
-            Then {formatPrice(prices.individual_monthly)}/month
+            {t('pricingWizard.thenPrice', { price: formatPrice(prices.individual_monthly), defaultValue: `Then ${formatPrice(prices.individual_monthly)}/month` })}
           </p>
         </button>
 
@@ -137,14 +137,14 @@ const PlanStep: React.FC<PlanStepProps> = ({ data, onChange }) => {
         >
           <div className="flex items-center justify-between mb-2">
             <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px]">
-              <Zap className="h-2.5 w-2.5 mr-1 inline" />FULL ACCESS
+              <Zap className="h-2.5 w-2.5 mr-1 inline" />{t('pricingWizard.badgeFullAccess', 'FULL ACCESS')}
             </Badge>
             {!isTrial && <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center"><Check className="h-2.5 w-2.5 text-white" /></div>}
           </div>
-          <p className="font-bold text-foreground text-sm">Join Now</p>
-          <p className="text-xs text-muted-foreground mt-0.5">Instant full access · All benefits today</p>
+          <p className="font-bold text-foreground text-sm">{t('pricingWizard.joinNowTitle', 'Join Now')}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{t('pricingWizard.joinNowSubtitle', 'Instant full access · All benefits today')}</p>
           <p className="text-xs font-medium text-primary mt-2">
-            {formatPrice(prices.individual_monthly)}/month · Start immediately
+            {formatPrice(prices.individual_monthly)}/{t('pricingWizard.month', 'month')} · {t('pricingWizard.startImmediately', 'Start immediately')}
           </p>
         </button>
       </div>
@@ -170,7 +170,7 @@ const PlanStep: React.FC<PlanStepProps> = ({ data, onChange }) => {
               <span className="text-sm font-normal text-muted-foreground">/{t('pricingWizard.month', 'month')}</span>
             </div>
             {isTrial && (
-              <span className="text-sm text-green-600 font-medium pb-1">· 7 days free first</span>
+              <span className="text-sm text-green-600 font-medium pb-1">· {t('pricingWizard.trialNote', '7 days free first')}</span>
             )}
           </div>
 
@@ -193,7 +193,7 @@ const PlanStep: React.FC<PlanStepProps> = ({ data, onChange }) => {
                 {t('pricingWizard.ctaButton', 'Start Free Trial')}
               </Button>
               <p className="text-xs text-muted-foreground text-center">
-                No card required · Then {formatPrice(prices.individual_monthly)}/month · Cancel anytime
+                {t('pricingWizard.trialCtaNote', { price: `${formatPrice(prices.individual_monthly)}`, defaultValue: `No card required · Then ${formatPrice(prices.individual_monthly)}/month · Cancel anytime` })}
               </p>
             </>
           ) : (
@@ -203,10 +203,10 @@ const PlanStep: React.FC<PlanStepProps> = ({ data, onChange }) => {
                 className="w-full bg-primary text-white hover:bg-primary/90 rounded-full text-base py-6"
                 size="lg"
               >
-                Join Now — Get Full Access Today
+                {t('pricingWizard.joinNowButton', 'Join Now — Get Full Access Today')}
               </Button>
               <p className="text-xs text-muted-foreground text-center">
-                {formatPrice(prices.individual_monthly)}/month · Full access from day 1 · Cancel anytime
+                {t('pricingWizard.paidCtaNote', { price: `${formatPrice(prices.individual_monthly)}`, defaultValue: `${formatPrice(prices.individual_monthly)}/month · Full access from day 1 · Cancel anytime` })}
               </p>
             </>
           )}

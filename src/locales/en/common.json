@@ -2908,6 +2908,7 @@
     "startTrial": "Start Free Trial",
     "alreadyHaveAccount": "Already have an account?",
     "signIn": "Sign In",
+    "backToHomepage": "Back to homepage",
     "welcome": {
       "title": "Welcome to LifeLink Sync",
       "subtitle": "Your complete emergency protection platform. Let's get you set up in just a few minutes.",
@@ -3313,6 +3314,17 @@
     "claraCompleteText": "Activate both Wellbeing and Medication add-ons and CLARA Complete unlocks FREE — weekly AI reports and enhanced monitoring included automatically.",
     "claraCompleteBadge": "BEST VALUE",
     "bottomNote": "All prices in EUR · Cancel anytime · No contracts · GDPR compliant",
+    "badgeRecommended": "RECOMMENDED",
+    "badgeFullAccess": "FULL ACCESS",
+    "trialTitle": "7-Day Free Trial",
+    "trialSubtitle": "No card required · Try everything free",
+    "joinNowTitle": "Join Now",
+    "joinNowSubtitle": "Instant full access · All benefits today",
+    "startImmediately": "Start immediately",
+    "trialNote": "7 days free first",
+    "trialCtaNote": "No card required · Then {{price}}/month · Cancel anytime",
+    "joinNowButton": "Join Now — Get Full Access Today",
+    "paidCtaNote": "{{price}}/month · Full access from day 1 · Cancel anytime",
     "features": {
       "claraAi": "CLARA AI — 24/7 AI safety assistant",
       "appSos": "App SOS button (one tap)",
@@ -3337,7 +3349,10 @@
     "upgradeDesc": "Upgrade to Individual Plan for up to 5 emergency contacts.",
     "upgradeButton": "Upgrade — €9.99/mo",
     "trialDesc": "Free trial includes 1 emergency contact. Upgrade to Individual Plan for up to 5.",
-    "paidDesc": "You can add up to {{max}} emergency contacts. {{remaining}} remaining."
+    "paidDesc": "You can add up to {{max}} emergency contacts. {{remaining}} remaining.",
+    "freeLimit": "Free plan includes 1 emergency contact",
+    "upgradeTo5": "Upgrade to the Individual Plan (€9.99/mo) to add up to 5 contacts",
+    "upgradeNow": "Upgrade now"
   },
   "blog": {
     "heroBadge": "Safety & Protection Blog",

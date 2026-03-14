@@ -217,12 +217,15 @@ const RegistrationWizard: React.FC = () => {
     }
   };
 
-  // Save profile to Supabase
+  // Save profile and emergency contacts to Supabase
   const saveProfile = async () => {
     try {
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) return;
 
+      const validContacts = data.emergencyContacts.filter(c => c.name.trim() && c.phone.trim());
+
+      // Save profile (includes contacts as JSONB for legacy compatibility)
       await supabase.from('profiles').upsert({
         user_id: userData.user.id,
         first_name: data.firstName,
@@ -230,13 +233,34 @@ const RegistrationWizard: React.FC = () => {
         phone: data.phone,
         address: data.city,
         country: data.country,
-        emergency_contacts: data.emergencyContacts.filter(c => c.name && c.phone),
+        date_of_birth: data.dateOfBirth || null,
+        emergency_contacts: validContacts,
         medical_conditions: [],
         allergies: [],
         medications: [],
       });
+
+      // Also insert into the dedicated emergency_contacts table
+      if (validContacts.length > 0) {
+        const contactRows = validContacts.map((c, i) => ({
+          user_id: userData.user.id,
+          name: c.name.trim(),
+          phone: c.phone.trim(),
+          email: c.email?.trim() || null,
+          relationship: c.relationship || null,
+          type: 'call_only' as const,
+          priority: i + 1,
+        }));
+
+        await supabase.from('emergency_contacts').insert(contactRows);
+      }
     } catch (err) {
-      console.error('Failed to save profile:', err);
+      // Profile save is critical — surface error to user
+      toast({
+        title: t('registration.errors.profileSaveFailed', 'Failed to save profile'),
+        description: t('registration.errors.tryAgain', 'Please try again or contact support.'),
+        variant: 'destructive',
+      });
     }
   };
 
@@ -252,15 +276,18 @@ const RegistrationWizard: React.FC = () => {
   // Send welcome email
   const sendWelcomeEmail = async () => {
     try {
+      const { data: userData } = await supabase.auth.getUser();
       await supabase.functions.invoke('send-welcome-email', {
         body: {
+          userId: userData?.user?.id,
           firstName: data.firstName,
+          lastName: data.lastName,
           email: data.email,
-          tier: data.isTrialSelected ? 'trial' : 'premium',
+          subscriptionTier: data.isTrialSelected ? 'trial' : 'premium',
         }
       });
-    } catch (err) {
-      console.error('Failed to send welcome email:', err);
+    } catch {
+      // Welcome email is non-critical — fail silently
     }
   };
 
@@ -439,7 +466,7 @@ const RegistrationWizard: React.FC = () => {
                 onClick={() => navigate('/')}
                 className="text-white/80 hover:text-white hover:underline font-medium"
               >
-                ← Back to homepage
+                ← {t('registration.backToHomepage', 'Back to homepage')}
               </button>
             </p>
           </div>

@@ -2576,6 +2576,7 @@
     "startTrial": "Start Gratis Proefperiode",
     "alreadyHaveAccount": "Heb je al een account?",
     "signIn": "Inloggen",
+    "backToHomepage": "Terug naar de homepage",
     "welcome": {
       "title": "Welkom bij LifeLink Sync",
       "subtitle": "Je complete noodbeschermingsplatform. We helpen je in slechts een paar minuten.",
@@ -3452,6 +3453,17 @@
     "claraCompleteText": "Activeer zowel Welzijn als Medicatie add-ons en CLARA Compleet wordt GRATIS ontgrendeld — wekelijkse AI-rapporten en verbeterde monitoring automatisch inbegrepen.",
     "claraCompleteBadge": "BESTE WAARDE",
     "bottomNote": "Prijzen in EUR · Altijd opzegbaar · Geen contracten · AVG-conform",
+    "badgeRecommended": "AANBEVOLEN",
+    "badgeFullAccess": "VOLLEDIGE TOEGANG",
+    "trialTitle": "7 dagen gratis",
+    "trialSubtitle": "Geen creditcard nodig · Probeer alles gratis",
+    "joinNowTitle": "Nu deelnemen",
+    "joinNowSubtitle": "Direct volledige toegang · Alle voordelen vandaag",
+    "startImmediately": "Direct starten",
+    "trialNote": "Eerst 7 dagen gratis",
+    "trialCtaNote": "Geen creditcard nodig · Daarna {{price}}/maand · Altijd opzegbaar",
+    "joinNowButton": "Nu deelnemen — Vandaag volledige toegang",
+    "paidCtaNote": "{{price}}/maand · Volledige toegang vanaf dag 1 · Altijd opzegbaar",
     "features": {
       "claraAi": "CLARA AI — 24/7 AI-veiligheidsassistent",
       "appSos": "App SOS-knop (één tik)",
@@ -3476,7 +3488,10 @@
     "upgradeDesc": "Upgrade naar Individueel Plan voor maximaal 5 noodcontacten.",
     "upgradeButton": "Upgraden — €9,99/mnd",
     "trialDesc": "Gratis proefperiode bevat 1 noodcontact. Upgrade voor maximaal 5.",
-    "paidDesc": "Je kunt maximaal {{max}} noodcontacten toevoegen. {{remaining}} resterend."
+    "paidDesc": "Je kunt maximaal {{max}} noodcontacten toevoegen. {{remaining}} resterend.",
+    "freeLimit": "Gratis plan bevat 1 noodcontact",
+    "upgradeTo5": "Upgrade naar het Individueel Plan (€9,99/mnd) om tot 5 contacten toe te voegen",
+    "upgradeNow": "Nu upgraden"
   },
   "blog": {
     "heroBadge": "Veiligheids- & Beschermingsblog",
