@@ -165,6 +165,44 @@ serve(async (req) => {
       return new Response(TWIML_OK, { status: 200, headers: { ...corsHeaders, 'Content-Type': 'text/xml' } });
     }
 
+    // ── Check if first contact — send greeting ─────────────────
+    const { data: existingConv } = await supabase
+      .from('whatsapp_conversations')
+      .select('id')
+      .eq('phone_number', phone)
+      .eq('status', 'active')
+      .maybeSingle();
+
+    const isFirstContact = !existingConv;
+
+    if (isFirstContact) {
+      const detectedLang = detectLanguage(body);
+      const greetings: Record<string, string> = {
+        English: `Hello! I'm CLARA — Connected Lifeline And Response Assistant.
+
+I'm the AI assistant for LifeLink Sync, our emergency protection platform. Think of me as your 24/7 guide who knows everything about keeping you and your loved ones safe.
+
+I can help you understand how our emergency system works, answer questions about our plans and features, or get you started with a free 7-day trial if you're ready.
+
+Let me read your message and respond properly now...`,
+        Spanish: `Hola! Soy CLARA — Connected Lifeline And Response Assistant.
+
+Soy la asistente de IA de LifeLink Sync, nuestra plataforma de proteccion de emergencias. Piensa en mi como tu guia 24/7 que sabe todo sobre como mantener seguros a ti y a tus seres queridos.
+
+Puedo ayudarte a entender como funciona nuestro sistema de emergencia, responder preguntas sobre planes y funciones, o ayudarte a empezar con una prueba gratuita de 7 dias.
+
+Deja que lea tu mensaje y te responda ahora...`,
+        Dutch: `Hallo! Ik ben CLARA — Connected Lifeline And Response Assistant.
+
+Ik ben de AI-assistent van LifeLink Sync, ons noodbeschermingsplatform. Beschouw mij als je 24/7 gids die alles weet over het veilig houden van jou en je dierbaren.
+
+Ik kan je helpen begrijpen hoe ons noodsysteem werkt, vragen beantwoorden over plannen en functies, of je helpen starten met een gratis proefperiode van 7 dagen.
+
+Laat me je bericht lezen en je nu goed antwoorden...`,
+      };
+      await sendWhatsApp(phone, greetings[detectedLang] ?? greetings['English']);
+    }
+
     // ── Detect language and build user message ─────────────────
     const detectedLang = detectLanguage(body);
     const langInstruction = `[RESPOND IN ${detectedLang.toUpperCase()} ONLY. DO NOT USE ANY OTHER LANGUAGE.]\n\n`;
