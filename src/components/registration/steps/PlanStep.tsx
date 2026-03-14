@@ -11,6 +11,7 @@ interface PlanStepProps {
   data: {
     selectedPlanId: string;
     isTrialSelected: boolean;
+    billingInterval?: 'month' | 'year';
   };
   onChange: (field: string, value: any) => void;
 }
@@ -29,6 +30,7 @@ const PlanStep: React.FC<PlanStepProps> = ({ data, onChange }) => {
   const handleSelectPaid = () => {
     onChange('selectedPlanId', 'individual-plan');
     onChange('isTrialSelected', false);
+    if (!data.billingInterval) onChange('billingInterval', 'month');
   };
 
   // Default to trial on mount
@@ -164,10 +166,43 @@ const PlanStep: React.FC<PlanStepProps> = ({ data, onChange }) => {
             </div>
           </div>
 
+          {/* Billing cycle selector — only when paid selected */}
+          {!isTrial && (
+            <div className="flex gap-2 mb-2">
+              <button
+                onClick={() => onChange('billingInterval', 'month')}
+                className={cn(
+                  'flex-1 rounded-lg border-2 p-3 text-left transition-all',
+                  data.billingInterval !== 'year'
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border hover:border-primary/40'
+                )}
+              >
+                <p className="font-bold text-sm">{formatPrice(prices.individual_monthly)}<span className="text-xs font-normal text-muted-foreground">/{t('pricingWizard.month', 'month')}</span></p>
+                <p className="text-xs text-muted-foreground">{t('pricingWizard.billedMonthly', 'Billed monthly')}</p>
+              </button>
+              <button
+                onClick={() => onChange('billingInterval', 'year')}
+                className={cn(
+                  'flex-1 rounded-lg border-2 p-3 text-left transition-all relative',
+                  data.billingInterval === 'year'
+                    ? 'border-primary bg-primary/5'
+                    : 'border-border hover:border-primary/40'
+                )}
+              >
+                <Badge className="absolute -top-2 right-2 bg-green-100 text-green-700 text-[10px]">{t('pricing.saveBadge', '2 months free')}</Badge>
+                <p className="font-bold text-sm">{formatPrice(prices.individual_annual)}<span className="text-xs font-normal text-muted-foreground">/{t('pricingWizard.year', 'year')}</span></p>
+                <p className="text-xs text-muted-foreground">{t('pricingWizard.billedAnnually', 'Billed annually')}</p>
+              </button>
+            </div>
+          )}
+
           <div className="flex items-end gap-3">
             <div className="text-3xl font-bold text-foreground">
-              {formatPrice(prices.individual_monthly)}
-              <span className="text-sm font-normal text-muted-foreground">/{t('pricingWizard.month', 'month')}</span>
+              {!isTrial && data.billingInterval === 'year'
+                ? <>{formatPrice(prices.individual_annual)}<span className="text-sm font-normal text-muted-foreground">/{t('pricingWizard.year', 'year')}</span></>
+                : <>{formatPrice(prices.individual_monthly)}<span className="text-sm font-normal text-muted-foreground">/{t('pricingWizard.month', 'month')}</span></>
+              }
             </div>
             {isTrial && (
               <span className="text-sm text-green-600 font-medium pb-1">· {t('pricingWizard.trialNote', '7 days free first')}</span>
