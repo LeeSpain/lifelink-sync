@@ -154,5 +154,5 @@ INSERT INTO public.ai_model_settings (setting_key, setting_value, description) V
 ('rate_limit_per_minute', '60', 'Maximum requests per minute'),
 ('daily_request_limit', '10000', 'Maximum daily requests'),
 ('enable_logging', 'true', 'Whether to log conversations'),
-('system_prompt_mode', 'append', 'How custom system prompt is applied: append or override')
+('system_prompt_mode', '"append"', 'How custom system prompt is applied: append or override')
 ON CONFLICT (setting_key) DO NOTHING;

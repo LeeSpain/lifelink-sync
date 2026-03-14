@@ -193,7 +193,7 @@ const handler = async (req: Request): Promise<Response> => {
           <li>Session ID: ${sessionId || 'Not provided'}</li>
           <li>Submitted: ${new Date().toISOString()}</li>
         </ul>
-        <p><a href="https://supabase.com/dashboard/project/mqroziggaalltuzoyyao" target="_blank">View in Admin Dashboard</a></p>
+        <p><a href="https://supabase.com/dashboard/project/cprbgquiqbyoyrffznny" target="_blank">View in Admin Dashboard</a></p>
       `,
     });
 

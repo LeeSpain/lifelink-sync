@@ -328,7 +328,7 @@ export default function GoLivePreparationPage() {
                     <p className="text-sm text-muted-foreground">Configure custom domain and SSL</p>
                   </div>
                   <Button variant="outline" size="sm" asChild>
-                    <a href="https://supabase.com/dashboard/project/mqroziggaalltuzoyyao/settings/general" target="_blank" rel="noopener noreferrer">
+                    <a href="https://supabase.com/dashboard/project/cprbgquiqbyoyrffznny/settings/general" target="_blank" rel="noopener noreferrer">
                       <ExternalLink className="w-4 h-4 mr-2" />
                       Configure
                     </a>
@@ -362,13 +362,13 @@ export default function GoLivePreparationPage() {
                 <h4 className="font-medium">Post-Launch Monitoring</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <Button variant="outline" size="sm" asChild>
-                    <a href="https://supabase.com/dashboard/project/mqroziggaalltuzoyyao/logs/edge-functions" target="_blank" rel="noopener noreferrer">
+                    <a href="https://supabase.com/dashboard/project/cprbgquiqbyoyrffznny/logs/edge-functions" target="_blank" rel="noopener noreferrer">
                       <ExternalLink className="w-4 h-4 mr-2" />
                       Edge Function Logs
                     </a>
                   </Button>
                   <Button variant="outline" size="sm" asChild>
-                    <a href="https://supabase.com/dashboard/project/mqroziggaalltuzoyyao/auth/users" target="_blank" rel="noopener noreferrer">
+                    <a href="https://supabase.com/dashboard/project/cprbgquiqbyoyrffznny/auth/users" target="_blank" rel="noopener noreferrer">
                       <ExternalLink className="w-4 h-4 mr-2" />
                       User Analytics
                     </a>

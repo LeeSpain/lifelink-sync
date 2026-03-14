@@ -7,410 +7,325 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const openAIApiKey = Deno.env.get('OPENAI_API_KEY')!;
-const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+const anthropicApiKey  = Deno.env.get('ANTHROPIC_API_KEY');
+const openAIApiKey     = Deno.env.get('OPENAI_API_KEY');
+const supabaseUrl      = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-const EMBEDDING_MODEL = 'text-embedding-3-small';
-
-// ============================================================
-// Fallbacks (used when DB tables are empty)
-// ============================================================
-
-const FALLBACK_CURRENCY_RATES: Record<string, number> = {
+const CURRENCY_RATES: Record<string, number> = {
   EUR: 1, USD: 1.09, GBP: 0.85, AUD: 1.63,
 };
 
-const FALLBACK_RESTRICTED_PATTERNS = [
-  { pattern: '\\badmin\\b', replacement_message: null },
-  { pattern: 'backend', replacement_message: null },
-  { pattern: 'database', replacement_message: null },
-  { pattern: 'server key', replacement_message: null },
-  { pattern: 'service role', replacement_message: null },
-  { pattern: 'supabase service', replacement_message: null },
-  { pattern: 'jwt', replacement_message: null },
-  { pattern: 'edge function secret', replacement_message: null },
-  { pattern: 'api key', replacement_message: null },
-  { pattern: 'infrastructure', replacement_message: null },
+const convertPrice = (amount: number, from: string, to: string): number => {
+  if (from === to) return amount;
+  return (amount / (CURRENCY_RATES[from] ?? 1)) * (CURRENCY_RATES[to] ?? 1);
+};
+
+const formatCurrency = (amount: number, currency: string, language: string): string => {
+  const locale = language === 'es' ? 'es-ES' : language === 'nl' ? 'nl-NL' : 'en-GB';
+  return new Intl.NumberFormat(locale, {
+    style: 'currency', currency,
+    minimumFractionDigits: 2, maximumFractionDigits: 2,
+  }).format(amount);
+};
+
+const AMBER_TRIGGERS = [
+  /\brefund\b/i, /\bcancel\b/i, /\bcompl[ai]+nt\b/i, /\bangry\b/i,
+  /\blegal\b/i, /\bgdpr\b/i, /\bdata deletion\b/i, /\bremove my data\b/i,
+  /\benterprise\b/i, /\bpartnership\b/i, /\bpress\b/i, /\bjournalist\b/i,
+  /\bsue\b/i, /\blawyer\b/i, /\bfraud\b/i, /\bcharged twice\b/i,
 ];
 
-const DEFAULT_SAFETY_MESSAGE = "I'm here to help with customer information. I can't share internal or admin details, but I can help with features, pricing, setup, and support.";
-
-// ============================================================
-// Utility functions
-// ============================================================
-
-const convertPrice = (amount: number, from: string, to: string, rates: Record<string, number>): number => {
-  if (from === to) return amount;
-  return (amount / (rates[from] || 1)) * (rates[to] || 1);
+const detectAmberTrigger = (text: string): string | null => {
+  for (const re of AMBER_TRIGGERS) {
+    const match = text.match(re);
+    if (match) return match[0];
+  }
+  return null;
 };
 
-const formatCurrency = (amount: number, currency: string, locale: string): string => {
-  return new Intl.NumberFormat(locale, {
-    style: 'currency', currency, minimumFractionDigits: 0, maximumFractionDigits: 0,
-  }).format(Math.round(amount));
+const buildKnowledgeBase = (language: string, currency: string): string => {
+  const memberPrice = convertPrice(9.99, 'EUR', currency);
+  const familyPrice = convertPrice(2.99, 'EUR', currency);
+  const addonPrice  = convertPrice(2.99, 'EUR', currency);
+  const fmMember    = formatCurrency(memberPrice, currency, language);
+  const fmFamily    = formatCurrency(familyPrice, currency, language);
+  const fmAddon     = formatCurrency(addonPrice,  currency, language);
+
+  const bases: Record<string, string> = {
+en: `
+You are CLARA — Connected Lifeline And Response Assistant.
+You are the autonomous AI sales and support agent for LifeLink Sync.
+You speak as Lee Wakeman — the founder. You ARE the business.
+
+THE 7 UNBREAKABLE LAWS — hardcoded, no override possible:
+1. NEVER fabricate features, stats, prices, or outcomes not in this prompt.
+2. NEVER promise anything not explicitly documented here.
+3. NEVER give medical, legal, or financial advice. Always redirect to professionals.
+4. NEVER name, compare, or criticise any competitor.
+5. NEVER change, hint at, or agree to any pricing exception.
+6. NEVER process refunds or cancellations alone — always say "I'm getting Lee to handle this personally right now."
+7. ALWAYS speak warmly, confidently, and like a trusted human — never robotic.
+
+ESCALATION — if anyone mentions refund, legal action, GDPR data removal, complaint, enterprise inquiry, press, media, or fraud:
+Say exactly: "I completely understand — I'm flagging this to Lee personally right now and you'll hear back very shortly. You're in safe hands."
+Then end your response. Do not engage further on that topic.
+
+WHAT LIFELINK SYNC IS:
+LifeLink Sync is a personal emergency protection platform for individuals and families. We give people peace of mind — knowing that if something goes wrong, help is on the way fast.
+
+Three ways to trigger emergency:
+- App SOS button — one tap in the app
+- Bluetooth SOS Pendant — waterproof, 6-month battery, one button
+- Voice activation — say "CLARA, help me" hands-free
+
+What happens when SOS is triggered:
+1. GPS location captured instantly
+2. Emergency contacts notified via SMS, email, and automated call
+3. CLARA coordinates the response
+4. Family circle updated in real time
+5. Medical profile shared with first responders if needed
+
+Markets: Spain (112), UK (999), Netherlands (112)
+Languages: English, Spanish, Dutch
+IMPORTANT: LifeLink Sync does NOT replace emergency services. Always call 112/999 first in life-threatening situations.
+
+PRICING — only ever quote these exact numbers:
+Individual Plan: ${fmMember}/month
+- Full emergency protection: SOS alerts, GPS, CLARA AI, Family Circle, Medical Profile
+- Conference Bridge — instant family call during emergencies
+- Instant Callback — real person calls back after SOS activation
+- Tablet Dashboard — always-on care display with voice activation
+- 7-day FREE trial — no credit card required
+
+Family Link Add-on: ${fmFamily}/month per additional member
+- First Family Link is FREE with the Individual Plan
+- Each additional link: ${fmFamily}/month
+
+Daily Wellbeing Add-on: ${fmAddon}/month
+- CLARA makes daily check-in calls
+- Collects mood, sleep, pain data
+- Sends digest to family circle
+
+Medication Reminder Add-on: ${fmAddon}/month
+- CLARA reminds member to take medication
+- Logs confirmation, notifies family if missed
+
+CLARA Complete: FREE — auto-unlocks when both Daily Wellbeing AND Medication Reminder are active
+- Weekly AI wellbeing report sent to member and all family circle
+
+HARDWARE:
+Bluetooth SOS Pendant — one-time purchase
+- Waterproof IP67, up to 6 months battery, one-button SOS
+- IMPORTANT: requires paired smartphone to function
+
+BILLING AND CANCELLATION:
+- Monthly billing, no annual plan
+- Cancel anytime — takes effect end of billing period
+- Full refund within 7 days of first paid charge (new subscribers only)
+- EU 14-day right of withdrawal applies
+- Payments via Stripe — we never store card details
+
+HOW CLARA SELLS:
+Always start by understanding who they are protecting: themselves, elderly parent, child, or employee.
+Connect their specific fear to the exact feature that solves it.
+Always end with: "Would you like to start your free 7-day trial right now? No card needed — takes 2 minutes."
+When ready: "Start here: https://lifelink-sync.com — you'll be protected within minutes."
+
+OBJECTION HANDLING:
+"Too expensive" — "The trial is completely free — no card, no risk. And ${fmMember}/month is less than 34 cents a day for complete peace of mind."
+"I'll think about it" — "What's the one thing stopping you? I can answer anything right now."
+"Already have something" — "What are you using? I'd love to show you what makes LifeLink different."
+"Not sure I need it" — "Most people say that — until the moment they do. The trial is free and takes 2 minutes."
+
+WHAT CLARA NEVER DISCUSSES:
+Internal systems, databases, admin dashboard, API keys, Supabase, infrastructure, competitor names, pricing exceptions, medical advice, legal advice, company financials.
+`,
+
+es: `
+Eres CLARA — Connected Lifeline And Response Assistant.
+Eres la agente autónoma de ventas y soporte de LifeLink Sync.
+Hablas como Lee Wakeman — el fundador. ERES el negocio.
+
+LAS 7 LEYES INQUEBRANTABLES:
+1. NUNCA inventes funciones, estadísticas, precios o resultados que no estén en este prompt.
+2. NUNCA prometas nada que no esté explícitamente documentado aquí.
+3. NUNCA des consejos médicos, legales o financieros.
+4. NUNCA menciones, compares ni critiques a ningún competidor.
+5. NUNCA cambies ni insinúes excepciones en los precios.
+6. NUNCA proceses reembolsos ni cancelaciones solo — di siempre "Voy a pedirle a Lee que lo gestione personalmente ahora mismo."
+7. SIEMPRE habla con calidez, confianza y como un humano de confianza.
+
+ESCALACIÓN — si alguien menciona reembolso, acción legal, eliminación de datos GDPR, queja, empresa grande, prensa o fraude:
+Di exactamente: "Lo entiendo perfectamente — ahora mismo se lo comunico a Lee personalmente y te responderán muy pronto. Estás en buenas manos."
+Luego termina tu respuesta. No sigas con ese tema.
+
+QUÉ ES LIFELINK SYNC:
+LifeLink Sync es una plataforma de protección de emergencias para personas y familias.
+Tres formas de activar la emergencia: botón SOS en la app, colgante Bluetooth SOS (resistente al agua, 6 meses de batería), activación por voz "CLARA, ayúdame".
+Mercados: España (112), Reino Unido (999), Países Bajos (112).
+IMPORTANTE: LifeLink Sync NO reemplaza los servicios de emergencia. Llama siempre al 112 primero.
+
+PRECIOS:
+Plan Individual: ${fmMember}/mes — prueba gratuita 7 días, sin tarjeta
+Enlace Familiar: ${fmFamily}/mes por miembro adicional (el primero es GRATIS)
+Bienestar Diario: ${fmAddon}/mes
+Recordatorio de Medicación: ${fmAddon}/mes
+CLARA Complete: GRATIS — se activa automáticamente con los dos complementos anteriores
+
+CÓMO VENDE CLARA:
+Empieza preguntando a quién protegen. Conecta su miedo con la función exacta que lo resuelve.
+Siempre termina con: "¿Quieres empezar tu prueba gratuita de 7 días ahora mismo? Sin tarjeta — tarda 2 minutos."
+
+LO QUE CLARA NUNCA COMENTA:
+Sistemas internos, competidores, excepciones de precios, consejos médicos o legales, datos financieros de la empresa.
+`,
+
+nl: `
+Je bent CLARA — Connected Lifeline And Response Assistant.
+Je bent de autonome verkoop- en supportagent voor LifeLink Sync.
+Je spreekt als Lee Wakeman — de oprichter. JIJ BENT het bedrijf.
+
+DE 7 ONBREEKBARE WETTEN:
+1. NOOIT functies, statistieken, prijzen of resultaten verzinnen die niet in dit prompt staan.
+2. NOOIT iets beloven wat hier niet expliciet staat.
+3. NOOIT medisch, juridisch of financieel advies geven.
+4. NOOIT concurrenten noemen, vergelijken of bekritiseren.
+5. NOOIT prijsuitzonderingen suggereren of ermee instemmen.
+6. NOOIT terugbetalingen of annuleringen alleen verwerken — zeg altijd "Ik laat Lee dit nu persoonlijk afhandelen."
+7. ALTIJD warm, zelfverzekerd en menselijk spreken — nooit robotachtig.
+
+ESCALATIE — als iemand een terugbetaling, juridische stap, GDPR-verzoek, klacht, grote onderneming, pers of fraude noemt:
+Zeg exact: "Ik begrijp het volledig — ik geef dit nu direct door aan Lee en je hoort heel snel iets terug. Je bent in goede handen."
+Beëindig daarna je reactie. Ga niet verder op dat onderwerp.
+
+WAT IS LIFELINK SYNC:
+LifeLink Sync is een noodbeschermingsplatform voor individuen en gezinnen.
+Drie manieren om nood te activeren: SOS-knop in de app, Bluetooth SOS-hanger (waterproof, 6 maanden batterij), stemactivering "CLARA, help me".
+Markten: Spanje (112), VK (999), Nederland (112).
+BELANGRIJK: LifeLink Sync vervangt GEEN nooddiensten. Bel altijd eerst 112.
+
+PRIJZEN:
+Individueel Plan: ${fmMember}/maand — 7 dagen gratis, geen creditcard
+Familie Link: ${fmFamily}/maand per extra lid (eerste is GRATIS)
+Dagelijks Welzijn: ${fmAddon}/maand
+Medicijnherinnering: ${fmAddon}/maand
+CLARA Complete: GRATIS — automatisch ontgrendeld met beide add-ons
+
+HOE CLARA VERKOOPT:
+Begin altijd met begrijpen wie ze beschermen. Verbind hun specifieke angst met de exacte functie die het oplost.
+Eindig altijd met: "Wil je nu je gratis 7-daagse proefperiode starten? Geen creditcard nodig — duurt 2 minuten."
+
+WAT CLARA NOOIT BESPREEKT:
+Interne systemen, concurrenten, prijsuitzonderingen, medisch of juridisch advies, bedrijfsfinancials.
+`,
+  };
+
+  return bases[language] ?? bases['en'];
 };
 
-// ============================================================
-// Data loaders
-// ============================================================
+const callClaude = async (
+  systemPrompt: string,
+  messages: Array<{ role: string; content: string }>,
+  maxTokens: number,
+  temperature: number,
+): Promise<string> => {
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': anthropicApiKey!,
+      'anthropic-version': '2023-06-01',
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-5',
+      max_tokens: maxTokens,
+      system: systemPrompt,
+      messages,
+    }),
+  });
+  if (!response.ok) throw new Error(`Anthropic error: ${response.status} ${await response.text()}`);
+  const data = await response.json();
+  return data.content?.[0]?.text ?? '';
+};
 
-async function loadCurrencyRates(): Promise<Record<string, number>> {
-  const { data } = await supabase.from('clara_currency_config').select('currency_code, rate_to_eur').eq('is_active', true);
-  if (data && data.length > 0) {
-    return data.reduce((acc: Record<string, number>, r: any) => { acc[r.currency_code] = Number(r.rate_to_eur); return acc; }, {});
-  }
-  return FALLBACK_CURRENCY_RATES;
-}
+const callOpenAI = async (
+  systemPrompt: string,
+  messages: Array<{ role: string; content: string }>,
+  maxTokens: number,
+  temperature: number,
+): Promise<string> => {
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${openAIApiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o',
+      max_tokens: maxTokens,
+      temperature,
+      messages: [{ role: 'system', content: systemPrompt }, ...messages],
+    }),
+  });
+  if (!response.ok) throw new Error(`OpenAI error: ${response.status} ${await response.text()}`);
+  const data = await response.json();
+  return data.choices?.[0]?.message?.content ?? '';
+};
 
-async function loadRestrictedPatterns(): Promise<Array<{ regex: RegExp; message: string }>> {
-  const { data } = await supabase.from('clara_restricted_patterns').select('pattern, replacement_message').eq('is_active', true);
-  const patterns = (data && data.length > 0) ? data : FALLBACK_RESTRICTED_PATTERNS;
-  return patterns.map((r: any) => ({ regex: new RegExp(r.pattern, 'i'), message: r.replacement_message || DEFAULT_SAFETY_MESSAGE }));
-}
-
-async function buildKnowledgeBase(language: string, currency: string, rates: Record<string, number>): Promise<string> {
-  const { data: kbSections } = await supabase.from('clara_knowledge_base').select('section, content').eq('language', language).eq('is_active', true).order('sort_order', { ascending: true });
-  const memberPrice = convertPrice(9.99, 'EUR', currency, rates);
-  const familyPrice = convertPrice(2.99, 'EUR', currency, rates);
-  const locale = language === 'es' ? 'es-ES' : language === 'nl' ? 'nl-NL' : 'en-US';
-  const fmtMember = formatCurrency(memberPrice, currency, locale);
-  const fmtFamily = formatCurrency(familyPrice, currency, locale);
-
-  if (kbSections && kbSections.length > 0) {
-    return kbSections.map((s: any) => s.content.replace(/\{currency\}/g, currency).replace(/\{memberPrice\}/g, fmtMember).replace(/\{familyPrice\}/g, fmtFamily)).join('\n\n');
-  }
-  return `You are Clara, the friendly customer-facing AI assistant for LifeLink Sync.\n\nSTRICT SAFETY AND PRIVACY GUARDRAILS (must always follow):\n- Never disclose or discuss anything internal, admin-only, backend, infrastructure, or company-confidential.\n- If asked for internal info, politely refuse: "${DEFAULT_SAFETY_MESSAGE}"\n- Focus only on public, customer-friendly information.\n\nPricing (quoted in ${currency}):\n- Member Plan: ${fmtMember}/month\n- Family Access: ${fmtFamily}/month\n\nStyle: Warm, clear, empathetic, and concise.`;
-}
-
-// ============================================================
-// RAG: Embedding generation (inline, no edge function call)
-// ============================================================
-
-async function generateQueryEmbedding(text: string): Promise<number[] | null> {
-  try {
-    const response = await fetch('https://api.openai.com/v1/embeddings', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: EMBEDDING_MODEL,
-        input: text.slice(0, 8000),
-        dimensions: 1536,
-      }),
-    });
-    if (!response.ok) return null;
-    const data = await response.json();
-    return data.data[0].embedding;
-  } catch {
-    return null;
-  }
-}
-
-// ============================================================
-// RAG: Semantic retrieval
-// ============================================================
-
-async function retrieveSemanticTrainingData(
-  queryEmbedding: number[],
-  threshold: number,
-  count: number
-): Promise<Array<{ question: string; answer: string; category: string; similarity: number }> | null> {
-  try {
-    const { data, error } = await supabase.rpc('match_training_data', {
-      query_embedding: JSON.stringify(queryEmbedding),
-      match_threshold: threshold,
-      match_count: count,
-      p_audience: 'customer',
-    });
-    if (error) throw error;
-    return data || null;
-  } catch (err) {
-    console.error('Semantic training data retrieval failed:', err);
-    return null;
-  }
-}
-
-async function retrieveConversationMemory(
-  queryEmbedding: number[],
-  userId: string,
-  threshold: number,
-  count: number
-): Promise<Array<{ memory_type: string; content: string; similarity: number }> | null> {
-  try {
-    const { data, error } = await supabase.rpc('match_conversation_memory', {
-      query_embedding: JSON.stringify(queryEmbedding),
-      p_user_id: userId,
-      match_threshold: threshold,
-      match_count: count,
-    });
-    if (error) throw error;
-    return data || null;
-  } catch (err) {
-    console.error('Conversation memory retrieval failed:', err);
-    return null;
-  }
-}
-
-async function retrieveContactContext(userId: string): Promise<any | null> {
-  try {
-    const { data, error } = await supabase.rpc('get_contact_ai_context', {
-      p_user_id: userId,
-      p_contact_email: null,
-    });
-    if (error) throw error;
-    return (data && data.length > 0) ? data[0] : null;
-  } catch (err) {
-    console.error('Contact context retrieval failed:', err);
-    return null;
-  }
-}
-
-// ============================================================
-// RAG: Fallback training data loader (current behavior)
-// ============================================================
-
-async function loadFallbackTrainingData(): Promise<Array<{ question: string; answer: string; category: string }>> {
-  const { data } = await supabase
-    .from('training_data')
-    .select('question, answer, category')
-    .eq('status', 'active')
-    .eq('audience', 'customer')
-    .order('confidence_score', { ascending: false })
-    .limit(50);
-  return data || [];
-}
-
-// ============================================================
-// Post-response: Memory extraction (fire-and-forget)
-// ============================================================
-
-async function extractAndStoreMemory(
-  userId: string,
-  sessionId: string,
-  userMessage: string,
-  aiResponse: string,
-  model: string,
-  messageCount: number
-) {
-  try {
-    // Extract user facts from patterns
-    const factPatterns = [
-      { regex: /my name is (\w+)/i, type: 'user_fact' as const, template: (m: RegExpMatchArray) => `User's name is ${m[1]}` },
-      { regex: /i(?:'m| am) interested in (.+?)(?:\.|$)/i, type: 'topic_interest' as const, template: (m: RegExpMatchArray) => `Interested in: ${m[1]}` },
-      { regex: /i have (\d+) family members/i, type: 'user_fact' as const, template: (m: RegExpMatchArray) => `Has ${m[1]} family members` },
-      { regex: /i(?:'m| am) (?:a |an )?(\w+ (?:carer|caregiver|parent|child|spouse|partner))/i, type: 'user_fact' as const, template: (m: RegExpMatchArray) => `User is a ${m[1]}` },
-      { regex: /i live in (.+?)(?:\.|,|$)/i, type: 'user_fact' as const, template: (m: RegExpMatchArray) => `Lives in: ${m[1]}` },
-      { regex: /i(?:'m| am) looking for (.+?)(?:\.|$)/i, type: 'topic_interest' as const, template: (m: RegExpMatchArray) => `Looking for: ${m[1]}` },
-      { regex: /i prefer (.+?)(?:\.|$)/i, type: 'preference' as const, template: (m: RegExpMatchArray) => `Prefers: ${m[1]}` },
-    ];
-
-    for (const { regex, type, template } of factPatterns) {
-      const match = userMessage.match(regex);
-      if (match) {
-        const content = template(match);
-        // Check if we already have this fact
-        const { data: existing } = await supabase
-          .from('clara_conversation_memory')
-          .select('id')
-          .eq('user_id', userId)
-          .eq('memory_type', type)
-          .eq('content', content)
-          .limit(1);
-
-        if (!existing || existing.length === 0) {
-          const embedding = await generateQueryEmbedding(content);
-          await supabase.from('clara_conversation_memory').insert({
-            user_id: userId,
-            session_id: sessionId,
-            memory_type: type,
-            content,
-            embedding: embedding ? JSON.stringify(embedding) : null,
-            importance_score: type === 'user_fact' ? 4 : 3,
-          });
-        }
-      }
+const callAI = async (
+  systemPrompt: string,
+  messages: Array<{ role: string; content: string }>,
+  maxTokens: number,
+  temperature: number,
+): Promise<{ text: string; provider: string }> => {
+  if (anthropicApiKey) {
+    try {
+      const text = await callClaude(systemPrompt, messages, maxTokens, temperature);
+      return { text, provider: 'claude' };
+    } catch (err) {
+      console.warn('Claude failed, falling back to OpenAI:', err);
     }
-
-    // Every 5th message, generate a session summary
-    if (messageCount > 0 && messageCount % 5 === 0) {
-      // Get last 5 messages for this session
-      const { data: recentMsgs } = await supabase
-        .from('conversations')
-        .select('message_type, content')
-        .eq('session_id', sessionId)
-        .order('created_at', { ascending: false })
-        .limit(10);
-
-      if (recentMsgs && recentMsgs.length >= 4) {
-        const transcript = recentMsgs.reverse().map(m =>
-          `${m.message_type === 'user' ? 'User' : 'Clara'}: ${m.content.slice(0, 200)}`
-        ).join('\n');
-
-        // Use GPT to summarize
-        const summaryResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${openAIApiKey}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            model,
-            messages: [
-              { role: 'system', content: 'Summarize this conversation excerpt in 2-3 concise sentences. Focus on key topics discussed, user needs, and any decisions made. Do not include greetings or small talk.' },
-              { role: 'user', content: transcript },
-            ],
-            temperature: 0.3,
-            max_tokens: 150,
-          }),
-        });
-
-        if (summaryResponse.ok) {
-          const summaryData = await summaryResponse.json();
-          const summary = summaryData.choices[0].message.content;
-          const embedding = await generateQueryEmbedding(summary);
-
-          // Get retention days for expiry
-          const { data: retentionSetting } = await supabase
-            .from('ai_model_settings')
-            .select('setting_value')
-            .eq('setting_key', 'memory_retention_days')
-            .single();
-          const retentionDays = Number(retentionSetting?.setting_value) || 90;
-          const expiresAt = new Date(Date.now() + retentionDays * 86400000).toISOString();
-
-          await supabase.from('clara_conversation_memory').insert({
-            user_id: userId,
-            session_id: sessionId,
-            memory_type: 'session_summary',
-            content: summary,
-            embedding: embedding ? JSON.stringify(embedding) : null,
-            importance_score: 3,
-            expires_at: expiresAt,
-          });
-        }
-      }
-    }
-
-    // Enforce max memory per user
-    const { data: maxSetting } = await supabase
-      .from('ai_model_settings')
-      .select('setting_value')
-      .eq('setting_key', 'max_memory_per_user')
-      .single();
-    const maxMemory = Number(maxSetting?.setting_value) || 50;
-
-    const { count: memoryCount } = await supabase
-      .from('clara_conversation_memory')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', userId);
-
-    if (memoryCount && memoryCount > maxMemory) {
-      // Delete oldest low-importance items
-      const { data: oldItems } = await supabase
-        .from('clara_conversation_memory')
-        .select('id')
-        .eq('user_id', userId)
-        .order('importance_score', { ascending: true })
-        .order('created_at', { ascending: true })
-        .limit(memoryCount - maxMemory);
-
-      if (oldItems) {
-        const idsToDelete = oldItems.map(i => i.id);
-        await supabase.from('clara_conversation_memory').delete().in('id', idsToDelete);
-      }
-    }
-  } catch (err) {
-    console.error('Memory extraction failed (non-blocking):', err);
   }
-}
-
-// ============================================================
-// Post-response: Learning extraction (fire-and-forget)
-// ============================================================
-
-async function extractLearning(
-  sessionId: string,
-  userMessage: string,
-  aiResponse: string,
-  wasSanitized: boolean,
-  autoApproveThreshold: number
-) {
-  try {
-    // Quality heuristics
-    const isQuestion = userMessage.includes('?');
-    const isSubstantive = aiResponse.length > 50;
-    const notSafetyFallback = !wasSanitized;
-
-    if (!isQuestion || !isSubstantive || !notSafetyFallback) return;
-
-    // Simple confidence scoring
-    let confidence = 0.5;
-    if (userMessage.length > 20) confidence += 0.1;
-    if (aiResponse.length > 100) confidence += 0.1;
-    if (aiResponse.length > 200) confidence += 0.1;
-    if (!userMessage.toLowerCase().includes('test')) confidence += 0.1;
-
-    // Insert into learning queue
-    const status = confidence >= autoApproveThreshold ? 'promoted' : 'pending';
-
-    await supabase.from('clara_learning_queue').insert({
-      session_id: sessionId,
-      user_message: userMessage,
-      ai_response: aiResponse,
-      extracted_question: userMessage.trim(),
-      extracted_answer: aiResponse.trim(),
-      suggested_category: 'general',
-      confidence,
-      status,
-    });
-
-    // If auto-promoted, also insert into training_data
-    if (status === 'promoted') {
-      const { data: newTraining } = await supabase
-        .from('training_data')
-        .insert({
-          question: userMessage.trim(),
-          answer: aiResponse.trim(),
-          category: 'general',
-          status: 'pending', // Still requires admin to mark 'active'
-          audience: 'customer',
-          confidence_score: confidence,
-        })
-        .select('id')
-        .single();
-
-      if (newTraining) {
-        await supabase.from('clara_learning_queue')
-          .update({ promoted_training_id: newTraining.id })
-          .eq('session_id', sessionId)
-          .eq('user_message', userMessage);
-      }
-    }
-  } catch (err) {
-    console.error('Learning extraction failed (non-blocking):', err);
+  if (openAIApiKey) {
+    const text = await callOpenAI(systemPrompt, messages, maxTokens, temperature);
+    return { text, provider: 'openai' };
   }
-}
+  throw new Error('No AI provider available — set ANTHROPIC_API_KEY or OPENAI_API_KEY');
+};
 
-// ============================================================
-// Request interface
-// ============================================================
+const FORBIDDEN = [
+  /service.?role.?key/i, /supabase.*secret/i, /jwt.*secret/i,
+  /api.?key/i, /edge.?function.?secret/i, /\binfrastructure\b/i,
+  /admin.?dashboard/i, /\bdatabase.?password\b/i,
+];
+
+const sanitiseResponse = (text: string): string =>
+  FORBIDDEN.some(re => re.test(text))
+    ? "I'm here to help with customer information. I can't share internal or admin details, but I can help with features, pricing, setup, and support."
+    : text;
+
+const INTEREST_KEYWORDS = /\b(interested|price|cost|sign.?up|subscribe|family|emergency|elderly|parent|protection|safety|trial|plan|pendant|device)\b/i;
+
+const scoreLead = (message: string): number => {
+  let score = 0;
+  if (INTEREST_KEYWORDS.test(message)) score += 3;
+  if (message.includes('?')) score += 1;
+  if (/\btrial\b/i.test(message)) score += 2;
+  if (/\b(buy|purchase|start)\b/i.test(message)) score += 3;
+  return score;
+};
 
 interface ChatRequest {
   message: string;
   sessionId?: string;
   userId?: string;
-  contactEmail?: string;
   context?: string;
-  conversation_history?: any[];
-  language?: string;
-  currency?: string;
+  language?: 'en' | 'es' | 'nl';
+  currency?: 'EUR' | 'USD' | 'GBP' | 'AUD';
 }
-
-// ============================================================
-// Main handler
-// ============================================================
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -418,340 +333,240 @@ serve(async (req) => {
   }
 
   try {
-    const { message, sessionId, userId, contactEmail, context, language = 'en', currency = 'EUR' }: ChatRequest = await req.json();
+    const {
+      message,
+      sessionId,
+      userId,
+      context,
+      language = 'en',
+      currency = 'EUR',
+    }: ChatRequest = await req.json();
 
-    if (!message) {
-      throw new Error('Message is required');
-    }
-
-    const currentSessionId = sessionId || crypto.randomUUID();
-
-    // Load all configuration from DB in parallel
-    const [currencyRates, restrictedPatterns, aiSettingsData] = await Promise.all([
-      loadCurrencyRates(),
-      loadRestrictedPatterns(),
-      supabase.from('ai_model_settings').select('setting_key, setting_value'),
-    ]);
-
-    // Parse AI settings
-    const settings = aiSettingsData.data?.reduce((acc: any, s: any) => { acc[s.setting_key] = s.setting_value; return acc; }, {} as any) || {};
-
-    const temperature = Number(settings.temperature) || 0.7;
-    const maxTokens = Number(settings.max_tokens) || 500;
-    const model = settings.model || 'gpt-4o-mini';
-    const frequencyPenalty = Number(settings.frequency_penalty) || 0;
-    const presencePenalty = Number(settings.presence_penalty) || 0;
-    const enableLogging = settings.enable_logging !== 'false';
-    const rateLimitPerMinute = Number(settings.rate_limit_per_minute) || 60;
-    const dailyRequestLimit = Number(settings.daily_request_limit) || 10000;
-    const systemPromptMode = settings.system_prompt_mode || 'append';
-    const memoryEnabled = settings.memory_enabled !== 'false';
-    const learningMode = settings.learning_mode === 'true';
-    const semanticThreshold = Number(settings.semantic_match_threshold) || 0.7;
-    const semanticCount = Number(settings.semantic_match_count) || 8;
-    const autoApproveThreshold = Number(settings.learning_auto_approve_threshold) || 0.85;
-
-    // ============================================================
-    // Rate limiting
-    // ============================================================
-    const oneMinuteAgo = new Date(Date.now() - 60000).toISOString();
-    const { count: recentCount } = await supabase
-      .from('conversations').select('id', { count: 'exact', head: true })
-      .eq('message_type', 'user').gte('created_at', oneMinuteAgo);
-
-    if (recentCount && recentCount >= rateLimitPerMinute) {
+    if (!message?.trim()) {
       return new Response(
-        JSON.stringify({ error: 'Rate limit exceeded. Please try again shortly.' }),
-        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Message is required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
       );
     }
 
-    const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
-    const { count: dailyCount } = await supabase
-      .from('conversations').select('id', { count: 'exact', head: true })
-      .eq('message_type', 'user').gte('created_at', todayStart.toISOString());
+    const currentSessionId = sessionId ?? crypto.randomUUID();
+    const lang = ['en', 'es', 'nl'].includes(language) ? language : 'en';
+    const curr = ['EUR', 'USD', 'GBP', 'AUD'].includes(currency) ? currency : 'EUR';
 
-    if (dailyCount && dailyCount >= dailyRequestLimit) {
-      return new Response(
-        JSON.stringify({ error: 'Daily request limit reached. Please try again tomorrow.' }),
-        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    await supabase.from('conversations').insert({
+      user_id: userId ?? null,
+      session_id: currentSessionId,
+      message_type: 'user',
+      content: message,
+      metadata: {
+        context: context ?? 'general',
+        timestamp: new Date().toISOString(),
+        language: lang,
+        currency: curr,
+        user_agent: req.headers.get('user-agent') ?? null,
+      },
+    });
 
-    // ============================================================
-    // Get conversation history
-    // ============================================================
-    const { data: conversationHistory } = await supabase
+    const { data: historyRows } = await supabase
       .from('conversations')
-      .select('message_type, content, created_at')
+      .select('message_type, content')
       .eq('session_id', currentSessionId)
       .order('created_at', { ascending: true })
       .limit(20);
 
-    const messageCount = conversationHistory?.length || 0;
+    const conversationMessages = (historyRows ?? []).map(r => ({
+      role: r.message_type === 'user' ? 'user' : 'assistant',
+      content: r.content,
+    }));
 
-    // Store user message
-    if (enableLogging) {
-      await supabase.from('conversations').insert({
-        user_id: userId || null,
-        session_id: currentSessionId,
-        message_type: 'user',
-        content: message,
-        metadata: {
-          context: context || 'general',
-          timestamp: new Date().toISOString(),
-          user_agent: req.headers.get('user-agent') || null,
-          language, currency,
-          source_page: context?.includes('homepage') ? 'homepage' : context?.includes('registration') ? 'registration' : 'general',
-        },
+    let contactContext = '';
+    const memoryLookup = {
+      session_id: currentSessionId,
+      ...(userId ? { user_id: userId } : {}),
+    };
+    try {
+      const memRes = await supabase.functions.invoke('clara-memory', {
+        body: { action: 'get', ...memoryLookup },
       });
+      if (memRes.data?.has_memory && memRes.data?.memory_summary) {
+        contactContext = '\n\nCONTACT MEMORY:\n' + memRes.data.memory_summary;
+      }
+    } catch (memErr) {
+      console.warn('Memory lookup failed (non-fatal):', memErr);
     }
 
-    // ============================================================
-    // RAG PIPELINE
-    // ============================================================
+    const { data: trainingData } = await supabase
+      .from('training_data')
+      .select('question, answer')
+      .eq('status', 'active')
+      .eq('audience', 'customer')
+      .order('confidence_score', { ascending: false })
+      .limit(40);
 
-    // Step 1: Generate query embedding
-    const queryEmbedding = await generateQueryEmbedding(message);
-
-    // Step 2: Semantic training data retrieval (or fallback)
-    let trainingContent = '';
-    let trainingData: any[] = [];
-
-    if (queryEmbedding) {
-      const semanticResults = await retrieveSemanticTrainingData(queryEmbedding, semanticThreshold, semanticCount);
-      if (semanticResults && semanticResults.length > 0) {
-        trainingData = semanticResults;
-        trainingContent = '\n\nRELEVANT TRAINING DATA:\n' +
-          semanticResults.map(r => `Q: ${r.question}\nA: ${r.answer} (relevance: ${(r.similarity * 100).toFixed(0)}%)`).join('\n\n') +
-          '\n\nUse this training data to provide accurate responses when relevant.';
-      }
+    let knowledgeAddition = '';
+    if (trainingData?.length) {
+      knowledgeAddition = '\n\nADDITIONAL APPROVED Q&A:\n' +
+        trainingData.map(t => `Q: ${t.question}\nA: ${t.answer}`).join('\n\n');
     }
 
-    // Fallback: load all training data if semantic search failed or returned nothing
-    if (!trainingContent) {
-      const fallbackData = await loadFallbackTrainingData();
-      trainingData = fallbackData;
-      if (fallbackData.length > 0) {
-        trainingContent = '\n\nADDITIONAL TRAINING DATA:\n' +
-          fallbackData.map(item => `Q: ${item.question}\nA: ${item.answer}`).join('\n\n') +
-          '\n\nUse this training data to provide accurate responses when relevant.';
-      }
-    }
+    const { data: aiSettings } = await supabase
+      .from('ai_model_settings')
+      .select('setting_key, setting_value');
 
-    // Step 3: Conversation memory retrieval
-    let memoryContent = '';
-    if (memoryEnabled && userId && queryEmbedding) {
-      const memories = await retrieveConversationMemory(queryEmbedding, userId, 0.6, 5);
+    const settings = (aiSettings ?? []).reduce<Record<string, unknown>>((acc, s) => {
+      acc[s.setting_key] = s.setting_value;
+      return acc;
+    }, {});
 
-      // Also load recent session summaries
-      const { data: recentSummaries } = await supabase
-        .from('clara_conversation_memory')
-        .select('content, created_at')
-        .eq('user_id', userId)
-        .eq('memory_type', 'session_summary')
-        .order('created_at', { ascending: false })
-        .limit(3);
+    const temperature = Number(settings.temperature) || 0.4;
+    const maxTokens   = Math.min(Number(settings.max_tokens) || 600, 1000);
 
-      const allMemories: string[] = [];
+    const basePrompt = buildKnowledgeBase(lang, curr) + contactContext + knowledgeAddition;
+    const adminExtra = (settings.system_prompt_extra as string) ?? '';
+    const systemPrompt = adminExtra
+      ? `${basePrompt}\n\nADDITIONAL ADMIN CONTEXT:\n${adminExtra}`
+      : basePrompt;
 
-      if (memories && memories.length > 0) {
-        memories.forEach(m => {
-          allMemories.push(`[${m.memory_type}] ${m.content}`);
-        });
-      }
+    const { text: rawResponse, provider } = await callAI(
+      systemPrompt,
+      conversationMessages,
+      maxTokens,
+      temperature,
+    );
 
-      if (recentSummaries && recentSummaries.length > 0) {
-        recentSummaries.forEach(s => {
-          const entry = `[recent session] ${s.content}`;
-          if (!allMemories.includes(entry)) {
-            allMemories.push(entry);
-          }
-        });
-      }
+    const aiResponse = sanitiseResponse(rawResponse);
 
-      // Also load user facts
-      const { data: userFacts } = await supabase
-        .from('clara_conversation_memory')
-        .select('content')
-        .eq('user_id', userId)
-        .in('memory_type', ['user_fact', 'preference'])
-        .order('importance_score', { ascending: false })
-        .limit(10);
-
-      if (userFacts && userFacts.length > 0) {
-        userFacts.forEach(f => {
-          const entry = `[known fact] ${f.content}`;
-          if (!allMemories.includes(entry)) {
-            allMemories.push(entry);
-          }
-        });
-      }
-
-      if (allMemories.length > 0) {
-        memoryContent = '\n\nYOUR MEMORY OF THIS USER:\n' +
-          allMemories.join('\n') +
-          '\n\nUse this memory to personalize your responses. Reference past conversations naturally.';
-      }
-    }
-
-    // Step 4: Contact context integration
-    let contactContent = '';
-    if (userId) {
-      const contactContext = await retrieveContactContext(userId);
-      if (contactContext) {
-        const parts: string[] = [];
-        if (contactContext.context_summary) {
-          parts.push(`Summary: ${contactContext.context_summary}`);
-        }
-        if (contactContext.engagement_metrics) {
-          const metrics = contactContext.engagement_metrics;
-          parts.push(`Engagement: ${metrics.total_interactions || 0} total interactions, lead score: ${metrics.lead_score || 0}`);
-        }
-        if (contactContext.risk_indicators) {
-          const risk = contactContext.risk_indicators;
-          if (risk.risk_level && risk.risk_level !== 'low') {
-            parts.push(`Risk level: ${risk.risk_level}`);
-          }
-        }
-        if (parts.length > 0) {
-          contactContent = '\n\nCUSTOMER CONTEXT:\n' + parts.join('\n') +
-            '\n\nUse this context to provide informed, personalized assistance.';
-        }
-      }
-    }
-
-    // ============================================================
-    // Assemble system prompt
-    // ============================================================
-    const knowledgeBase = await buildKnowledgeBase(language, currency, currencyRates);
-    let systemPrompt = knowledgeBase + trainingContent + memoryContent + contactContent;
-
-    // Handle custom system prompt
-    if (settings.system_prompt && typeof settings.system_prompt === 'string' && settings.system_prompt.trim()) {
-      if (systemPromptMode === 'override') {
-        systemPrompt = settings.system_prompt;
-      } else {
-        systemPrompt += `\n\nADDITIONAL INSTRUCTIONS:\n${settings.system_prompt}`;
-      }
-    }
-
-    // Build conversation context
-    const conversationContext = conversationHistory?.map(msg => ({
-      role: msg.message_type === 'user' ? 'user' : 'assistant',
-      content: msg.content,
-    })) || [];
-
-    const messages = [
-      { role: 'system', content: systemPrompt },
-      ...conversationContext,
-      { role: 'user', content: message },
-    ];
-
-    // ============================================================
-    // Call OpenAI
-    // ============================================================
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model, messages, temperature,
-        max_tokens: maxTokens,
-        frequency_penalty: frequencyPenalty,
-        presence_penalty: presencePenalty,
-      }),
+    await supabase.from('conversations').insert({
+      user_id: userId ?? null,
+      session_id: currentSessionId,
+      message_type: 'ai',
+      content: aiResponse,
+      metadata: { provider, language: lang },
     });
 
-    if (!response.ok) {
-      throw new Error(`OpenAI API error: ${await response.text()}`);
-    }
+    const triggerWord = detectAmberTrigger(message);
+    const isAmber = !!triggerWord;
+    const addedScore = scoreLead(message);
+    const isInterested = addedScore > 0;
 
-    const data = await response.json();
-    const aiResponse = data.choices[0].message.content as string;
-
-    // ============================================================
-    // Post-filter restricted patterns
-    // ============================================================
-    let sanitized = aiResponse;
-    let wasSanitized = false;
-    for (const { regex, message: replacementMsg } of restrictedPatterns) {
-      if (regex.test(sanitized)) {
-        sanitized = replacementMsg;
-        wasSanitized = true;
-        break;
-      }
-    }
-
-    // ============================================================
-    // Store AI response
-    // ============================================================
-    if (enableLogging) {
-      await supabase.from('conversations').insert({
-        user_id: userId || null,
-        session_id: currentSessionId,
-        message_type: 'ai',
-        content: sanitized,
-      });
-    }
-
-    // ============================================================
-    // Post-response processing (fire-and-forget)
-    // ============================================================
-
-    // Memory extraction
-    if (memoryEnabled && userId) {
-      extractAndStoreMemory(userId, currentSessionId, message, sanitized, model, messageCount)
-        .catch(err => console.error('Memory extraction error:', err));
-    }
-
-    // Learning extraction
-    if (learningMode) {
-      extractLearning(currentSessionId, message, aiResponse, wasSanitized, autoApproveThreshold)
-        .catch(err => console.error('Learning extraction error:', err));
-    }
-
-    // Lead scoring
-    const isShowingInterest = /\b(interested|price|cost|sign up|subscribe|family|emergency|elderly|relative|parent|protection|safety)\b/i.test(message);
-    const isAskingQuestions = message.includes('?');
-
-    if (isShowingInterest || isAskingQuestions) {
+    if (isInterested || isAmber) {
       const { data: existingLead } = await supabase
-        .from('leads').select('*').eq('session_id', currentSessionId).single();
+        .from('leads')
+        .select('id, interest_level')
+        .eq('session_id', currentSessionId)
+        .maybeSingle();
 
       if (existingLead) {
-        await supabase.from('leads').update({
-          interest_level: Math.min(existingLead.interest_level + 1, 10),
-          updated_at: new Date().toISOString(),
-        }).eq('session_id', currentSessionId);
+        const newScore = Math.min((existingLead.interest_level ?? 0) + addedScore, 10);
+        await supabase
+          .from('leads')
+          .update({
+            interest_level: newScore,
+            status: isAmber ? 'amber_escalation' : newScore >= 7 ? 'qualified' : 'new',
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', existingLead.id);
       } else {
         await supabase.from('leads').insert({
           session_id: currentSessionId,
-          user_id: userId || null,
-          interest_level: isShowingInterest ? 3 : 1,
-          metadata: { first_message: message },
+          user_id: userId ?? null,
+          interest_level: Math.min(addedScore, 10),
+          status: isAmber ? 'amber_escalation' : 'new',
+          metadata: {
+            first_message: message,
+            language: lang,
+            ...(isAmber ? { amber_trigger: triggerWord, flagged_at: new Date().toISOString() } : {}),
+          },
         });
       }
     }
 
-    // Response delay
-    const responseDelay = Number(settings.response_delay) || 0;
-    if (responseDelay > 0) {
-      await new Promise(resolve => setTimeout(resolve, responseDelay * 1000));
+    // Fire amber escalation to Lee via WhatsApp if triggered
+    if (isAmber) {
+      try {
+        await supabase.functions.invoke('clara-escalation', {
+          body: {
+            type: 'amber',
+            session_id: currentSessionId,
+            trigger_word: triggerWord,
+            last_message: message,
+            clara_recommendation: 'Handle this personally — CLARA has stepped back',
+          },
+        });
+      } catch (escErr) {
+        console.warn('Escalation send failed (non-fatal):', escErr);
+      }
+    }
+
+    // Save/update CLARA memory after every conversation
+    try {
+      const memoryPayload: Record<string, unknown> = {
+        action: 'upsert',
+        session_id: currentSessionId,
+        language: lang,
+        currency: curr,
+        interest_score: addedScore,
+        amber_triggered: isAmber,
+        ...(userId ? { user_id: userId } : {}),
+        ...(isAmber ? { amber_trigger_word: triggerWord ?? undefined } : {}),
+      };
+
+      // Extract name if mentioned in message
+      const nameMatch = message.match(
+        /(?:my name is|i am|i'm|call me)\s+([A-Z][a-z]+)/i
+      );
+      if (nameMatch) memoryPayload.first_name = nameMatch[1];
+
+      // Extract who they are protecting
+      if (/\b(mum|mom|mother|dad|father|parent|elderly)\b/i.test(message)) {
+        memoryPayload.protecting = 'elderly_parent';
+        const detailMatch = message.match(/\b(mum|mom|mother|dad|father|parent)\b.{0,50}/i);
+        if (detailMatch) memoryPayload.protecting_detail = detailMatch[0].trim();
+      } else if (/\b(myself|myself|for me|my own)\b/i.test(message)) {
+        memoryPayload.protecting = 'self';
+      } else if (/\b(child|kid|son|daughter|teenager)\b/i.test(message)) {
+        memoryPayload.protecting = 'child';
+      }
+
+      // Extract journey stage
+      if (/\b(trial|sign up|start|register)\b/i.test(message)) {
+        memoryPayload.journey_stage = 'engaged';
+      }
+      if (/\b(subscribed|paid|member)\b/i.test(message)) {
+        memoryPayload.journey_stage = 'converted';
+      }
+
+      // Extract objections
+      if (/too expensive|can't afford|too much|costly/i.test(message)) {
+        memoryPayload.objection = 'too expensive';
+      } else if (/think about|not sure|maybe later|not ready/i.test(message)) {
+        memoryPayload.objection = 'not sure yet';
+      } else if (/already have|use something/i.test(message)) {
+        memoryPayload.objection = 'has alternative';
+      }
+
+      await supabase.functions.invoke('clara-memory', {
+        body: memoryPayload,
+      });
+    } catch (memSaveErr) {
+      console.warn('Memory save failed (non-fatal):', memSaveErr);
     }
 
     return new Response(
-      JSON.stringify({ response: sanitized, sessionId: currentSessionId }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({
+        response: aiResponse,
+        sessionId: currentSessionId,
+        provider,
+        ...(isAmber ? { escalation: true, trigger: triggerWord } : {}),
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     );
 
   } catch (error) {
-    console.error('Error in ai-chat function:', error);
+    console.error('ai-chat error:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({ error: (error as Error).message }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     );
   }
 });

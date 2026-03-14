@@ -127,7 +127,7 @@ appId: 'com.icesosinternational.app'
 
 // Production domains
 webApp: 'https://icesosinternational.com'
-api: 'https://mqroziggaalltuzoyyao.supabase.co'
+api: 'https://cprbgquiqbyoyrffznny.supabase.co'
 
 // Emergency Services
 emailProvider: 'Resend (operational)'

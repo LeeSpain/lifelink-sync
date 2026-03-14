@@ -6,7 +6,7 @@ interface Props {
   className?: string;
 }
 
-const PROJECT_ID = 'mqroziggaalltuzoyyao';
+const PROJECT_ID = 'cprbgquiqbyoyrffznny';
 const SUPABASE_AUTH_SETTINGS_URL = `https://supabase.com/dashboard/project/${PROJECT_ID}/settings/auth`;
 const SUPABASE_DASHBOARD_URL = `https://supabase.com/dashboard/project/${PROJECT_ID}`;
 

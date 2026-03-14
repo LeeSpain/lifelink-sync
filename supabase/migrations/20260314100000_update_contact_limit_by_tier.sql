@@ -4,6 +4,7 @@
 -- Queries subscribers table for subscription_tier
 
 DROP TRIGGER IF EXISTS enforce_contact_limit ON emergency_contacts;
+DROP TRIGGER IF EXISTS limit_emergency_contacts ON emergency_contacts;
 DROP FUNCTION IF EXISTS check_contact_limit();
 
 CREATE OR REPLACE FUNCTION check_contact_limit()

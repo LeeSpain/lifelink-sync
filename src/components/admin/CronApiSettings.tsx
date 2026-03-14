@@ -88,14 +88,14 @@ export function CronApiSettings() {
   };
 
   const copyWebhookUrl = () => {
-    const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID || 'mqroziggaalltuzoyyao';
+    const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID || 'cprbgquiqbyoyrffznny';
     const url = `https://${projectId}.supabase.co/functions/v1/automation-runner`;
     navigator.clipboard.writeText(url);
     toast.success('Webhook URL copied to clipboard');
   };
 
   const copyCurlCommand = () => {
-    const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID || 'mqroziggaalltuzoyyao';
+    const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID || 'cprbgquiqbyoyrffznny';
     const secret = cronConfig?.secret || 'YOUR_CRON_SECRET';
     const cmd = `curl -X POST "https://${projectId}.supabase.co/functions/v1/automation-runner" \\
   -H "Content-Type: application/json" \\
@@ -163,7 +163,7 @@ export function CronApiSettings() {
           <div className="flex gap-2">
             <Input
               readOnly
-              value={`https://${import.meta.env.VITE_SUPABASE_PROJECT_ID || 'mqroziggaalltuzoyyao'}.supabase.co/functions/v1/automation-runner`}
+              value={`https://${import.meta.env.VITE_SUPABASE_PROJECT_ID || 'cprbgquiqbyoyrffznny'}.supabase.co/functions/v1/automation-runner`}
               className="font-mono text-sm"
             />
             <Button variant="outline" size="icon" onClick={copyWebhookUrl}>
@@ -178,7 +178,7 @@ export function CronApiSettings() {
           <div className="flex gap-2">
             <div className="flex-1 bg-muted p-3 rounded-md font-mono text-xs overflow-x-auto">
               <pre className="whitespace-pre-wrap break-all">
-{`curl -X POST "https://${import.meta.env.VITE_SUPABASE_PROJECT_ID || 'mqroziggaalltuzoyyao'}.supabase.co/functions/v1/automation-runner" \\
+{`curl -X POST "https://${import.meta.env.VITE_SUPABASE_PROJECT_ID || 'cprbgquiqbyoyrffznny'}.supabase.co/functions/v1/automation-runner" \\
   -H "Content-Type: application/json" \\
   -H "x-cron-secret: ${cronConfig?.secret || 'YOUR_SECRET'}" \\
   -d '{}'`}
