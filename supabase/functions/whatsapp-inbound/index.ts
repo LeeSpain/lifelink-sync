@@ -153,6 +153,27 @@ serve(async (req) => {
 
     console.log('WhatsApp inbound:', { phone, bodyLength: body.length });
 
+    // ── Route admin messages to dev agent ───────────────────────
+    const ADMIN_NUMBER = Deno.env.get('ADMIN_WHATSAPP_NUMBER') ?? '';
+    const normalizedFrom = fromRaw.replace('whatsapp:', '').replace('+', '');
+    const normalizedAdmin = ADMIN_NUMBER.replace('whatsapp:', '').replace('+', '');
+
+    if (normalizedAdmin && normalizedFrom === normalizedAdmin) {
+      const devAgentUrl = Deno.env.get('SUPABASE_URL') + '/functions/v1/clara-dev-agent';
+
+      const forwardResponse = await fetch(devAgentUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+        },
+        body: text,
+      });
+
+      console.log('Forwarded to dev agent:', forwardResponse.status);
+      return new Response('', { status: 200 });
+    }
+
     if (!phone || !body.trim()) {
       return new Response(TWIML_OK, { status: 200, headers: { ...corsHeaders, 'Content-Type': 'text/xml' } });
     }
