@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, Plus, Edit, Trash2, Phone, Smartphone, Shield } from "lucide-react";
+import { Users, Plus, Edit, Trash2, Phone, Smartphone, Shield, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useContactLimit } from "@/hooks/useContactLimit";
@@ -312,7 +312,7 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
               {isEditing && (
                 <div className="space-y-3">
                   <div className="flex gap-2">
-                    {canAddMore && (
+                    {canAddMore ? (
                       <Button
                         variant="outline"
                         size="sm"
@@ -321,7 +321,20 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
                         <Plus className="h-4 w-4 mr-2" />
                         {t('emergencyContacts.addButton')}
                       </Button>
-                    )}
+                    ) : isTrial ? (
+                      <div className="flex items-center gap-2 text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                        <Lock className="h-4 w-4 flex-shrink-0" />
+                        <span className="text-xs font-medium">
+                          {t('emergencyContacts.freeLimit', '1 contact on free plan')}
+                        </span>
+                        <a
+                          href="/pricing"
+                          className="text-xs font-semibold text-amber-800 hover:underline ml-1"
+                        >
+                          {t('emergencyContacts.upgradeButton', 'Upgrade')}
+                        </a>
+                      </div>
+                    ) : null}
                     <Button
                       variant="default"
                       size="sm"
@@ -330,7 +343,7 @@ const EmergencyContactsCard = ({ profile, onProfileUpdate }: EmergencyContactsCa
                       {t('emergencyContactsCard.saveChanges')}
                     </Button>
                   </div>
-                  {isTrial && contacts.length >= 1 && (
+                  {isTrial && contacts.length >= 1 && canAddMore && (
                     <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center justify-between gap-4">
                       <div className="flex items-center gap-3">
                         <Shield className="h-5 w-5 text-red-500 flex-shrink-0" />

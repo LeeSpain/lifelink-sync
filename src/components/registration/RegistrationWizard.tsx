@@ -331,6 +331,10 @@ const RegistrationWizard: React.FC = () => {
             contacts={data.emergencyContacts}
             onChange={(contacts) => handleChange('emergencyContacts', contacts)}
             isTrial={data.isTrialSelected}
+            onGoToPlanStep={() => {
+              const planIdx = visibleSteps.findIndex(s => s.id === 'plan');
+              if (planIdx >= 0) setCurrentStep(planIdx);
+            }}
           />
         );
       case 'payment':

@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Phone, User, Mail, Plus, Trash2, MessageSquare, PhoneCall, Bell, MessageCircle } from 'lucide-react';
+import { Phone, User, Mail, Plus, Trash2, MessageSquare, PhoneCall, Bell, MessageCircle, Lock, ArrowRight } from 'lucide-react';
 
 export interface EmergencyContact {
   name: string;
@@ -19,6 +19,7 @@ interface EmergencyContactsStepProps {
   contacts: EmergencyContact[];
   onChange: (contacts: EmergencyContact[]) => void;
   isTrial?: boolean;
+  onGoToPlanStep?: () => void;
 }
 
 const CHANNEL_ICONS = [
@@ -31,9 +32,11 @@ const CHANNEL_ICONS = [
 
 const RELATIONSHIP_VALUES = ['spouse', 'parent', 'child', 'sibling', 'grandparent', 'friend', 'neighbor', 'caregiver', 'other'];
 
-const EmergencyContactsStep: React.FC<EmergencyContactsStepProps> = ({ contacts, onChange, isTrial = false }) => {
+const EmergencyContactsStep: React.FC<EmergencyContactsStepProps> = ({ contacts, onChange, isTrial = false, onGoToPlanStep }) => {
   const { t } = useTranslation();
-  const maxContacts = isTrial ? 1 : 5;
+  const contactLimit = isTrial ? 1 : 5;
+  const maxContacts = contactLimit;
+  const atLimit = contacts.length >= contactLimit;
 
   const CHANNEL_OPTIONS = CHANNEL_ICONS.map(({ id, icon }) => ({
     id,
@@ -206,7 +209,7 @@ const EmergencyContactsStep: React.FC<EmergencyContactsStepProps> = ({ contacts,
       </div>
 
       {/* Add Contact Button */}
-      {contacts.length < maxContacts && (
+      {!atLimit ? (
         <Button
           type="button"
           variant="outline"
@@ -214,9 +217,38 @@ const EmergencyContactsStep: React.FC<EmergencyContactsStepProps> = ({ contacts,
           className="w-full border-dashed"
         >
           <Plus className="h-4 w-4 mr-2" />
-          {t('registration.contacts.addAnother', { count: contacts.length })}
+          {isTrial
+            ? `${t('registration.contacts.addAnother', { count: contacts.length })} (${contacts.length}/${contactLimit})`
+            : t('registration.contacts.addAnother', { count: contacts.length })
+          }
         </Button>
-      )}
+      ) : isTrial ? (
+        <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 space-y-3">
+          <div className="flex items-start gap-3">
+            <Lock className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-slate-900">
+                {t('emergencyContacts.freeLimit', 'Free plan includes 1 emergency contact')}
+              </p>
+              <p className="text-xs text-slate-600 mt-1">
+                {t('emergencyContacts.upgradeTo5', 'Upgrade to the Individual Plan (€9.99/mo) to add up to 5 contacts')}
+              </p>
+            </div>
+          </div>
+          {onGoToPlanStep && (
+            <Button
+              type="button"
+              variant="default"
+              size="sm"
+              onClick={onGoToPlanStep}
+              className="w-full"
+            >
+              {t('emergencyContacts.upgradeNow', 'Upgrade now')}
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          )}
+        </div>
+      ) : null}
 
       {/* Tip */}
       <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
