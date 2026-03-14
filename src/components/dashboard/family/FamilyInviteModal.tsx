@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from 'react-i18next';
+import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Shield, MapPin, Smartphone } from "lucide-react";
 
 interface FamilyInviteModalProps {
@@ -22,7 +23,8 @@ const FamilyInviteModal = ({ onInviteCreated, isOpen, onOpenChange }: FamilyInvi
     email: "",
     phone: "",
     relationship: "",
-    billing_type: "owner" as "owner" | "self"
+    billing_type: "owner" as "owner" | "self",
+    gdprConsent: false,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -91,7 +93,8 @@ const FamilyInviteModal = ({ onInviteCreated, isOpen, onOpenChange }: FamilyInvi
           email: "",
           phone: "",
           relationship: "",
-          billing_type: "owner"
+          billing_type: "owner",
+          gdprConsent: false,
         });
         onInviteCreated();
         onOpenChange(false);
@@ -136,7 +139,8 @@ const FamilyInviteModal = ({ onInviteCreated, isOpen, onOpenChange }: FamilyInvi
           email: "",
           phone: "",
           relationship: "",
-          billing_type: "owner"
+          billing_type: "owner",
+          gdprConsent: false,
         });
 
         onInviteCreated();
@@ -270,6 +274,20 @@ const FamilyInviteModal = ({ onInviteCreated, isOpen, onOpenChange }: FamilyInvi
               </RadioGroup>
             </div>
 
+            {/* GDPR Consent */}
+            <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg border">
+              <Checkbox
+                id="gdpr-consent"
+                checked={formData.gdprConsent}
+                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, gdprConsent: checked === true }))}
+              />
+              <label htmlFor="gdpr-consent" className="text-xs text-muted-foreground leading-relaxed cursor-pointer">
+                {t('familyDashboard.gdprConsent', {
+                  defaultValue: 'I confirm this person has agreed to receive this invitation and understands their emergency data (GPS location during SOS, medical profile) will be shared with family circle members. Full details in our privacy policy.'
+                })}
+              </label>
+            </div>
+
             <div className="flex gap-3 pt-4 sticky bottom-0 bg-background border-t pt-4 mt-6">
               <Button
                 type="button"
@@ -283,7 +301,7 @@ const FamilyInviteModal = ({ onInviteCreated, isOpen, onOpenChange }: FamilyInvi
               <Button
                 type="submit"
                 className="flex-1"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !formData.gdprConsent}
               >
                 {isSubmitting
                   ? (formData.billing_type === 'owner' ? t('familyDashboard.processing') : t('familyDashboard.sending'))

@@ -26,11 +26,14 @@ import MyCirclesPage from "@/pages/MyCirclesPage";
 import PlacesManager from "@/pages/PlacesManager";
 import LocationHistoryPage from "@/pages/LocationHistoryPage";
 import { ConnectionsPage } from "@/components/dashboard/ConnectionsPage";
+import FamilyAccessPanel from "@/components/dashboard/family/FamilyAccessPanel";
+import FamilyMemberView from "@/components/dashboard/family/FamilyMemberView";
 import { DevicesIntegrationsPage } from "@/components/dashboard/pages/DevicesIntegrationsPage";
 import AddOnMarketplace from "@/components/dashboard/AddOnMarketplace";
 import { MobileDashboard } from "@/components/mobile/MobileDashboard";
 import { useTranslation } from 'react-i18next';
 import { useRealTimeUpdates } from '@/hooks/useRealTimeUpdates';
+import { useFamilyRole } from '@/hooks/useFamilyRole';
 import LanguageCurrencySelector from '@/components/LanguageCurrencySelector';
 import { PWAInstallBanner } from '@/components/dashboard/PWAInstallBanner';
 
@@ -100,18 +103,46 @@ function ProductsTabs() {
 
 function FamilyTabs() {
   const { t } = useTranslation();
+  const { data: familyRole } = useFamilyRole();
+  const isMember = familyRole?.isFamilyMember === true;
+
+  const isOwner = familyRole?.isOwner === true;
+
   return (
-    <Tabs defaultValue="connections" className="space-y-6 p-3 sm:p-6">
+    <Tabs defaultValue={isOwner ? "manage" : isMember ? "my-circle" : "connections"} className="space-y-6 p-3 sm:p-6">
       <TabsList className="flex w-full overflow-x-auto">
-        <TabsTrigger value="connections" className="shrink-0">{t('dashboard.tabConnections', { defaultValue: 'Connections' })}</TabsTrigger>
+        {/* Owner: management tab first */}
+        {isOwner && (
+          <TabsTrigger value="manage" className="shrink-0">{t('dashboard.tabManage', { defaultValue: 'Manage' })}</TabsTrigger>
+        )}
+        {/* Member: circle info tab first */}
+        {isMember && (
+          <TabsTrigger value="my-circle" className="shrink-0">{t('dashboard.tabMyCircle', { defaultValue: 'My Circle' })}</TabsTrigger>
+        )}
+        {/* Owner sees connections, member does not */}
+        {!isMember && (
+          <TabsTrigger value="connections" className="shrink-0">{t('dashboard.tabConnections', { defaultValue: 'Connections' })}</TabsTrigger>
+        )}
         <TabsTrigger value="live-map" className="shrink-0">{t('dashboard.tabLiveMap', { defaultValue: 'Live Map' })}</TabsTrigger>
         <TabsTrigger value="circles" className="shrink-0">{t('dashboard.tabCircles', { defaultValue: 'Circles' })}</TabsTrigger>
         <TabsTrigger value="places" className="shrink-0">{t('dashboard.tabPlaces', { defaultValue: 'Places' })}</TabsTrigger>
         <TabsTrigger value="history" className="shrink-0">{t('dashboard.tabHistory', { defaultValue: 'History' })}</TabsTrigger>
       </TabsList>
-      <TabsContent value="connections">
-        <ConnectionsPage />
-      </TabsContent>
+      {isOwner && (
+        <TabsContent value="manage">
+          <FamilyAccessPanel />
+        </TabsContent>
+      )}
+      {isMember && (
+        <TabsContent value="my-circle">
+          <FamilyMemberView />
+        </TabsContent>
+      )}
+      {!isMember && (
+        <TabsContent value="connections">
+          <ConnectionsPage />
+        </TabsContent>
+      )}
       <TabsContent value="live-map" className="-mx-3 sm:-mx-6 -mb-3 sm:-mb-6">
         <MapScreen />
       </TabsContent>

@@ -446,8 +446,8 @@ const FamilyAccessPanel = () => {
               </div>
             )}
 
-            {/* Upgrade CTA */}
-            {totalSeatsUsed < maxSeats && totalSeatsUsed > 0 && (
+            {/* Add more / Seat limit */}
+            {totalSeatsUsed > 0 && totalSeatsUsed < maxSeats && (
               <div className="text-center p-4 bg-primary/5 rounded-lg border">
                 <p className="text-sm text-muted-foreground mb-2">
                   {t('familyDashboard.upgradeCta')}
@@ -460,6 +460,12 @@ const FamilyAccessPanel = () => {
                   <Plus className="h-4 w-4 mr-2" />
                   {t('familyDashboard.addAnotherMember')}
                 </Button>
+              </div>
+            )}
+            {totalSeatsUsed >= maxSeats && (
+              <div className="text-center p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <p className="text-sm font-medium text-amber-800">{t('familyDashboard.seatLimitReached')}</p>
+                <p className="text-xs text-amber-700 mt-1">{t('familyDashboard.seatLimitReachedDesc')}</p>
               </div>
             )}
           </div>
