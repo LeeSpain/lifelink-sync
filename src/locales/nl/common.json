@@ -1384,7 +1384,20 @@
     "expired": "Verlopen",
     "invited": "Uitgenodigd",
     "pending": "In Behandeling",
-    "disabled": "Uitgeschakeld"
+    "disabled": "Uitgeschakeld",
+    "freeSeatIncluded": "1 gratis plek inbegrepen",
+    "totalMonthly": "Totaal: €{{amount}}/maand",
+    "seatsActive": "{{count}} plekken actief",
+    "confirmRemoveTitle": "Familielid Verwijderen",
+    "confirmRemoveDesc": "Weet je zeker dat je {{name}} wilt verwijderen? Hun plek wordt geannuleerd en ze verliezen toegang tot je familiekring.",
+    "confirmRemoveButton": "Ja, Verwijderen",
+    "addonWellbeing": "Dagelijks Welzijn",
+    "addonMedication": "Medicatieherinnering",
+    "addonPerMonth": "+€2,99/mnd",
+    "claraComplete": "CLARA Complete",
+    "claraCompleteUnlocked": "Wekelijks AI-rapport ontgrendeld",
+    "manageAddons": "Add-ons",
+    "noAddonsYet": "Geen actieve add-ons"
   },
   "connectionsWidget": {
     "title": "Noodverbindingen",

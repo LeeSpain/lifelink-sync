@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from 'react-i18next';
-import { Users, Plus, Settings, Euro, Shield } from "lucide-react";
+import { Users, Plus, Euro, Shield, RotateCw, Trash2, Gift } from "lucide-react";
 import FamilyInviteModal from "./FamilyInviteModal";
+import MemberAddonManager from "./MemberAddonManager";
 import { usePricing } from "@/hooks/usePricing";
 
 interface FamilyGroup {
@@ -42,6 +44,8 @@ const FamilyAccessPanel = () => {
   const [pendingInvites, setPendingInvites] = useState<FamilyInvite[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [removingMember, setRemovingMember] = useState<FamilyMembership | null>(null);
+  const [isResending, setIsResending] = useState<string | null>(null);
   const { toast } = useToast();
   const { t } = useTranslation();
   const { prices } = usePricing();

@@ -1511,7 +1511,20 @@
     "expired": "Expired",
     "invited": "Invited",
     "pending": "Pending",
-    "disabled": "Disabled"
+    "disabled": "Disabled",
+    "freeSeatIncluded": "1 free seat included",
+    "totalMonthly": "Total: €{{amount}}/month",
+    "seatsActive": "{{count}} seats active",
+    "confirmRemoveTitle": "Remove Family Member",
+    "confirmRemoveDesc": "Are you sure you want to remove {{name}}? Their seat will be cancelled and they will lose access to your family circle.",
+    "confirmRemoveButton": "Yes, Remove",
+    "addonWellbeing": "Daily Wellbeing",
+    "addonMedication": "Medication Reminder",
+    "addonPerMonth": "+€2.99/mo",
+    "claraComplete": "CLARA Complete",
+    "claraCompleteUnlocked": "Weekly AI report unlocked",
+    "manageAddons": "Add-ons",
+    "noAddonsYet": "No add-ons active"
   },
   "connectionsWidget": {
     "title": "Emergency Connections",

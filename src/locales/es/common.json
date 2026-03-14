@@ -1519,7 +1519,20 @@
     "expired": "Expirado",
     "invited": "Invitado",
     "pending": "Pendiente",
-    "disabled": "Desactivado"
+    "disabled": "Desactivado",
+    "freeSeatIncluded": "1 plaza gratuita incluida",
+    "totalMonthly": "Total: €{{amount}}/mes",
+    "seatsActive": "{{count}} plazas activas",
+    "confirmRemoveTitle": "Eliminar Miembro Familiar",
+    "confirmRemoveDesc": "¿Estás seguro de que quieres eliminar a {{name}}? Su plaza será cancelada y perderá acceso a tu círculo familiar.",
+    "confirmRemoveButton": "Sí, Eliminar",
+    "addonWellbeing": "Bienestar Diario",
+    "addonMedication": "Recordatorio de Medicación",
+    "addonPerMonth": "+€2,99/mes",
+    "claraComplete": "CLARA Complete",
+    "claraCompleteUnlocked": "Informe semanal IA desbloqueado",
+    "manageAddons": "Complementos",
+    "noAddonsYet": "Sin complementos activos"
   },
   "connectionsWidget": {
     "title": "Conexiones de Emergencia",
