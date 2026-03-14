@@ -171,9 +171,61 @@ const FamilyAccessPanel = () => {
     }
   };
 
+  const handleResendInvite = async (inviteId: string) => {
+    setIsResending(inviteId);
+    try {
+      const { data, error } = await supabase.functions.invoke('family-invite-management', {
+        body: { action: 'resend', invite_id: inviteId }
+      });
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
+      toast({
+        title: t('familyDashboard.inviteResent'),
+        description: t('familyDashboard.inviteResentDesc', { name: '' })
+      });
+      loadFamilyData();
+    } catch (error) {
+      toast({
+        title: t('familyDashboard.error'),
+        description: t('familyDashboard.failedResendInvite'),
+        variant: "destructive"
+      });
+    } finally {
+      setIsResending(null);
+    }
+  };
+
+  const handleRemoveMember = async (member: FamilyMembership) => {
+    try {
+      const { error } = await supabase
+        .from('family_memberships')
+        .update({ status: 'canceled' })
+        .eq('id', member.id);
+      if (error) throw error;
+      toast({
+        title: t('familyDashboard.memberRemoved'),
+        description: t('familyDashboard.memberRemovedDesc', {
+          name: `${member.profiles?.first_name || ''} ${member.profiles?.last_name || ''}`.trim()
+        })
+      });
+      setRemovingMember(null);
+      loadFamilyData();
+    } catch (error) {
+      toast({
+        title: t('familyDashboard.error'),
+        description: t('familyDashboard.failedRemoveMember'),
+        variant: "destructive"
+      });
+    }
+  };
+
   const activeMembers = memberships.filter(m => m.status === 'active');
   const totalSeatsUsed = activeMembers.length + pendingInvites.length;
   const maxSeats = 5;
+  const ownerPaidCount = activeMembers.filter(m => m.billing_type === 'owner').length;
+  const selfPaidCount = activeMembers.filter(m => m.billing_type === 'self').length;
+  const billableOwnerSeats = Math.max(0, ownerPaidCount - 1); // first seat free
+  const ownerMonthlyTotal = (billableOwnerSeats * prices.family_link_monthly).toFixed(2);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -257,21 +309,38 @@ const FamilyAccessPanel = () => {
             </div>
 
             {/* Billing Summary */}
-            {familyGroup && (
+            {familyGroup && activeMembers.length > 0 && (
               <div className="bg-muted/50 p-4 rounded-lg">
-                <h4 className="font-medium mb-2">{t('familyDashboard.billingSummary')}</h4>
-                <div className="text-sm space-y-1">
-                  <div className="flex justify-between">
-                    <span>{t('familyDashboard.ownerPaidSeats')}</span>
-                    <span>{t('familyDashboard.ownerPaidAmount', { count: familyGroup.owner_seat_quota })}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>{t('familyDashboard.inviteePaidSeats')}</span>
-                    <span>{t('familyDashboard.inviteePaidAmount', { count: activeMembers.filter(m => m.billing_type === 'self').length })}</span>
-                  </div>
-                  <div className="border-t pt-1 flex justify-between font-medium">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-medium">{t('familyDashboard.billingSummary')}</h4>
+                  <Badge variant="outline" className="text-xs">
+                    {t('familyDashboard.seatsActive', { count: activeMembers.length })}
+                  </Badge>
+                </div>
+                <div className="text-sm space-y-1.5">
+                  {ownerPaidCount > 0 && (
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <span>{t('familyDashboard.ownerPaidSeats')}</span>
+                        {ownerPaidCount >= 1 && (
+                          <Badge variant="secondary" className="gap-1 h-5 text-[10px]">
+                            <Gift className="h-2.5 w-2.5" />
+                            {t('familyDashboard.freeSeatIncluded')}
+                          </Badge>
+                        )}
+                      </div>
+                      <span>{t('familyDashboard.ownerPaidAmount', { count: ownerPaidCount })}</span>
+                    </div>
+                  )}
+                  {selfPaidCount > 0 && (
+                    <div className="flex justify-between">
+                      <span>{t('familyDashboard.inviteePaidSeats')}</span>
+                      <span>{t('familyDashboard.inviteePaidAmount', { count: selfPaidCount })}</span>
+                    </div>
+                  )}
+                  <div className="border-t pt-1.5 flex justify-between font-medium">
                     <span>{t('familyDashboard.yourTotal')}</span>
-                    <span>{t('familyDashboard.totalAmount', { amount: (familyGroup.owner_seat_quota * prices.family_link_monthly).toFixed(2) })}</span>
+                    <span>{t('familyDashboard.totalMonthly', { amount: ownerMonthlyTotal })}</span>
                   </div>
                 </div>
               </div>
@@ -282,22 +351,39 @@ const FamilyAccessPanel = () => {
               <div>
                 <h4 className="font-medium mb-3">{t('familyDashboard.activeFamilyMembers')}</h4>
                 <div className="space-y-2">
-                  {activeMembers.map((member) => (
-                    <div key={member.id} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div>
-                        <p className="font-medium">
-                          {member.profiles?.first_name} {member.profiles?.last_name}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {t('familyDashboard.joined', { date: new Date(member.created_at).toLocaleDateString() })}
-                        </p>
+                  {activeMembers.map((member, index) => {
+                    const memberName = `${member.profiles?.first_name || ''} ${member.profiles?.last_name || ''}`.trim() || 'Unknown';
+                    return (
+                      <div key={member.id} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium">{memberName}</p>
+                            {index === 0 && member.billing_type === 'owner' && (
+                              <Badge variant="secondary" className="gap-1 h-5 text-[10px]">
+                                <Gift className="h-2.5 w-2.5" />
+                                Free
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {t('familyDashboard.joined', { date: new Date(member.created_at).toLocaleDateString() })}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {getBillingBadge(member.billing_type)}
+                          <MemberAddonManager memberId={member.id} memberName={memberName} />
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
+                            onClick={() => setRemovingMember(member)}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        {getBillingBadge(member.billing_type)}
-                        {getStatusBadge(member.status)}
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -310,7 +396,10 @@ const FamilyAccessPanel = () => {
                   {pendingInvites.map((invite) => (
                     <div key={invite.id} className="flex items-center justify-between p-3 border rounded-lg bg-yellow-50/50">
                       <div>
-                        <p className="font-medium">{invite.name}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium">{invite.name}</p>
+                          <Badge variant="outline" className="text-[10px]">{t('familyDashboard.pending')}</Badge>
+                        </div>
                         <p className="text-sm text-muted-foreground">
                           {invite.email_or_phone} • {t('familyDashboard.expires', { date: new Date(invite.expires_at).toLocaleDateString() })}
                         </p>
@@ -320,9 +409,20 @@ const FamilyAccessPanel = () => {
                         <Button
                           variant="ghost"
                           size="sm"
+                          className="h-7 gap-1 text-xs"
+                          disabled={isResending === invite.id}
+                          onClick={() => handleResendInvite(invite.id)}
+                        >
+                          <RotateCw className={`h-3 w-3 ${isResending === invite.id ? 'animate-spin' : ''}`} />
+                          {t('familyDashboard.resendInvite')}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 text-xs text-muted-foreground hover:text-destructive"
                           onClick={() => handleRevokeInvite(invite.id)}
                         >
-                          {t('familyDashboard.revoke')}
+                          {t('familyDashboard.cancelInvite')}
                         </Button>
                       </div>
                     </div>
@@ -371,6 +471,29 @@ const FamilyAccessPanel = () => {
         onOpenChange={setIsInviteModalOpen}
         onInviteCreated={loadFamilyData}
       />
+
+      {/* Remove Member Confirmation */}
+      <AlertDialog open={!!removingMember} onOpenChange={(open) => !open && setRemovingMember(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('familyDashboard.confirmRemoveTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('familyDashboard.confirmRemoveDesc', {
+                name: `${removingMember?.profiles?.first_name || ''} ${removingMember?.profiles?.last_name || ''}`.trim()
+              })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('familyDashboard.cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => removingMember && handleRemoveMember(removingMember)}
+            >
+              {t('familyDashboard.confirmRemoveButton')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
