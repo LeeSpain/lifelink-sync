@@ -2,29 +2,30 @@
 
 ## Current Position
 
-Phase: Not started (requirements defined)
-Plan: CLARA GOD MODE Phase 2
-Milestone: v2.0
-Status: Phase 1 planned, ready to execute
-Last activity: 2026-03-14 — Phase 1 (WhatsApp Bridge) researched, context gathered, plan created
+Phase: Phase 1 planned, ready to execute
+Plan: Commercial Build 1 — Annual Pricing
+Milestone: v3.0
+Status: Planning complete, awaiting confirmation to execute
+Last activity: 2026-03-14 — Full platform audit completed, milestone v3.0 defined
 
 ## Accumulated Context
 
-### Phase 1 (CLARA GOD MODE Phase 1) — Completed
-- New Supabase project `cprbgquiqbyoyrffznny` set up
-- All 146+ migrations applied
-- ai-chat, clara-memory, clara-escalation edge functions deployed
-- CLARA responding via Claude Sonnet 4.5
-- Contact memory layer (upsert/get) wired into ai-chat
-- Amber escalation → WhatsApp to Lee wired
-- Hot lead trigger (score >= 7) → WhatsApp to Lee via pg_net
-- Persistent session IDs in all chat widgets (localStorage)
-- Vercel env vars updated to new project
-- Twilio secrets set (sandbox)
-- Anthropic API key set and working ($5 credit)
+### v1.0 CLARA GOD MODE Phase 1 — Completed
+- New Supabase project set up, all migrations applied
+- ai-chat, clara-memory, clara-escalation deployed
+- CLARA live via Claude Sonnet 4.5
 
-### Blockers
-- Supabase free plan limits edge function count (only 3 deployed)
-- Need Pro plan ($25/mo) to deploy Build 4+ functions
-- Twilio sandbox only — limited to pre-registered numbers
-- No RESEND_API_KEY set yet (email functions will stub)
+### v2.0 CLARA GOD MODE Phase 2 — Completed
+- 11 edge functions deployed, 8 pg_cron jobs active
+- WhatsApp bridge working (Haiku, ~5s response)
+- Morning briefing, weekly report, trial follow-ups, heartbeat all live
+- Twilio encoding fix applied
+
+### Platform Audit Findings (for v3.0)
+- Pricing: monthly only, no annual toggle
+- Sign-up: 7-step wizard, trial skips payment, Stripe PaymentElement
+- Member dashboard: billing section exists (SubscriptionCard)
+- Admin: 60+ pages, RevenueAnalyticsPage has MRR
+- Stripe: 17 edge functions, webhook handles 7 event types
+- 50+ routes total
+- Key files: Pricing.tsx (186 lines), RegistrationWizard.tsx (479 lines), Dashboard.tsx (457 lines)

@@ -1,106 +1,80 @@
-# CLARA GOD MODE Phase 2 — Requirements
+# Commercial Build 1 — Annual Pricing Requirements
 
-## REQ-001: WhatsApp Bridge (Build 4)
+## REQ-001: Stripe Annual Price
+**Priority:** Critical (must be first)
+**Description:** Create an annual Stripe price for the Individual Plan at €99.90/year.
+
+- REQ-001.1: Create `setup-annual-pricing` edge function or update `setup-stripe-products` to create annual price
+- REQ-001.2: Store the annual `stripe_price_id` in `subscription_plans` table alongside the monthly one
+- REQ-001.3: Add `billing_interval` column to `subscription_plans` if not present, or add a new row for annual
+- REQ-001.4: Migration to seed the annual plan data: name "Individual Annual", price €99.90, interval "year"
+
+## REQ-002: Pricing Page Toggle
 **Priority:** High
-**Description:** Inbound WhatsApp messages to the Twilio sandbox number are received via webhook, routed through CLARA (ai-chat edge function), and the response is sent back as a WhatsApp reply automatically.
+**Description:** Add monthly/annual toggle to the pricing page. Show savings badge.
 
-### Functional Requirements
-- REQ-001.1: Create `whatsapp-inbound` edge function that receives Twilio webhook POST
-- REQ-001.2: Extract sender phone, message body, and WhatsApp message SID from Twilio payload
-- REQ-001.3: Look up or create a session in `clara_contact_memory` using the sender's phone number
-- REQ-001.4: Forward the message to `ai-chat` edge function with language detection
-- REQ-001.5: Send CLARA's response back to the sender via Twilio WhatsApp API
-- REQ-001.6: Log the full conversation in `whatsapp_messages` table
-- REQ-001.7: If CLARA triggers an amber escalation, the WhatsApp escalation to Lee also fires
-- REQ-001.8: Return TwiML `<Response/>` to Twilio to acknowledge receipt
+- REQ-002.1: Add toggle switch component (Monthly | Annual) above pricing cards
+- REQ-002.2: When "Annual" selected, Individual Plan shows €99.90/year with "Save €19.98" or "2 months free" badge
+- REQ-002.3: Add-on prices stay monthly-only (no annual add-ons)
+- REQ-002.4: Toggle state passed to CTA button so checkout knows which price to use
+- REQ-002.5: All text in EN, ES, NL translations
 
-### Technical Details
-- Twilio sandbox webhook URL: `https://cprbgquiqbyoyrffznny.supabase.co/functions/v1/whatsapp-inbound`
-- Existing tables: `whatsapp_accounts`, `whatsapp_conversations`, `whatsapp_messages`
-- Twilio secrets already set: `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_WHATSAPP_FROM`
-- Must handle Twilio's `application/x-www-form-urlencoded` content type
-- Must return 200 with valid TwiML to prevent Twilio retries
-
----
-
-## REQ-002: Cron Jobs (Build 6)
+## REQ-003: Sign-Up Flow Billing Cycle
 **Priority:** High
-**Description:** 7 scheduled jobs running via pg_cron that trigger edge functions through pg_net HTTP calls.
+**Description:** At the payment step in registration, user can choose monthly or annual.
 
-### Scheduled Jobs
-- REQ-002.1: **Morning Briefing** — Daily at 08:00 CET → WhatsApp to Lee with overnight stats (new leads, trials started, active conversations, revenue)
-- REQ-002.2: **Trial Day 3 Follow-up** — Daily at 10:00 → CLARA emails trial users on day 3 asking how setup went
-- REQ-002.3: **Trial Day 6 Follow-up** — Daily at 10:00 → CLARA emails trial users on day 6 with conversion nudge
-- REQ-002.4: **Trial Day 7 Expiry Warning** — Daily at 09:00 → CLARA emails trial users on day 7 with "last day" urgency
-- REQ-002.5: **Hot Lead Chase** — Every 6 hours → Re-check leads with score 5+ that haven't been contacted in 24h, trigger WhatsApp to Lee
-- REQ-002.6: **Weekly Report** — Monday at 09:00 CET → WhatsApp to Lee with weekly metrics summary
-- REQ-002.7: **Stale Lead Cleanup** — Daily at 02:00 → Mark leads older than 30 days with no activity as `stale`
+- REQ-003.1: In `PlanStep.tsx`, if user selects paid (not trial), show billing cycle choice
+- REQ-003.2: Pass selected billing cycle through to `PaymentStep.tsx`
+- REQ-003.3: `process-mixed-payment` or `create-checkout` must use the correct Stripe price ID based on cycle
+- REQ-003.4: Trial flow unchanged — trial users choose billing cycle only when converting to paid
 
-### Technical Details
-- pg_cron is enabled on the new Supabase project
-- Each job calls an edge function via `pg_net.http_post()`
-- Edge functions authenticate with anon key (already stored in `ai_model_settings`)
-- `followup_enrollments` table tracks which follow-ups have been sent
-- Morning briefing and weekly report use `clara-escalation` function with type `morning_briefing`
-
----
-
-## REQ-003: Heartbeat (Build 7)
+## REQ-004: Member Dashboard Billing Display
 **Priority:** Medium
-**Description:** CLARA proactively reaches out to users who haven't engaged, without being messaged first.
+**Description:** Show current billing cycle and renewal date in member dashboard.
 
-### Heartbeat Triggers
-- REQ-003.1: **Inactive Trial User** — Trial user with no activity for 48h → CLARA sends email check-in
-- REQ-003.2: **Inactive Subscriber** — Paid subscriber with no login for 14 days → CLARA sends "we miss you" email
-- REQ-003.3: **Quiet Hot Lead** — Lead with interest_score 5+ and no contact for 48h → CLARA sends email with personalized follow-up based on `clara_contact_memory`
+- REQ-004.1: `SubscriptionCard.tsx` shows "Monthly" or "Annual" label
+- REQ-004.2: Shows next renewal date
+- REQ-004.3: Shows savings info for annual ("You save €19.98/year")
+- REQ-004.4: "Switch to Annual" upsell for monthly subscribers
+- REQ-004.5: All text in EN, ES, NL
 
-### Technical Details
-- Create `clara-heartbeat` edge function
-- Called by pg_cron job every 6 hours
-- Queries `subscribers` for inactive trials/members
-- Queries `leads` + `clara_contact_memory` for quiet leads
-- Uses Resend for email delivery (when RESEND_API_KEY is set)
-- Falls back to logging intent if email not configured
-- Updates `clara_contact_memory.last_contact_at` after each outreach
-- Never contacts the same person twice within 48h (dedup check)
+## REQ-005: Admin Dashboard Annual Metrics
+**Priority:** Medium
+**Description:** Admin sees annual vs monthly breakdown.
 
----
+- REQ-005.1: `RevenueAnalyticsPage.tsx` shows monthly vs annual subscriber counts
+- REQ-005.2: MRR calculation includes annualized monthly equivalent for annual subs
+- REQ-005.3: `SubscriptionsPage.tsx` shows billing interval column
 
-## REQ-004: Geo-Lookup CORS Fix
-**Priority:** Low
-**Description:** Fix the CORS error appearing in browser console from the geo-lookup edge function.
+## REQ-006: CLARA Training Data
+**Priority:** Medium
+**Description:** CLARA knows about annual pricing and can sell it.
 
-### Requirements
-- REQ-004.1: Find the geo-lookup function and add proper CORS headers
-- REQ-004.2: Ensure OPTIONS preflight returns correct headers
-- REQ-004.3: If function is not deployed, either deploy it or remove the client-side call
+- REQ-006.1: Migration to add training_data rows for annual pricing Q&A
+- REQ-006.2: Update ai-chat system prompt to mention annual option
+- REQ-006.3: WhatsApp system prompt updated to mention annual option
+
+## REQ-007: Stripe Webhook Update
+**Priority:** Critical
+**Description:** Webhook must handle annual subscription events correctly.
+
+- REQ-007.1: `stripe-webhook` must recognize annual subscriptions
+- REQ-007.2: Set correct `subscription_end` date (1 year from now, not 1 month)
+- REQ-007.3: `subscribers` table records billing interval
 
 ---
 
 ## Acceptance Criteria
 
-### Build 4 (WhatsApp Bridge)
-- [ ] Send "Hello" to the Twilio sandbox WhatsApp number
-- [ ] Receive a CLARA response within 10 seconds
-- [ ] Conversation appears in `whatsapp_messages` table
-- [ ] Contact memory is created/updated in `clara_contact_memory`
-- [ ] Amber trigger words cause WhatsApp escalation to Lee
-
-### Build 6 (Cron Jobs)
-- [ ] Morning briefing WhatsApp arrives at 08:00 CET
-- [ ] Trial follow-up emails fire on days 3, 6, 7
-- [ ] Hot lead chase re-alerts Lee on stale high-score leads
-- [ ] Weekly report arrives Monday at 09:00
-- [ ] All jobs visible in pg_cron schedule
-
-### Build 7 (Heartbeat)
-- [ ] Inactive 48h trial user receives email from CLARA
-- [ ] 14-day inactive subscriber receives email
-- [ ] Quiet lead with score 5+ receives follow-up
-- [ ] No user contacted more than once per 48h
-
-### Cleanup
-- [ ] No CORS errors in browser console from geo-lookup
+- [ ] Pricing page shows monthly/annual toggle with "2 months free" badge
+- [ ] Sign-up flow allows annual selection at payment step
+- [ ] Stripe checkout creates annual subscription at €99.90/year
+- [ ] Member dashboard shows billing cycle and renewal date
+- [ ] Admin dashboard shows annual vs monthly counts
+- [ ] CLARA can explain annual pricing when asked
+- [ ] Existing monthly subscribers are unaffected
+- [ ] All new UI text available in EN, ES, NL
+- [ ] Trial flow is completely unchanged
 
 ---
 *Last updated: 2026-03-14*
