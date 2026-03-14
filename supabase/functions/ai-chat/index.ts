@@ -332,6 +332,12 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  console.log('ai-chat invoked:', {
+    method: req.method,
+    hasAnthropicKey: !!anthropicApiKey,
+    hasOpenAIKey: !!openAIApiKey,
+  });
+
   try {
     const {
       message,
@@ -353,31 +359,41 @@ serve(async (req) => {
     const lang = ['en', 'es', 'nl'].includes(language) ? language : 'en';
     const curr = ['EUR', 'USD', 'GBP', 'AUD'].includes(currency) ? currency : 'EUR';
 
-    await supabase.from('conversations').insert({
-      user_id: userId ?? null,
-      session_id: currentSessionId,
-      message_type: 'user',
-      content: message,
-      metadata: {
-        context: context ?? 'general',
-        timestamp: new Date().toISOString(),
-        language: lang,
-        currency: curr,
-        user_agent: req.headers.get('user-agent') ?? null,
-      },
-    });
+    // Log user message (non-fatal if conversations table missing)
+    let conversationMessages: Array<{ role: string; content: string }> = [
+      { role: 'user', content: message },
+    ];
+    try {
+      await supabase.from('conversations').insert({
+        user_id: userId ?? null,
+        session_id: currentSessionId,
+        message_type: 'user',
+        content: message,
+        metadata: {
+          context: context ?? 'general',
+          timestamp: new Date().toISOString(),
+          language: lang,
+          currency: curr,
+          user_agent: req.headers.get('user-agent') ?? null,
+        },
+      });
 
-    const { data: historyRows } = await supabase
-      .from('conversations')
-      .select('message_type, content')
-      .eq('session_id', currentSessionId)
-      .order('created_at', { ascending: true })
-      .limit(20);
+      const { data: historyRows } = await supabase
+        .from('conversations')
+        .select('message_type, content')
+        .eq('session_id', currentSessionId)
+        .order('created_at', { ascending: true })
+        .limit(20);
 
-    const conversationMessages = (historyRows ?? []).map(r => ({
-      role: r.message_type === 'user' ? 'user' : 'assistant',
-      content: r.content,
-    }));
+      if (historyRows?.length) {
+        conversationMessages = historyRows.map(r => ({
+          role: r.message_type === 'user' ? 'user' : 'assistant',
+          content: r.content,
+        }));
+      }
+    } catch (convErr) {
+      console.warn('Conversation logging failed (non-fatal):', convErr);
+    }
 
     let contactContext = '';
     const memoryLookup = {
@@ -395,28 +411,37 @@ serve(async (req) => {
       console.warn('Memory lookup failed (non-fatal):', memErr);
     }
 
-    const { data: trainingData } = await supabase
-      .from('training_data')
-      .select('question, answer')
-      .eq('status', 'active')
-      .eq('audience', 'customer')
-      .order('confidence_score', { ascending: false })
-      .limit(40);
-
     let knowledgeAddition = '';
-    if (trainingData?.length) {
-      knowledgeAddition = '\n\nADDITIONAL APPROVED Q&A:\n' +
-        trainingData.map(t => `Q: ${t.question}\nA: ${t.answer}`).join('\n\n');
+    let settings: Record<string, unknown> = {};
+    try {
+      const { data: trainingData } = await supabase
+        .from('training_data')
+        .select('question, answer')
+        .eq('status', 'active')
+        .eq('audience', 'customer')
+        .order('confidence_score', { ascending: false })
+        .limit(40);
+
+      if (trainingData?.length) {
+        knowledgeAddition = '\n\nADDITIONAL APPROVED Q&A:\n' +
+          trainingData.map(t => `Q: ${t.question}\nA: ${t.answer}`).join('\n\n');
+      }
+    } catch (tdErr) {
+      console.warn('Training data fetch failed (non-fatal):', tdErr);
     }
 
-    const { data: aiSettings } = await supabase
-      .from('ai_model_settings')
-      .select('setting_key, setting_value');
+    try {
+      const { data: aiSettings } = await supabase
+        .from('ai_model_settings')
+        .select('setting_key, setting_value');
 
-    const settings = (aiSettings ?? []).reduce<Record<string, unknown>>((acc, s) => {
-      acc[s.setting_key] = s.setting_value;
-      return acc;
-    }, {});
+      settings = (aiSettings ?? []).reduce<Record<string, unknown>>((acc, s) => {
+        acc[s.setting_key] = s.setting_value;
+        return acc;
+      }, {});
+    } catch (settingsErr) {
+      console.warn('AI settings fetch failed (non-fatal):', settingsErr);
+    }
 
     const temperature = Number(settings.temperature) || 0.4;
     const maxTokens   = Math.min(Number(settings.max_tokens) || 600, 1000);
@@ -436,13 +461,17 @@ serve(async (req) => {
 
     const aiResponse = sanitiseResponse(rawResponse);
 
-    await supabase.from('conversations').insert({
-      user_id: userId ?? null,
-      session_id: currentSessionId,
-      message_type: 'ai',
-      content: aiResponse,
-      metadata: { provider, language: lang },
-    });
+    try {
+      await supabase.from('conversations').insert({
+        user_id: userId ?? null,
+        session_id: currentSessionId,
+        message_type: 'ai',
+        content: aiResponse,
+        metadata: { provider, language: lang },
+      });
+    } catch (logErr) {
+      console.warn('AI response logging failed (non-fatal):', logErr);
+    }
 
     const triggerWord = detectAmberTrigger(message);
     const isAmber = !!triggerWord;
@@ -450,34 +479,38 @@ serve(async (req) => {
     const isInterested = addedScore > 0;
 
     if (isInterested || isAmber) {
-      const { data: existingLead } = await supabase
-        .from('leads')
-        .select('id, interest_level')
-        .eq('session_id', currentSessionId)
-        .maybeSingle();
-
-      if (existingLead) {
-        const newScore = Math.min((existingLead.interest_level ?? 0) + addedScore, 10);
-        await supabase
+      try {
+        const { data: existingLead } = await supabase
           .from('leads')
-          .update({
-            interest_level: newScore,
-            status: isAmber ? 'amber_escalation' : newScore >= 7 ? 'qualified' : 'new',
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', existingLead.id);
-      } else {
-        await supabase.from('leads').insert({
-          session_id: currentSessionId,
-          user_id: userId ?? null,
-          interest_level: Math.min(addedScore, 10),
-          status: isAmber ? 'amber_escalation' : 'new',
-          metadata: {
-            first_message: message,
-            language: lang,
-            ...(isAmber ? { amber_trigger: triggerWord, flagged_at: new Date().toISOString() } : {}),
-          },
-        });
+          .select('id, interest_level')
+          .eq('session_id', currentSessionId)
+          .maybeSingle();
+
+        if (existingLead) {
+          const newScore = Math.min((existingLead.interest_level ?? 0) + addedScore, 10);
+          await supabase
+            .from('leads')
+            .update({
+              interest_level: newScore,
+              status: isAmber ? 'amber_escalation' : newScore >= 7 ? 'qualified' : 'new',
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', existingLead.id);
+        } else {
+          await supabase.from('leads').insert({
+            session_id: currentSessionId,
+            user_id: userId ?? null,
+            interest_level: Math.min(addedScore, 10),
+            status: isAmber ? 'amber_escalation' : 'new',
+            metadata: {
+              first_message: message,
+              language: lang,
+              ...(isAmber ? { amber_trigger: triggerWord, flagged_at: new Date().toISOString() } : {}),
+            },
+          });
+        }
+      } catch (leadErr) {
+        console.warn('Lead scoring failed (non-fatal):', leadErr);
       }
     }
 
