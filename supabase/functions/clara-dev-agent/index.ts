@@ -17,15 +17,17 @@ const adminNumber = Deno.env.get('ADMIN_WHATSAPP_NUMBER')!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 const sendWhatsApp = async (to: string, body: string) => {
+  const toAddr = to.startsWith('whatsapp:') ? to : `whatsapp:${to}`;
   const url = `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`;
-  await fetch(url, {
+  const res = await fetch(url, {
     method: 'POST',
     headers: {
       'Authorization': 'Basic ' + btoa(`${twilioSid}:${twilioToken}`),
       'Content-Type': 'application/x-www-form-urlencoded',
     },
-    body: new URLSearchParams({ To: to, From: twilioFrom, Body: body }).toString(),
+    body: new URLSearchParams({ To: toAddr, From: twilioFrom, Body: body }).toString(),
   });
+  console.log('Dev agent WhatsApp send:', res.status, await res.text());
 };
 
 const interpretIntent = async (command: string): Promise<{intent: string, description: string, risk_level: string, confirmation_question: string}> => {
@@ -37,7 +39,7 @@ const interpretIntent = async (command: string): Promise<{intent: string, descri
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-5',
+      model: 'claude-3-haiku-20240307',
       max_tokens: 300,
       messages: [{
         role: 'user',
@@ -71,14 +73,17 @@ serve(async (req) => {
   }
 
   try {
-    // Parse Twilio webhook
-    const formData = await req.formData();
-    const fromNumber = formData.get('From') as string;
-    const messageBody = (formData.get('Body') as string)?.trim();
+    // Parse Twilio webhook (URL-encoded body)
+    const rawText = await req.text();
+    const params = new URLSearchParams(rawText);
+    const fromNumber = params.get('From') ?? '';
+    const messageBody = (params.get('Body') ?? '').trim();
+
+    console.log('Dev agent received:', { fromNumber, bodyLength: messageBody.length });
 
     // ── HARD AUTH CHECK ──────────────────────────────
-    const normalizedFrom = fromNumber?.replace('whatsapp:', '');
-    const normalizedAdmin = adminNumber?.replace('whatsapp:', '');
+    const normalizedFrom = fromNumber.replace('whatsapp:', '').replace('+', '');
+    const normalizedAdmin = adminNumber.replace('whatsapp:', '').replace('+', '');
 
     if (normalizedFrom !== normalizedAdmin) {
       console.log(`Rejected message from ${fromNumber} — not admin`);
