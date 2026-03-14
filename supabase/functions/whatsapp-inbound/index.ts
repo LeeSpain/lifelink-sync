@@ -62,12 +62,14 @@ function stripMarkdown(text: string): string {
 
 // ── Send WhatsApp reply via Twilio ─────────────────────────────
 async function sendWhatsApp(to: string, body: string): Promise<boolean> {
+  const toAddr = to.startsWith('whatsapp:') ? to : `whatsapp:${to}`;
   const url = `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`;
-  const encoded = new URLSearchParams({
-    To: `whatsapp:${to}`,
-    From: twilioFrom,
-    Body: body,
-  });
+
+  // Manual encoding to preserve + in phone numbers
+  // URLSearchParams encodes + as %2B which some Twilio endpoints misread
+  const formBody = `To=${encodeURIComponent(toAddr)}&From=${encodeURIComponent(twilioFrom)}&Body=${encodeURIComponent(body)}`;
+
+  console.log('Twilio send:', { To: toAddr, From: twilioFrom, bodyLength: body.length });
 
   const response = await fetch(url, {
     method: 'POST',
@@ -75,14 +77,17 @@ async function sendWhatsApp(to: string, body: string): Promise<boolean> {
       'Authorization': 'Basic ' + btoa(`${twilioSid}:${twilioToken}`),
       'Content-Type': 'application/x-www-form-urlencoded',
     },
-    body: encoded.toString(),
+    body: formBody,
   });
 
+  const responseText = await response.text();
+
   if (!response.ok) {
-    const err = await response.text();
-    console.error('Twilio send error:', err);
+    console.error('Twilio send FAILED:', response.status, responseText);
     return false;
   }
+
+  console.log('Twilio send OK:', response.status);
   return true;
 }
 

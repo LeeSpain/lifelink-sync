@@ -33,7 +33,7 @@ interface EscalationRequest {
 
 const sendWhatsApp = async (to: string, from: string, body: string): Promise<boolean> => {
   const url = `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`;
-  const encoded = new URLSearchParams({ To: to, From: from, Body: body });
+  const formBody = `To=${encodeURIComponent(to)}&From=${encodeURIComponent(from)}&Body=${encodeURIComponent(body)}`;
 
   const response = await fetch(url, {
     method: 'POST',
@@ -41,7 +41,7 @@ const sendWhatsApp = async (to: string, from: string, body: string): Promise<boo
       'Authorization': 'Basic ' + btoa(`${twilioSid}:${twilioToken}`),
       'Content-Type': 'application/x-www-form-urlencoded',
     },
-    body: encoded.toString(),
+    body: formBody,
   });
 
   if (!response.ok) {
