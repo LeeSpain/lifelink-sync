@@ -275,6 +275,11 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
                     <p className="text-lg font-bold text-foreground capitalize">
                       {subscription.subscription_tier?.replace('_', ' ') || t('subscriptionCard.basic')}
                     </p>
+                    {subscription.subscription_tier?.toLowerCase().includes('annual') ? (
+                      <Badge className="bg-green-100 text-green-700 text-xs mt-1">{t('subscriptionCard.billedAnnually', { defaultValue: 'Billed annually' })}</Badge>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">{t('subscriptionCard.billedMonthly', { defaultValue: 'Billed monthly' })}</span>
+                    )}
                   </div>
                   <div className="p-4 bg-muted/50 rounded-lg border">
                     <h4 className="font-semibold text-foreground mb-1">{t('subscriptionCard.nextBilling')}</h4>
