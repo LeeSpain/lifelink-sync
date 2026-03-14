@@ -415,6 +415,75 @@ serve(async (req) => {
       }
     }
 
+    // Handle gift subscription checkout completion
+    if (event.type === "checkout.session.completed") {
+      const session = event?.data?.object;
+      const giftId = session?.metadata?.gift_id;
+      const giftRedeemCode = session?.metadata?.redeem_code;
+
+      if (giftId) {
+        console.log("🎁 Processing gift checkout:", { giftId, giftRedeemCode });
+
+        try {
+          // Update gift status to paid
+          const { error: giftUpdateError } = await supabase
+            .from("gift_subscriptions")
+            .update({
+              status: "paid",
+              stripe_session_id: session.id,
+              stripe_payment_intent: session.payment_intent ? String(session.payment_intent) : null,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", giftId)
+            .eq("status", "pending_payment");
+
+          if (giftUpdateError) {
+            console.error("❌ Error updating gift status:", giftUpdateError);
+          } else {
+            console.log("✅ Gift marked as paid");
+          }
+
+          // Check if gift should be delivered immediately (no delivery_date or delivery_date <= today)
+          const { data: giftData } = await supabase
+            .from("gift_subscriptions")
+            .select("delivery_date")
+            .eq("id", giftId)
+            .single();
+
+          const today = new Date().toISOString().split("T")[0];
+          const shouldDeliverNow = !giftData?.delivery_date || giftData.delivery_date <= today;
+
+          if (shouldDeliverNow) {
+            console.log("📧 Delivering gift immediately");
+            // Call gift-send-email to send both recipient and buyer emails
+            const { error: emailError } = await supabase.functions.invoke("gift-send-email", {
+              body: { gift_id: giftId, type: "both" },
+            });
+
+            if (emailError) {
+              console.error("❌ Error sending gift emails:", emailError);
+            } else {
+              console.log("✅ Gift emails sent");
+            }
+          } else {
+            console.log("📅 Gift scheduled for future delivery:", giftData?.delivery_date);
+            // Send buyer confirmation only (recipient email will be sent by cron)
+            const { error: emailError } = await supabase.functions.invoke("gift-send-email", {
+              body: { gift_id: giftId, type: "buyer" },
+            });
+
+            if (emailError) {
+              console.error("❌ Error sending buyer confirmation:", emailError);
+            } else {
+              console.log("✅ Buyer confirmation sent, delivery scheduled");
+            }
+          }
+        } catch (giftErr) {
+          console.error("❌ Error processing gift checkout:", giftErr);
+        }
+      }
+    }
+
     return new Response(JSON.stringify({
       received: true,
       processed: true,
