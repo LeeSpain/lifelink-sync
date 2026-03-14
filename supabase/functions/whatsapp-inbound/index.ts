@@ -84,7 +84,7 @@ async function callClaude(systemPrompt: string, userMessage: string): Promise<st
       'content-type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'claude-3-5-haiku-20241022',
+      model: 'claude-3-haiku-20240307',
       max_tokens: 250,
       system: systemPrompt,
       messages: [{ role: 'user', content: userMessage }],
