@@ -34,7 +34,6 @@ const GIFT_TYPE_LABELS: Record<string, { label: string; months: number }> = {
 };
 
 // Validate redeem code format: LL-XXXX-XXXX-XXXX (no ambiguous chars 0/O/1/I/L)
-const VALID_CHARS = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 const CODE_REGEX = /^LL-[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{4}$/;
 
 const GiftRedeemPage: React.FC = () => {
