@@ -30,8 +30,24 @@ function checkRateLimit(phone: string): boolean {
   return true;
 }
 
-// ── Language: let Claude detect from message text ──────────────
-// No keyword matching needed — Claude handles this natively
+// ── Detect language from message text ──────────────────────────
+function detectLanguage(message: string): 'English' | 'Spanish' | 'Dutch' {
+  const lower = message.toLowerCase();
+
+  // Count Spanish-only characters and words
+  const hasSpanishChars = /[áéíóúüñ¿¡]/.test(lower);
+  const spanishOnly = /\b(hola|necesito|ayuda|quiero|precio|madre|padre|emergencia|proteger|seguridad|tengo|puedo|gracias|buenos|dias|buenas|tardes|noches|como|estas|estoy|donde|cuando|porque|tambien|ahora|aqui|bien|mucho|todo|nada|siempre|nunca|pero|para|sobre|desde|hasta|entre|puede|tiene|hace|sabe|cree|vive|solo|sola)\b/g;
+
+  // Count Dutch-only words
+  const dutchOnly = /\b(hallo|hulp|nodig|prijs|moeder|vader|nood|bescherming|alstublieft|welkom|goedemorgen|goedemiddag|goedenavond|bedankt|graag|waar|wanneer|waarom|hoe|bent|heeft|kunt|wilt|alleen|woont|valt|bezorgd|angst|ouder|kind|gezin|familie|dringend|gevaarlijk)\b/g;
+
+  const esMatches = (lower.match(spanishOnly) || []).length + (hasSpanishChars ? 2 : 0);
+  const nlMatches = (lower.match(dutchOnly) || []).length;
+
+  if (esMatches >= 2) return 'Spanish';
+  if (nlMatches >= 2) return 'Dutch';
+  return 'English';
+}
 
 // ── Strip markdown for clean WhatsApp plain text ───────────────
 function stripMarkdown(text: string): string {
@@ -70,33 +86,34 @@ async function sendWhatsApp(to: string, body: string): Promise<boolean> {
   return true;
 }
 
-// ── Direct Claude API call (no function-to-function overhead) ──
-async function callClaude(systemPrompt: string, userMessage: string): Promise<string> {
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'x-api-key': anthropicApiKey,
-      'anthropic-version': '2023-06-01',
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'claude-3-haiku-20240307',
-      max_tokens: 250,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: userMessage }],
-    }),
-  });
-  if (!response.ok) throw new Error(`Claude error: ${response.status}`);
-  const data = await response.json();
-  return data.content?.[0]?.text ?? '';
-}
+// ── CLARA system prompt ────────────────────────────────────────
+const SYSTEM_PROMPT = `You are CLARA, the AI assistant for LifeLink Sync.
 
-// ── Single universal WhatsApp system prompt ────────────────────
-const WHATSAPP_SYSTEM_PROMPT = `You are CLARA — Connected Lifeline And Response Assistant. You are the AI assistant for LifeLink Sync. You are NOT Lee Wakeman. You are NOT a human. You are CLARA, a friendly and knowledgeable AI. Never pretend to be Lee or any human. If someone needs to speak to Lee, say "I can arrange for Lee to contact you personally."
+IDENTITY RULES:
+- Your name is CLARA (Connected Lifeline And Response Assistant)
+- You are an AI assistant, NOT a human
+- NEVER say you are Lee Wakeman or any person
+- NEVER say "this is Lee" or "I'm Lee" or "Lee here"
+- If someone wants to speak to a human, say "I can arrange for Lee, our founder, to contact you personally"
 
-LANGUAGE RULE: You MUST reply in the EXACT language the user writes in. If they write English, reply English. If Spanish, reply Spanish. If Dutch, reply Dutch. Never switch languages.
+PRODUCT KNOWLEDGE:
+- LifeLink Sync is an emergency protection platform for families
+- Individual Plan: 9.99 EUR/month
+- 7-day free trial, no credit card needed
+- Features: one-touch SOS button, GPS tracking, emergency contacts, CLARA AI 24/7
+- Bluetooth SOS pendant available (waterproof, 6-month battery)
+- First Family Link included free, extras 2.99 EUR/month each
+- Available in Spain, UK, and Netherlands
 
-You are warm, empathetic, and direct. LifeLink Sync is an emergency protection platform for families. Individual Plan: 9.99 EUR/month. 7-day free trial, no card needed. SOS alerts, GPS tracking, emergency contacts, CLARA AI 24/7. Always understand who they are protecting and connect their fear to the feature that solves it. End by offering the free trial. Never give medical or legal advice. If they mention refund/legal/complaint, say "I am flagging this to Lee personally right now." Keep replies to 3 short paragraphs max.`;
+CONVERSATION RULES:
+- Be warm, empathetic, and concise
+- Understand who they are protecting (themselves, elderly parent, child)
+- Connect their specific worry to the exact feature that helps
+- Always end with an offer to start the free trial
+- Never give medical or legal advice
+- If they mention refund/legal/complaint: say "I am flagging this to Lee personally right now" and stop
+- Maximum 3 short paragraphs
+- No bullet points or lists in WhatsApp — use flowing sentences`;
 
 // ── Amber trigger detection ────────────────────────────────────
 const AMBER_TRIGGERS = [
@@ -113,7 +130,7 @@ function detectAmberTrigger(text: string): string | null {
   return null;
 }
 
-// ── TwiML empty response (acknowledges receipt) ────────────────
+// ── TwiML empty response ───────────────────────────────────────
 const TWIML_OK = '<Response/>';
 
 serve(async (req) => {
@@ -121,141 +138,131 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  console.log('whatsapp-inbound invoked:', { method: req.method });
-
   try {
-    // ── Parse Twilio form-encoded POST ─────────────────────────
+    // ── Parse Twilio webhook ───────────────────────────────────
     const text = await req.text();
     const params = new URLSearchParams(text);
 
-    const messageSid = params.get('MessageSid') ?? '';
-    const fromRaw    = params.get('From') ?? '';       // whatsapp:+34643706877
-    const body       = params.get('Body') ?? '';
+    const messageSid  = params.get('MessageSid') ?? '';
+    const fromRaw     = params.get('From') ?? '';
+    const body        = params.get('Body') ?? '';
     const profileName = params.get('ProfileName') ?? '';
+    const phone       = fromRaw.replace('whatsapp:', '');
 
-    // Strip "whatsapp:" prefix to get raw phone
-    const phone = fromRaw.replace('whatsapp:', '');
-
-    console.log('Inbound WhatsApp:', { phone, profileName, bodyLength: body.length, messageSid });
+    console.log('WhatsApp inbound:', { phone, bodyLength: body.length });
 
     if (!phone || !body.trim()) {
-      return new Response(TWIML_OK, {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'text/xml' },
-      });
+      return new Response(TWIML_OK, { status: 200, headers: { ...corsHeaders, 'Content-Type': 'text/xml' } });
     }
 
-    // ── Rate limit check ───────────────────────────────────────
+    // ── Rate limit ─────────────────────────────────────────────
     if (!checkRateLimit(phone)) {
-      console.warn('Rate limited:', phone);
-      // Send one polite message (only on the 11th attempt)
       const entry = rateLimits.get(phone);
       if (entry && entry.count === 10) {
-        entry.count++; // increment past 10 so we only send once
-        await sendWhatsApp(phone,
-          'I want to help — please give me a moment and try again shortly.'
-        );
+        entry.count++;
+        await sendWhatsApp(phone, 'I want to help — please give me a moment and try again shortly.');
       }
-      return new Response(TWIML_OK, {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'text/xml' },
-      });
+      return new Response(TWIML_OK, { status: 200, headers: { ...corsHeaders, 'Content-Type': 'text/xml' } });
     }
 
-    // Language: always 'en' for prompt selection — Claude auto-detects from message
-    const language = 'en';
+    // ── Detect language and build user message ─────────────────
+    const detectedLang = detectLanguage(body);
+    const langInstruction = `[RESPOND IN ${detectedLang.toUpperCase()} ONLY. DO NOT USE ANY OTHER LANGUAGE.]\n\n`;
+    const userMessage = langInstruction + body;
 
-    // Use stable session ID per phone number
     const currentSessionId = `wa-${phone}`;
 
-    // ── Call Claude FIRST (fastest path to reply) ──────────────
-    // DB logging happens in parallel / after reply
+    // ── Call Claude ─────────────────────────────────────────────
     let aiResponse: string;
     const triggerWord = detectAmberTrigger(body);
     const isEscalation = !!triggerWord;
 
     try {
-      const rawResponse = await callClaude(WHATSAPP_SYSTEM_PROMPT, body);
-      aiResponse = stripMarkdown(rawResponse);
-    } catch (aiErr) {
-      console.error('Claude API error:', aiErr);
-      await sendWhatsApp(phone,
-        language === 'es'
-          ? 'Disculpa, estoy teniendo un problema tecnico. Intentalo de nuevo en un momento.'
-          : language === 'nl'
-            ? 'Sorry, ik heb een technisch probleem. Probeer het over een moment opnieuw.'
-            : 'Sorry, I am having a technical issue. Please try again in a moment.'
-      );
-      return new Response(TWIML_OK, {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'text/xml' },
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'x-api-key': anthropicApiKey,
+          'anthropic-version': '2023-06-01',
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'claude-3-haiku-20240307',
+          max_tokens: 250,
+          system: SYSTEM_PROMPT,
+          messages: [{ role: 'user', content: userMessage }],
+        }),
       });
+
+      if (!response.ok) throw new Error(`Claude ${response.status}`);
+      const data = await response.json();
+      aiResponse = stripMarkdown(data.content?.[0]?.text ?? '');
+    } catch (aiErr) {
+      console.error('Claude error:', aiErr);
+      await sendWhatsApp(phone, 'Sorry, I am having a technical issue. Please try again in a moment.');
+      return new Response(TWIML_OK, { status: 200, headers: { ...corsHeaders, 'Content-Type': 'text/xml' } });
     }
 
-    // ── Send CLARA response via WhatsApp ───────────────────────
+    // ── Send reply ─────────────────────────────────────────────
     const sent = await sendWhatsApp(phone, aiResponse);
+    console.log('Reply sent:', { phone, sent, escalation: isEscalation, lang: detectedLang });
 
-    console.log('WhatsApp handled:', { phone, language, sent, escalation: isEscalation });
+    // ── Background: log + memory + escalation ──────────────────
+    const bg: Promise<unknown>[] = [];
 
-    // ── Log conversation + messages AFTER reply sent ───────────
-    // Find or create conversation, then log both messages
-    let conversationId: string | null = null;
-    try {
-      const { data: existingConv } = await supabase
-        .from('whatsapp_conversations')
-        .select('id')
-        .eq('phone_number', phone)
-        .eq('status', 'active')
-        .maybeSingle();
-
-      if (existingConv) {
-        conversationId = existingConv.id;
-        supabase.from('whatsapp_conversations')
-          .update({ last_message_at: new Date().toISOString(), contact_name: profileName || undefined })
-          .eq('id', conversationId).then(() => {});
-      } else {
-        const { data: newConv } = await supabase
+    // Log conversation
+    bg.push((async () => {
+      try {
+        const { data: conv } = await supabase
           .from('whatsapp_conversations')
-          .insert({ phone_number: phone, contact_name: profileName || null, status: 'active', metadata: { source: 'twilio_sandbox', language } })
           .select('id')
-          .single();
-        conversationId = newConv?.id ?? null;
-      }
+          .eq('phone_number', phone)
+          .eq('status', 'active')
+          .maybeSingle();
 
-      if (conversationId) {
-        // Log both messages in parallel
-        await Promise.allSettled([
-          supabase.from('whatsapp_messages').insert({ conversation_id: conversationId, whatsapp_message_id: messageSid, direction: 'inbound', message_type: 'text', content: body, status: 'delivered', metadata: { profile_name: profileName, language } }),
-          supabase.from('whatsapp_messages').insert({ conversation_id: conversationId, direction: 'outbound', message_type: 'text', content: aiResponse, status: sent ? 'sent' : 'failed', is_ai_generated: true, ai_session_id: currentSessionId, metadata: { language } }),
-        ]);
-      }
-    } catch (logErr) {
-      console.warn('Conversation logging failed (non-fatal):', logErr);
-    }
+        let convId = conv?.id;
+        if (!convId) {
+          const { data: newConv } = await supabase
+            .from('whatsapp_conversations')
+            .insert({ phone_number: phone, contact_name: profileName || null, status: 'active', metadata: { source: 'twilio_sandbox' } })
+            .select('id')
+            .single();
+          convId = newConv?.id;
+        } else {
+          await supabase.from('whatsapp_conversations')
+            .update({ last_message_at: new Date().toISOString(), contact_name: profileName || undefined })
+            .eq('id', convId);
+        }
 
-    // ── Fire-and-forget: memory + escalation (after reply sent) ─
-    // These run in background — don't block the TwiML response
-    const backgroundTasks: Promise<unknown>[] = [];
+        if (convId) {
+          await Promise.allSettled([
+            supabase.from('whatsapp_messages').insert({ conversation_id: convId, whatsapp_message_id: messageSid, direction: 'inbound', message_type: 'text', content: body, status: 'delivered' }),
+            supabase.from('whatsapp_messages').insert({ conversation_id: convId, direction: 'outbound', message_type: 'text', content: aiResponse, status: sent ? 'sent' : 'failed', is_ai_generated: true, ai_session_id: currentSessionId }),
+          ]);
+        }
+      } catch (e) { console.warn('Log failed:', e); }
+    })());
 
-    backgroundTasks.push(
+    // Memory upsert
+    bg.push(
       supabase.functions.invoke('clara-memory', {
         body: {
           action: 'upsert',
           session_id: currentSessionId,
           contact_phone: phone,
           first_name: profileName || null,
-          language,
+          language: detectedLang.toLowerCase().substring(0, 2),
           currency: 'EUR',
           last_outcome: `WhatsApp: "${body.substring(0, 80)}"`,
           interest_score: 0,
           amber_triggered: isEscalation,
           ...(triggerWord ? { amber_trigger_word: triggerWord } : {}),
         },
-      }).catch(e => console.warn('Memory save failed (non-fatal):', e))
+      }).catch(e => console.warn('Memory failed:', e))
     );
 
+    // Escalation
     if (isEscalation) {
-      backgroundTasks.push(
+      bg.push(
         supabase.functions.invoke('clara-escalation', {
           body: {
             type: 'amber',
@@ -266,27 +273,19 @@ serve(async (req) => {
             last_message: body,
             clara_recommendation: 'WhatsApp amber trigger — handle personally',
           },
-        }).catch(e => console.warn('Escalation failed (non-fatal):', e))
+        }).catch(e => console.warn('Escalation failed:', e))
       );
     }
 
-    // Wait briefly for background tasks but don't block response
     await Promise.race([
-      Promise.allSettled(backgroundTasks),
-      new Promise(resolve => setTimeout(resolve, 3000)), // 3s max wait
+      Promise.allSettled(bg),
+      new Promise(resolve => setTimeout(resolve, 3000)),
     ]);
 
-    // ── Return TwiML to acknowledge ────────────────────────────
-    return new Response(TWIML_OK, {
-      status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'text/xml' },
-    });
+    return new Response(TWIML_OK, { status: 200, headers: { ...corsHeaders, 'Content-Type': 'text/xml' } });
 
   } catch (error) {
     console.error('whatsapp-inbound error:', error);
-    return new Response(TWIML_OK, {
-      status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'text/xml' },
-    });
+    return new Response(TWIML_OK, { status: 200, headers: { ...corsHeaders, 'Content-Type': 'text/xml' } });
   }
 });
