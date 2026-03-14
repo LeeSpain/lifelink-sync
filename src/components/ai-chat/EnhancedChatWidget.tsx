@@ -59,14 +59,13 @@ const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState(i18n.language || 'en');
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const sessionIdRef = useRef<string>(() => {
+  const [sessionId] = useState<string>(() => {
     const stored = localStorage.getItem('clara_session_id');
     if (stored) return stored;
     const newId = `widget-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     localStorage.setItem('clara_session_id', newId);
     return newId;
   });
-  const sessionId = sessionIdRef.current;
   const { toast } = useToast();
 
   const scrollToBottom = () => {

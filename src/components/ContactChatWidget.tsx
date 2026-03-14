@@ -37,14 +37,13 @@ const ContactChatWidget: React.FC<ContactChatWidgetProps> = ({
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const sessionIdRef = useRef<string>(() => {
+  const [sessionId] = useState<string>(() => {
     const stored = localStorage.getItem('clara_session_id_contact');
     if (stored) return stored;
     const newId = `contact-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     localStorage.setItem('clara_session_id_contact', newId);
     return newId;
   });
-  const sessionId = sessionIdRef.current;
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

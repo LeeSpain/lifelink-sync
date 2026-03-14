@@ -42,14 +42,13 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, userName = "Us
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const sessionIdRef = useRef<string>(() => {
+  const [sessionId] = useState<string>(() => {
     const stored = localStorage.getItem('clara_session_id_widget');
     if (stored) return stored;
     const newId = `widget-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     localStorage.setItem('clara_session_id_widget', newId);
     return newId;
   });
-  const sessionId = sessionIdRef.current;
   const { toast } = useToast();
 
   const scrollToBottom = () => {
