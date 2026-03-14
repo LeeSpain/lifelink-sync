@@ -37,7 +37,7 @@ export function SupportPage() {
   const [messages, setMessages] = useState([
     {
       id: '1',
-      content: `👋 Hi ${user?.user_metadata?.first_name || user?.email?.split('@')[0] || "there"}! I'm Clara, your AI assistant. I'm here to help you with your emergency protection questions. How can I assist you today?`,
+      content: `Hi! I'm CLARA from LifeLink Sync 🛡️ I'm here to help protect you and the people you love. Who are you looking to protect today — yourself, an elderly parent, or someone else?`,
       isUser: false,
       timestamp: new Date()
     }

@@ -48,7 +48,7 @@ const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
     {
       id: '1',
       content: t('clara.greeting', {
-        defaultValue: `Hi {{userName}}! I'm Clara, your AI protection assistant. I'm here to help you 24/7 with anything about LifeLink Sync. How can I assist you today?`,
+        defaultValue: `Hi! I'm CLARA from LifeLink Sync 🛡️ I'm here to help protect you and the people you love. Who are you looking to protect today — yourself, an elderly parent, or someone else?`,
         userName
       }),
       isUser: false,

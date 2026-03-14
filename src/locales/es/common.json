@@ -331,7 +331,7 @@
     },
     "cancellationTitle": "Política de cancelación:",
     "cancellationDescription": "Puedes cancelar tu suscripción en cualquier momento. El acceso continúa hasta el final del período de facturación actual. Las compras de hardware no son reembolsables pero tienen 1 año de garantía.",
-    "welcomeMessage": "👋 ¡Hola! Soy Clara, tu asistente inteligente de IA. Estoy aquí para ayudarte con la configuración de emergencias, conexiones familiares y responder cualquier pregunta.",
+    "welcomeMessage": "¡Hola! Soy CLARA de LifeLink Sync 🛡️ Estoy aquí para protegerte a ti y a las personas que quieres. ¿A quién quieres proteger hoy — a ti mismo, a un padre mayor o a alguien más?",
     "smartFeatures": "Funciones inteligentes",
     "emergencySetup": "Configuración de emergencia",
     "familyManagement": "Gestión familiar",
@@ -597,7 +597,7 @@
   },
   "clara": {
     "title": "Asistente IA Clara",
-    "greeting": "👋 ¡Hola {{userName}}! Soy Clara, tu asistente IA. Estoy aquí para ayudarte con tu registro de protección de emergencia. ¿Cómo puedo ayudarte hoy?",
+    "greeting": "¡Hola! Soy CLARA de LifeLink Sync 🛡️ Estoy aquí para protegerte a ti y a las personas que quieres. ¿A quién quieres proteger hoy — a ti mismo, a un padre mayor o a alguien más?",
     "placeholder": "Pregúntale a Clara sobre protección de emergencia...",
     "error": {
       "title": "Error",
@@ -2167,7 +2167,7 @@
     "title": "Asistente Clara IA",
     "subtitle": "Chat de soporte en vivo",
     "placeholder": "Pregúntale a Clara sobre LifeLink Sync...",
-    "welcomeMessage": "👋 ¡Hola! Soy Clara, tu asistente de IA de LifeLink Sync. Estoy aquí para responder preguntas sobre nuestros servicios de protección de emergencia, funciones, precios y cualquier otra cosa que quieras saber. ¿En qué puedo ayudarte hoy?",
+    "welcomeMessage": "¡Hola! Soy CLARA de LifeLink Sync 🛡️ Estoy aquí para protegerte a ti y a las personas que quieres. ¿A quién quieres proteger hoy — a ti mismo, a un padre mayor o a alguien más?",
     "fallbackResponse": "Lo siento, no pude procesar esa solicitud. Inténtalo de nuevo o usa el formulario de contacto para una asistencia más detallada.",
     "connectionError": "No se pudo conectar con Clara. Inténtalo de nuevo o usa el formulario de contacto.",
     "errorMessage": "Disculpa, estoy teniendo problemas de conexión en este momento. Inténtalo de nuevo en un momento, o usa el formulario de contacto para obtener ayuda.",

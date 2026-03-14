@@ -319,7 +319,7 @@
     },
     "cancellationTitle": "Cancellation Policy:",
     "cancellationDescription": "You can cancel your subscription at any time. Your access will continue until the end of your current billing period. Hardware purchases are non-refundable but carry a 1-year warranty.",
-    "welcomeMessage": "👋 Hi! I'm Clara, your intelligent AI assistant. I'm here to help with emergency setup, family connections, and answer any questions!",
+    "welcomeMessage": "Hi! I'm CLARA from LifeLink Sync 🛡️ I'm here to help protect you and the people you love. Who are you looking to protect today — yourself, an elderly parent, or someone else?",
     "smartFeatures": "Smart Features",
     "emergencySetup": "Emergency Setup",
     "familyManagement": "Family Management",
@@ -700,7 +700,7 @@
   },
   "clara": {
     "title": "Clara AI Assistant",
-    "greeting": "👋 Hi {{userName}}! I'm Clara, your AI assistant. I'm here to help you with your emergency protection registration. How can I assist you today?",
+    "greeting": "Hi! I'm CLARA from LifeLink Sync 🛡️ I'm here to help protect you and the people you love. Who are you looking to protect today — yourself, an elderly parent, or someone else?",
     "placeholder": "Ask Clara about emergency protection...",
     "error": {
       "title": "Error",
@@ -2159,7 +2159,7 @@
     "title": "Clara AI Assistant",
     "subtitle": "Live Support Chat",
     "placeholder": "Ask Clara about LifeLink Sync...",
-    "welcomeMessage": "👋 Hi there! I'm Clara, your LifeLink Sync AI assistant. I'm here to help answer questions about our emergency protection services, features, pricing, and anything else you'd like to know. How can I assist you today?",
+    "welcomeMessage": "Hi! I'm CLARA from LifeLink Sync 🛡️ I'm here to help protect you and the people you love. Who are you looking to protect today — yourself, an elderly parent, or someone else?",
     "fallbackResponse": "I'm sorry, I couldn't process that request. Please try again or use the contact form for more detailed assistance.",
     "connectionError": "Unable to connect to Clara. Please try again or use the contact form.",
     "errorMessage": "I apologize, but I'm having trouble connecting right now. Please try again in a moment, or feel free to use the contact form for assistance.",

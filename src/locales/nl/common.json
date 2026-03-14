@@ -331,7 +331,7 @@
     },
     "cancellationTitle": "Annuleringsbeleid:",
     "cancellationDescription": "Je kunt je abonnement op elk moment annuleren. Toegang blijft tot het einde van je huidige factureringsperiode. Hardwareaankopen zijn niet-restitueerbaar maar hebben 1 jaar garantie.",
-    "welcomeMessage": "👋 Hallo! Ik ben Clara, uw intelligente AI-assistent. Ik ben er om te helpen met noodinstelling, familieverbindingen en om al uw vragen te beantwoorden!",
+    "welcomeMessage": "Hallo! Ik ben CLARA van LifeLink Sync 🛡️ Ik ben er om jou en de mensen van wie je houdt te beschermen. Wie wil je vandaag beschermen — jezelf, een ouder familielid of iemand anders?",
     "smartFeatures": "Slimme Functies",
     "emergencySetup": "Noodinstelling",
     "familyManagement": "Familiebeheer",
@@ -539,7 +539,7 @@
   },
   "clara": {
     "title": "Clara AI Assistent",
-    "greeting": "👋 Hallo {{userName}}! Ik ben Clara, je AI-assistent. Ik ben hier om je te helpen met je noodbeschermingsregistratie. Hoe kan ik je vandaag helpen?",
+    "greeting": "Hallo! Ik ben CLARA van LifeLink Sync 🛡️ Ik ben er om jou en de mensen van wie je houdt te beschermen. Wie wil je vandaag beschermen — jezelf, een ouder familielid of iemand anders?",
     "placeholder": "Vraag Clara over noodbescherming...",
     "error": {
       "title": "Fout",
@@ -3132,7 +3132,7 @@
     "title": "Clara AI Assistent",
     "subtitle": "Live Ondersteuningschat",
     "placeholder": "Vraag Clara over LifeLink Sync...",
-    "welcomeMessage": "👋 Hallo! Ik ben Clara, uw LifeLink Sync AI-assistent. Ik ben er om vragen te beantwoorden over onze noodbeschermingsdiensten, functies, prijzen en alles wat u wilt weten. Hoe kan ik u vandaag helpen?",
+    "welcomeMessage": "Hallo! Ik ben CLARA van LifeLink Sync 🛡️ Ik ben er om jou en de mensen van wie je houdt te beschermen. Wie wil je vandaag beschermen — jezelf, een ouder familielid of iemand anders?",
     "fallbackResponse": "Het spijt me, ik kon dat verzoek niet verwerken. Probeer het opnieuw of gebruik het contactformulier voor gedetailleerdere hulp.",
     "connectionError": "Kan geen verbinding maken met Clara. Probeer het opnieuw of gebruik het contactformulier.",
     "errorMessage": "Mijn excuses, maar ik heb momenteel problemen met de verbinding. Probeer het over een moment opnieuw, of gebruik gerust het contactformulier voor hulp.",
