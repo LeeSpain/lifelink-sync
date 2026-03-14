@@ -121,8 +121,8 @@ const generateProductData = (productType: string) => ({
   'offers': {
     '@type': 'Offer',
     'priceCurrency': 'EUR',
-    'price': '29.99',
-    'priceValidUntil': '2025-12-31',
+    'price': '9.99',
+    'priceValidUntil': '2026-12-31',
     'availability': 'https://schema.org/InStock',
     'seller': {
       '@type': 'Organization',

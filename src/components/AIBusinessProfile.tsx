@@ -141,7 +141,7 @@ const AIBusinessProfile: React.FC<AIBusinessProfileProps> = ({ className = '' })
           },
           'priceSpecification': {
             '@type': 'PriceSpecification',
-            'price': '29.99',
+            'price': '9.99',
             'priceCurrency': 'EUR',
             'unitText': 'monthly'
           }
