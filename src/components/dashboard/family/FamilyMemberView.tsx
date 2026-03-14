@@ -6,7 +6,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from 'react-i18next';
-import { Users, Shield, LogOut } from "lucide-react";
+import { Users, Shield, LogOut, AlertTriangle } from "lucide-react";
 
 const FamilyMemberView = () => {
   const [familyInfo, setFamilyInfo] = useState<{
@@ -15,6 +15,7 @@ const FamilyMemberView = () => {
     memberCount?: number;
     myStatus?: string;
     joinedAt?: string;
+    paymentFailed?: boolean;
   } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showLeaveDialog, setShowLeaveDialog] = useState(false);
@@ -67,11 +68,19 @@ const FamilyMemberView = () => {
         .eq('group_id', membership.group_id)
         .eq('status', 'active');
 
+      // Check payment status
+      const { data: failedPayments } = await supabase
+        .from('family_memberships')
+        .select('billing_status')
+        .eq('group_id', membership.group_id)
+        .eq('billing_status', 'past_due');
+
       setFamilyInfo({
         ownerName,
         memberCount: count ?? 0,
         myStatus: membership.status,
         joinedAt: membership.created_at,
+        paymentFailed: (failedPayments?.length ?? 0) > 0,
       });
     } catch (err) {
       console.error('Error loading member info:', err);
@@ -150,6 +159,19 @@ const FamilyMemberView = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Payment failure warning for members */}
+          {familyInfo.paymentFailed && (
+            <div className="bg-destructive/10 border border-destructive/20 p-4 rounded-lg flex items-start gap-3">
+              <AlertTriangle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+              <div>
+                <h4 className="font-medium text-destructive">{t('familyMember.paymentIssue', { defaultValue: 'Payment issue' })}</h4>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {t('familyMember.paymentIssueDesc', { defaultValue: 'Your CLARA access may be suspended. Please ask {{name}} to update their payment details.', name: familyInfo.ownerName })}
+                </p>
+              </div>
+            </div>
+          )}
+
           <div className="bg-gradient-to-r from-primary/5 to-secondary/5 p-4 rounded-lg border">
             <div className="flex items-center gap-2 mb-2">
               <Shield className="h-4 w-4 text-primary" />

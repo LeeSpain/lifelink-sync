@@ -6,7 +6,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from 'react-i18next';
-import { Users, Plus, Euro, Shield, RotateCw, Trash2, Gift } from "lucide-react";
+import { Users, Plus, Euro, Shield, RotateCw, Trash2, Gift, AlertTriangle } from "lucide-react";
 import FamilyInviteModal from "./FamilyInviteModal";
 import MemberAddonManager from "./MemberAddonManager";
 import { usePricing } from "@/hooks/usePricing";
@@ -46,6 +46,7 @@ const FamilyAccessPanel = () => {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [removingMember, setRemovingMember] = useState<FamilyMembership | null>(null);
   const [isResending, setIsResending] = useState<string | null>(null);
+  const [paymentFailed, setPaymentFailed] = useState(false);
   const { toast } = useToast();
   const { t } = useTranslation();
   const { prices } = usePricing();
@@ -87,12 +88,22 @@ const FamilyAccessPanel = () => {
           })));
         }
 
-        // Get pending invites
+        // Get pending + recently expired invites
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
         const { data: invites, error: invitesError } = await supabase
           .from('family_invites')
           .select('*')
           .eq('group_id', group.id)
-          .gt('expires_at', new Date().toISOString());
+          .in('status', ['pending'])
+          .gt('created_at', thirtyDaysAgo);
+
+        // Check for payment failures
+        const { data: failedMembers } = await supabase
+          .from('family_memberships')
+          .select('billing_status')
+          .eq('group_id', group.id)
+          .eq('billing_status', 'past_due');
+        setPaymentFailed((failedMembers?.length ?? 0) > 0);
 
         if (invitesError) {
           console.error('Error loading family invites:', invitesError);
@@ -346,6 +357,22 @@ const FamilyAccessPanel = () => {
               </div>
             )}
 
+            {/* Payment Failure Banner */}
+            {paymentFailed && (
+              <div className="bg-destructive/10 border border-destructive/20 p-4 rounded-lg flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-medium text-destructive">{t('familyDashboard.paymentFailedTitle', { defaultValue: 'Payment issue detected' })}</h4>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {t('familyDashboard.paymentFailedOwner', { defaultValue: 'A family seat payment has failed. Please update your payment details to avoid service interruption.' })}
+                  </p>
+                  <Button variant="outline" size="sm" className="mt-2" onClick={() => window.location.href = '/member-dashboard/subscription'}>
+                    {t('familyDashboard.updatePayment', { defaultValue: 'Update payment details' })}
+                  </Button>
+                </div>
+              </div>
+            )}
+
             {/* Active Members */}
             {activeMembers.length > 0 && (
               <div>
@@ -393,15 +420,24 @@ const FamilyAccessPanel = () => {
               <div>
                 <h4 className="font-medium mb-3">{t('familyDashboard.pendingInvites')}</h4>
                 <div className="space-y-2">
-                  {pendingInvites.map((invite) => (
-                    <div key={invite.id} className="flex items-center justify-between p-3 border rounded-lg bg-yellow-50/50">
+                  {pendingInvites.map((invite) => {
+                    const isExpired = new Date(invite.expires_at) < new Date();
+                    return (
+                    <div key={invite.id} className={`flex items-center justify-between p-3 border rounded-lg ${isExpired ? 'bg-red-50/50' : 'bg-yellow-50/50'}`}>
                       <div>
                         <div className="flex items-center gap-2">
                           <p className="font-medium">{invite.name}</p>
-                          <Badge variant="outline" className="text-[10px]">{t('familyDashboard.pending')}</Badge>
+                          {isExpired ? (
+                            <Badge variant="destructive" className="text-[10px]">{t('familyDashboard.expired', { defaultValue: 'Expired' })}</Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-[10px]">{t('familyDashboard.pending')}</Badge>
+                          )}
                         </div>
                         <p className="text-sm text-muted-foreground">
-                          {invite.email_or_phone} • {t('familyDashboard.expires', { date: new Date(invite.expires_at).toLocaleDateString() })}
+                          {invite.email_or_phone} • {isExpired
+                            ? t('familyDashboard.expiredOn', { defaultValue: 'Expired {{date}}', date: new Date(invite.expires_at).toLocaleDateString() })
+                            : t('familyDashboard.expires', { date: new Date(invite.expires_at).toLocaleDateString() })
+                          }
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
@@ -426,7 +462,8 @@ const FamilyAccessPanel = () => {
                         </Button>
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
