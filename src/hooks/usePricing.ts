@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 export interface PricingConfig {
   individual_monthly: number;
+  individual_annual: number;
   family_link_monthly: number;
   addon_daily_wellbeing: number;
   addon_medication_reminder: number;
@@ -12,6 +13,7 @@ export interface PricingConfig {
 
 const FALLBACK_PRICES: PricingConfig = {
   individual_monthly: 9.99,
+  individual_annual: 99.90,
   family_link_monthly: 2.99,
   addon_daily_wellbeing: 2.99,
   addon_medication_reminder: 2.99,

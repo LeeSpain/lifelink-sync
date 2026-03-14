@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from "@/components/ui/button";
 import { Check, Shield, Users, Heart, Pill, Sparkles } from "lucide-react";
@@ -47,6 +47,7 @@ const AddOnCard: React.FC<AddOnProps> = ({ name, price, description, features, i
 const Pricing: React.FC = () => {
   const { t } = useTranslation();
   const { prices, formatPrice } = usePricing();
+  const [isAnnual, setIsAnnual] = useState(false);
 
   const basePlanFeatures = [
     t('pricing.basePlan.feature1'),
@@ -110,6 +111,28 @@ const Pricing: React.FC = () => {
               {t('pricing.startTrial')}
             </Link>
           </Button>
+
+          {/* Monthly / Annual Toggle */}
+          <div className="flex items-center justify-center gap-3 mt-8">
+            <span className={`text-sm font-medium ${!isAnnual ? 'text-foreground' : 'text-muted-foreground'}`}>
+              {t('pricing.monthly', { defaultValue: 'Monthly' })}
+            </span>
+            <button
+              onClick={() => setIsAnnual(!isAnnual)}
+              className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors ${isAnnual ? 'bg-primary' : 'bg-muted'}`}
+              aria-label="Toggle annual pricing"
+            >
+              <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform ${isAnnual ? 'translate-x-8' : 'translate-x-1'}`} />
+            </button>
+            <span className={`text-sm font-medium ${isAnnual ? 'text-foreground' : 'text-muted-foreground'}`}>
+              {t('pricing.annual', { defaultValue: 'Annual' })}
+            </span>
+            {isAnnual && (
+              <Badge className="bg-green-100 text-green-700 text-xs font-medium">
+                {t('pricing.saveBadge', { defaultValue: '2 months free' })}
+              </Badge>
+            )}
+          </div>
         </div>
 
         {/* Base Plan */}
@@ -120,9 +143,24 @@ const Pricing: React.FC = () => {
             </Badge>
             <h3 className="text-2xl font-bold mb-2 text-white">{t('pricing.basePlan.name')}</h3>
             <div className="flex items-baseline gap-1 mb-4">
-              <span className="text-2xl font-bold text-primary">{formatPrice(prices.individual_monthly)}</span>
-              <span className="text-sm text-white/60">{t('pricing.perMonth')}</span>
+              {isAnnual ? (
+                <>
+                  <span className="text-2xl font-bold text-primary">{formatPrice(prices.individual_annual)}</span>
+                  <span className="text-sm text-white/60">{t('pricing.perYear', { defaultValue: '/year' })}</span>
+                  <span className="text-xs text-white/40 line-through ml-2">{formatPrice(prices.individual_monthly * 12)}</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-2xl font-bold text-primary">{formatPrice(prices.individual_monthly)}</span>
+                  <span className="text-sm text-white/60">{t('pricing.perMonth')}</span>
+                </>
+              )}
             </div>
+            {isAnnual && (
+              <p className="text-xs text-green-400 mb-2">
+                {t('pricing.annualSavings', { defaultValue: 'Save €19.98 — 2 months free' })}
+              </p>
+            )}
             <p className="text-sm text-white/70 mb-6">
               {t('pricing.basePlan.description')}
             </p>
