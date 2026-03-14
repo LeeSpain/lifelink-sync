@@ -11,6 +11,7 @@ const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const twilioSid        = Deno.env.get('TWILIO_ACCOUNT_SID')!;
 const twilioToken      = Deno.env.get('TWILIO_AUTH_TOKEN')!;
 const twilioFrom       = Deno.env.get('TWILIO_WHATSAPP_FROM')!;
+const anthropicApiKey  = Deno.env.get('ANTHROPIC_API_KEY')!;
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -73,6 +74,49 @@ async function sendWhatsApp(to: string, body: string): Promise<boolean> {
   return true;
 }
 
+// ── Direct Claude API call (no function-to-function overhead) ──
+async function callClaude(systemPrompt: string, userMessage: string): Promise<string> {
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': anthropicApiKey,
+      'anthropic-version': '2023-06-01',
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-3-5-20241022',
+      max_tokens: 250,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userMessage }],
+    }),
+  });
+  if (!response.ok) throw new Error(`Claude error: ${response.status}`);
+  const data = await response.json();
+  return data.content?.[0]?.text ?? '';
+}
+
+// ── Compact WhatsApp system prompt ─────────────────────────────
+function getWhatsAppPrompt(lang: string): string {
+  if (lang === 'es') return `Eres CLARA de LifeLink Sync. Hablas como Lee Wakeman, el fundador. Eres calida, directa y humana. Proteccion de emergencia para familias. Plan Individual: 9,99 EUR/mes. Prueba gratuita 7 dias sin tarjeta. SOS, GPS, contactos de emergencia, CLARA IA 24/7. Siempre pregunta a quien protegen. Termina ofreciendo la prueba gratuita. Nunca des consejos medicos ni legales. Si mencionan reembolso/legal/queja, di que Lee lo gestionara personalmente. Responde en espanol. Maximo 3 parrafos cortos.`;
+  if (lang === 'nl') return `Je bent CLARA van LifeLink Sync. Je spreekt als Lee Wakeman, de oprichter. Warm, direct en menselijk. Noodbescherming voor gezinnen. Individueel Plan: 9,99 EUR/maand. 7 dagen gratis, geen creditcard. SOS, GPS, noodcontacten, CLARA AI 24/7. Vraag altijd wie ze beschermen. Eindig met gratis proefperiode. Nooit medisch of juridisch advies. Bij terugbetaling/klacht/juridisch: Lee handelt het persoonlijk af. Antwoord in het Nederlands. Maximaal 3 korte alinea's.`;
+  return `You are CLARA from LifeLink Sync. You speak as Lee Wakeman, the founder. Warm, direct, human. Emergency protection for families. Individual Plan: 9.99 EUR/month. 7-day free trial, no card needed. SOS alerts, GPS, emergency contacts, CLARA AI 24/7. Always ask who they are protecting. End by offering the free trial. Never give medical or legal advice. If they mention refund/legal/complaint, say Lee will handle it personally. Keep replies to 3 short paragraphs max.`;
+}
+
+// ── Amber trigger detection ────────────────────────────────────
+const AMBER_TRIGGERS = [
+  /\brefund\b/i, /\bcancel\b/i, /\bcompl[ai]+nt\b/i, /\bangry\b/i,
+  /\blegal\b/i, /\bgdpr\b/i, /\bdata deletion\b/i, /\bsue\b/i,
+  /\blawyer\b/i, /\bfraud\b/i, /\bcharged twice\b/i,
+];
+
+function detectAmberTrigger(text: string): string | null {
+  for (const re of AMBER_TRIGGERS) {
+    const match = text.match(re);
+    if (match) return match[0];
+  }
+  return null;
+}
+
 // ── TwiML empty response (acknowledges receipt) ────────────────
 const TWIML_OK = '<Response/>';
 
@@ -125,86 +169,20 @@ serve(async (req) => {
     // ── Detect language from country code ──────────────────────
     const language = detectLanguage(phone);
 
-    // ── Find or create whatsapp_conversation ───────────────────
-    let conversationId: string;
-
-    const { data: existingConv } = await supabase
-      .from('whatsapp_conversations')
-      .select('id')
-      .eq('phone_number', phone)
-      .eq('status', 'active')
-      .maybeSingle();
-
-    if (existingConv) {
-      conversationId = existingConv.id;
-      await supabase
-        .from('whatsapp_conversations')
-        .update({ last_message_at: new Date().toISOString(), contact_name: profileName || undefined })
-        .eq('id', conversationId);
-    } else {
-      const { data: newConv, error: convErr } = await supabase
-        .from('whatsapp_conversations')
-        .insert({
-          phone_number: phone,
-          contact_name: profileName || null,
-          status: 'active',
-          metadata: { source: 'twilio_sandbox', language },
-        })
-        .select('id')
-        .single();
-
-      if (convErr) {
-        console.error('Failed to create conversation:', convErr);
-        return new Response(TWIML_OK, {
-          status: 200,
-          headers: { ...corsHeaders, 'Content-Type': 'text/xml' },
-        });
-      }
-      conversationId = newConv.id;
-    }
-
-    // ── Log inbound message ────────────────────────────────────
-    await supabase.from('whatsapp_messages').insert({
-      conversation_id: conversationId,
-      whatsapp_message_id: messageSid,
-      direction: 'inbound',
-      message_type: 'text',
-      content: body,
-      status: 'delivered',
-      metadata: { profile_name: profileName, language },
-    });
-
-    // ── Get CLARA memory for this contact ──────────────────────
-    let sessionId: string | null = null;
-    try {
-      const memRes = await supabase.functions.invoke('clara-memory', {
-        body: { action: 'get', contact_phone: phone },
-      });
-      if (memRes.data?.has_memory) {
-        // Memory exists — retrieve session for continuity
-        sessionId = memRes.data?.memory_summary ? `wa-${phone}` : null;
-      }
-    } catch (memErr) {
-      console.warn('Memory lookup failed (non-fatal):', memErr);
-    }
-
     // Use stable session ID per phone number
-    const currentSessionId = sessionId ?? `wa-${phone}`;
+    const currentSessionId = `wa-${phone}`;
 
-    // ── Call ai-chat for CLARA response ────────────────────────
-    const { data: chatData, error: chatErr } = await supabase.functions.invoke('ai-chat', {
-      body: {
-        message: body,
-        sessionId: currentSessionId,
-        userId: null,
-        context: `whatsapp - Contact: ${profileName || phone}`,
-        language,
-        currency: 'EUR',
-      },
-    });
+    // ── Call Claude FIRST (fastest path to reply) ──────────────
+    // DB logging happens in parallel / after reply
+    let aiResponse: string;
+    const triggerWord = detectAmberTrigger(body);
+    const isEscalation = !!triggerWord;
 
-    if (chatErr) {
-      console.error('ai-chat invoke error:', chatErr);
+    try {
+      const rawResponse = await callClaude(getWhatsAppPrompt(language), body);
+      aiResponse = stripMarkdown(rawResponse);
+    } catch (aiErr) {
+      console.error('Claude API error:', aiErr);
       await sendWhatsApp(phone,
         language === 'es'
           ? 'Disculpa, estoy teniendo un problema tecnico. Intentalo de nuevo en un momento.'
@@ -218,29 +196,53 @@ serve(async (req) => {
       });
     }
 
-    const aiResponse = stripMarkdown(chatData?.response ?? 'Sorry, I could not process that. Please try again.');
-    const provider = chatData?.provider ?? 'unknown';
-    const isEscalation = chatData?.escalation === true;
-    const triggerWord = chatData?.trigger ?? null;
-
     // ── Send CLARA response via WhatsApp ───────────────────────
     const sent = await sendWhatsApp(phone, aiResponse);
 
-    // ── Log outbound message ───────────────────────────────────
-    await supabase.from('whatsapp_messages').insert({
-      conversation_id: conversationId,
-      direction: 'outbound',
-      message_type: 'text',
-      content: aiResponse,
-      status: sent ? 'sent' : 'failed',
-      is_ai_generated: true,
-      ai_session_id: currentSessionId,
-      metadata: { provider, language },
-    });
+    console.log('WhatsApp handled:', { phone, language, sent, escalation: isEscalation });
 
-    // ── Update CLARA memory ────────────────────────────────────
+    // ── Log conversation + messages AFTER reply sent ───────────
+    // Find or create conversation, then log both messages
+    let conversationId: string | null = null;
     try {
-      await supabase.functions.invoke('clara-memory', {
+      const { data: existingConv } = await supabase
+        .from('whatsapp_conversations')
+        .select('id')
+        .eq('phone_number', phone)
+        .eq('status', 'active')
+        .maybeSingle();
+
+      if (existingConv) {
+        conversationId = existingConv.id;
+        supabase.from('whatsapp_conversations')
+          .update({ last_message_at: new Date().toISOString(), contact_name: profileName || undefined })
+          .eq('id', conversationId).then(() => {});
+      } else {
+        const { data: newConv } = await supabase
+          .from('whatsapp_conversations')
+          .insert({ phone_number: phone, contact_name: profileName || null, status: 'active', metadata: { source: 'twilio_sandbox', language } })
+          .select('id')
+          .single();
+        conversationId = newConv?.id ?? null;
+      }
+
+      if (conversationId) {
+        // Log both messages in parallel
+        await Promise.allSettled([
+          supabase.from('whatsapp_messages').insert({ conversation_id: conversationId, whatsapp_message_id: messageSid, direction: 'inbound', message_type: 'text', content: body, status: 'delivered', metadata: { profile_name: profileName, language } }),
+          supabase.from('whatsapp_messages').insert({ conversation_id: conversationId, direction: 'outbound', message_type: 'text', content: aiResponse, status: sent ? 'sent' : 'failed', is_ai_generated: true, ai_session_id: currentSessionId, metadata: { language } }),
+        ]);
+      }
+    } catch (logErr) {
+      console.warn('Conversation logging failed (non-fatal):', logErr);
+    }
+
+    // ── Fire-and-forget: memory + escalation (after reply sent) ─
+    // These run in background — don't block the TwiML response
+    const backgroundTasks: Promise<unknown>[] = [];
+
+    backgroundTasks.push(
+      supabase.functions.invoke('clara-memory', {
         body: {
           action: 'upsert',
           session_id: currentSessionId,
@@ -253,15 +255,12 @@ serve(async (req) => {
           amber_triggered: isEscalation,
           ...(triggerWord ? { amber_trigger_word: triggerWord } : {}),
         },
-      });
-    } catch (memSaveErr) {
-      console.warn('Memory save failed (non-fatal):', memSaveErr);
-    }
+      }).catch(e => console.warn('Memory save failed (non-fatal):', e))
+    );
 
-    // ── Fire escalation if amber triggered ─────────────────────
     if (isEscalation) {
-      try {
-        await supabase.functions.invoke('clara-escalation', {
+      backgroundTasks.push(
+        supabase.functions.invoke('clara-escalation', {
           body: {
             type: 'amber',
             session_id: currentSessionId,
@@ -271,13 +270,15 @@ serve(async (req) => {
             last_message: body,
             clara_recommendation: 'WhatsApp amber trigger — handle personally',
           },
-        });
-      } catch (escErr) {
-        console.warn('Escalation failed (non-fatal):', escErr);
-      }
+        }).catch(e => console.warn('Escalation failed (non-fatal):', e))
+      );
     }
 
-    console.log('WhatsApp handled:', { phone, language, provider, sent, escalation: isEscalation });
+    // Wait briefly for background tasks but don't block response
+    await Promise.race([
+      Promise.allSettled(backgroundTasks),
+      new Promise(resolve => setTimeout(resolve, 3000)), // 3s max wait
+    ]);
 
     // ── Return TwiML to acknowledge ────────────────────────────
     return new Response(TWIML_OK, {
