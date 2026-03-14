@@ -112,7 +112,7 @@ serve(async (req) => {
         const price = await stripe.prices.create({
           currency: (item.currency || "EUR").toLowerCase(),
           unit_amount: Math.round(parseFloat(item.price.toString()) * 100),
-          recurring: { interval: "month" },
+          recurring: { interval: item.billing_interval || "month" },
           product_data: { name: item.name },
         });
 
@@ -138,7 +138,7 @@ serve(async (req) => {
         stripe_customer_id: customer_id,
         subscribed: true,
         subscription_tier: subscriptionTiers,
-        subscription_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
+        subscription_end: new Date(Date.now() + (allSubscriptionData.some((s: any) => s.billing_interval === 'year') ? 365 : 30) * 24 * 60 * 60 * 1000).toISOString(),
         updated_at: new Date().toISOString(),
       }, { onConflict: 'email' });
 

@@ -107,6 +107,7 @@ PRODUCT KNOWLEDGE:
 - 7-day free trial, no credit card needed
 - Features: one-touch SOS button, GPS tracking, emergency contacts, CLARA AI 24/7
 - Bluetooth SOS pendant available (waterproof, 6-month battery)
+- Annual billing: 99.90 EUR/year (saves 19.98 EUR — 2 months free)
 - First Family Link included free, extras 2.99 EUR/month each
 - Available in Spain, UK, and Netherlands
 

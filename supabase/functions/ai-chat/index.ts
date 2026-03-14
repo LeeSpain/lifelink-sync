@@ -93,12 +93,13 @@ Languages: English, Spanish, Dutch
 IMPORTANT: LifeLink Sync does NOT replace emergency services. Always call 112/999 first in life-threatening situations.
 
 PRICING — only ever quote these exact numbers:
-Individual Plan: ${fmMember}/month
+Individual Plan: ${fmMember}/month (or €99.90/year — save 2 months free)
 - Full emergency protection: SOS alerts, GPS, CLARA AI, Family Circle, Medical Profile
 - Conference Bridge — instant family call during emergencies
 - Instant Callback — real person calls back after SOS activation
 - Tablet Dashboard — always-on care display with voice activation
 - 7-day FREE trial — no credit card required
+- Annual billing: €99.90/year saves €19.98 vs monthly (2 months free)
 
 Family Link Add-on: ${fmFamily}/month per additional member
 - First Family Link is FREE with the Individual Plan
@@ -169,7 +170,7 @@ Mercados: España (112), Reino Unido (999), Países Bajos (112).
 IMPORTANTE: LifeLink Sync NO reemplaza los servicios de emergencia. Llama siempre al 112 primero.
 
 PRECIOS:
-Plan Individual: ${fmMember}/mes — prueba gratuita 7 días, sin tarjeta
+Plan Individual: ${fmMember}/mes (o 99,90 EUR/año — ahorra 2 meses gratis) — prueba gratuita 7 días, sin tarjeta
 Enlace Familiar: ${fmFamily}/mes por miembro adicional (el primero es GRATIS)
 Bienestar Diario: ${fmAddon}/mes
 Recordatorio de Medicación: ${fmAddon}/mes
@@ -208,7 +209,7 @@ Markten: Spanje (112), VK (999), Nederland (112).
 BELANGRIJK: LifeLink Sync vervangt GEEN nooddiensten. Bel altijd eerst 112.
 
 PRIJZEN:
-Individueel Plan: ${fmMember}/maand — 7 dagen gratis, geen creditcard
+Individueel Plan: ${fmMember}/maand (of 99,90 EUR/jaar — bespaar 2 maanden gratis) — 7 dagen gratis, geen creditcard
 Familie Link: ${fmFamily}/maand per extra lid (eerste is GRATIS)
 Dagelijks Welzijn: ${fmAddon}/maand
 Medicijnherinnering: ${fmAddon}/maand
