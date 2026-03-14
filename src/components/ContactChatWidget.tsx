@@ -37,6 +37,14 @@ const ContactChatWidget: React.FC<ContactChatWidgetProps> = ({
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const sessionIdRef = useRef<string>(() => {
+    const stored = localStorage.getItem('clara_session_id_contact');
+    if (stored) return stored;
+    const newId = `contact-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    localStorage.setItem('clara_session_id_contact', newId);
+    return newId;
+  });
+  const sessionId = sessionIdRef.current;
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -64,9 +72,11 @@ const ContactChatWidget: React.FC<ContactChatWidgetProps> = ({
       const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: {
           message: inputMessage,
-          sessionId: `contact-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          sessionId: sessionId,
           userId: null,
           context: "contact - Customer support and general inquiries",
+          language: 'en',
+          currency: 'EUR',
           conversation_history: messages.slice(-5) // Send last 5 messages for context
         }
       });
@@ -82,7 +92,9 @@ const ContactChatWidget: React.FC<ContactChatWidgetProps> = ({
 
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error('CLARA ai-chat full error:', JSON.stringify(error, null, 2));
+      console.error('CLARA ai-chat error message:', (error as any)?.message);
+      console.error('CLARA ai-chat error details:', (error as any)?.context);
       toast.error(t('chat.connectionError'));
 
       const errorMessage: Message = {

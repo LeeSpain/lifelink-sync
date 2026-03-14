@@ -42,6 +42,14 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, userName = "Us
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const sessionIdRef = useRef<string>(() => {
+    const stored = localStorage.getItem('clara_session_id_widget');
+    if (stored) return stored;
+    const newId = `widget-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    localStorage.setItem('clara_session_id_widget', newId);
+    return newId;
+  });
+  const sessionId = sessionIdRef.current;
   const { toast } = useToast();
 
   const scrollToBottom = () => {
@@ -73,7 +81,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, userName = "Us
       const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: {
           message: inputMessage,
-          sessionId: `widget-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          sessionId: sessionId,
           userId: null,
           context: `${context} - User: ${userName}`,
           language,
@@ -94,17 +102,19 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, userName = "Us
       setMessages(prev => [...prev, aiMessage]);
       trackChatInteraction('message_received', context, data.response?.length || 0);
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error('CLARA ai-chat full error:', JSON.stringify(error, null, 2));
+      console.error('CLARA ai-chat error message:', (error as any)?.message);
+      console.error('CLARA ai-chat error details:', (error as any)?.context);
       trackChatInteraction('error', context, 0);
       toast({
         title: t('chatWidget.connectionErrorTitle', { defaultValue: 'Connection Error' }),
         description: t('chatWidget.connectionErrorDesc', { defaultValue: 'Unable to connect to Clara. Please try again.' }),
         variant: "destructive"
       });
-      
+
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: t('chatWidget.apiErrorMessage', { defaultValue: "I apologize, but I'm having trouble connecting right now. Please try again in a moment." }),
+        content: t('chatWidget.apiErrorMessage', { defaultValue: "I'm having a moment — please try again. If this persists, email support@lifelink-sync.com" }),
         isUser: false,
         timestamp: new Date()
       };

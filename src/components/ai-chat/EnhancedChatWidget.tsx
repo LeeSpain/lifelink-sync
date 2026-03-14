@@ -59,6 +59,14 @@ const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState(i18n.language || 'en');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const sessionIdRef = useRef<string>(() => {
+    const stored = localStorage.getItem('clara_session_id');
+    if (stored) return stored;
+    const newId = `widget-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    localStorage.setItem('clara_session_id', newId);
+    return newId;
+  });
+  const sessionId = sessionIdRef.current;
   const { toast } = useToast();
 
   const scrollToBottom = () => {
@@ -149,7 +157,7 @@ const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
       const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: {
           message: inputMessage,
-          sessionId: `widget-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          sessionId: sessionId,
           userId: null,
           context: `${context} - User: ${userName} - Language: ${currentLanguage}`,
           language: currentLanguage,
@@ -170,12 +178,14 @@ const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
       setMessages(prev => [...prev, aiMessage]);
       trackChatInteraction('message_received', context, data.response?.length || 0);
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error('CLARA ai-chat full error:', JSON.stringify(error, null, 2));
+      console.error('CLARA ai-chat error message:', (error as any)?.message);
+      console.error('CLARA ai-chat error details:', (error as any)?.context);
       trackChatInteraction('error', context, 0);
 
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: t('chatWidget.connectionError', { defaultValue: "I apologize, but I'm having trouble connecting right now. Please try again in a moment." }),
+        content: t('chatWidget.connectionError', { defaultValue: "I'm having a moment — please try again. If this persists, email support@lifelink-sync.com" }),
         isUser: false,
         timestamp: new Date()
       };
