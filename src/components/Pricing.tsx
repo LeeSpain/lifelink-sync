@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from "@/components/ui/button";
-import { Check, Shield, Users, Heart, Pill, Sparkles } from "lucide-react";
+import { Check, Shield, Users, Heart, Pill, Sparkles, Gift } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { usePricing } from "@/hooks/usePricing";
@@ -214,6 +214,13 @@ const Pricing: React.FC = () => {
               {t('pricing.pendantLink')}
             </Link>
           </p>
+        </div>
+
+        <div className="mt-6 text-center">
+          <Link to="/gift" className="inline-flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 font-medium hover:underline">
+            <Gift className="h-4 w-4" />
+            {t('pricing.giftLifeLink', { defaultValue: 'Gift LifeLink Sync to someone you love' })}
+          </Link>
         </div>
       </div>
     </section>

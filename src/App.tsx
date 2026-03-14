@@ -64,6 +64,9 @@ import CheckoutPage from "./pages/CheckoutPage";
 import TrialSignupPage from "./pages/TrialSignupPage";
 import CheckoutSuccessPage from "./pages/CheckoutSuccessPage";
 import CheckoutCancelPage from "./pages/CheckoutCancelPage";
+import GiftPurchasePage from "./pages/GiftPurchasePage";
+import GiftConfirmationPage from "./pages/GiftConfirmationPage";
+import GiftRedeemPage from "./pages/GiftRedeemPage";
 
 // Test Pages (dev only)
 const TestPage = import.meta.env.DEV ? React.lazy(() => import("./pages/TestPage")) : null;
@@ -230,6 +233,23 @@ function AppWithTracking() {
                 <Route path="/checkout/cancel" element={
                   <OptimizedSuspense skeletonType="card">
                     <CheckoutCancelPage />
+                  </OptimizedSuspense>
+                } />
+
+                {/* Gift Pages */}
+                <Route path="/gift" element={
+                  <OptimizedSuspense skeletonType="card">
+                    <GiftPurchasePage />
+                  </OptimizedSuspense>
+                } />
+                <Route path="/gift/confirmation" element={
+                  <OptimizedSuspense skeletonType="card">
+                    <GiftConfirmationPage />
+                  </OptimizedSuspense>
+                } />
+                <Route path="/gift/redeem/:code?" element={
+                  <OptimizedSuspense skeletonType="card">
+                    <GiftRedeemPage />
                   </OptimizedSuspense>
                 } />
 
