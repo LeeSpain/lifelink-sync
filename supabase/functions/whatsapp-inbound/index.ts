@@ -30,8 +30,26 @@ function checkRateLimit(phone: string): boolean {
   return true;
 }
 
-// ── Language detection from phone country code ─────────────────
-function detectLanguage(phone: string): 'en' | 'es' | 'nl' {
+// ── Language detection from message text, fallback to phone ────
+function detectLanguage(message: string, phone: string): 'en' | 'es' | 'nl' {
+  const lower = message.toLowerCase();
+  // Spanish indicators
+  const esWords = /\b(hola|necesito|ayuda|quiero|precio|madre|padre|emergencia|proteger|seguridad|tengo|puedo|como|gracias|por favor)\b/;
+  // Dutch indicators
+  const nlWords = /\b(hallo|hulp|nodig|prijs|moeder|vader|nood|bescherming|hoe|dank|alstublieft|welkom|goed)\b/;
+  // English indicators
+  const enWords = /\b(hello|help|need|want|price|mother|father|mum|dad|emergency|protect|how|please|thank|worried|scared|fall|alone)\b/;
+
+  const esScore = (lower.match(esWords) || []).length;
+  const nlScore = (lower.match(nlWords) || []).length;
+  const enScore = (lower.match(enWords) || []).length;
+
+  // If message has clear language signals, use those
+  if (enScore > esScore && enScore > nlScore) return 'en';
+  if (esScore > enScore && esScore > nlScore) return 'es';
+  if (nlScore > enScore && nlScore > esScore) return 'nl';
+
+  // Fallback to phone prefix only if no language detected from text
   if (phone.startsWith('+34')) return 'es';
   if (phone.startsWith('+31')) return 'nl';
   return 'en';
@@ -99,7 +117,7 @@ async function callClaude(systemPrompt: string, userMessage: string): Promise<st
 function getWhatsAppPrompt(lang: string): string {
   if (lang === 'es') return `Eres CLARA de LifeLink Sync. Hablas como Lee Wakeman, el fundador. Eres calida, directa y humana. Proteccion de emergencia para familias. Plan Individual: 9,99 EUR/mes. Prueba gratuita 7 dias sin tarjeta. SOS, GPS, contactos de emergencia, CLARA IA 24/7. Siempre pregunta a quien protegen. Termina ofreciendo la prueba gratuita. Nunca des consejos medicos ni legales. Si mencionan reembolso/legal/queja, di que Lee lo gestionara personalmente. Responde en espanol. Maximo 3 parrafos cortos.`;
   if (lang === 'nl') return `Je bent CLARA van LifeLink Sync. Je spreekt als Lee Wakeman, de oprichter. Warm, direct en menselijk. Noodbescherming voor gezinnen. Individueel Plan: 9,99 EUR/maand. 7 dagen gratis, geen creditcard. SOS, GPS, noodcontacten, CLARA AI 24/7. Vraag altijd wie ze beschermen. Eindig met gratis proefperiode. Nooit medisch of juridisch advies. Bij terugbetaling/klacht/juridisch: Lee handelt het persoonlijk af. Antwoord in het Nederlands. Maximaal 3 korte alinea's.`;
-  return `You are CLARA from LifeLink Sync. You speak as Lee Wakeman, the founder. Warm, direct, human. Emergency protection for families. Individual Plan: 9.99 EUR/month. 7-day free trial, no card needed. SOS alerts, GPS, emergency contacts, CLARA AI 24/7. Always ask who they are protecting. End by offering the free trial. Never give medical or legal advice. If they mention refund/legal/complaint, say Lee will handle it personally. Keep replies to 3 short paragraphs max.`;
+  return `You are CLARA from LifeLink Sync. You speak as Lee Wakeman, the founder. Warm, direct, human. Emergency protection for families. Individual Plan: 9.99 EUR/month. 7-day free trial, no card needed. SOS alerts, GPS, emergency contacts, CLARA AI 24/7. Always ask who they are protecting. End by offering the free trial. Never give medical or legal advice. If they mention refund/legal/complaint, say Lee will handle it personally. Keep replies to 3 short paragraphs max. CRITICAL: Always reply in the SAME LANGUAGE the user writes in. If they write in English, reply in English. If they write in Spanish, reply in Spanish. If they write in Dutch, reply in Dutch. Match their language exactly.`;
 }
 
 // ── Amber trigger detection ────────────────────────────────────
@@ -166,8 +184,8 @@ serve(async (req) => {
       });
     }
 
-    // ── Detect language from country code ──────────────────────
-    const language = detectLanguage(phone);
+    // ── Detect language from message text, fallback to phone ───
+    const language = detectLanguage(body, phone);
 
     // Use stable session ID per phone number
     const currentSessionId = `wa-${phone}`;
