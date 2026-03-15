@@ -17,6 +17,7 @@ interface Props {
 export function ChatInterface({ messages, onSend, isLoading, onMicStart, onMicStop, onWakeWord }: Props) {
   const [input, setInput] = useState('');
   const [isRecording, setIsRecording] = useState(false);
+  const [micPermissionGranted, setMicPermissionGranted] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechAny>(null);
   const wakeRef = useRef<SpeechAny>(null);
@@ -25,44 +26,9 @@ export function ChatInterface({ messages, onSend, isLoading, onMicStart, onMicSt
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // ── Full speech recognition (after wake or mic tap) ──────────
-  const startFullListening = useCallback(() => {
-    if (isRecording) return;
-    const w = window as SpeechAny;
-    const SR = w.SpeechRecognition || w.webkitSpeechRecognition;
-    if (!SR) return;
-
-    // Stop wake listener while full listening is active
-    try { wakeRef.current?.stop(); } catch { /* ok */ }
-
-    const recognition = new SR();
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.lang = 'en-GB';
-
-    recognition.onresult = (event: SpeechAny) => {
-      const transcript = event.results[0][0].transcript;
-      // Strip wake word from beginning if present
-      const cleaned = transcript.replace(/^(hey\s+)?clara[,.]?\s*/i, '').trim();
-      if (cleaned) onSend(cleaned);
-      setIsRecording(false);
-      onMicStop();
-    };
-    recognition.onerror = () => { setIsRecording(false); onMicStop(); };
-    recognition.onend = () => {
-      setIsRecording(false);
-      // Restart wake word detection after full listening ends
-      startWakeDetection();
-    };
-
-    recognitionRef.current = recognition;
-    recognition.start();
-    setIsRecording(true);
-    onMicStart();
-  }, [isRecording, onSend, onMicStart, onMicStop]);
-
-  // ── Wake word detection (continuous background) ──────────────
+  // ── Wake word detection — only runs after mic permission granted ──
   const startWakeDetection = useCallback(() => {
+    if (!micPermissionGranted) return;
     const w = window as SpeechAny;
     const SR = w.SpeechRecognition || w.webkitSpeechRecognition;
     if (!SR) return;
@@ -82,14 +48,12 @@ export function ChatInterface({ messages, onSend, isLoading, onMicStart, onMicSt
       if (transcript.includes('clara') || transcript.includes('hey clara')) {
         wake.stop();
         onWakeWord();
-        // Start full listening after brief pause
         setTimeout(() => startFullListening(), 300);
       }
     };
 
     wake.onend = () => {
-      // Restart unless app is hidden or full listening is active
-      if (!document.hidden && !isRecording) {
+      if (!document.hidden && !isRecording && micPermissionGranted) {
         setTimeout(() => {
           try { wake.start(); } catch { /* ok */ }
         }, 500);
@@ -106,32 +70,70 @@ export function ChatInterface({ messages, onSend, isLoading, onMicStart, onMicSt
 
     try { wake.start(); } catch { /* ok */ }
     wakeRef.current = wake;
-  }, [onWakeWord, isRecording, startFullListening]);
+  }, [micPermissionGranted, isRecording, onWakeWord]);
 
-  // Start wake word detection on mount
-  useEffect(() => {
-    startWakeDetection();
+  // ── Full speech recognition (after wake or mic tap) ──────────
+  const startFullListening = useCallback(() => {
+    if (isRecording) return;
+    const w = window as SpeechAny;
+    const SR = w.SpeechRecognition || w.webkitSpeechRecognition;
+    if (!SR) return;
 
-    const handleVisibility = () => {
-      if (document.hidden) {
-        try { wakeRef.current?.stop(); } catch { /* ok */ }
-      } else if (!isRecording) {
-        setTimeout(() => startWakeDetection(), 500);
-      }
+    try { wakeRef.current?.stop(); } catch { /* ok */ }
+
+    const recognition = new SR();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-GB';
+
+    recognition.onresult = (event: SpeechAny) => {
+      const transcript = event.results[0][0].transcript;
+      const cleaned = transcript.replace(/^(hey\s+)?clara[,.]?\s*/i, '').trim();
+      if (cleaned) onSend(cleaned);
+      setIsRecording(false);
+      onMicStop();
+    };
+    recognition.onerror = () => { setIsRecording(false); onMicStop(); };
+    recognition.onend = () => {
+      setIsRecording(false);
+      startWakeDetection();
     };
 
-    // Listen for programmatic start (from wake word handler)
-    const handleStartListening = () => startFullListening();
-    window.addEventListener('startListening', handleStartListening);
-    document.addEventListener('visibilitychange', handleVisibility);
+    recognitionRef.current = recognition;
+    recognition.start();
+    setIsRecording(true);
+    onMicStart();
+
+    // First successful mic use grants permission for wake word
+    if (!micPermissionGranted) {
+      setMicPermissionGranted(true);
+    }
+  }, [isRecording, onSend, onMicStart, onMicStop, micPermissionGranted, startWakeDetection]);
+
+  // Start wake detection only after permission granted
+  useEffect(() => {
+    if (micPermissionGranted) {
+      startWakeDetection();
+    }
 
     return () => {
       try { wakeRef.current?.stop(); } catch { /* ok */ }
       try { recognitionRef.current?.stop(); } catch { /* ok */ }
-      window.removeEventListener('startListening', handleStartListening);
-      document.removeEventListener('visibilitychange', handleVisibility);
     };
-  }, [startWakeDetection, startFullListening, isRecording]);
+  }, [micPermissionGranted, startWakeDetection]);
+
+  // Visibility handler
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.hidden) {
+        try { wakeRef.current?.stop(); } catch { /* ok */ }
+      } else if (!isRecording && micPermissionGranted) {
+        setTimeout(() => startWakeDetection(), 500);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [isRecording, micPermissionGranted, startWakeDetection]);
 
   const handleSend = () => {
     if (!input.trim()) return;
