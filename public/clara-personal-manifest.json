@@ -1,0 +1,17 @@
+{
+  "name": "CLARA Personal",
+  "short_name": "CLARA",
+  "description": "Your private AI assistant",
+  "start_url": "/clara-personal",
+  "display": "standalone",
+  "background_color": "#0a0812",
+  "theme_color": "#0a0812",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icons/clara-orb.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

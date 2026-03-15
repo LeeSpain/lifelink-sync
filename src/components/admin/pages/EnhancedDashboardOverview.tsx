@@ -813,21 +813,12 @@ const EnhancedDashboardOverview: React.FC = () => {
           </div>
           <div className="flex gap-3 mt-4">
             <a
-              href="https://clara-personal.vercel.app"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/clara-personal"
               className="flex-1 py-2.5 px-4 rounded-lg text-center text-sm font-medium transition-colors"
               style={{ background: '#5a35b8', color: '#e8e0ff' }}
             >
-              Open Web App
+              Open CLARA Personal
             </a>
-            <button
-              className="flex-1 py-2.5 px-4 rounded-lg text-sm font-medium"
-              style={{ background: '#1a1230', color: '#5a4f80', border: '1px solid #2a1e50', cursor: 'default' }}
-              disabled
-            >
-              Android APK (coming)
-            </button>
           </div>
         </CardContent>
       </Card>

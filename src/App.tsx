@@ -29,6 +29,7 @@ import MapDemo from "./pages/MapDemo";
 import DashboardRedirect from "./components/DashboardRedirect";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import ClaraPersonalPage from "./pages/ClaraPersonalPage";
 
 // App Pages
 import SOSAppPage from "./pages/SOSAppPage";
@@ -310,6 +311,13 @@ function AppWithTracking() {
                     <OptimizedSuspense skeletonType="dashboard">
                       <AdminDashboard />
                     </OptimizedSuspense>
+                  </AdminProtectedRoute>
+                } />
+
+                {/* CLARA Personal — admin only */}
+                <Route path="/clara-personal" element={
+                  <AdminProtectedRoute>
+                    <ClaraPersonalPage />
                   </AdminProtectedRoute>
                 } />
 
