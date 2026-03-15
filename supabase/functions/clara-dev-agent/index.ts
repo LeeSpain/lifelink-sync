@@ -87,23 +87,55 @@ const getImplementationPlan = async (
   summary: string;
   edits: FileEdit[];
 }> => {
-  // Fetch directory listings so Claude knows what files exist
+  // 1. Find likely files to edit based on capitalized words in the command
+  const searchTerms = command.match(/\b[A-Z][a-zA-Z]+\b/g) || [];
+  const filesToRead: Record<string, string> = {};
+
+  for (const term of searchTerms.slice(0, 3)) {
+    try {
+      const found = await searchFiles(term, 'src');
+      for (const path of found.slice(0, 2)) {
+        if (!filesToRead[path]) {
+          const content = await readFile(path);
+          filesToRead[path] = content.substring(0, 3000);
+        }
+      }
+    } catch { /* skip */ }
+  }
+
+  // Also try common patterns from the command
+  const lowerCmd = command.toLowerCase();
+  const commonFiles: Record<string, string> = {
+    'pricing': 'src/components/Pricing.tsx',
+    'homepage': 'src/pages/Index.tsx',
+    'login': 'src/pages/AuthPage.tsx',
+    'auth': 'src/pages/AuthPage.tsx',
+    'dashboard': 'src/pages/Dashboard.tsx',
+    'readme': 'README.md',
+  };
+  for (const [keyword, path] of Object.entries(commonFiles)) {
+    if (lowerCmd.includes(keyword) && !filesToRead[path]) {
+      try {
+        const content = await readFile(path);
+        filesToRead[path] = content.substring(0, 3000);
+      } catch { /* skip */ }
+    }
+  }
+
+  // 2. Fetch directory listings
   let srcDirs: string[] = [];
   let funcDirs: string[] = [];
-  let srcPages: string[] = [];
   try {
     srcDirs = await listFiles('src/components');
     funcDirs = await listFiles('supabase/functions');
-    srcPages = await listFiles('src/pages');
-  } catch (e) {
-    console.warn('Directory listing failed (non-fatal):', e);
-  }
+  } catch { /* skip */ }
 
-  const dirContext = [
-    `Available src/components/ directories: ${srcDirs.join(', ') || 'unknown'}`,
-    `Available src/pages/ files: ${srcPages.join(', ') || 'unknown'}`,
-    `Available edge functions: ${funcDirs.join(', ') || 'unknown'}`,
-  ].join('\n');
+  // 3. Build context with actual file contents
+  const fileContext = Object.entries(filesToRead)
+    .map(([path, content]) => `FILE: ${path}\n\`\`\`\n${content}\n\`\`\``)
+    .join('\n\n');
+
+  console.log('Files pre-loaded for plan:', Object.keys(filesToRead).join(', '));
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -117,51 +149,45 @@ const getImplementationPlan = async (
       max_tokens: 4096,
       messages: [{
         role: 'user',
-        content: `You are CLARA Dev Agent for LifeLink Sync (React + TypeScript + Tailwind + Supabase).
-Lee has confirmed this command: "${command}"
-Interpreted intent: "${intent}"
+        content: `You are making code changes to the LifeLink Sync repository (React + TypeScript + Tailwind + Supabase).
 
-EXISTING FILES IN THE REPO:
-${dirContext}
+Command: "${command}"
+Intent: "${intent}"
 
-Produce a JSON implementation plan. Keep edits minimal and targeted.
-ONLY suggest edits to files that actually exist in the repo above.
+ACTUAL FILE CONTENTS (use these for exact search strings):
+${fileContext || 'No files pre-loaded — use directory listings below.'}
 
-Edit actions available:
-1. "replace" - find exact text and replace it. Use when: modifying existing content.
-2. "prepend" - add content to top of file. Use when: adding headers, comments, imports.
-3. "append" - add content to bottom of file. Use when: adding new functions, exports.
-4. "create" - create a new file entirely. Use when: file doesn't exist yet.
+Available directories:
+src/components: ${srcDirs.join(', ') || 'unknown'}
+supabase/functions: ${funcDirs.join(', ') || 'unknown'}
+
+Generate a precise implementation plan. For "replace" actions, you MUST copy the search string CHARACTER FOR CHARACTER from the file contents shown above.
+
+Edit actions:
+1. "replace" - find EXACT text from file above and replace it
+2. "prepend" - add content to top of file
+3. "append" - add content to bottom of file
+4. "create" - create a new file entirely
 
 Respond with JSON only:
 {
   "title": "Short PR title (max 70 chars)",
-  "summary": "1-3 sentence description of what changed and why",
+  "summary": "1-3 sentence description",
   "edits": [
     {
-      "file_path": "src/path/to/file.tsx",
+      "file_path": "exact/path/from/above.tsx",
       "action": "replace",
-      "search": "exact string to find in the file",
-      "replace": "replacement string",
-      "description": "what this edit does"
-    },
-    {
-      "file_path": "README.md",
-      "action": "prepend",
-      "content": "content to add at top of file",
+      "search": "EXACT string copied from file contents above",
+      "replace": "new content",
       "description": "what this edit does"
     }
   ]
 }
 
 Rules:
-- Use real file paths from the LifeLink Sync repo
-- For "replace": search strings must be exact matches from current file content
-- For "prepend"/"append": provide the content to add
-- For "create": provide the full file content
-- Keep edits small and focused — only change what the command asks for
+- For replace: search strings MUST be exact copies from the file contents shown above
+- Keep edits small — only change what the command asks for
 - Never touch auth, payment, or emergency code unless explicitly asked
-- Prefer editing existing files over creating new ones
 - Maximum 5 edits per command`
       }],
     }),
