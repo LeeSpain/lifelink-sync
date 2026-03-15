@@ -82,10 +82,16 @@ const interpretPACommand = async (message: string) => {
       max_tokens: 500,
       messages: [{
         role: 'user',
-        content: `You are CLARA, Lee Wakeman's PA for LifeLink Sync.
+        content: `Today's date is ${new Date().toISOString().split('T')[0]}.
+You are CLARA, Lee Wakeman's PA for LifeLink Sync.
 Lee has sent you a PA instruction. Extract the action details.
 
 Message: "${message}"
+
+IMPORTANT:
+- task_text must preserve ALL words Lee used — do not shorten or summarize
+- When calculating dates: tomorrow = today + 1 day, next week = today + 7 days
+- Always use YYYY-MM-DD format for due_date
 
 Respond with JSON only:
 {
@@ -94,7 +100,7 @@ Respond with JSON only:
   "recipient_contact": "phone/email or null",
   "subject": "email subject or null",
   "message_body": "the message to send on Lee's behalf",
-  "task_text": "if action is task, what to remember",
+  "task_text": "full task description preserving all words Lee used",
   "due_date": "YYYY-MM-DD or null",
   "confirmation": "short message to send Lee confirming what was done"
 }`
