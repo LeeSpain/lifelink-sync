@@ -6,12 +6,12 @@
   "devCommand": "npm run dev",
   "rewrites": [
     {
-      "source": "/tablet-dashboard",
-      "destination": "/tablet.html"
+      "source": "/clara-personal",
+      "destination": "/clara.html"
     },
     {
-      "source": "/clara.html",
-      "destination": "/clara.html"
+      "source": "/tablet-dashboard",
+      "destination": "/tablet.html"
     },
     {
       "source": "/(.*)",
