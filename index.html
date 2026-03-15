@@ -34,22 +34,6 @@
   </head>
 
   <body>
-    <script>
-      try {
-        if (window.location.pathname.includes('clara-personal')) {
-          localStorage.setItem('pwa_target', 'clara-personal');
-        }
-
-        var isStandalone =
-          window.navigator.standalone === true ||
-          window.matchMedia('(display-mode: standalone)').matches;
-        var pwaTarget = localStorage.getItem('pwa_target');
-
-        if (isStandalone && pwaTarget === 'clara-personal' && !window.location.pathname.includes('clara-personal')) {
-          window.location.replace('/clara-personal');
-        }
-      } catch(e) {}
-    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
