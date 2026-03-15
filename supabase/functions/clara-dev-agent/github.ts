@@ -1,4 +1,4 @@
-import { create } from "https://deno.land/x/djwt@v2.8/mod.ts";
+import { SignJWT, importPKCS8 } from "https://deno.land/x/jose@v5.2.0/index.ts";
 
 const GITHUB_API = "https://api.github.com";
 
@@ -10,47 +10,68 @@ const getInstallationToken = async (): Promise<string> => {
   console.log('PEM key length:', privateKeyPem?.length);
   console.log('PEM starts with:', privateKeyPem?.substring(0, 30));
 
-  // Handle all possible storage formats
+  // Clean PEM — handle literal \n from env vars
   const cleanPem = privateKeyPem
-    .replace(/\\n/g, '\n')  // literal \n to real newline
-    .replace(/\\r/g, '')    // remove any \r
+    .replace(/\\n/g, '\n')
+    .replace(/\\r/g, '')
     .trim();
 
-  // Extract the base64 body between header/footer
-  const pemLines = cleanPem.split('\n');
-  const base64Lines = pemLines.filter(line =>
-    !line.startsWith('-----') && line.trim().length > 0
-  );
-  const pemBody = base64Lines.join('');
+  // Convert PKCS#1 (RSA PRIVATE KEY) to PKCS#8 format for jose
+  // jose's importPKCS8 needs "BEGIN PRIVATE KEY" not "BEGIN RSA PRIVATE KEY"
+  let pkcs8Pem = cleanPem;
+  if (cleanPem.includes('BEGIN RSA PRIVATE KEY')) {
+    // Use openssl-style conversion via manual ASN.1 wrapping
+    // Extract base64 body
+    const lines = cleanPem.split('\n').filter(l => !l.startsWith('-----') && l.trim());
+    const base64Body = lines.join('');
+    const binaryStr = atob(base64Body);
+    const pkcs1 = new Uint8Array(binaryStr.length);
+    for (let i = 0; i < binaryStr.length; i++) pkcs1[i] = binaryStr.charCodeAt(i);
 
-  // Decode base64 to binary
-  let binaryString: string;
-  try {
-    binaryString = atob(pemBody);
-  } catch (e) {
-    throw new Error(`PEM base64 decode failed. Key length: ${pemBody.length}, First 20 chars: ${pemBody.substring(0, 20)}`);
+    // PKCS#8 wrapping for RSA key
+    // Prefix: SEQUENCE { INTEGER(0), SEQUENCE { OID(rsaEncryption), NULL }, OCTET STRING { pkcs1 } }
+    const oid = [0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x01, 0x05, 0x00];
+    const algSeq = [0x30, oid.length, ...oid];
+    const version = [0x02, 0x01, 0x00];
+
+    // OCTET STRING wrapping for pkcs1
+    const octetLen = pkcs1.length;
+    const octetHeader = octetLen < 128
+      ? [0x04, octetLen]
+      : octetLen < 256
+        ? [0x04, 0x81, octetLen]
+        : [0x04, 0x82, (octetLen >> 8) & 0xff, octetLen & 0xff];
+
+    const innerBytes = [...version, ...algSeq, ...octetHeader];
+    const innerLen = innerBytes.length + pkcs1.length;
+    const outerHeader = innerLen < 128
+      ? [0x30, innerLen]
+      : innerLen < 256
+        ? [0x30, 0x81, innerLen]
+        : [0x30, 0x82, (innerLen >> 8) & 0xff, innerLen & 0xff];
+
+    const pkcs8Der = new Uint8Array(outerHeader.length + innerBytes.length + pkcs1.length);
+    pkcs8Der.set(outerHeader, 0);
+    pkcs8Der.set(new Uint8Array(innerBytes), outerHeader.length);
+    pkcs8Der.set(pkcs1, outerHeader.length + innerBytes.length);
+
+    // Convert back to PEM with PKCS#8 headers
+    const b64 = btoa(String.fromCharCode(...pkcs8Der));
+    const b64Lines = b64.match(/.{1,64}/g) || [];
+    pkcs8Pem = `-----BEGIN PRIVATE KEY-----\n${b64Lines.join('\n')}\n-----END PRIVATE KEY-----`;
   }
 
-  const binaryDer = new Uint8Array(binaryString.length);
-  for (let i = 0; i < binaryString.length; i++) {
-    binaryDer[i] = binaryString.charCodeAt(i);
-  }
+  console.log('PEM format:', pkcs8Pem.substring(0, 30));
 
-  const privateKey = await crypto.subtle.importKey(
-    'pkcs8',
-    binaryDer.buffer,
-    { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
-    false,
-    ['sign']
-  );
+  const privateKey = await importPKCS8(pkcs8Pem, 'RS256');
 
   // Create JWT (valid 10 minutes, issued 60s ago for clock skew)
   const now = Math.floor(Date.now() / 1000);
-  const jwt = await create(
-    { alg: "RS256", typ: "JWT" },
-    { iat: now - 60, exp: now + 600, iss: appId },
-    privateKey
-  );
+  const jwt = await new SignJWT({ iss: appId })
+    .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })
+    .setIssuedAt(now - 60)
+    .setExpirationTime(now + 600)
+    .sign(privateKey);
 
   // Exchange JWT for installation access token
   const response = await fetch(
