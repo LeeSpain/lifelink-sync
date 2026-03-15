@@ -7,22 +7,38 @@ const getInstallationToken = async (): Promise<string> => {
   const privateKeyPem = Deno.env.get('GITHUB_APP_PRIVATE_KEY')!;
   const installationId = Deno.env.get('GITHUB_INSTALLATION_ID')!;
 
-  // Clean PEM key (env vars store \n as literal backslash-n)
-  const cleanPem = privateKeyPem.replace(/\\n/g, '\n').trim();
+  console.log('PEM key length:', privateKeyPem?.length);
+  console.log('PEM starts with:', privateKeyPem?.substring(0, 30));
 
-  // Extract base64 body from PEM
-  const pemBody = cleanPem
-    .replace('-----BEGIN RSA PRIVATE KEY-----', '')
-    .replace('-----END RSA PRIVATE KEY-----', '')
-    .replace(/\s/g, '');
+  // Handle all possible storage formats
+  const cleanPem = privateKeyPem
+    .replace(/\\n/g, '\n')  // literal \n to real newline
+    .replace(/\\r/g, '')    // remove any \r
+    .trim();
 
-  const binaryDer = Uint8Array.from(
-    atob(pemBody), c => c.charCodeAt(0)
+  // Extract the base64 body between header/footer
+  const pemLines = cleanPem.split('\n');
+  const base64Lines = pemLines.filter(line =>
+    !line.startsWith('-----') && line.trim().length > 0
   );
+  const pemBody = base64Lines.join('');
+
+  // Decode base64 to binary
+  let binaryString: string;
+  try {
+    binaryString = atob(pemBody);
+  } catch (e) {
+    throw new Error(`PEM base64 decode failed. Key length: ${pemBody.length}, First 20 chars: ${pemBody.substring(0, 20)}`);
+  }
+
+  const binaryDer = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
+    binaryDer[i] = binaryString.charCodeAt(i);
+  }
 
   const privateKey = await crypto.subtle.importKey(
     'pkcs8',
-    binaryDer,
+    binaryDer.buffer,
     { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
     false,
     ['sign']
