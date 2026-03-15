@@ -1,3 +1,9 @@
+// Clean up old Supabase auth token from previous project
+const OLD_SUPABASE_KEY = 'sb-ljpecaxgwaoflkzzfdrz-auth-token';
+if (localStorage.getItem(OLD_SUPABASE_KEY)) {
+  localStorage.removeItem(OLD_SUPABASE_KEY);
+}
+
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'

@@ -114,9 +114,23 @@ const ClaraPersonalPage = () => {
     }
   };
 
-  const dismissBanner = () => {
-    localStorage.setItem('clara_pwa_dismissed', '1');
+  // iOS Safari detection (not already installed as PWA)
+  const isIOSSafari =
+    /iPad|iPhone|iPod/.test(navigator.userAgent) &&
+    !(window.navigator as unknown as { standalone?: boolean }).standalone &&
+    !window.matchMedia('(display-mode: standalone)').matches;
+
+  const handleInstall = () => {
+    localStorage.setItem('pwa_target', 'clara-personal');
+    localStorage.setItem('clara_pwa_installed', 'true');
     setShowInstallBanner(false);
+    alert(
+      'Ready to install!\n\n' +
+      '1. Tap the Share button (□↑) below\n' +
+      '2. Tap "Add to Home Screen"\n' +
+      '3. Tap "Add"\n\n' +
+      'CLARA will open directly next time!'
+    );
   };
 
   return (
@@ -146,32 +160,31 @@ const ClaraPersonalPage = () => {
         onWakeWord={() => setOrbState('listening')}
       />
 
-      {/* iOS install banner */}
-      {showInstallBanner && (
+      {/* iOS install button — only on Safari, not when already installed */}
+      {isIOSSafari && (
         <div style={{
           position: 'fixed',
-          bottom: 'env(safe-area-inset-bottom, 0px)',
+          bottom: 90,
           left: 0, right: 0,
-          padding: '14px 16px',
-          background: '#1a1230',
-          borderTop: '1px solid #2a1e50',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 8,
+          padding: '0 24px',
           zIndex: 10000,
         }}>
-          <span style={{ color: '#b8a8e8', fontSize: 12, lineHeight: 1.4 }}>
-            Tap the Share button <span style={{ fontSize: 16 }}>□↑</span> then "Add to Home Screen" for full screen
-          </span>
           <button
-            onClick={dismissBanner}
+            onClick={handleInstall}
             style={{
-              background: 'none', border: 'none', color: '#5a4f80',
-              fontSize: 18, cursor: 'pointer', padding: '0 4px', flexShrink: 0
+              width: '100%',
+              padding: '16px',
+              background: '#5a35b8',
+              border: 'none',
+              borderRadius: 16,
+              color: '#e8e0ff',
+              fontSize: 16,
+              fontWeight: 600,
+              cursor: 'pointer',
+              boxShadow: '0 4px 24px rgba(90,53,184,0.4)',
             }}
           >
-            ✕
+            Install CLARA on Home Screen
           </button>
         </div>
       )}
