@@ -465,8 +465,8 @@ serve(async (req) => {
       .select('*', { count: 'exact', head: true })
       .gte('created_at', oneDayAgo);
 
-    if ((count ?? 0) >= 20) {
-      await sendWhatsApp(fromNumber, "Daily limit reached (20 commands). Try again tomorrow.");
+    if ((count ?? 0) >= 50) {
+      await sendWhatsApp(fromNumber, "Daily limit reached (50 commands). Try again tomorrow.");
       return new Response('', { status: 200 });
     }
 
