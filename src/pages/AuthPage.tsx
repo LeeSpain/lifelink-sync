@@ -211,7 +211,7 @@ const AuthPage = () => {
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
+      <div className="bg-gradient-hero flex items-center justify-center" style={{ minHeight: '100dvh' }}>
         <div className="text-white text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4"></div>
           <p>{t('auth.loading')}</p>
@@ -358,21 +358,26 @@ const AuthPage = () => {
               <div className="space-y-2">
                 <Input
                   type="email"
+                  inputMode="email"
+                  autoComplete="email"
                   placeholder={t('auth.emailPlaceholder')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={isSubmitting}
+                  className="min-h-[44px] text-base"
                 />
               </div>
               <div className="space-y-2">
                 <Input
                   type="password"
+                  autoComplete="current-password"
                   placeholder={t('auth.passwordPlaceholder')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   disabled={isSubmitting}
+                  className="min-h-[44px] text-base"
                 />
               </div>
 
@@ -431,7 +436,7 @@ const AuthPage = () => {
   return (
     <>
       <PageSEO pageType="auth" />
-      <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-3 sm:p-4">
+      <div className="bg-gradient-hero flex items-center justify-center p-3 sm:p-4" style={{ minHeight: '100dvh' }}>
         <Card className="w-full max-w-md">
           <CardHeader className="text-center px-4 sm:px-6 relative">
             {import.meta.env.DEV && (
