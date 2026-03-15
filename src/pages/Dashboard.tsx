@@ -36,6 +36,7 @@ import { useRealTimeUpdates } from '@/hooks/useRealTimeUpdates';
 import { useFamilyRole } from '@/hooks/useFamilyRole';
 import LanguageCurrencySelector from '@/components/LanguageCurrencySelector';
 import { PWAInstallBanner } from '@/components/dashboard/PWAInstallBanner';
+import ReferralPanel from '@/components/dashboard/ReferralPanel';
 
 // Mobile shell components
 import { MobileDashboardHeader } from "@/components/dashboard/mobile/MobileDashboardHeader";
@@ -408,6 +409,9 @@ const Dashboard = () => {
           </div>
         </div>
       } />
+
+      {/* Referral Programme */}
+      <Route path="referrals" element={<ReferralPanel />} />
 
       {/* Mobile Dashboard */}
       <Route path="mobile-dashboard" element={

@@ -90,6 +90,11 @@ const RegistrationWizard: React.FC = () => {
       updates.firstName = parts[0];
       if (parts.length > 1) updates.lastName = parts.slice(1).join(' ');
     }
+    // Capture referral code from ?ref= param
+    const refCode = searchParams.get('ref');
+    if (refCode) {
+      localStorage.setItem('lifelink_referral_code', refCode);
+    }
     if (Object.keys(updates).length > 0) {
       setData(prev => ({ ...prev, ...updates }));
     }
@@ -225,6 +230,24 @@ const RegistrationWizard: React.FC = () => {
 
       const validContacts = data.emergencyContacts.filter(c => c.name.trim() && c.phone.trim());
 
+      // Look up referrer from stored referral code
+      let referredBy: string | null = null;
+      const storedRefCode = localStorage.getItem('lifelink_referral_code');
+      if (storedRefCode) {
+        try {
+          const { data: referrerProfile } = await supabase
+            .from('profiles')
+            .select('user_id')
+            .eq('referral_code', storedRefCode)
+            .maybeSingle();
+          if (referrerProfile?.user_id) {
+            referredBy = referrerProfile.user_id;
+          }
+        } catch {
+          // Non-fatal — proceed without referral
+        }
+      }
+
       // Save profile (includes contacts as JSONB for legacy compatibility)
       await supabase.from('profiles').upsert({
         user_id: userData.user.id,
@@ -238,7 +261,8 @@ const RegistrationWizard: React.FC = () => {
         medical_conditions: [],
         allergies: [],
         medications: [],
-      });
+        ...(referredBy ? { referred_by: referredBy } : {}),
+      } as any);
 
       // Also insert into the dedicated emergency_contacts table
       if (validContacts.length > 0) {

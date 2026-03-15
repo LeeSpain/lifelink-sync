@@ -22,6 +22,7 @@ import {
   Package,
   LogOut,
   Home,
+  Gift,
 } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import { useAuth } from "@/contexts/AuthContext";
@@ -40,13 +41,17 @@ const useDashboardItems = () => {
     { title: t('dashboard.myFamily', { defaultValue: 'My Family' }), url: "/member-dashboard/family", icon: Users },
   ];
 
+  const referralItems = [
+    { title: t('referral.navTitle', { defaultValue: 'Refer & Earn' }), url: "/member-dashboard/referrals", icon: Gift },
+  ];
+
   const accountItems = [
     { title: t('dashboard.subscription'), url: "/member-dashboard/subscription", icon: CreditCard },
     { title: t('dashboard.settings'),     url: "/member-dashboard/settings",     icon: Settings },
     { title: t('dashboard.support'),      url: "/member-dashboard/support",      icon: HelpCircle },
   ];
 
-  return { mySafetyItems, familyCircleItems, accountItems };
+  return { mySafetyItems, familyCircleItems, referralItems, accountItems };
 };
 
 export function DashboardSidebar() {
@@ -55,7 +60,7 @@ export function DashboardSidebar() {
   const currentPath = location.pathname;
   const collapsed = state === "collapsed";
   const { t } = useTranslation();
-  const { mySafetyItems, familyCircleItems, accountItems } = useDashboardItems();
+  const { mySafetyItems, familyCircleItems, referralItems, accountItems } = useDashboardItems();
   const { signOut } = useAuth();
   const navigate = useNavigate();
 
@@ -155,6 +160,20 @@ export function DashboardSidebar() {
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1">
               {renderItems(familyCircleItems)}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <div className="mx-4 h-px bg-sidebar-border/50" />
+
+        {/* REFER & EARN */}
+        <SidebarGroup className="px-3 py-4">
+          <SidebarGroupLabel className="text-sidebar-muted-foreground font-semibold text-xs uppercase tracking-wider mb-3">
+            {t('referral.sidebarLabel', { defaultValue: 'Refer & Earn' })}
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu className="space-y-1">
+              {renderItems(referralItems)}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

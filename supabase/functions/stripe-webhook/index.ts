@@ -193,7 +193,41 @@ serve(async (req) => {
       } catch (subErr) {
         console.error("❌ Error upserting subscriber:", subErr);
       }
-      
+
+      // ── Referral conversion: check if this user was referred ──
+      const referralUserId = ownerUserId || userId || event?.data?.object?.metadata?.user_id;
+      if (referralUserId) {
+        try {
+          // Only trigger on FIRST payment (check if subscriber was just created or is newly subscribed)
+          const { data: refProfile } = await supabase
+            .from('profiles')
+            .select('referred_by')
+            .eq('user_id', referralUserId)
+            .maybeSingle();
+
+          if (refProfile?.referred_by) {
+            // Check this is their first payment (no existing active referral for this user)
+            const { data: existingRef } = await supabase
+              .from('referrals')
+              .select('id')
+              .eq('referred_user_id', referralUserId)
+              .maybeSingle();
+
+            if (!existingRef) {
+              console.log('🌟 First payment from referred user — triggering referral-convert');
+              await supabase.functions.invoke('referral-convert', {
+                body: {
+                  referred_user_id: referralUserId,
+                  referred_email: event?.data?.object?.customer_email || null,
+                },
+              });
+            }
+          }
+        } catch (refErr) {
+          console.warn('Referral convert check failed (non-fatal):', refErr);
+        }
+      }
+
       // Update subscription billing status if this is subscription-related
       if (ownerUserId) {
         const { error: updateError } = await supabase
@@ -287,6 +321,18 @@ serve(async (req) => {
         console.log("✅ Subscriber set to inactive");
       } catch (subErr) {
         console.error("❌ Error deactivating subscriber:", subErr);
+      }
+
+      // ── Referral lapse: revert star if cancelled user was a referral ──
+      const cancelledUserId = ownerUserId || userId || event?.data?.object?.metadata?.user_id;
+      if (cancelledUserId && event.type === "customer.subscription.canceled") {
+        try {
+          await supabase.functions.invoke('referral-lapse', {
+            body: { cancelled_user_id: cancelledUserId },
+          });
+        } catch (lapseErr) {
+          console.warn('Referral lapse check failed (non-fatal):', lapseErr);
+        }
       }
     }
 
