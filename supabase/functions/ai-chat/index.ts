@@ -326,6 +326,8 @@ interface ChatRequest {
   context?: string;
   language?: 'en' | 'es' | 'nl';
   currency?: 'EUR' | 'USD' | 'GBP' | 'AUD';
+  isOwnerPersonal?: boolean;
+  systemOverride?: string;
 }
 
 serve(async (req) => {
@@ -347,6 +349,8 @@ serve(async (req) => {
       context,
       language = 'en',
       currency = 'EUR',
+      isOwnerPersonal,
+      systemOverride,
     }: ChatRequest = await req.json();
 
     if (!message?.trim()) {
@@ -447,11 +451,18 @@ serve(async (req) => {
     const temperature = Number(settings.temperature) || 0.4;
     const maxTokens   = Math.min(Number(settings.max_tokens) || 600, 1000);
 
-    const basePrompt = buildKnowledgeBase(lang, curr) + contactContext + knowledgeAddition;
-    const adminExtra = (settings.system_prompt_extra as string) ?? '';
-    const systemPrompt = adminExtra
-      ? `${basePrompt}\n\nADDITIONAL ADMIN CONTEXT:\n${adminExtra}`
-      : basePrompt;
+    let systemPrompt: string;
+
+    if (isOwnerPersonal && systemOverride) {
+      // Owner personal mode — bypass customer prompts entirely
+      systemPrompt = systemOverride + '\n\nYou have full knowledge of the LifeLink Sync platform and business.';
+    } else {
+      const basePrompt = buildKnowledgeBase(lang, curr) + contactContext + knowledgeAddition;
+      const adminExtra = (settings.system_prompt_extra as string) ?? '';
+      systemPrompt = adminExtra
+        ? `${basePrompt}\n\nADDITIONAL ADMIN CONTEXT:\n${adminExtra}`
+        : basePrompt;
+    }
 
     const { text: rawResponse, provider } = await callAI(
       systemPrompt,
