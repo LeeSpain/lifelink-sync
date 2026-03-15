@@ -141,6 +141,7 @@ const ClaraPersonalPage = () => {
         isLoading={isLoading}
         onMicStart={() => setOrbState('listening')}
         onMicStop={() => setOrbState('thinking')}
+        onWakeWord={() => setOrbState('listening')}
       />
 
       {/* iOS install banner */}

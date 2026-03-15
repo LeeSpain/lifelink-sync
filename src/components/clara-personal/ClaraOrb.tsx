@@ -70,11 +70,27 @@ export function ClaraOrb({ state }: { state: OrbState }) {
     return () => cancelAnimationFrame(animRef.current);
   }, [state]);
 
+  // Wake flash: briefly spike to speaking when entering listening
+  const prevStateRef = useRef(state);
+  useEffect(() => {
+    if (state === 'listening' && prevStateRef.current === 'idle') {
+      // Flash to speaking briefly
+      Object.assign(currentRef.current, ORB_STATES.speaking);
+      setTimeout(() => {
+        Object.assign(currentRef.current, ORB_STATES.listening);
+      }, 400);
+    }
+    prevStateRef.current = state;
+  }, [state]);
+
+  const stateLabel = state === 'listening' ? 'Listening...' : state === 'thinking' ? 'Thinking...' : state === 'speaking' ? 'Speaking...' : 'Ready';
+  const labelColor = state === 'idle' ? '#5a4f80' : state === 'listening' ? '#8070d0' : state === 'thinking' ? '#6090ff' : '#a070ff';
+
   return (
     <div style={{ height: '33.333vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(ellipse at 50% 60%, #1a0f3a 0%, #0a0812 70%)', flexShrink: 0 }}>
       <div style={{ fontSize: 11, letterSpacing: '0.2em', color: '#6b5fa0', textTransform: 'uppercase' as const, marginBottom: 10 }}>CLARA</div>
       <canvas ref={canvasRef} width={140} height={140} style={{ width: 140, height: 140 }} />
-      <div style={{ fontSize: 10, letterSpacing: '0.15em', color: '#5a4f80', textTransform: 'uppercase' as const, marginTop: 10 }}>{state}</div>
+      <div style={{ fontSize: 10, letterSpacing: '0.15em', color: labelColor, textTransform: 'uppercase' as const, marginTop: 10, transition: 'color 0.3s' }}>{stateLabel}</div>
     </div>
   );
 }
