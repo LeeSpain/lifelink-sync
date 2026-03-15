@@ -8,7 +8,7 @@ const ORB_STATES = {
   speaking:  { amplitude: 0.72, speed: 0.036, color: [140, 80, 255] as [number, number, number], alpha: 0.95 },
 };
 
-export function ClaraOrb({ state, modeBadge }: { state: OrbState; modeBadge?: string }) {
+export function ClaraOrb({ state, modeBadge, wakeActive }: { state: OrbState; modeBadge?: string; wakeActive?: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>(0);
   const tRef = useRef(0);
@@ -96,6 +96,13 @@ export function ClaraOrb({ state, modeBadge }: { state: OrbState; modeBadge?: st
           {modeBadge}
         </div>
       )}
+      {wakeActive && state === 'idle' && (
+        <div style={{ fontSize: 9, color: '#4a3f70', marginTop: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#6050a0', animation: 'cpWakePulse 2s infinite' }} />
+          Say "CLARA" to activate
+        </div>
+      )}
+      <style>{`@keyframes cpWakePulse { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }`}</style>
     </div>
   );
 }

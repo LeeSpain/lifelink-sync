@@ -35,6 +35,7 @@ const ClaraPersonalPage = () => {
   const [checking, setChecking] = useState(true);
   const [orbState, setOrbState] = useState<OrbState>('idle');
   const [currentMode, setCurrentMode] = useState('business');
+  const [wakeListening, setWakeListening] = useState(false);
   const [messages, setMessages] = useState<ClaraMessage[]>([
     { id: '1', role: 'clara', content: "Good morning Lee. I'm ready. What do you need?", timestamp: new Date() }
   ]);
@@ -169,7 +170,7 @@ const ClaraPersonalPage = () => {
       paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)',
     }}>
       <div style={{ position: 'relative' }}>
-        <ClaraOrb state={orbState} modeBadge={`${modeInfo.emoji} ${modeInfo.label}`} />
+        <ClaraOrb state={orbState} modeBadge={`${modeInfo.emoji} ${modeInfo.label}`} wakeActive={wakeListening} />
         <button
           onClick={() => {
             const newVal = !voiceEnabled;
@@ -189,6 +190,7 @@ const ClaraPersonalPage = () => {
         onMicStart={() => setOrbState('listening')}
         onMicStop={() => setOrbState('thinking')}
         onWakeWord={() => setOrbState('listening')}
+        onWakeStateChange={setWakeListening}
       />
     </div>
   );
