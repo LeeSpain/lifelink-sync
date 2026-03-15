@@ -66,8 +66,17 @@ export function ClaraOrb({ state, modeBadge, wakeActive }: { state: OrbState; mo
       }
       animRef.current = requestAnimationFrame(draw);
     };
+
+    // Backup interval in case rAF is throttled by iOS during speech recognition
+    const intervalId = window.setInterval(() => {
+      if (!document.hidden) draw();
+    }, 50);
+
     draw();
-    return () => cancelAnimationFrame(animRef.current);
+    return () => {
+      cancelAnimationFrame(animRef.current);
+      clearInterval(intervalId);
+    };
   }, [state]);
 
   // Wake flash: briefly spike to speaking when entering listening
