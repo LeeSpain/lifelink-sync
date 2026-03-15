@@ -1,6 +1,6 @@
 import React from 'react';
 import { useOptimizedAuth } from '@/hooks/useOptimizedAuth';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 
 interface AdminProtectedRouteProps {
   children: React.ReactNode;
@@ -8,6 +8,7 @@ interface AdminProtectedRouteProps {
 
 const AdminProtectedRoute = ({ children }: AdminProtectedRouteProps) => {
   const { user, loading, isAdmin, role } = useOptimizedAuth();
+  const location = useLocation();
 
   // Dev bypass only in actual development mode — NEVER in production
   const isDevMode = import.meta.env.DEV;
@@ -24,9 +25,10 @@ const AdminProtectedRoute = ({ children }: AdminProtectedRouteProps) => {
     );
   }
 
-  // Redirect to auth if not logged in
+  // Redirect to auth if not logged in — pass return URL
   if (!user && !isDevMode) {
-    return <Navigate to="/auth" replace />;
+    const returnTo = encodeURIComponent(location.pathname);
+    return <Navigate to={`/auth?next=${returnTo}`} replace />;
   }
 
   // Server-side role verification via Supabase RLS
