@@ -158,8 +158,13 @@ const AuthPage = () => {
     setSuccess('');
 
     try {
+      // Use canonical URL — must be in Supabase Auth redirect allowlist
+      const siteUrl = window.location.hostname === 'localhost'
+        ? window.location.origin
+        : 'https://lifelink-sync.vercel.app';
+
       const { error } = await supabase.auth.resetPasswordForEmail(emailTrimmed, {
-        redirectTo: `${window.location.origin}/auth?tab=reset`,
+        redirectTo: `${siteUrl}/auth?tab=reset`,
       });
       if (error) throw error;
       setSuccess(t('auth.resetLinkSent'));
