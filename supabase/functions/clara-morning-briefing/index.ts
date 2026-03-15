@@ -104,6 +104,23 @@ serve(async (req) => {
       .select('id', { count: 'exact' })
       .in('status', ['paid', 'delivered']);
 
+    // ── Referral stats ─────────────────────────────────────────
+    const { count: referralConversions } = await supabase
+      .from('referrals')
+      .select('id', { count: 'exact' })
+      .eq('status', 'active')
+      .gte('converted_at', yesterdayISO);
+
+    const { count: totalActiveStars } = await supabase
+      .from('referrals')
+      .select('id', { count: 'exact' })
+      .eq('status', 'active');
+
+    const { count: activeRewards } = await supabase
+      .from('referral_rewards')
+      .select('id', { count: 'exact' })
+      .eq('status', 'active');
+
     // ── Build the briefing message ─────────────────────────────
     const dayName = now.toLocaleDateString('en-GB', { weekday: 'long' });
     const dateStr = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -123,6 +140,10 @@ serve(async (req) => {
       `Expiring today: ${expiringToday ?? 0}`,
       '',
       `Active subscribers: ${activeSubscribers ?? 0}`,
+      '',
+      `Referral conversions (24h): ${referralConversions ?? 0}`,
+      `Total active stars: ${totalActiveStars ?? 0}`,
+      `Free year rewards active: ${activeRewards ?? 0}`,
       '',
       `Gifts sold this week: ${giftsSoldWeek ?? 0}`,
       `Gifts redeemed this week: ${giftsRedeemedWeek ?? 0}`,
