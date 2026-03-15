@@ -220,14 +220,8 @@ function AdminSidebar() {
   const { signOut } = useAuth();
   const navigate = useNavigate();
 
-  // State to track which sections are expanded
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(() => {
-    // Auto-expand the section that contains the current active route
-    const activeSection = adminMenuItems.find(group =>
-      group.items.some(item => currentPath === item.url || currentPath.startsWith(item.url + '/'))
-    );
-    return new Set(activeSection ? [activeSection.title] : []);
-  });
+  // State to track which sections are expanded — all collapsed by default
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
 
   const isActive = (path: string) => currentPath === path;
   const toggleSection = (title: string) => {
