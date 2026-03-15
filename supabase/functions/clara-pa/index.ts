@@ -83,14 +83,17 @@ const interpretPACommand = async (message: string) => {
       messages: [{
         role: 'user',
         content: `Today's date is ${new Date().toISOString().split('T')[0]}.
+tomorrow = ${new Date(Date.now() + 86400000).toISOString().split('T')[0]}.
+next week = ${new Date(Date.now() + 7*86400000).toISOString().split('T')[0]}.
+
 You are CLARA, Lee Wakeman's PA for LifeLink Sync.
 Lee has sent you a PA instruction. Extract the action details.
 
 Message: "${message}"
 
 IMPORTANT:
-- task_text must preserve ALL words Lee used — do not shorten or summarize
-- When calculating dates: tomorrow = today + 1 day, next week = today + 7 days
+- task_text: copy Lee's words exactly, just remove filler like "remind me to"
+- Use the pre-calculated dates above — do NOT guess dates
 - Always use YYYY-MM-DD format for due_date
 
 Respond with JSON only:
@@ -115,6 +118,30 @@ Respond with JSON only:
 serve(async (req) => {
   try {
     const { message, from } = await req.json();
+
+    // Quick: morning briefing
+    if (message.toLowerCase().includes('brief me') ||
+        message.toLowerCase().includes('morning brief') ||
+        message.toLowerCase() === 'briefing') {
+      try {
+        await fetch(Deno.env.get('SUPABASE_URL') + '/functions/v1/clara-morning-briefing', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}` },
+          body: JSON.stringify({ manual: true }),
+        });
+      } catch (e) { console.warn('Briefing failed:', e); }
+      return new Response('', { status: 200 });
+    }
+
+    // Quick: platform status
+    if (message.toLowerCase() === 'status' || message.toLowerCase() === 'platform status') {
+      const yesterday = new Date(Date.now() - 24*60*60*1000).toISOString();
+      const { count: leads } = await supabase.from('leads').select('*', { count: 'exact', head: true }).gte('created_at', yesterday);
+      const { count: hotLeads } = await supabase.from('leads').select('*', { count: 'exact', head: true }).gte('interest_level', 7);
+      const { count: tasks } = await supabase.from('clara_tasks').select('*', { count: 'exact', head: true }).eq('status', 'pending');
+      await sendWhatsApp(from, `📊 PLATFORM STATUS\n\nLeads (24h): ${leads || 0}\nHot leads: ${hotLeads || 0}\nYour tasks: ${tasks || 0}\n\nAll systems: ✅ Running`);
+      return new Response('', { status: 200 });
+    }
 
     // Handle task list commands
     if ((message.toLowerCase().includes('show my') && message.toLowerCase().includes('list')) ||
