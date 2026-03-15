@@ -69,13 +69,23 @@ Risk levels:
 };
 
 // ── CLAUDE CODE EXECUTION ─────────────────────────
+
+interface FileEdit {
+  file_path: string;
+  action: 'replace' | 'prepend' | 'append' | 'create';
+  search?: string;    // for replace only
+  replace?: string;   // for replace only
+  content?: string;   // for prepend/append/create
+  description: string;
+}
+
 const getImplementationPlan = async (
   command: string,
   intent: string
 ): Promise<{
   title: string;
   summary: string;
-  edits: { file_path: string; search: string; replace: string; description: string }[];
+  edits: FileEdit[];
 }> => {
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -93,8 +103,13 @@ const getImplementationPlan = async (
 Lee has confirmed this command: "${command}"
 Interpreted intent: "${intent}"
 
-Produce a JSON implementation plan. Each edit uses search-and-replace on an existing file.
-Read files via the file paths I'll provide. Keep edits minimal and targeted.
+Produce a JSON implementation plan. Keep edits minimal and targeted.
+
+Edit actions available:
+1. "replace" - find exact text and replace it. Use when: modifying existing content.
+2. "prepend" - add content to top of file. Use when: adding headers, comments, imports.
+3. "append" - add content to bottom of file. Use when: adding new functions, exports.
+4. "create" - create a new file entirely. Use when: file doesn't exist yet.
 
 Respond with JSON only:
 {
@@ -103,8 +118,15 @@ Respond with JSON only:
   "edits": [
     {
       "file_path": "src/path/to/file.tsx",
+      "action": "replace",
       "search": "exact string to find in the file",
       "replace": "replacement string",
+      "description": "what this edit does"
+    },
+    {
+      "file_path": "README.md",
+      "action": "prepend",
+      "content": "content to add at top of file",
       "description": "what this edit does"
     }
   ]
@@ -112,7 +134,9 @@ Respond with JSON only:
 
 Rules:
 - Use real file paths from the LifeLink Sync repo (src/, supabase/, public/)
-- search strings must be exact matches from the current file content
+- For "replace": search strings must be exact matches from current file content
+- For "prepend"/"append": provide the content to add
+- For "create": provide the full file content
 - Keep edits small and focused — only change what the command asks for
 - Never touch auth, payment, or emergency code unless explicitly asked
 - Prefer editing existing files over creating new ones
@@ -123,7 +147,6 @@ Rules:
 
   const data = await response.json();
   const text = data.content[0].text;
-  // Extract JSON from potential markdown code blocks
   const jsonMatch = text.match(/\{[\s\S]*\}/);
   if (!jsonMatch) throw new Error('CLARA returned no valid plan');
   return JSON.parse(jsonMatch[0]);
@@ -158,20 +181,46 @@ const runClaudeCode = async (
 
   for (const edit of plan.edits) {
     try {
-      // Read current file
-      const currentContent = await readFile(edit.file_path);
-      filesRead.push(edit.file_path);
+      let newContent: string;
+      const action = edit.action || 'replace'; // backward compat
 
-      // Apply search-and-replace
-      if (!currentContent.includes(edit.search)) {
-        console.warn(`Search string not found in ${edit.file_path}, skipping`);
-        editSummaries.push(`⚠️ ${edit.file_path}: search string not found, skipped`);
-        continue;
+      if (action === 'create') {
+        // Create new file — no read needed
+        newContent = edit.content || '';
+      } else {
+        // Read current file for replace/prepend/append
+        let currentContent: string;
+        try {
+          currentContent = await readFile(edit.file_path);
+          filesRead.push(edit.file_path);
+        } catch (readErr) {
+          if (action === 'prepend' || action === 'append') {
+            // File doesn't exist — treat as create
+            currentContent = '';
+          } else {
+            throw readErr;
+          }
+        }
+
+        if (action === 'replace') {
+          if (!edit.search || !currentContent.includes(edit.search)) {
+            console.warn(`Search string not found in ${edit.file_path}, skipping`);
+            editSummaries.push(`⚠️ ${edit.file_path}: search string not found, skipped`);
+            continue;
+          }
+          newContent = currentContent.replace(edit.search, edit.replace || '');
+        } else if (action === 'prepend') {
+          newContent = (edit.content || '') + '\n\n' + currentContent;
+        } else if (action === 'append') {
+          newContent = currentContent + '\n\n' + (edit.content || '');
+        } else {
+          console.warn(`Unknown action "${action}" for ${edit.file_path}, skipping`);
+          editSummaries.push(`⚠️ ${edit.file_path}: unknown action "${action}"`);
+          continue;
+        }
       }
 
-      const newContent = currentContent.replace(edit.search, edit.replace);
-
-      // Write back
+      // Write file
       await writeFile(
         edit.file_path,
         newContent,
@@ -181,7 +230,7 @@ const runClaudeCode = async (
 
       filesChanged.push(edit.file_path);
       editSummaries.push(`✅ ${edit.file_path}: ${edit.description}`);
-      console.log('Edit applied:', edit.file_path);
+      console.log('Edit applied:', edit.file_path, `(${action})`);
     } catch (editError) {
       const msg = (editError as Error).message;
       console.error(`Edit failed for ${edit.file_path}:`, msg);
