@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
 import { usePreferences } from '@/contexts/PreferencesContext';
 import { useInteractionTracking } from '@/hooks/useInteractionTracking';
+import { formatClaraMessage } from '@/lib/formatClaraMessage';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -323,7 +324,10 @@ const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
                         : 'bg-white text-foreground shadow-sm border border-black/5 rounded-bl-md'
                     }`}
                   >
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{message.content}</p>
+                    <p
+                      className="text-sm leading-relaxed whitespace-pre-wrap break-words"
+                      dangerouslySetInnerHTML={{ __html: formatClaraMessage(message.content) }}
+                    />
                   </div>
                   <p className={`text-[10px] mt-1 px-1 ${message.isUser ? 'text-right' : 'text-left'} text-muted-foreground/60`}>
                     {message.timestamp.toLocaleTimeString(LOCALE_MAP[currentLanguage] || 'en-US', {

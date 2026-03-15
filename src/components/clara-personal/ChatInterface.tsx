@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import type { ClaraMessage } from './types';
+import { formatClaraMessage } from '@/lib/formatClaraMessage';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SpeechRecognitionAny = any;
@@ -67,7 +68,7 @@ export function ChatInterface({ messages, onSend, isLoading, onMicStart, onMicSt
             alignSelf: msg.role === 'clara' ? 'flex-start' : 'flex-end',
             fontSize: 14, lineHeight: 1.5
           }}>
-            {msg.content}
+            <span dangerouslySetInnerHTML={{ __html: msg.role === 'clara' ? formatClaraMessage(msg.content) : msg.content }} />
           </div>
         ))}
         {isLoading && (

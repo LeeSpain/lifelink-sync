@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
 import { usePreferences } from '@/contexts/PreferencesContext';
 import { useInteractionTracking } from '@/hooks/useInteractionTracking';
+import { formatClaraMessage } from '@/lib/formatClaraMessage';
 
 interface Message {
   id: string;
@@ -179,7 +180,10 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onClose, userName = "Us
                       hyphens: 'auto'
                     }}
                   >
-                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                    <p
+                      className="text-sm whitespace-pre-wrap"
+                      dangerouslySetInnerHTML={{ __html: formatClaraMessage(message.content) }}
+                    />
                     <p className="text-xs mt-1 opacity-70">
                       {message.timestamp.toLocaleTimeString([], { 
                         hour: '2-digit', 
