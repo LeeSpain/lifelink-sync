@@ -1,80 +1,73 @@
-# Commercial Build 1 — Annual Pricing Requirements
+# Commercial Build 4 — 5-Star Referral Programme Requirements
 
-## REQ-001: Stripe Annual Price
-**Priority:** Critical (must be first)
-**Description:** Create an annual Stripe price for the Individual Plan at €99.90/year.
-
-- REQ-001.1: Create `setup-annual-pricing` edge function or update `setup-stripe-products` to create annual price
-- REQ-001.2: Store the annual `stripe_price_id` in `subscription_plans` table alongside the monthly one
-- REQ-001.3: Add `billing_interval` column to `subscription_plans` if not present, or add a new row for annual
-- REQ-001.4: Migration to seed the annual plan data: name "Individual Annual", price €99.90, interval "year"
-
-## REQ-002: Pricing Page Toggle
-**Priority:** High
-**Description:** Add monthly/annual toggle to the pricing page. Show savings badge.
-
-- REQ-002.1: Add toggle switch component (Monthly | Annual) above pricing cards
-- REQ-002.2: When "Annual" selected, Individual Plan shows €99.90/year with "Save €19.98" or "2 months free" badge
-- REQ-002.3: Add-on prices stay monthly-only (no annual add-ons)
-- REQ-002.4: Toggle state passed to CTA button so checkout knows which price to use
-- REQ-002.5: All text in EN, ES, NL translations
-
-## REQ-003: Sign-Up Flow Billing Cycle
-**Priority:** High
-**Description:** At the payment step in registration, user can choose monthly or annual.
-
-- REQ-003.1: In `PlanStep.tsx`, if user selects paid (not trial), show billing cycle choice
-- REQ-003.2: Pass selected billing cycle through to `PaymentStep.tsx`
-- REQ-003.3: `process-mixed-payment` or `create-checkout` must use the correct Stripe price ID based on cycle
-- REQ-003.4: Trial flow unchanged — trial users choose billing cycle only when converting to paid
-
-## REQ-004: Member Dashboard Billing Display
-**Priority:** Medium
-**Description:** Show current billing cycle and renewal date in member dashboard.
-
-- REQ-004.1: `SubscriptionCard.tsx` shows "Monthly" or "Annual" label
-- REQ-004.2: Shows next renewal date
-- REQ-004.3: Shows savings info for annual ("You save €19.98/year")
-- REQ-004.4: "Switch to Annual" upsell for monthly subscribers
-- REQ-004.5: All text in EN, ES, NL
-
-## REQ-005: Admin Dashboard Annual Metrics
-**Priority:** Medium
-**Description:** Admin sees annual vs monthly breakdown.
-
-- REQ-005.1: `RevenueAnalyticsPage.tsx` shows monthly vs annual subscriber counts
-- REQ-005.2: MRR calculation includes annualized monthly equivalent for annual subs
-- REQ-005.3: `SubscriptionsPage.tsx` shows billing interval column
-
-## REQ-006: CLARA Training Data
-**Priority:** Medium
-**Description:** CLARA knows about annual pricing and can sell it.
-
-- REQ-006.1: Migration to add training_data rows for annual pricing Q&A
-- REQ-006.2: Update ai-chat system prompt to mention annual option
-- REQ-006.3: WhatsApp system prompt updated to mention annual option
-
-## REQ-007: Stripe Webhook Update
+## REQ-001: Database Schema
 **Priority:** Critical
-**Description:** Webhook must handle annual subscription events correctly.
+- REQ-001.1: Create `referrals` table: referrer_id, referred_user_id, star_position (1-5), status (pending/active/cancelled), converted_at, stripe_subscription_item_id
+- REQ-001.2: Create `referral_rewards` table: user_id, reward_type, stripe_credit_id, starts_at, ends_at, status (active/paused/expired)
+- REQ-001.3: Add `referral_code` column to `profiles` (unique per user, auto-generated)
+- REQ-001.4: RLS: users can read own referrals, service_role can manage all
+- REQ-001.5: Indexes on referrer_id, referred_user_id, status
 
-- REQ-007.1: `stripe-webhook` must recognize annual subscriptions
-- REQ-007.2: Set correct `subscription_end` date (1 year from now, not 1 month)
-- REQ-007.3: `subscribers` table records billing interval
+## REQ-002: Referral Link + Registration
+**Priority:** High
+- REQ-002.1: Referral URL format: `lifelink-sync.com/join?ref=[referral_code]`
+- REQ-002.2: When visitor arrives via referral link, store `ref` in localStorage
+- REQ-002.3: On registration, attach referral_code to subscriber record
+- REQ-002.4: Create pending referral row (star_position = next available 1-5)
+
+## REQ-003: Star Conversion (referral-convert)
+**Priority:** Critical
+- REQ-003.1: Edge function `referral-convert` called from stripe-webhook when referred user's first payment succeeds
+- REQ-003.2: Update referral status pending → active, set converted_at
+- REQ-003.3: Check if all 5 stars are now active
+- REQ-003.4: If all 5 gold → call apply-referral-reward
+
+## REQ-004: Reward Application (apply-referral-reward)
+**Priority:** Critical
+- REQ-004.1: Create 12-month Stripe subscription credit via Stripe API
+- REQ-004.2: Record in referral_rewards table
+- REQ-004.3: Send WhatsApp to Lee + email to referrer
+- REQ-004.4: CLARA congratulates referrer in next conversation
+
+## REQ-005: Star Lapse (referral-lapse)
+**Priority:** High
+- REQ-005.1: When referred user cancels, revert their star to cancelled
+- REQ-005.2: If free year was active and now < 5 gold stars, pause the credit
+- REQ-005.3: Notify referrer: "One of your referrals cancelled — you need X more to maintain your free year"
+
+## REQ-006: Dashboard UI
+**Priority:** High
+- REQ-006.1: Referral panel in member dashboard with 5-star visual tracker
+- REQ-006.2: Stars: silver (empty) → gold (converted) with animation
+- REQ-006.3: Share button with referral link (copy to clipboard)
+- REQ-006.4: Progress counter: "3 of 5 stars — 2 more for your free year!"
+- REQ-006.5: At 4 stars: nudge "One more and your year is free!"
+- REQ-006.6: All text in EN/ES/NL
+
+## REQ-007: Admin View
+**Priority:** Medium
+- REQ-007.1: Champion leaderboard (top referrers by active star count)
+- REQ-007.2: Credits applied tracking
+- REQ-007.3: Referral conversion funnel (link clicks → trials → paid → all 5)
+
+## REQ-008: CLARA Training Data
+**Priority:** Medium
+- REQ-008.1: Q&A rows for referral programme
+- REQ-008.2: CLARA mentions referral programme when subscriber asks about discounts
+- REQ-008.3: CLARA congratulates on gold star events
 
 ---
 
 ## Acceptance Criteria
-
-- [ ] Pricing page shows monthly/annual toggle with "2 months free" badge
-- [ ] Sign-up flow allows annual selection at payment step
-- [ ] Stripe checkout creates annual subscription at €99.90/year
-- [ ] Member dashboard shows billing cycle and renewal date
-- [ ] Admin dashboard shows annual vs monthly counts
-- [ ] CLARA can explain annual pricing when asked
-- [ ] Existing monthly subscribers are unaffected
-- [ ] All new UI text available in EN, ES, NL
-- [ ] Trial flow is completely unchanged
+- [ ] Subscriber has unique referral link in dashboard
+- [ ] 5-star tracker shows silver/gold state correctly
+- [ ] Referred user's first payment turns star gold
+- [ ] All 5 gold simultaneously → 12-month Stripe credit applied
+- [ ] Referred user cancels → star reverts to silver, credit paused
+- [ ] No stacking — one programme per account
+- [ ] Admin sees leaderboard + conversion funnel
+- [ ] CLARA knows about referral programme
+- [ ] Existing subscribers/family/gifts unaffected
 
 ---
-*Last updated: 2026-03-14*
+*Last updated: 2026-03-15*

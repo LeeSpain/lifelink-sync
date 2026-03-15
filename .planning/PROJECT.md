@@ -14,30 +14,28 @@ CLARA is the autonomous AI sales, support, and safety assistant.
 - Anthropic Claude (AI provider)
 - Stripe (payments, subscriptions)
 
-## Current Milestone: v3.0 Commercial Build 1 — Annual Pricing
+## Current Milestone: v5.0 Commercial Build 4 — 5-Star Referral Programme
 
-**Goal:** Add annual billing option across the entire platform. €99.90/year = 2 months free vs €9.99/month. Consistent across pricing page, sign-up flow, Stripe, member dashboard, admin dashboard, and CLARA training data.
+**Goal:** Referral system where subscribers earn 12 months free CLARA when 5 people they refer become simultaneous paying members. Visual 5-star progress in dashboard.
 
 **Target features:**
-- Monthly/Annual toggle on pricing page
-- Annual Stripe price (€99.90/year) created and linked
-- Sign-up flow offers billing cycle choice at payment step
-- Member dashboard shows billing cycle + renewal date
-- Admin dashboard shows annual vs monthly subscriber counts
-- CLARA training data updated to know about annual pricing
-- All UI changes in EN, ES, NL
+- Unique referral link per subscriber (lifelink-sync.com/join?ref=[userID])
+- 5-star visual tracker (silver → gold as referrals convert)
+- Referral only counts on FIRST PAYMENT (not trial)
+- Star reverts if referred member cancels
+- All 5 must be gold simultaneously for reward
+- 12-month Stripe credit applied automatically
+- CLARA congratulates on each gold star
+- Admin: champion leaderboard, credits tracking, conversion funnel
 
 **Out of scope:**
-- Family billing bundles (separate milestone)
-- Gift subscriptions (separate milestone)
-- Referral programme (separate milestone)
-- Trial flow changes (7-day free, no card stays exactly the same)
+- Multiple programmes per account (no stacking)
+- Referral for family seats (individual subscriptions only)
 
 **Constraints:**
-- Must not break existing monthly subscribers
-- Trial → paid conversion can offer annual as alternative
-- Annual option appears at point of first payment only
-- Existing Stripe webhook handler must be updated to handle annual
+- Must not break existing subscribers, family seats, gifts, annual pricing
+- Auto-renews while all 5 remain active
+- Stripe credit, not plan change
 
 ## Active Requirements
 See REQUIREMENTS.md
@@ -46,5 +44,5 @@ See REQUIREMENTS.md
 See MILESTONES.md
 
 ---
-*Last updated: 2026-03-14*
+*Last updated: 2026-03-15*
 *Maintainer: LeeSpain*

@@ -1,98 +1,70 @@
-# Commercial Build 1 — Annual Pricing Roadmap
+# Commercial Build 4 — 5-Star Referral Programme Roadmap
 
-## Milestone: v3.0 Annual Pricing
+## Milestone: v5.0
 
 ---
 
-## Phase 1: Stripe + Database Foundation
-**Requirements:** REQ-001, REQ-007
+## Phase 1: Database + Referral Code Generation
+**Requirements:** REQ-001, REQ-002 (partial)
 **Estimated effort:** 1-2 hours
-**Dependencies:** None
 
 ### Tasks
-1. Create migration to add annual plan to `subscription_plans`
-   - New row: name "Individual Annual", price 99.90, billing_interval "year", is_active true
-   - Add `billing_interval` to `subscribers` table if not present
-2. Update `setup-stripe-products` or create edge function to create annual Stripe price
-3. Update `stripe-webhook` to handle annual subscription lifecycle
-4. Update `subscribers` insert/update to record billing_interval
-5. Add CLARA training data for annual pricing
-
-### Deliverables
-- Migration file with annual plan + training data
-- Updated stripe-webhook
-- Annual Stripe price created
+1. Migration: create `referrals` table, `referral_rewards` table
+2. Migration: add `referral_code` to profiles, auto-generate for existing users
+3. Add CLARA training data for referral programme
+4. Deploy migration
 
 ---
 
-## Phase 2: Pricing Page Toggle
-**Requirements:** REQ-002
-**Estimated effort:** 1-2 hours
-**Dependencies:** Phase 1 (annual price must exist)
+## Phase 2: Registration + Stripe Integration
+**Requirements:** REQ-002, REQ-003
+**Estimated effort:** 2-3 hours
 
 ### Tasks
-1. Add monthly/annual toggle to `src/components/Pricing.tsx`
-2. When annual selected, show €99.90/year with savings badge
-3. Pass billing cycle to CTA/checkout link
-4. Add EN, ES, NL translations for toggle + savings text
-5. Update `usePricing.ts` hook if needed
-
-### Deliverables
-- Updated Pricing.tsx with toggle
-- Translation keys added
+1. Frontend: capture `ref` param on registration page, store in localStorage
+2. Registration flow: attach referral_code to subscriber on sign-up
+3. Edge function `referral-convert`: called from stripe-webhook on first payment
+4. Update stripe-webhook to detect referred users and call referral-convert
+5. Deploy functions
 
 ---
 
-## Phase 3: Sign-Up Flow + Checkout
-**Requirements:** REQ-003
-**Estimated effort:** 1-2 hours
-**Dependencies:** Phase 1 (Stripe price must exist)
-
-### Tasks
-1. Add billing cycle selector to PlanStep.tsx (only when paid plan selected)
-2. Pass billing_interval through wizard state to PaymentStep.tsx
-3. Update `create-checkout` or `process-mixed-payment` to accept billing_interval param
-4. Use correct Stripe price ID based on monthly/annual
-5. Add EN, ES, NL translations
-
-### Deliverables
-- Updated PlanStep.tsx, PaymentStep.tsx
-- Updated checkout edge function
-
----
-
-## Phase 4: Member Dashboard + Admin
+## Phase 3: Reward + Lapse Logic
 **Requirements:** REQ-004, REQ-005
-**Estimated effort:** 1-2 hours
-**Dependencies:** Phase 1
+**Estimated effort:** 2 hours
 
 ### Tasks
-1. Update `SubscriptionCard.tsx` to show billing cycle + renewal date
-2. Add "Switch to Annual" upsell for monthly subscribers
-3. Update `RevenueAnalyticsPage.tsx` with annual/monthly breakdown
-4. Update `SubscriptionsPage.tsx` with billing interval column
-5. Add EN, ES, NL translations
-
-### Deliverables
-- Updated member dashboard components
-- Updated admin dashboard components
+1. Edge function `apply-referral-reward`: Stripe credit + notifications
+2. Edge function `referral-lapse`: revert star, pause credit
+3. Update stripe-webhook to call referral-lapse on cancellation
+4. Deploy functions
 
 ---
 
-## Phase 5: CLARA + Final QA
+## Phase 4: Dashboard UI — 5 Stars
 **Requirements:** REQ-006
-**Estimated effort:** 30 min
-**Dependencies:** Phase 1
+**Estimated effort:** 2-3 hours
 
 ### Tasks
-1. Update ai-chat system prompt to mention annual option
-2. Update whatsapp-inbound system prompt
-3. Smoke test: ask CLARA about annual pricing on web + WhatsApp
-4. Full QA: pricing page, sign-up, dashboard, admin, webhook
+1. New component: `ReferralPanel.tsx` with 5-star tracker
+2. Star animation: silver → gold flip
+3. Share button with copy-to-clipboard referral link
+4. Progress counter + nudge messages
+5. Add to member dashboard
+6. EN/ES/NL translations
 
-### Deliverables
-- Updated ai-chat and whatsapp-inbound
-- QA passed
+---
+
+## Phase 5: Admin View + Final QA
+**Requirements:** REQ-007, REQ-008
+**Estimated effort:** 1-2 hours
+
+### Tasks
+1. Admin page: champion leaderboard
+2. Credits applied tracking
+3. Conversion funnel metrics
+4. CLARA prompt updates
+5. Full QA
 
 ---
 
@@ -100,13 +72,13 @@
 
 | Phase | What | Est. Time |
 |-------|------|-----------|
-| 1 | Stripe + DB foundation + training data | 1-2h |
-| 2 | Pricing page toggle | 1-2h |
-| 3 | Sign-up flow + checkout | 1-2h |
-| 4 | Member + Admin dashboards | 1-2h |
-| 5 | CLARA prompts + QA | 30m |
+| 1 | Database + referral codes + training data | 1-2h |
+| 2 | Registration capture + Stripe convert | 2-3h |
+| 3 | Reward application + lapse handling | 2h |
+| 4 | Dashboard 5-star UI | 2-3h |
+| 5 | Admin view + QA | 1-2h |
 
-**Total estimated: 5-8 hours**
+**Total estimated: 8-12 hours**
 
 ---
-*Last updated: 2026-03-14*
+*Last updated: 2026-03-15*
