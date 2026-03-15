@@ -61,7 +61,7 @@ const AdminDashboard: React.FC = () => {
   return (
     <Routes>
       <Route path="/" element={<AdminLayout />}>
-        <Route index element={<EnhancedDashboardOverview />} />
+        <Route index element={<AIOverview />} />
         <Route path="analytics" element={<AnalyticsPage />} />
         <Route path="video-analytics" element={<VideoAnalyticsPage />} />
         <Route path="revenue" element={<RevenueAnalyticsPage />} />
