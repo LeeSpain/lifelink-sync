@@ -432,6 +432,41 @@ serve(async (req) => {
       return new Response('', { status: 200 });
     }
 
+    if (messageBody === '/pa') {
+      await supabase.from('clara_admin_mode')
+        .upsert({ admin_phone: adminPhone, current_mode: 'pa', mode_set_at: new Date().toISOString() }, { onConflict: 'admin_phone' });
+      await sendWhatsApp(fromNumber, '🤝 PA MODE ON\nI\'m acting as your personal assistant.\nI can:\n• Send WhatsApp messages on your behalf\n• Send emails on your behalf\n• Manage your to-do list\n• Research anything\n\nWhat do you need done?\nSend /business to return to normal mode.');
+      return new Response('', { status: 200 });
+    }
+
+    if (messageBody === '/planning') {
+      await supabase.from('clara_admin_mode')
+        .upsert({ admin_phone: adminPhone, current_mode: 'planning', mode_set_at: new Date().toISOString() }, { onConflict: 'admin_phone' });
+      await sendWhatsApp(fromNumber, '🧠 PLANNING MODE ON\nNo actions taken until you say "execute".\n\nSay "save [plan name]" to save a plan.\nSay "show my plans" to see all plans.\n\nWhat are we planning?');
+      return new Response('', { status: 200 });
+    }
+
+    if (messageBody === '/sales') {
+      await supabase.from('clara_admin_mode')
+        .upsert({ admin_phone: adminPhone, current_mode: 'sales', mode_set_at: new Date().toISOString() }, { onConflict: 'admin_phone' });
+      await sendWhatsApp(fromNumber, '💰 SALES MODE ON\nFocused on the sales pipeline.\nI can chase leads, send follow-ups,\ncheck conversion rates and hot leads.\nWhat do you need?');
+      return new Response('', { status: 200 });
+    }
+
+    if (messageBody === '/marketing') {
+      await supabase.from('clara_admin_mode')
+        .upsert({ admin_phone: adminPhone, current_mode: 'marketing', mode_set_at: new Date().toISOString() }, { onConflict: 'admin_phone' });
+      await sendWhatsApp(fromNumber, '📣 MARKETING MODE ON\nFocused on campaigns and content.\nWhat do you need?');
+      return new Response('', { status: 200 });
+    }
+
+    if (messageBody === '/ops') {
+      await supabase.from('clara_admin_mode')
+        .upsert({ admin_phone: adminPhone, current_mode: 'ops', mode_set_at: new Date().toISOString() }, { onConflict: 'admin_phone' });
+      await sendWhatsApp(fromNumber, '⚙️ OPS MODE ON\nFocused on platform operations.\nWhat do you need?');
+      return new Response('', { status: 200 });
+    }
+
     // ── CHECK CURRENT MODE ─────────────────────────────
     const { data: adminMode } = await supabase
       .from('clara_admin_mode')
@@ -465,9 +500,33 @@ serve(async (req) => {
       return new Response('', { status: 200 });
     }
 
+    // ── PA MODE: route to clara-pa ─────────────────────
+    if (currentMode === 'pa') {
+      try {
+        await fetch(Deno.env.get('SUPABASE_URL') + '/functions/v1/clara-pa', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}` },
+          body: JSON.stringify({ message: messageBody, from: fromNumber }),
+        });
+      } catch (e) { console.warn('PA mode failed:', e); }
+      return new Response('', { status: 200 });
+    }
+
+    // ── PLANNING MODE: route to clara-planning ───────
+    if (currentMode === 'planning') {
+      try {
+        await fetch(Deno.env.get('SUPABASE_URL') + '/functions/v1/clara-planning', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}` },
+          body: JSON.stringify({ message: messageBody, from: fromNumber }),
+        });
+      } catch (e) { console.warn('Planning mode failed:', e); }
+      return new Response('', { status: 200 });
+    }
+
     // ── DEV MODE: continue with dev agent logic ────────
 
-    // ── RATE LIMIT: 20 commands per 24 hours ─────────
+    // ── RATE LIMIT: 50 commands per 24 hours ─────────
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const { count } = await supabase
       .from('dev_agent_log')
