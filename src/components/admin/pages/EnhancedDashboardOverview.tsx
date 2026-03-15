@@ -798,6 +798,39 @@ const EnhancedDashboardOverview: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* CLARA Personal App */}
+      <Card className="border overflow-hidden" style={{ background: '#0a0812', borderColor: '#2a1e50' }}>
+        <CardContent className="p-6">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: 'radial-gradient(ellipse, #1a0f3a, #0a0812)' }}>
+              <div className="w-8 h-8 rounded-full" style={{ background: 'radial-gradient(circle, #8050ff, #3220a0)' }} />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-bold" style={{ color: '#b8a8e8' }}>CLARA Personal</h3>
+              <p className="text-sm" style={{ color: '#5a4f80' }}>Your private AI business assistant</p>
+            </div>
+          </div>
+          <div className="flex gap-3 mt-4">
+            <a
+              href="https://clara-personal.vercel.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 py-2.5 px-4 rounded-lg text-center text-sm font-medium transition-colors"
+              style={{ background: '#5a35b8', color: '#e8e0ff' }}
+            >
+              Open Web App
+            </a>
+            <button
+              className="flex-1 py-2.5 px-4 rounded-lg text-sm font-medium"
+              style={{ background: '#1a1230', color: '#5a4f80', border: '1px solid #2a1e50', cursor: 'default' }}
+              disabled
+            >
+              Android APK (coming)
+            </button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
