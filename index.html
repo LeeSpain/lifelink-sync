@@ -45,7 +45,7 @@
           window.matchMedia('(display-mode: standalone)').matches;
         var pwaTarget = localStorage.getItem('pwa_target');
 
-        if (isStandalone && pwaTarget === 'clara-personal' && window.location.pathname === '/') {
+        if (isStandalone && pwaTarget === 'clara-personal' && !window.location.pathname.includes('clara-personal')) {
           window.location.replace('/clara-personal');
         }
       } catch(e) {}

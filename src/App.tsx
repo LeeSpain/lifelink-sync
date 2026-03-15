@@ -107,16 +107,17 @@ function AppWithTracking() {
             const isIOSPWA = (window.navigator as any).standalone === true;
             const isInstalledPWA = isStandalone || isFullscreen || isIOSPWA;
 
-            // CLARA Personal PWA — always redirect if installed as CLARA
+            // CLARA Personal PWA — bypass React Router entirely
             const pwaTarget = localStorage.getItem('pwa_target');
             if (isInstalledPWA && pwaTarget === 'clara-personal') {
-              return <Navigate to="/clara-personal" replace />;
+              window.location.replace('/clara-personal');
+              return null;
             }
-            // Also check sessionStorage (backup)
             const claraActive = sessionStorage.getItem('clara_personal_active');
             if (claraActive) {
               sessionStorage.removeItem('clara_personal_active');
-              return <Navigate to="/clara-personal" replace />;
+              window.location.replace('/clara-personal');
+              return null;
             }
             // Tablet PWA
             const isTabletIntent = localStorage.getItem('pwa_intent') === 'tablet';
