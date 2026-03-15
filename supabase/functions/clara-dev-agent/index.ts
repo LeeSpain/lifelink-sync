@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { readFile, writeFile, createBranch, createPR, listFiles } from './github.ts';
+import { readFile, writeFile, createBranch, createPR, listFiles, searchFiles } from './github.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -219,14 +219,28 @@ const runClaudeCode = async (
         } catch (readErr) {
           fileExists = false;
           if (action === 'prepend' || action === 'append') {
-            // File doesn't exist — treat as create
             console.log(`File ${edit.file_path} not found — creating with ${action} content`);
             currentContent = '';
           } else {
-            // replace on non-existent file — report clearly
-            console.warn(`File not found for replace: ${edit.file_path}`);
-            editSummaries.push(`⚠️ ${edit.file_path}: file not found — cannot replace`);
-            continue;
+            // replace on non-existent file — try auto-search
+            const fileName = edit.file_path.split('/').pop() || '';
+            console.warn(`File not found: ${edit.file_path} — searching for ${fileName}`);
+            try {
+              const foundPaths = await searchFiles(fileName, 'src');
+              if (foundPaths.length > 0) {
+                console.log(`Auto-found: ${foundPaths[0]}`);
+                edit.file_path = foundPaths[0];
+                currentContent = await readFile(edit.file_path);
+                filesRead.push(edit.file_path);
+                fileExists = true;
+              } else {
+                editSummaries.push(`⚠️ ${edit.file_path}: file not found anywhere`);
+                continue;
+              }
+            } catch {
+              editSummaries.push(`⚠️ ${edit.file_path}: file not found — cannot replace`);
+              continue;
+            }
           }
         }
 
@@ -421,15 +435,44 @@ serve(async (req) => {
     }
 
     // ── QUERY MODE (read-only, no PR) ─────────────────
-    const isQuery = /^(list|show|find|search|what files|what is in|where is|read|cat|get)/i.test(messageBody.trim());
+    const isQuery = /^(list|show|find|search|what files|what is in|where is|locate|read|cat|get)/i.test(messageBody.trim());
 
     if (isQuery) {
+      // Detect find/search vs list/show
+      const isFindQuery = /^(find|search|where is|locate)/i.test(messageBody.trim());
+
+      if (isFindQuery) {
+        // Recursive file search
+        const termMatch = messageBody.match(/(?:find|search|where is|locate)\s+(.+)/i);
+        const searchTerm = termMatch ? termMatch[1].trim() : messageBody;
+
+        try {
+          const found = await searchFiles(searchTerm, 'src');
+          // Also search supabase/functions
+          const funcFound = await searchFiles(searchTerm, 'supabase/functions');
+          const allFound = [...found, ...funcFound];
+
+          if (allFound.length === 0) {
+            await sendWhatsApp(fromNumber, `🔍 No files matching "${searchTerm}" found in src/ or supabase/functions/`);
+          } else {
+            const display = allFound.length > 20
+              ? allFound.slice(0, 20).join('\n') + `\n... and ${allFound.length - 20} more`
+              : allFound.join('\n');
+            await sendWhatsApp(fromNumber, `🔍 Files matching "${searchTerm}" (${allFound.length}):\n${display}`);
+          }
+        } catch (e) {
+          await sendWhatsApp(fromNumber, `❌ Search failed: ${(e as Error).message}`);
+        }
+        return new Response('', { status: 200 });
+      }
+
+      // Directory listing
       const pathMatch = messageBody.match(/(src\/[\w\/\-\.]+|supabase\/[\w\/\-\.]+|public\/[\w\/\-\.]+)/i);
       const queryPath = pathMatch ? pathMatch[0].trim() : null;
 
       if (!queryPath) {
         await sendWhatsApp(fromNumber,
-          `What path do you want to list? Try:\n• src/components\n• src/pages\n• src/components/settings\n• supabase/functions`
+          `What path do you want to list? Try:\n• list src/components\n• list src/pages\n• find Pricing\n• search AuthPage`
         );
         return new Response('', { status: 200 });
       }
@@ -445,9 +488,7 @@ serve(async (req) => {
           await sendWhatsApp(fromNumber, `📁 ${queryPath}:\n${display}`);
         }
       } catch (e) {
-        await sendWhatsApp(fromNumber,
-          `❌ Could not read ${queryPath}: ${(e as Error).message}`
-        );
+        await sendWhatsApp(fromNumber, `❌ Could not read ${queryPath}: ${(e as Error).message}`);
       }
       return new Response('', { status: 200 });
     }

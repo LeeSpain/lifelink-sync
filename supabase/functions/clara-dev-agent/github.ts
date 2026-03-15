@@ -208,3 +208,33 @@ export const listFiles = async (dirPath: string): Promise<string[]> => {
     ? data.map((f: { name: string }) => f.name)
     : [];
 };
+
+export const searchFiles = async (
+  searchTerm: string,
+  searchPath: string = 'src'
+): Promise<string[]> => {
+  const results: string[] = [];
+
+  const searchDir = async (dirPath: string, depth = 0) => {
+    if (depth > 4) return; // max 4 levels deep to avoid rate limits
+    try {
+      const items = await githubApi(`${repo()}/contents/${dirPath}`);
+      if (!Array.isArray(items)) return;
+
+      for (const item of items) {
+        if (item.type === 'file') {
+          if (item.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+            results.push(item.path);
+          }
+        } else if (item.type === 'dir') {
+          await searchDir(item.path, depth + 1);
+        }
+      }
+    } catch {
+      // Skip inaccessible directories
+    }
+  };
+
+  await searchDir(searchPath);
+  return results;
+};
