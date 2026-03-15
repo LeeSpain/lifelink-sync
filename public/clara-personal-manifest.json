@@ -1,17 +1,25 @@
 {
-  "name": "CLARA Personal",
+  "name": "CLARA",
   "short_name": "CLARA",
-  "description": "Your private AI assistant",
+  "description": "Your private AI",
   "start_url": "/clara-personal",
+  "scope": "/clara-personal",
   "display": "standalone",
   "background_color": "#0a0812",
   "theme_color": "#0a0812",
-  "orientation": "portrait",
+  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "/icons/clara-orb.svg",
       "sizes": "any",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/apple-touch-icon.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
     }
   ]
 }

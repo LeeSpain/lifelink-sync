@@ -10,44 +10,70 @@ const ClaraPersonalPage = () => {
     { id: '1', role: 'clara', content: "Good morning Lee. I'm ready. What do you need?", timestamp: new Date() }
   ]);
   const [isLoading, setIsLoading] = useState(false);
-  const [showInstallBanner, setShowInstallBanner] = useState(() => {
-    return !localStorage.getItem('clara_pwa_dismissed');
-  });
+  const [showInstallBanner, setShowInstallBanner] = useState(false);
   const sessionId = useRef(`personal-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`);
 
-  // PWA full-screen setup
+  // PWA full-screen setup + Apple meta tags
   useEffect(() => {
-    // Inject manifest
-    const link = document.createElement('link');
-    link.rel = 'manifest';
-    link.href = '/clara-personal-manifest.json';
-    document.head.appendChild(link);
+    // Apple PWA meta tags — full screen, no bars
+    const tags = [
+      { name: 'apple-mobile-web-app-capable', content: 'yes' },
+      { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
+      { name: 'apple-mobile-web-app-title', content: 'CLARA' },
+      { name: 'mobile-web-app-capable', content: 'yes' },
+      { name: 'theme-color', content: '#0a0812' },
+    ];
 
-    // Force full screen
+    const addedElements: HTMLElement[] = [];
+
+    tags.forEach(({ name, content }) => {
+      const existing = document.querySelector(`meta[name="${name}"]`);
+      if (existing) existing.remove();
+      const meta = document.createElement('meta');
+      meta.name = name;
+      meta.content = content;
+      document.head.appendChild(meta);
+      addedElements.push(meta);
+    });
+
+    // Apple touch icon
+    const iconLink = document.createElement('link');
+    iconLink.rel = 'apple-touch-icon';
+    iconLink.href = '/icons/apple-touch-icon.svg';
+    document.head.appendChild(iconLink);
+    addedElements.push(iconLink);
+
+    // Manifest
+    const manifestLink = document.createElement('link');
+    manifestLink.rel = 'manifest';
+    manifestLink.href = '/clara-personal-manifest.json';
+    document.head.appendChild(manifestLink);
+    addedElements.push(manifestLink);
+
+    // Force full screen body
+    const prevOverflow = document.body.style.overflow;
+    const prevPosition = document.body.style.position;
     document.body.style.overflow = 'hidden';
     document.body.style.position = 'fixed';
     document.body.style.width = '100%';
     document.body.style.height = '100%';
 
-    // Theme color
-    let meta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement;
-    const prevTheme = meta?.content;
-    if (meta) {
-      meta.content = '#0a0812';
-    } else {
-      meta = document.createElement('meta');
-      meta.name = 'theme-color';
-      meta.content = '#0a0812';
-      document.head.appendChild(meta);
+    // iOS install banner detection
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+      || (navigator as unknown as { standalone?: boolean }).standalone === true;
+    const dismissed = localStorage.getItem('clara_pwa_dismissed') === '1';
+
+    if (isIOS && !isStandalone && !dismissed) {
+      setShowInstallBanner(true);
     }
 
     return () => {
-      document.body.style.overflow = '';
-      document.body.style.position = '';
+      document.body.style.overflow = prevOverflow;
+      document.body.style.position = prevPosition;
       document.body.style.width = '';
       document.body.style.height = '';
-      if (prevTheme && meta) meta.content = prevTheme;
-      link.remove();
+      addedElements.forEach(el => el.remove());
     };
   }, []);
 
@@ -88,12 +114,20 @@ const ClaraPersonalPage = () => {
 
   return (
     <div style={{
-      position: 'fixed', inset: 0, zIndex: 9999,
-      width: '100vw', height: '100dvh',
+      position: 'fixed',
+      top: 0, left: 0, right: 0, bottom: 0,
+      width: '100vw',
+      height: '100dvh',
+      zIndex: 9999,
       background: '#0a0812',
-      display: 'flex', flexDirection: 'column',
+      display: 'flex',
+      flexDirection: 'column',
       overflow: 'hidden',
-      fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif'
+      fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
+      paddingTop: 'env(safe-area-inset-top)',
+      paddingBottom: 'env(safe-area-inset-bottom)',
+      paddingLeft: 'env(safe-area-inset-left)',
+      paddingRight: 'env(safe-area-inset-right)',
     }}>
       <ClaraOrb state={orbState} />
       <ChatInterface
@@ -104,24 +138,29 @@ const ClaraPersonalPage = () => {
         onMicStop={() => setOrbState('thinking')}
       />
 
-      {/* Install PWA banner — shown once */}
+      {/* iOS install banner */}
       {showInstallBanner && (
         <div style={{
-          position: 'fixed', bottom: 0, left: 0, right: 0,
-          padding: '12px 16px',
+          position: 'fixed',
+          bottom: 'env(safe-area-inset-bottom, 0px)',
+          left: 0, right: 0,
+          padding: '14px 16px',
           background: '#1a1230',
           borderTop: '1px solid #2a1e50',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          zIndex: 10000
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 8,
+          zIndex: 10000,
         }}>
-          <span style={{ color: '#b8a8e8', fontSize: 13 }}>
-            Add to Home Screen for full screen
+          <span style={{ color: '#b8a8e8', fontSize: 12, lineHeight: 1.4 }}>
+            Tap the Share button <span style={{ fontSize: 16 }}>□↑</span> then "Add to Home Screen" for full screen
           </span>
           <button
             onClick={dismissBanner}
             style={{
               background: 'none', border: 'none', color: '#5a4f80',
-              fontSize: 18, cursor: 'pointer', padding: '0 4px'
+              fontSize: 18, cursor: 'pointer', padding: '0 4px', flexShrink: 0
             }}
           >
             ✕
