@@ -52,7 +52,11 @@ const ClaraPersonalPage = () => {
   }, []);
 
   const speakResponse = (text: string) => {
-    if (!window.speechSynthesis || !voiceEnabled) return;
+    if (!window.speechSynthesis || !voiceEnabled) {
+      setOrbState('speaking');
+      setTimeout(() => setOrbState('idle'), 2000);
+      return;
+    }
     window.speechSynthesis.cancel();
     const clean = text.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1').replace(/#{1,6}\s/g, '').replace(/[🛡️🤝🧠💼🔧💰📣⚙️📝✅❌⚠️🔥📊📋🔍💾]/gu, '').trim();
     const utterance = new SpeechSynthesisUtterance(clean);
@@ -61,9 +65,16 @@ const ClaraPersonalPage = () => {
     const voices = window.speechSynthesis.getVoices();
     const femaleVoice = voices.find(v => v.name.includes('Samantha') || v.name.includes('Karen') || v.name.includes('Moira') || (v.lang.startsWith('en') && v.name.toLowerCase().includes('female')));
     if (femaleVoice) utterance.voice = femaleVoice;
+
+    // Safety timeout — never stay on speaking forever
+    const speechTimeout = setTimeout(() => {
+      window.speechSynthesis.cancel();
+      setOrbState('idle');
+    }, 15000);
+
     utterance.onstart = () => setOrbState('speaking');
-    utterance.onend = () => setOrbState('idle');
-    utterance.onerror = () => setOrbState('idle');
+    utterance.onend = () => { clearTimeout(speechTimeout); setOrbState('idle'); };
+    utterance.onerror = () => { clearTimeout(speechTimeout); setOrbState('idle'); };
     window.speechSynthesis.speak(utterance);
   };
 
@@ -125,6 +136,12 @@ const ClaraPersonalPage = () => {
     setOrbState('thinking');
     setIsLoading(true);
 
+    // Safety timeout — orb always returns to idle
+    const safetyTimeout = setTimeout(() => {
+      setOrbState('idle');
+      setIsLoading(false);
+    }, 10000);
+
     try {
       const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: {
@@ -142,16 +159,15 @@ const ClaraPersonalPage = () => {
           systemOverride: `You are CLARA, Lee Wakeman's AI. Current mode: ${currentMode.toUpperCase()}. ${MODE_PROMPTS[currentMode] || ''} Be brief — max 3 sentences. Lee is on mobile. He built this platform. Talk to him like a trusted colleague.`,
         }
       });
+      clearTimeout(safetyTimeout);
       if (error) throw error;
       const responseText = data.response || 'Something went wrong.';
       setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'clara', content: responseText, timestamp: new Date() }]);
       speakResponse(responseText);
-      if (!voiceEnabled) {
-        setOrbState('speaking');
-        setTimeout(() => setOrbState('idle'), 3000);
-      }
     } catch (err) {
+      clearTimeout(safetyTimeout);
       console.error('CLARA error:', err);
+      setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'clara', content: 'Something went wrong. Try again.', timestamp: new Date() }]);
       setOrbState('idle');
     } finally {
       setIsLoading(false);
