@@ -91,7 +91,7 @@ const getImplementationPlan = async (
   const LARGE_FILES = ['AdminDashboard.tsx', 'Dashboard.tsx', 'App.tsx', 'AdminLayout.tsx'];
   const getLimit = (filePath: string) => {
     const name = filePath.split('/').pop() || '';
-    return LARGE_FILES.includes(name) ? 15000 : 8000;
+    return LARGE_FILES.includes(name) ? 20000 : 8000;
   };
 
   // 1. Find likely files to edit based on capitalized words in the command
