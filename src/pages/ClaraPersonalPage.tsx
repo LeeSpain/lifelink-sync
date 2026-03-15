@@ -39,7 +39,32 @@ const ClaraPersonalPage = () => {
     { id: '1', role: 'clara', content: "Good morning Lee. I'm ready. What do you need?", timestamp: new Date() }
   ]);
   const [isLoading, setIsLoading] = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(() => localStorage.getItem('clara_voice') !== 'off');
   const sessionId = useRef(`personal-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`);
+
+  // Load speech synthesis voices
+  useEffect(() => {
+    if (window.speechSynthesis) {
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+    }
+  }, []);
+
+  const speakResponse = (text: string) => {
+    if (!window.speechSynthesis || !voiceEnabled) return;
+    window.speechSynthesis.cancel();
+    const clean = text.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1').replace(/#{1,6}\s/g, '').replace(/[🛡️🤝🧠💼🔧💰📣⚙️📝✅❌⚠️🔥📊📋🔍💾]/gu, '').trim();
+    const utterance = new SpeechSynthesisUtterance(clean);
+    utterance.rate = 0.95;
+    utterance.pitch = 1.1;
+    const voices = window.speechSynthesis.getVoices();
+    const femaleVoice = voices.find(v => v.name.includes('Samantha') || v.name.includes('Karen') || v.name.includes('Moira') || (v.lang.startsWith('en') && v.name.toLowerCase().includes('female')));
+    if (femaleVoice) utterance.voice = femaleVoice;
+    utterance.onstart = () => setOrbState('speaking');
+    utterance.onend = () => setOrbState('idle');
+    utterance.onerror = () => setOrbState('idle');
+    window.speechSynthesis.speak(utterance);
+  };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -109,13 +134,21 @@ const ClaraPersonalPage = () => {
           currency: 'EUR',
           isOwnerPersonal: true,
           currentMode,
+          conversation_history: messages.slice(-10).map(m => ({
+            role: m.role === 'lee' ? 'user' : 'assistant',
+            content: m.content,
+          })),
           systemOverride: `You are CLARA, Lee Wakeman's AI. Current mode: ${currentMode.toUpperCase()}. ${MODE_PROMPTS[currentMode] || ''} Be brief — max 3 sentences. Lee is on mobile. He built this platform. Talk to him like a trusted colleague.`,
         }
       });
       if (error) throw error;
-      setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'clara', content: data.response || 'Something went wrong.', timestamp: new Date() }]);
-      setOrbState('speaking');
-      setTimeout(() => setOrbState('idle'), 3000);
+      const responseText = data.response || 'Something went wrong.';
+      setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'clara', content: responseText, timestamp: new Date() }]);
+      speakResponse(responseText);
+      if (!voiceEnabled) {
+        setOrbState('speaking');
+        setTimeout(() => setOrbState('idle'), 3000);
+      }
     } catch (err) {
       console.error('CLARA error:', err);
       setOrbState('idle');
@@ -135,7 +168,20 @@ const ClaraPersonalPage = () => {
       paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)',
       paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)',
     }}>
-      <ClaraOrb state={orbState} modeBadge={`${modeInfo.emoji} ${modeInfo.label}`} />
+      <div style={{ position: 'relative' }}>
+        <ClaraOrb state={orbState} modeBadge={`${modeInfo.emoji} ${modeInfo.label}`} />
+        <button
+          onClick={() => {
+            const newVal = !voiceEnabled;
+            setVoiceEnabled(newVal);
+            localStorage.setItem('clara_voice', newVal ? 'on' : 'off');
+            if (!newVal) window.speechSynthesis?.cancel();
+          }}
+          style={{ position: 'absolute', top: 16, right: 16, background: 'transparent', border: 'none', cursor: 'pointer', fontSize: 20, opacity: voiceEnabled ? 1 : 0.3 }}
+        >
+          🔊
+        </button>
+      </div>
       <ChatInterface
         messages={messages}
         onSend={sendMessage}
