@@ -326,12 +326,8 @@ function AppWithTracking() {
                   </AdminProtectedRoute>
                 } />
 
-                {/* CLARA Personal — admin only */}
-                <Route path="/clara-personal" element={
-                  <AdminProtectedRoute>
-                    <ClaraPersonalPage />
-                  </AdminProtectedRoute>
-                } />
+                {/* CLARA Personal — self-contained auth */}
+                <Route path="/clara-personal" element={<ClaraPersonalPage />} />
 
                 {/* Member Dashboard - Main user dashboard */}
                 <Route path="/member-dashboard/*" element={
