@@ -25,10 +25,10 @@ const AdminProtectedRoute = ({ children }: AdminProtectedRouteProps) => {
     );
   }
 
-  // Redirect to auth if not logged in — pass return URL
+  // Redirect to auth if not logged in — pass return URL via both query and state
   if (!user && !isDevMode) {
     const returnTo = encodeURIComponent(location.pathname);
-    return <Navigate to={`/auth?next=${returnTo}`} replace />;
+    return <Navigate to={`/auth?next=${returnTo}`} state={{ from: location.pathname }} replace />;
   }
 
   // Server-side role verification via Supabase RLS

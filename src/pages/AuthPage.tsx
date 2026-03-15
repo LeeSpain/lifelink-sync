@@ -118,7 +118,7 @@ const AuthPage = () => {
           });
         }, 0);
 
-        const nextUrl = searchParams.get('next');
+        const nextUrl = searchParams.get('next') || (location as any).state?.from;
         const planParam = searchParams.get('plan');
 
         const isTabletPWA = localStorage.getItem('pwa_intent') === 'tablet';

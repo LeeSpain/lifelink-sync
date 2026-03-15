@@ -110,6 +110,12 @@ function AppWithTracking() {
             if (isTabletIntent && isInstalledPWA) {
               return <Navigate to="/tablet-dashboard" replace />;
             }
+            // CLARA Personal PWA — redirect back if session was active
+            const claraActive = sessionStorage.getItem('clara_personal_active');
+            if (claraActive) {
+              sessionStorage.removeItem('clara_personal_active');
+              return <Navigate to="/clara-personal" replace />;
+            }
             // Not running as installed PWA — clear stale flag so it doesn't interfere
             if (isTabletIntent && !isInstalledPWA) {
               localStorage.removeItem('pwa_intent');

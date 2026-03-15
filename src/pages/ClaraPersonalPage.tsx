@@ -14,6 +14,11 @@ const ClaraPersonalPage = () => {
   const sessionId = useRef(`personal-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`);
 
   // PWA full-screen setup + Apple meta tags
+  // Mark that CLARA Personal is the intended destination
+  useEffect(() => {
+    sessionStorage.setItem('clara_personal_active', 'true');
+  }, []);
+
   useEffect(() => {
     // Apple PWA meta tags — full screen, no bars
     const tags = [
