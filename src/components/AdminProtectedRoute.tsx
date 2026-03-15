@@ -9,8 +9,8 @@ interface AdminProtectedRouteProps {
 const AdminProtectedRoute = ({ children }: AdminProtectedRouteProps) => {
   const { user, loading, isAdmin, role } = useOptimizedAuth();
 
-  // Allow access in development mode or with dev bypass
-  const isDevMode = import.meta.env.DEV || localStorage.getItem('dev_bypass') === '1';
+  // Dev bypass only in actual development mode — NEVER in production
+  const isDevMode = import.meta.env.DEV;
 
   // Show loading while checking authentication and role
   if (loading && !isDevMode) {

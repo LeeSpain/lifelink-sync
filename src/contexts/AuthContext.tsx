@@ -42,13 +42,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = React.useState(true);
 
   // Check for dev bypass mode — also activate from ?dev=1 URL parameter
-  if (typeof window !== 'undefined') {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('dev') === '1') {
-      localStorage.setItem('dev_bypass', '1');
-    }
-  }
-  const devBypass = typeof window !== 'undefined' && localStorage.getItem('dev_bypass') === '1';
+  // Dev bypass only works in actual development mode
+  const devBypass = import.meta.env.DEV;
 
   // Dev bypass effect: activate mock user when devBypass changes (e.g. navigating with ?dev=1)
   React.useEffect(() => {
