@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { readFile, writeFile, createBranch, createPR } from './github.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -65,6 +66,169 @@ Risk levels:
   const data = await response.json();
   const text = data.content[0].text;
   return JSON.parse(text);
+};
+
+// ── CLAUDE CODE EXECUTION ─────────────────────────
+const getImplementationPlan = async (
+  command: string,
+  intent: string
+): Promise<{
+  title: string;
+  summary: string;
+  edits: { file_path: string; search: string; replace: string; description: string }[];
+}> => {
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': anthropicKey,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 4096,
+      messages: [{
+        role: 'user',
+        content: `You are CLARA Dev Agent for LifeLink Sync (React + TypeScript + Tailwind + Supabase).
+Lee has confirmed this command: "${command}"
+Interpreted intent: "${intent}"
+
+Produce a JSON implementation plan. Each edit uses search-and-replace on an existing file.
+Read files via the file paths I'll provide. Keep edits minimal and targeted.
+
+Respond with JSON only:
+{
+  "title": "Short PR title (max 70 chars)",
+  "summary": "1-3 sentence description of what changed and why",
+  "edits": [
+    {
+      "file_path": "src/path/to/file.tsx",
+      "search": "exact string to find in the file",
+      "replace": "replacement string",
+      "description": "what this edit does"
+    }
+  ]
+}
+
+Rules:
+- Use real file paths from the LifeLink Sync repo (src/, supabase/, public/)
+- search strings must be exact matches from the current file content
+- Keep edits small and focused — only change what the command asks for
+- Never touch auth, payment, or emergency code unless explicitly asked
+- Prefer editing existing files over creating new ones
+- Maximum 5 edits per command`
+      }],
+    }),
+  });
+
+  const data = await response.json();
+  const text = data.content[0].text;
+  // Extract JSON from potential markdown code blocks
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error('CLARA returned no valid plan');
+  return JSON.parse(jsonMatch[0]);
+};
+
+const runClaudeCode = async (
+  command: string,
+  intent: string,
+  logId: string,
+  fromNumber: string
+) => {
+  // 1. Get implementation plan from CLARA
+  const plan = await getImplementationPlan(command, intent);
+  console.log('Plan:', plan.title, '—', plan.edits.length, 'edits');
+
+  // 2. Create branch
+  const timestamp = Date.now();
+  const slug = plan.title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 30);
+  const branchName = `agent/${timestamp}-${slug}`;
+
+  await createBranch(branchName);
+  console.log('Branch created:', branchName);
+
+  // 3. Apply each file edit
+  const filesRead: string[] = [];
+  const filesChanged: string[] = [];
+  const editSummaries: string[] = [];
+
+  for (const edit of plan.edits) {
+    try {
+      // Read current file
+      const currentContent = await readFile(edit.file_path);
+      filesRead.push(edit.file_path);
+
+      // Apply search-and-replace
+      if (!currentContent.includes(edit.search)) {
+        console.warn(`Search string not found in ${edit.file_path}, skipping`);
+        editSummaries.push(`⚠️ ${edit.file_path}: search string not found, skipped`);
+        continue;
+      }
+
+      const newContent = currentContent.replace(edit.search, edit.replace);
+
+      // Write back
+      await writeFile(
+        edit.file_path,
+        newContent,
+        branchName,
+        `${edit.description}\n\nCo-Authored-By: CLARA Dev Agent <clara@lifelink-sync.com>`
+      );
+
+      filesChanged.push(edit.file_path);
+      editSummaries.push(`✅ ${edit.file_path}: ${edit.description}`);
+      console.log('Edit applied:', edit.file_path);
+    } catch (editError) {
+      const msg = (editError as Error).message;
+      console.error(`Edit failed for ${edit.file_path}:`, msg);
+      editSummaries.push(`❌ ${edit.file_path}: ${msg.slice(0, 100)}`);
+    }
+  }
+
+  // 4. Create PR (only if we changed at least one file)
+  if (filesChanged.length === 0) {
+    await supabase.from('dev_agent_log')
+      .update({
+        status: 'failed',
+        error_message: 'No edits could be applied — search strings did not match current file content',
+        branch_name: branchName,
+        files_read: filesRead,
+      })
+      .eq('id', logId);
+
+    await sendWhatsApp(fromNumber,
+      `⚠️ No edits applied — the search strings didn't match current files. The plan was:\n${editSummaries.join('\n')}`
+    );
+    return;
+  }
+
+  const prBody = `## Summary\n${plan.summary}\n\n## Changes\n${editSummaries.join('\n')}\n\n## Command\n> ${command}\n\n🤖 Generated by CLARA Dev Agent`;
+
+  const pr = await createPR(branchName, plan.title, prBody);
+  console.log('PR created:', pr.url);
+
+  // 5. Update log
+  await supabase.from('dev_agent_log')
+    .update({
+      status: 'completed',
+      branch_name: branchName,
+      pr_number: pr.number,
+      pr_url: pr.url,
+      files_read: filesRead,
+      files_changed: filesChanged,
+      diff_summary: editSummaries.join('\n'),
+    })
+    .eq('id', logId);
+
+  // 6. Notify Lee
+  const fileList = filesChanged.join(', ');
+  await sendWhatsApp(fromNumber,
+    `✅ Done — PR #${pr.number}: ${plan.title}\nFiles: ${fileList}\n${pr.url}\nLive ~2 mins after merge.`
+  );
 };
 
 serve(async (req) => {
@@ -133,18 +297,32 @@ serve(async (req) => {
           "On it 🛠️ I'll message you when the PR is ready. This usually takes 1-3 minutes."
         );
 
-        // GitHub integration will be wired here once GitHub App is set up
-        // For now log that CC would be called
-        await supabase.from('dev_agent_log')
-          .update({
-            status: 'pending_github_setup',
-            error_message: 'GitHub App not yet configured — set GITHUB_APP_ID, GITHUB_APP_PRIVATE_KEY, GITHUB_INSTALLATION_ID secrets to enable code execution'
-          })
-          .eq('id', pendingSession.log_id);
+        // Execute the command via GitHub App
+        try {
+          await runClaudeCode(
+            pendingSession.command_text,
+            pendingSession.clara_intent,
+            pendingSession.log_id,
+            fromNumber
+          );
+        } catch (execError) {
+          const errMsg = (execError as Error).message;
+          console.error('Execution error:', errMsg);
 
-        await sendWhatsApp(fromNumber,
-          "⚠️ GitHub App not configured yet. Set up the GitHub App and add the 3 secrets to complete activation. The intent was logged: " + pendingSession.clara_intent
-        );
+          await supabase.from('dev_agent_log')
+            .update({ status: 'failed', error_message: errMsg })
+            .eq('id', pendingSession.log_id);
+
+          const isGitHubMissing = errMsg.includes('GITHUB_APP_ID') ||
+            errMsg.includes('token exchange') ||
+            errMsg.includes('GitHub');
+
+          await sendWhatsApp(fromNumber,
+            isGitHubMissing
+              ? "⚠️ GitHub App not configured yet. Add GITHUB_APP_ID, GITHUB_APP_PRIVATE_KEY, GITHUB_INSTALLATION_ID secrets to Supabase to enable code execution."
+              : `❌ Execution failed: ${errMsg.slice(0, 200)}`
+          );
+        }
 
       } else if (reply === 'no' || reply === 'cancel') {
         await supabase.from('dev_agent_sessions')
