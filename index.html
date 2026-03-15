@@ -35,8 +35,11 @@
 
   <body>
     <script>
-      // CLARA Personal PWA — redirect before React loads
       try {
+        if (window.location.pathname.includes('clara-personal')) {
+          localStorage.setItem('pwa_target', 'clara-personal');
+        }
+
         var isStandalone =
           window.navigator.standalone === true ||
           window.matchMedia('(display-mode: standalone)').matches;
