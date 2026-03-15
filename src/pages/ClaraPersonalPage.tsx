@@ -36,9 +36,14 @@ const ClaraPersonalPage = () => {
   const [orbState, setOrbState] = useState<OrbState>('idle');
   const [currentMode, setCurrentMode] = useState('business');
   const [wakeListening, setWakeListening] = useState(false);
-  const [messages, setMessages] = useState<ClaraMessage[]>([
-    { id: '1', role: 'clara', content: "Good morning Lee. I'm ready. What do you need?", timestamp: new Date() }
-  ]);
+  const [messages, setMessages] = useState<ClaraMessage[]>(() => {
+    const hour = new Date().getHours();
+    const greeting = hour >= 5 && hour < 12 ? "Good morning Lee. I'm ready."
+      : hour >= 12 && hour < 17 ? "Good afternoon Lee. I'm ready."
+      : hour >= 17 && hour < 21 ? "Good evening Lee. I'm ready."
+      : "Working late Lee. I'm ready.";
+    return [{ id: '1', role: 'clara', content: greeting, timestamp: new Date() }];
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(() => localStorage.getItem('clara_voice') !== 'off');
   const sessionId = useRef(`personal-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`);
