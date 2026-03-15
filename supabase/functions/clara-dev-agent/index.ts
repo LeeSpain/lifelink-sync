@@ -87,6 +87,13 @@ const getImplementationPlan = async (
   summary: string;
   edits: FileEdit[];
 }> => {
+  // Large files get more context
+  const LARGE_FILES = ['AdminDashboard.tsx', 'Dashboard.tsx', 'App.tsx', 'AdminLayout.tsx'];
+  const getLimit = (filePath: string) => {
+    const name = filePath.split('/').pop() || '';
+    return LARGE_FILES.includes(name) ? 15000 : 8000;
+  };
+
   // 1. Find likely files to edit based on capitalized words in the command
   const searchTerms = command.match(/\b[A-Z][a-zA-Z]+\b/g) || [];
   const filesToRead: Record<string, string> = {};
@@ -97,7 +104,7 @@ const getImplementationPlan = async (
       for (const path of found.slice(0, 2)) {
         if (!filesToRead[path]) {
           const content = await readFile(path);
-          filesToRead[path] = content.substring(0, 3000);
+          filesToRead[path] = content.substring(0, getLimit(path));
         }
       }
     } catch { /* skip */ }
@@ -111,13 +118,14 @@ const getImplementationPlan = async (
     'login': 'src/pages/AuthPage.tsx',
     'auth': 'src/pages/AuthPage.tsx',
     'dashboard': 'src/pages/Dashboard.tsx',
+    'admin': 'src/pages/AdminDashboard.tsx',
     'readme': 'README.md',
   };
   for (const [keyword, path] of Object.entries(commonFiles)) {
     if (lowerCmd.includes(keyword) && !filesToRead[path]) {
       try {
         const content = await readFile(path);
-        filesToRead[path] = content.substring(0, 3000);
+        filesToRead[path] = content.substring(0, getLimit(path));
       } catch { /* skip */ }
     }
   }
