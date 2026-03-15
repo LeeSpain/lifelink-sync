@@ -5,6 +5,25 @@ import type { OrbState, ClaraMessage } from '@/components/clara-personal/types';
 import { supabase } from '@/integrations/supabase/client';
 
 const ClaraPersonalPage = () => {
+  // Override manifest so PWA installs with /clara-personal as start_url
+  useEffect(() => {
+    const existing = document.querySelector('link[rel="manifest"]');
+    if (existing) {
+      existing.setAttribute('href', '/clara-personal-manifest.json');
+    } else {
+      const link = document.createElement('link');
+      link.rel = 'manifest';
+      link.href = '/clara-personal-manifest.json';
+      document.head.appendChild(link);
+    }
+    return () => {
+      const manifestLink = document.querySelector('link[rel="manifest"]');
+      if (manifestLink) {
+        manifestLink.setAttribute('href', '/manifest.webmanifest');
+      }
+    };
+  }, []);
+
   const [authed, setAuthed] = useState(false);
   const [checking, setChecking] = useState(true);
   const [orbState, setOrbState] = useState<OrbState>('idle');
