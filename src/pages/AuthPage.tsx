@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Navigate, useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { Navigate, useSearchParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,6 +19,7 @@ const AuthPage = () => {
   const { t } = useTranslation();
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -220,9 +221,12 @@ const AuthPage = () => {
     );
   }
 
-  // Redirect logged-in users to dashboard (but NOT dev mock users, and NOT during password reset)
+  // Redirect logged-in users — respect ?next= param for CLARA Personal PWA
   if (user && user.id !== 'dev-test-user-00000000' && view !== 'reset') {
-    return <Navigate to="/dashboard" replace />;
+    const nextParam = searchParams.get('next');
+    const stateFrom = (location as any).state?.from;
+    const redirectTo = nextParam || stateFrom || '/dashboard';
+    return <Navigate to={redirectTo} replace />;
   }
 
   // Render the card header based on view
