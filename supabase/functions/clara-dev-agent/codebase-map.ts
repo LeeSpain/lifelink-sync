@@ -43,7 +43,12 @@ EDGE FUNCTIONS
 - supabase/functions/clara-weekly-report — Monday report
 
 KEY PATTERNS
-- Sidebar expand/collapse: useState with object of booleans in AdminLayout.tsx
+- Sidebar expand/collapse: useState<Set<string>> in AdminSidebar() inside AdminLayout.tsx
+  State: const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
+  Toggle: toggleSection(title) adds/removes from Set
+  Render: isExpanded = expandedSections.has(group.title) — only renders items when true
+  To expand a section: setExpandedSections(prev => new Set([...prev, 'SectionTitle']))
+  To collapse all: setExpandedSections(new Set())
 - Pricing: always use usePricing() hook, never hardcode
 - Auth protection: AdminProtectedRoute wraps all /admin routes
 - Translations: all UI text via useTranslation(), keys in src/locales/
