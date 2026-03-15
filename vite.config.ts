@@ -17,6 +17,10 @@ export default defineConfig(({ mode }) => ({
     target: 'esnext',
     minify: 'esbuild',
     rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+        clara: path.resolve(__dirname, 'clara.html'),
+      },
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
