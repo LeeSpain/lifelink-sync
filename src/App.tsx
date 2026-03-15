@@ -102,21 +102,27 @@ function AppWithTracking() {
         <Routes>
           {/* Public Landing Page — redirect to tablet dashboard only when running as installed PWA */}
           <Route path="/" element={(() => {
-            const isTabletIntent = localStorage.getItem('pwa_intent') === 'tablet';
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
             const isFullscreen = window.matchMedia('(display-mode: fullscreen)').matches;
             const isIOSPWA = (window.navigator as any).standalone === true;
             const isInstalledPWA = isStandalone || isFullscreen || isIOSPWA;
-            if (isTabletIntent && isInstalledPWA) {
-              return <Navigate to="/tablet-dashboard" replace />;
+
+            // CLARA Personal PWA — always redirect if installed as CLARA
+            const pwaTarget = localStorage.getItem('pwa_target');
+            if (isInstalledPWA && pwaTarget === 'clara-personal') {
+              return <Navigate to="/clara-personal" replace />;
             }
-            // CLARA Personal PWA — redirect back if session was active
+            // Also check sessionStorage (backup)
             const claraActive = sessionStorage.getItem('clara_personal_active');
             if (claraActive) {
               sessionStorage.removeItem('clara_personal_active');
               return <Navigate to="/clara-personal" replace />;
             }
-            // Not running as installed PWA — clear stale flag so it doesn't interfere
+            // Tablet PWA
+            const isTabletIntent = localStorage.getItem('pwa_intent') === 'tablet';
+            if (isTabletIntent && isInstalledPWA) {
+              return <Navigate to="/tablet-dashboard" replace />;
+            }
             if (isTabletIntent && !isInstalledPWA) {
               localStorage.removeItem('pwa_intent');
             }

@@ -35,15 +35,17 @@
 
   <body>
     <script>
-      // CLARA Personal PWA — redirect to /clara-personal before React loads
-      if (
-        (navigator.standalone === true ||
-         window.matchMedia('(display-mode: standalone)').matches) &&
-        window.location.pathname === '/' &&
-        sessionStorage.getItem('clara_personal_active') === 'true'
-      ) {
-        window.location.replace('/clara-personal');
-      }
+      // CLARA Personal PWA — redirect before React loads
+      try {
+        var isStandalone =
+          window.navigator.standalone === true ||
+          window.matchMedia('(display-mode: standalone)').matches;
+        var pwaTarget = localStorage.getItem('pwa_target');
+
+        if (isStandalone && pwaTarget === 'clara-personal' && window.location.pathname === '/') {
+          window.location.replace('/clara-personal');
+        }
+      } catch(e) {}
     </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
