@@ -420,6 +420,33 @@ serve(async (req) => {
       return new Response('', { status: 200 });
     }
 
+    // ── QUERY MODE (read-only, no PR) ─────────────────
+    const isQuery = /^(list|show|find|search|what files|what is in|where is|read|cat|get)/i.test(messageBody.trim());
+
+    if (isQuery) {
+      try {
+        // Extract path from command
+        const pathMatch = messageBody.match(/(src\/[^\s]+|supabase\/[^\s]+|public\/[^\s]+)/);
+        const queryPath = pathMatch ? pathMatch[0].replace(/\/+$/, '') : 'src';
+
+        const files = await listFiles(queryPath);
+        if (files.length === 0) {
+          await sendWhatsApp(fromNumber, `📁 ${queryPath}/ is empty or doesn't exist.\nTry: src/components, src/pages, supabase/functions`);
+        } else {
+          // Truncate if too many files for WhatsApp
+          const display = files.length > 30
+            ? files.slice(0, 30).join('\n') + `\n... and ${files.length - 30} more`
+            : files.join('\n');
+          await sendWhatsApp(fromNumber, `📁 ${queryPath}/ (${files.length} items):\n${display}`);
+        }
+      } catch (e) {
+        await sendWhatsApp(fromNumber,
+          `Couldn't list that path. Try:\n• src/components\n• src/pages\n• supabase/functions\n• supabase/migrations`
+        );
+      }
+      return new Response('', { status: 200 });
+    }
+
     // ── NEW COMMAND ───────────────────────────────────
     const { intent, description, risk_level, confirmation_question } =
       await interpretIntent(messageBody);
