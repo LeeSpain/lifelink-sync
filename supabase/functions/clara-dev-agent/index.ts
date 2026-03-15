@@ -87,6 +87,24 @@ const getImplementationPlan = async (
   summary: string;
   edits: FileEdit[];
 }> => {
+  // Fetch directory listings so Claude knows what files exist
+  let srcDirs: string[] = [];
+  let funcDirs: string[] = [];
+  let srcPages: string[] = [];
+  try {
+    srcDirs = await listFiles('src/components');
+    funcDirs = await listFiles('supabase/functions');
+    srcPages = await listFiles('src/pages');
+  } catch (e) {
+    console.warn('Directory listing failed (non-fatal):', e);
+  }
+
+  const dirContext = [
+    `Available src/components/ directories: ${srcDirs.join(', ') || 'unknown'}`,
+    `Available src/pages/ files: ${srcPages.join(', ') || 'unknown'}`,
+    `Available edge functions: ${funcDirs.join(', ') || 'unknown'}`,
+  ].join('\n');
+
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -103,7 +121,11 @@ const getImplementationPlan = async (
 Lee has confirmed this command: "${command}"
 Interpreted intent: "${intent}"
 
+EXISTING FILES IN THE REPO:
+${dirContext}
+
 Produce a JSON implementation plan. Keep edits minimal and targeted.
+ONLY suggest edits to files that actually exist in the repo above.
 
 Edit actions available:
 1. "replace" - find exact text and replace it. Use when: modifying existing content.
@@ -133,7 +155,7 @@ Respond with JSON only:
 }
 
 Rules:
-- Use real file paths from the LifeLink Sync repo (src/, supabase/, public/)
+- Use real file paths from the LifeLink Sync repo
 - For "replace": search strings must be exact matches from current file content
 - For "prepend"/"append": provide the content to add
 - For "create": provide the full file content
@@ -190,15 +212,21 @@ const runClaudeCode = async (
       } else {
         // Read current file for replace/prepend/append
         let currentContent: string;
+        let fileExists = true;
         try {
           currentContent = await readFile(edit.file_path);
           filesRead.push(edit.file_path);
         } catch (readErr) {
+          fileExists = false;
           if (action === 'prepend' || action === 'append') {
             // File doesn't exist — treat as create
+            console.log(`File ${edit.file_path} not found — creating with ${action} content`);
             currentContent = '';
           } else {
-            throw readErr;
+            // replace on non-existent file — report clearly
+            console.warn(`File not found for replace: ${edit.file_path}`);
+            editSummaries.push(`⚠️ ${edit.file_path}: file not found — cannot replace`);
+            continue;
           }
         }
 
@@ -249,8 +277,9 @@ const runClaudeCode = async (
       })
       .eq('id', logId);
 
+    const failedFiles = editSummaries.filter(s => s.startsWith('⚠️') || s.startsWith('❌')).map(s => s.split(':')[0]).join(', ');
     await sendWhatsApp(fromNumber,
-      `⚠️ No edits applied — the search strings didn't match current files. The plan was:\n${editSummaries.join('\n')}`
+      `⚠️ I couldn't apply the edits. ${failedFiles}\n\nTry being more specific: "Fix the [feature] in the [section] of the app" and I'll locate the right file.\n\nDetails:\n${editSummaries.join('\n')}`
     );
     return;
   }
