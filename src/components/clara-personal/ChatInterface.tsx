@@ -59,7 +59,7 @@ export function ChatInterface({ messages, onSend, isLoading, onMicStart, onMicSt
         console.log('Wake: triggered!');
         wake.stop();
         onWakeWord();
-        setTimeout(() => startFullListening(), 500);
+        setTimeout(() => startFullListening(), 800);
       }
     };
 
@@ -167,7 +167,17 @@ export function ChatInterface({ messages, onSend, isLoading, onMicStart, onMicSt
 
     rec.onresult = (event: SpeechAny) => {
       const transcript = event.results[0][0].transcript;
-      if (transcript.trim()) onSend(transcript.trim());
+      if (transcript.trim()) {
+        onSend(transcript.trim());
+        setIsHolding(false);
+        onMicStop();
+      }
+    };
+    rec.onspeechend = () => {
+      // Speech ended — give 500ms buffer then stop
+      setTimeout(() => {
+        try { rec.stop(); } catch { /* ok */ }
+      }, 500);
     };
     rec.onend = () => {
       setIsHolding(false);
@@ -184,8 +194,13 @@ export function ChatInterface({ messages, onSend, isLoading, onMicStart, onMicSt
   };
 
   const stopHold = () => {
-    try { holdRecRef.current?.stop(); } catch { /* ok */ }
+    // Do NOT call stop() — let recognition finish and fire onresult naturally
     setIsHolding(false);
+    onMicStop();
+    // Safety: if nothing comes back in 3 seconds, force stop
+    setTimeout(() => {
+      try { holdRecRef.current?.stop(); } catch { /* ok */ }
+    }, 3000);
   };
 
   const handleSend = () => {
