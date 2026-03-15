@@ -376,6 +376,80 @@ serve(async (req) => {
       return new Response('', { status: 200 });
     }
 
+    // ── MODE SWITCHING: /dev, /business, /status ─────
+    const adminPhone = normalizedFrom;
+
+    if (messageBody === '/dev') {
+      await supabase.from('clara_admin_mode')
+        .upsert({ admin_phone: adminPhone, current_mode: 'dev', mode_set_at: new Date().toISOString() }, { onConflict: 'admin_phone' });
+      await sendWhatsApp(fromNumber, '🔧 DEV MODE ON\nAll messages treated as code/system commands.\nSend /business to return to normal mode.');
+      return new Response('', { status: 200 });
+    }
+
+    if (messageBody === '/business' || messageBody === '/normal') {
+      await supabase.from('clara_admin_mode')
+        .upsert({ admin_phone: adminPhone, current_mode: 'business', mode_set_at: new Date().toISOString() }, { onConflict: 'admin_phone' });
+      await sendWhatsApp(fromNumber, '💼 BUSINESS MODE ON\nBack to normal operations.\nSend /dev to switch to dev mode.');
+      return new Response('', { status: 200 });
+    }
+
+    if (messageBody === '/status') {
+      const { data: modeData } = await supabase
+        .from('clara_admin_mode')
+        .select('current_mode, mode_set_at')
+        .eq('admin_phone', adminPhone)
+        .maybeSingle();
+
+      const { data: recentLogs } = await supabase
+        .from('dev_agent_log')
+        .select('command_text, status, created_at')
+        .order('created_at', { ascending: false })
+        .limit(3);
+
+      const mode = modeData?.current_mode || 'business';
+      const logs = recentLogs?.map((l: any) =>
+        `• ${l.command_text.substring(0, 40)} — ${l.status}`
+      ).join('\n') || 'No recent actions';
+
+      await sendWhatsApp(fromNumber, `📊 CLARA STATUS\nMode: ${mode.toUpperCase()}\n\nLast 3 actions:\n${logs}`);
+      return new Response('', { status: 200 });
+    }
+
+    // ── CHECK CURRENT MODE ─────────────────────────────
+    const { data: adminMode } = await supabase
+      .from('clara_admin_mode')
+      .select('current_mode')
+      .eq('admin_phone', adminPhone)
+      .maybeSingle();
+
+    const currentMode = adminMode?.current_mode || 'dev'; // default to dev for admin
+
+    // If business mode — route to normal CLARA (not dev agent)
+    if (currentMode === 'business') {
+      try {
+        const claraUrl = Deno.env.get('SUPABASE_URL') + '/functions/v1/whatsapp-inbound';
+        // Remove admin routing flag to prevent infinite loop — call CLARA directly
+        const claraBody = new URLSearchParams({
+          From: fromNumber,
+          Body: messageBody,
+          MessageSid: params.get('MessageSid') ?? '',
+          ProfileName: params.get('ProfileName') ?? '',
+          _bypass_admin_route: '1',
+        }).toString();
+
+        await fetch(claraUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: claraBody,
+        });
+      } catch (e) {
+        console.warn('Business mode CLARA forward failed:', e);
+      }
+      return new Response('', { status: 200 });
+    }
+
+    // ── DEV MODE: continue with dev agent logic ────────
+
     // ── RATE LIMIT: 20 commands per 24 hours ─────────
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const { count } = await supabase

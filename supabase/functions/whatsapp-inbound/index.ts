@@ -157,8 +157,9 @@ serve(async (req) => {
     const ADMIN_NUMBER = Deno.env.get('ADMIN_WHATSAPP_NUMBER') ?? '';
     const normalizedFrom = fromRaw.replace('whatsapp:', '').replace('+', '');
     const normalizedAdmin = ADMIN_NUMBER.replace('whatsapp:', '').replace('+', '');
+    const bypassAdminRoute = params.get('_bypass_admin_route') === '1';
 
-    if (normalizedAdmin && normalizedFrom === normalizedAdmin) {
+    if (normalizedAdmin && normalizedFrom === normalizedAdmin && !bypassAdminRoute) {
       const devAgentUrl = Deno.env.get('SUPABASE_URL') + '/functions/v1/clara-dev-agent';
 
       const forwardResponse = await fetch(devAgentUrl, {
