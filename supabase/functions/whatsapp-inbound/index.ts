@@ -179,6 +179,70 @@ serve(async (req) => {
       return new Response(TWIML_OK, { status: 200, headers: { ...corsHeaders, 'Content-Type': 'text/xml' } });
     }
 
+    // ── Owner business mode: Lee gets assistant, not sales ─────
+    const isOwner = normalizedAdmin && normalizedFrom === normalizedAdmin && bypassAdminRoute;
+
+    if (isOwner) {
+      const lowerBody = body.toLowerCase();
+      const isReportRequest = /\b(report|briefing|stats|summary|how many|leads|revenue|this week|today|overnight|numbers)\b/.test(lowerBody);
+
+      if (isReportRequest) {
+        // Trigger morning briefing directly
+        try {
+          const { data: briefData } = await supabase.functions.invoke('clara-morning-briefing', { body: {} });
+          // Briefing function sends WhatsApp to Lee directly via clara-escalation
+          if (briefData?.success) {
+            return new Response(TWIML_OK, { status: 200, headers: { ...corsHeaders, 'Content-Type': 'text/xml' } });
+          }
+        } catch (e) {
+          console.warn('Briefing invoke failed:', e);
+        }
+      }
+
+      // For non-report messages: call Claude with owner context
+      try {
+        const ownerPrompt = `You are CLARA, the AI assistant for LifeLink Sync. You are speaking with Lee Wakeman, the OWNER and founder of LifeLink Sync.
+
+CRITICAL: Do NOT treat Lee as a customer. Do NOT offer him a trial or sales pitch. Do NOT quote pricing to him.
+
+You are Lee's personal business assistant. Be direct, concise, and helpful.
+
+When he asks about the business, give him actionable insights.
+When he asks about a feature, explain the technical implementation.
+When he asks about stats, summarize what you know.
+When he gives you an instruction, confirm and act on it.
+
+LifeLink Sync is an emergency protection platform. Individual Plan 9.99 EUR/month, annual 99.90 EUR/year. Family seats, gifts, referral programme all active. 22 edge functions deployed, 10 cron jobs running.
+
+Keep responses to 2-3 short paragraphs. No bullet points.`;
+
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'x-api-key': anthropicApiKey,
+            'anthropic-version': '2023-06-01',
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'claude-3-haiku-20240307',
+            max_tokens: 300,
+            system: ownerPrompt,
+            messages: [{ role: 'user', content: body }],
+          }),
+        });
+
+        if (!response.ok) throw new Error(`Claude ${response.status}`);
+        const data = await response.json();
+        const reply = stripMarkdown(data.content?.[0]?.text ?? 'Sorry, I had an issue processing that.');
+        await sendWhatsApp(phone, reply);
+      } catch (e) {
+        console.error('Owner mode Claude error:', e);
+        await sendWhatsApp(phone, 'Sorry Lee, I had a technical issue. Try again or switch to /dev mode.');
+      }
+
+      return new Response(TWIML_OK, { status: 200, headers: { ...corsHeaders, 'Content-Type': 'text/xml' } });
+    }
+
     // ── Rate limit ─────────────────────────────────────────────
     if (!checkRateLimit(phone)) {
       const entry = rateLimits.get(phone);
