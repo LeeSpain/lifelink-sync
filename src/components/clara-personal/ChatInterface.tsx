@@ -18,12 +18,14 @@ interface Props {
 export function ChatInterface({ messages, onSend, isLoading, onMicStart, onMicStop, onWakeWord, onWakeStateChange }: Props) {
   const [input, setInput] = useState('');
   const [isRecording, setIsRecording] = useState(false);
+  const [isHolding, setIsHolding] = useState(false);
   const [micPermissionGranted, setMicPermissionGranted] = useState(false);
   const [wakeActive, setWakeActive] = useState(false);
   const micPermRef = useRef(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechAny>(null);
   const wakeRef = useRef<SpeechAny>(null);
+  const holdRecRef = useRef<SpeechAny>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -33,54 +35,59 @@ export function ChatInterface({ messages, onSend, isLoading, onMicStart, onMicSt
     onWakeStateChange?.(wakeActive);
   }, [wakeActive, onWakeStateChange]);
 
-  // ── Wake word detection — only runs after mic permission granted ──
+  // ── Wake word detection ──────────────────────────────────────
   const startWakeDetection = useCallback(() => {
-    if (!micPermRef.current) return;
+    if (!micPermRef.current) { console.log('Wake: no mic permission'); return; }
     const w = window as SpeechAny;
     const SR = w.SpeechRecognition || w.webkitSpeechRecognition;
-    if (!SR) return;
+    if (!SR) { console.log('Wake: no SpeechRecognition API'); return; }
 
     const wake = new SR();
     wake.continuous = true;
     wake.interimResults = true;
     wake.lang = 'en-GB';
 
+    wake.onstart = () => { console.log('Wake: active'); setWakeActive(true); };
+
     wake.onresult = (event: SpeechAny) => {
       const transcript = Array.from(event.results)
         .map((r: SpeechAny) => r[0].transcript)
-        .join('')
-        .toLowerCase()
-        .trim();
+        .join('').toLowerCase().trim();
+      console.log('Wake heard:', transcript);
 
-      if (transcript.includes('clara') || transcript.includes('hey clara')) {
+      if (transcript.includes('clara') || transcript.includes('clear a') || transcript.includes('klara')) {
+        console.log('Wake: triggered!');
         wake.stop();
         onWakeWord();
-        setTimeout(() => startFullListening(), 300);
+        setTimeout(() => startFullListening(), 500);
       }
     };
 
     wake.onend = () => {
       setWakeActive(false);
+      // iOS: 1000ms delay before restart
       if (!document.hidden && !isRecording && micPermRef.current) {
         setTimeout(() => {
-          try { wake.start(); } catch { /* ok */ }
-        }, 500);
-      }
-    };
-
-    wake.onerror = (event: SpeechAny) => {
-      if (event.error !== 'no-speech' && event.error !== 'aborted') {
-        setTimeout(() => {
-          try { wake.start(); } catch { /* ok */ }
+          try { wake.start(); } catch (e) { console.log('Wake restart failed:', e); }
         }, 1000);
       }
     };
 
-    try { wake.start(); setWakeActive(true); } catch { /* ok */ }
+    wake.onerror = (event: SpeechAny) => {
+      console.log('Wake error:', event.error);
+      setWakeActive(false);
+      if (event.error !== 'no-speech' && event.error !== 'aborted') {
+        setTimeout(() => {
+          try { wake.start(); } catch { /* ok */ }
+        }, 1500);
+      }
+    };
+
+    try { wake.start(); } catch (e) { console.log('Wake start failed:', e); }
     wakeRef.current = wake;
   }, [isRecording, onWakeWord]);
 
-  // ── Full speech recognition (after wake or mic tap) ──────────
+  // ── Full speech recognition ──────────────────────────────────
   const startFullListening = useCallback(() => {
     if (isRecording) return;
     const w = window as SpeechAny;
@@ -104,7 +111,10 @@ export function ChatInterface({ messages, onSend, isLoading, onMicStart, onMicSt
     recognition.onerror = () => { setIsRecording(false); onMicStop(); };
     recognition.onend = () => {
       setIsRecording(false);
-      startWakeDetection();
+      // iOS: 1000ms delay before restarting wake
+      setTimeout(() => {
+        if (micPermRef.current) startWakeDetection();
+      }, 1000);
     };
 
     recognitionRef.current = recognition;
@@ -112,19 +122,17 @@ export function ChatInterface({ messages, onSend, isLoading, onMicStart, onMicSt
     setIsRecording(true);
     onMicStart();
 
-    // First successful mic use grants permission for wake word
     if (!micPermRef.current) {
       micPermRef.current = true;
       setMicPermissionGranted(true);
     }
   }, [isRecording, onSend, onMicStart, onMicStop, startWakeDetection]);
 
-  // Start wake detection only after permission granted
+  // Start wake after permission granted
   useEffect(() => {
     if (micPermissionGranted) {
-      startWakeDetection();
+      setTimeout(() => startWakeDetection(), 1000);
     }
-
     return () => {
       try { wakeRef.current?.stop(); } catch { /* ok */ }
       try { recognitionRef.current?.stop(); } catch { /* ok */ }
@@ -137,12 +145,48 @@ export function ChatInterface({ messages, onSend, isLoading, onMicStart, onMicSt
       if (document.hidden) {
         try { wakeRef.current?.stop(); } catch { /* ok */ }
       } else if (!isRecording && micPermRef.current) {
-        setTimeout(() => startWakeDetection(), 500);
+        setTimeout(() => startWakeDetection(), 1000);
       }
     };
     document.addEventListener('visibilitychange', handleVisibility);
     return () => document.removeEventListener('visibilitychange', handleVisibility);
-  }, [isRecording, micPermissionGranted, startWakeDetection]);
+  }, [isRecording, startWakeDetection]);
+
+  // ── Hold to talk (iOS backup) ────────────────────────────────
+  const startHold = () => {
+    const w = window as SpeechAny;
+    const SR = w.SpeechRecognition || w.webkitSpeechRecognition;
+    if (!SR) return;
+
+    try { wakeRef.current?.stop(); } catch { /* ok */ }
+
+    const rec = new SR();
+    rec.continuous = false;
+    rec.interimResults = false;
+    rec.lang = 'en-GB';
+
+    rec.onresult = (event: SpeechAny) => {
+      const transcript = event.results[0][0].transcript;
+      if (transcript.trim()) onSend(transcript.trim());
+    };
+    rec.onend = () => {
+      setIsHolding(false);
+      onMicStop();
+      setTimeout(() => { if (micPermRef.current) startWakeDetection(); }, 1000);
+    };
+    rec.onerror = () => { setIsHolding(false); onMicStop(); };
+
+    holdRecRef.current = rec;
+    rec.start();
+    setIsHolding(true);
+    onMicStart();
+    if (!micPermRef.current) { micPermRef.current = true; setMicPermissionGranted(true); }
+  };
+
+  const stopHold = () => {
+    try { holdRecRef.current?.stop(); } catch { /* ok */ }
+    setIsHolding(false);
+  };
 
   const handleSend = () => {
     if (!input.trim()) return;
@@ -190,6 +234,17 @@ export function ChatInterface({ messages, onSend, isLoading, onMicStart, onMicSt
           placeholder="Message CLARA..."
           style={{ flex: 1, background: '#1a1230', border: '1px solid #2a1e50', borderRadius: 20, padding: '8px 14px', fontSize: 14, color: '#c8b8f0', outline: 'none' }}
         />
+        {/* Hold to talk button */}
+        <button
+          onTouchStart={startHold}
+          onTouchEnd={stopHold}
+          onMouseDown={startHold}
+          onMouseUp={stopHold}
+          style={{ width: 36, height: 36, borderRadius: '50%', background: isHolding ? '#8b0000' : '#2a1860', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 14 }}
+        >
+          {isHolding ? '🔴' : '👂'}
+        </button>
+        {/* Tap mic button */}
         <button onClick={toggleMic} style={{ width: 36, height: 36, borderRadius: '50%', background: isRecording ? '#8b0000' : '#3a2080', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="5" y="1" width="6" height="9" rx="3" fill={isRecording ? '#ff6060' : '#a090d0'}/><path d="M2 8c0 3.3 2.7 6 6 6s6-2.7 6-6" stroke={isRecording ? '#ff6060' : '#a090d0'} strokeWidth="1.5" strokeLinecap="round" fill="none"/><line x1="8" y1="14" x2="8" y2="16" stroke={isRecording ? '#ff6060' : '#a090d0'} strokeWidth="1.5" strokeLinecap="round"/></svg>
         </button>
