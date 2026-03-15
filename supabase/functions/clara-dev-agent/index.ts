@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { readFile, writeFile, createBranch, createPR, listFiles, searchFiles } from './github.ts';
+import { CODEBASE_MAP } from './codebase-map.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -87,11 +88,11 @@ const getImplementationPlan = async (
   summary: string;
   edits: FileEdit[];
 }> => {
-  // Large files get more context
-  const LARGE_FILES = ['AdminDashboard.tsx', 'Dashboard.tsx', 'App.tsx', 'AdminLayout.tsx'];
+  // Known important files get full read
+  const KNOWN_FILES = ['AdminLayout.tsx', 'AdminDashboard.tsx', 'Dashboard.tsx', 'App.tsx', 'Pricing.tsx', 'AuthPage.tsx'];
   const getLimit = (filePath: string) => {
     const name = filePath.split('/').pop() || '';
-    return LARGE_FILES.includes(name) ? 20000 : 8000;
+    return KNOWN_FILES.includes(name) ? 50000 : 8000;
   };
 
   // 1. Find likely files to edit based on capitalized words in the command
@@ -155,11 +156,19 @@ const getImplementationPlan = async (
     body: JSON.stringify({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 4096,
+      system: `You are making precise code changes to the LifeLink Sync repository.
+
+${CODEBASE_MAP}
+
+CRITICAL RULES:
+1. Use the codebase map above to find the RIGHT file for every change
+2. Read the actual file content provided below
+3. Copy EXACT strings from the file for search/replace
+4. Never guess a file path — use the map
+5. For sidebar collapse: the state is in AdminLayout.tsx as useState with boolean values`,
       messages: [{
         role: 'user',
-        content: `You are making code changes to the LifeLink Sync repository (React + TypeScript + Tailwind + Supabase).
-
-Command: "${command}"
+        content: `Command: "${command}"
 Intent: "${intent}"
 
 ACTUAL FILE CONTENTS (use these for exact search strings):
