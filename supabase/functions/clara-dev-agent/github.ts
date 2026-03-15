@@ -120,13 +120,33 @@ export const githubApi = async (
   return response.json();
 };
 
+// Unicode-safe base64 encoding (btoa only handles Latin1)
+const encodeBase64 = (str: string): string => {
+  const bytes = new TextEncoder().encode(str);
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+};
+
+// Unicode-safe base64 decoding
+const decodeBase64 = (b64: string): string => {
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return new TextDecoder().decode(bytes);
+};
+
 const REPO_OWNER = Deno.env.get('GITHUB_REPO_OWNER') || 'LeeSpain';
 const REPO_NAME = Deno.env.get('GITHUB_REPO_NAME') || 'lifelink-sync';
 const repo = () => `/repos/${REPO_OWNER}/${REPO_NAME}`;
 
 export const readFile = async (filePath: string): Promise<string> => {
   const data = await githubApi(`${repo()}/contents/${filePath}`);
-  return atob(data.content.replace(/\n/g, ''));
+  return decodeBase64(data.content.replace(/\n/g, ''));
 };
 
 export const getFileSha = async (
@@ -152,7 +172,7 @@ export const writeFile = async (
     'PUT',
     {
       message: commitMessage,
-      content: btoa(content),
+      content: encodeBase64(content),
       branch,
       ...(sha ? { sha } : {}),
     }
