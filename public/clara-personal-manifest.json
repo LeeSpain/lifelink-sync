@@ -2,7 +2,7 @@
   "name": "CLARA",
   "short_name": "CLARA",
   "description": "Your private AI",
-  "start_url": "/clara.html",
+  "start_url": "/clara-personal",
   "scope": "/",
   "display": "standalone",
   "background_color": "#0a0812",
