@@ -8,7 +8,7 @@ const ORB_STATES = {
   speaking:  { amplitude: 0.72, speed: 0.036, color: [140, 80, 255] as [number, number, number], alpha: 0.95 },
 };
 
-export function ClaraOrb({ state }: { state: OrbState }) {
+export function ClaraOrb({ state, modeBadge }: { state: OrbState; modeBadge?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>(0);
   const tRef = useRef(0);
@@ -91,6 +91,11 @@ export function ClaraOrb({ state }: { state: OrbState }) {
       <div style={{ fontSize: 11, letterSpacing: '0.2em', color: '#6b5fa0', textTransform: 'uppercase' as const, marginBottom: 10 }}>CLARA</div>
       <canvas ref={canvasRef} width={140} height={140} style={{ width: 140, height: 140 }} />
       <div style={{ fontSize: 10, letterSpacing: '0.15em', color: labelColor, textTransform: 'uppercase' as const, marginTop: 10, transition: 'color 0.3s' }}>{stateLabel}</div>
+      {modeBadge && (
+        <div style={{ fontSize: 10, letterSpacing: '0.1em', color: '#5a4f80', textTransform: 'uppercase' as const, marginTop: 4, background: 'rgba(90,53,184,0.2)', padding: '2px 8px', borderRadius: 10 }}>
+          {modeBadge}
+        </div>
+      )}
     </div>
   );
 }
