@@ -144,7 +144,7 @@ const GiftPurchasePage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#070f1e] text-white">
+    <div className="min-h-screen bg-white">
       <SEO
         title={t('gift.seoTitle', { defaultValue: 'Gift LifeLink Sync \u2014 Give the Gift of Safety' })}
         description={t('gift.seoDesc', { defaultValue: 'Give someone you love 24/7 emergency protection with CLARA AI.' })}
@@ -152,44 +152,41 @@ const GiftPurchasePage: React.FC = () => {
       <Navigation />
 
       {/* ── Hero ──────────────────────────────────────────── */}
-      <section className="pt-32 pb-16 text-center relative overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-red-500/10 rounded-full blur-[100px] animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-red-500/5 rounded-full blur-[80px] animate-pulse" style={{ animationDelay: '2s' }} />
-        </div>
+      <section className="bg-[#FAFAF9] pt-32 pb-16 text-center relative overflow-hidden">
+        <div className="absolute top-20 right-0 w-72 h-72 lg:w-96 lg:h-96 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-60 h-60 lg:w-80 lg:h-80 bg-primary/3 rounded-full blur-3xl" />
         <div className="container mx-auto px-4 max-w-3xl relative z-10">
-          <Badge className="bg-red-500/10 text-red-400 border-red-500/20 text-sm mb-6 px-4 py-1.5">
-            <Gift className="h-3.5 w-3.5 mr-1.5" />
-            {t('gift.giftHeroLabel', { defaultValue: 'Gift Protection' })}
-          </Badge>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-poppins mb-6 leading-tight">
+          <div className="mx-auto w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mb-5">
+            <Gift className="h-7 w-7 text-red-500" />
+          </div>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold font-poppins mb-6 leading-tight text-[hsl(215,25%,27%)]">
             {t('gift.giftHeadline', { defaultValue: 'The best gift you can give someone you love is peace of mind.' })}
           </h1>
-          <p className="text-lg text-gray-400 max-w-xl mx-auto leading-relaxed">
+          <p className="text-lg text-gray-500 max-w-xl mx-auto leading-relaxed font-inter">
             {t('gift.giftSubtitle', { defaultValue: "Set up CLARA for someone special. They get 24/7 AI emergency protection. You get the peace of mind you've been looking for." })}
           </p>
         </div>
       </section>
 
       {/* ── Trust Bar ─────────────────────────────────────── */}
-      <div className="border-y border-white/5 py-4">
+      <div className="bg-gray-50 border-y border-gray-200 py-4">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-sm text-gray-500">
-            <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-red-400" /> {t('gift.giftTrust1', { defaultValue: 'No card needed to redeem' })}</span>
-            <span className="hidden sm:block text-white/10">|</span>
-            <span className="flex items-center gap-1.5"><Clock className="h-3.5 w-3.5 text-red-400" /> {t('gift.giftTrust2', { defaultValue: 'Active within minutes' })}</span>
-            <span className="hidden sm:block text-white/10">|</span>
-            <span className="flex items-center gap-1.5"><Heart className="h-3.5 w-3.5 text-red-400" /> {t('gift.giftTrust3', { defaultValue: 'Trusted by families across Europe' })}</span>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-sm text-gray-600">
+            <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-red-500" /> {t('gift.giftTrust1', { defaultValue: 'No card needed to redeem' })}</span>
+            <span className="hidden sm:block text-gray-300">|</span>
+            <span className="flex items-center gap-1.5"><Clock className="h-3.5 w-3.5 text-red-500" /> {t('gift.giftTrust2', { defaultValue: 'Active within minutes' })}</span>
+            <span className="hidden sm:block text-gray-300">|</span>
+            <span className="flex items-center gap-1.5"><Heart className="h-3.5 w-3.5 text-red-500" /> {t('gift.giftTrust3', { defaultValue: 'Trusted by families across Europe' })}</span>
           </div>
         </div>
       </div>
 
       {/* ── Gift Cards ────────────────────────────────────── */}
-      <section className="py-16">
+      <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4 max-w-5xl">
           <div className="text-center mb-10">
-            <h2 className="text-2xl md:text-3xl font-bold mb-2">{t('gift.giftChoose', { defaultValue: 'Choose your gift' })}</h2>
-            <p className="text-gray-500 text-sm">Every option includes a 7-day free trial for the recipient.</p>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 font-poppins mb-2">{t('gift.giftChoose', { defaultValue: 'Choose your gift' })}</h2>
+            <p className="text-gray-500 text-sm font-inter">Every option includes a 7-day free trial for the recipient.</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -201,8 +198,8 @@ const GiftPurchasePage: React.FC = () => {
                   onClick={() => setSelectedType(pkg.type)}
                   className={`relative rounded-2xl p-6 text-left transition-all duration-200 border ${
                     isSelected
-                      ? 'border-red-500 bg-red-500/5 shadow-[0_0_30px_rgba(239,68,68,0.15)]'
-                      : 'border-white/[0.08] bg-[#0d1627] hover:border-red-500/40'
+                      ? 'border-red-500 ring-2 ring-red-500 ring-offset-2 bg-red-50 shadow-md'
+                      : 'border-gray-200 bg-white shadow-sm hover:border-red-300 hover:shadow-md'
                   }`}
                 >
                   {pkg.badge && (
@@ -210,17 +207,17 @@ const GiftPurchasePage: React.FC = () => {
                       {pkg.badge}
                     </Badge>
                   )}
-                  <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center text-red-400 mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center text-red-500 mb-4">
                     {pkg.icon}
                   </div>
-                  <h3 className="text-lg font-semibold text-white mb-1">{pkg.title}</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-1">{pkg.title}</h3>
                   <div className="flex items-baseline gap-1 mb-3">
-                    <span className="text-2xl font-bold text-white">{formatPrice(GIFT_PRICES[pkg.type])}</span>
+                    <span className="text-2xl font-bold text-red-600">{formatPrice(GIFT_PRICES[pkg.type])}</span>
                   </div>
-                  {pkg.saving && <p className="text-xs text-green-400 mb-2">{pkg.saving}</p>}
-                  <p className="text-sm text-gray-400 leading-relaxed">{pkg.desc}</p>
+                  {pkg.saving && <p className="text-xs text-green-600 mb-2">{pkg.saving}</p>}
+                  <p className="text-sm text-gray-500 leading-relaxed">{pkg.desc}</p>
                   {pkg.tag && (
-                    <Badge className="mt-3 bg-red-500/10 text-red-400 border-red-500/20 text-[10px]">{pkg.tag}</Badge>
+                    <Badge className="mt-3 bg-red-100 text-red-700 border-red-200 text-[10px]">{pkg.tag}</Badge>
                   )}
                   {isSelected && (
                     <div className="absolute top-4 right-4 w-6 h-6 rounded-full bg-red-500 flex items-center justify-center">
@@ -236,12 +233,12 @@ const GiftPurchasePage: React.FC = () => {
 
       {/* ── Form (shows after card selected) ──────────────── */}
       {selectedType && (
-        <section className="pb-16">
+        <section className="py-16 bg-white">
           <div className="container mx-auto px-4 max-w-2xl">
 
             {/* Personal Message */}
             <div className="mb-10">
-              <h3 className="text-lg font-semibold mb-1">{t('gift.giftPersonalMessage', { defaultValue: 'Add a personal message' })}</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">{t('gift.giftPersonalMessage', { defaultValue: 'Add a personal message' })}</h3>
               <p className="text-sm text-gray-500 mb-4">Optional — included with the gift email.</p>
               <Textarea
                 value={personalMessage}
@@ -249,32 +246,32 @@ const GiftPurchasePage: React.FC = () => {
                 placeholder="e.g. Mum, I set this up because I love you and want to know you're safe. — James"
                 maxLength={500}
                 rows={3}
-                className="bg-[#0d1627] border-white/10 text-white placeholder:text-gray-600 focus:border-red-500 resize-none"
+                className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-red-500 resize-none"
               />
-              <p className="text-xs text-gray-600 text-right mt-1">{personalMessage.length}/500</p>
+              <p className="text-xs text-gray-400 text-right mt-1">{personalMessage.length}/500</p>
             </div>
 
             {/* Recipient */}
             <div className="mb-10">
-              <h3 className="text-lg font-semibold mb-1">{t('gift.giftWhoFor', { defaultValue: 'Who is this gift for?' })}</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">{t('gift.giftWhoFor', { defaultValue: 'Who is this gift for?' })}</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                 <div className="space-y-2">
-                  <Label className="text-gray-400 text-sm">Recipient name *</Label>
+                  <Label className="text-gray-700 text-sm font-medium">Recipient name *</Label>
                   <Input
                     value={recipientName}
                     onChange={(e) => setRecipientName(e.target.value)}
                     placeholder="e.g. Margaret"
-                    className="bg-[#0d1627] border-white/10 text-white placeholder:text-gray-600 focus:border-red-500"
+                    className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-red-500"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-gray-400 text-sm">Recipient email *</Label>
+                  <Label className="text-gray-700 text-sm font-medium">Recipient email *</Label>
                   <Input
                     type="email"
                     value={recipientEmail}
                     onChange={(e) => setRecipientEmail(e.target.value)}
                     placeholder="e.g. margaret@email.com"
-                    className="bg-[#0d1627] border-white/10 text-white placeholder:text-gray-600 focus:border-red-500"
+                    className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-red-500"
                   />
                 </div>
               </div>
@@ -284,22 +281,22 @@ const GiftPurchasePage: React.FC = () => {
             <div className="mb-10">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-gray-400 text-sm">Your name *</Label>
+                  <Label className="text-gray-700 text-sm font-medium">Your name *</Label>
                   <Input
                     value={purchaserName}
                     onChange={(e) => setPurchaserName(e.target.value)}
                     placeholder="e.g. James"
-                    className="bg-[#0d1627] border-white/10 text-white placeholder:text-gray-600 focus:border-red-500"
+                    className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-red-500"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-gray-400 text-sm">Your email *</Label>
+                  <Label className="text-gray-700 text-sm font-medium">Your email *</Label>
                   <Input
                     type="email"
                     value={purchaserEmail}
                     onChange={(e) => setPurchaserEmail(e.target.value)}
                     placeholder="e.g. james@email.com"
-                    className="bg-[#0d1627] border-white/10 text-white placeholder:text-gray-600 focus:border-red-500"
+                    className="bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-red-500"
                   />
                 </div>
               </div>
@@ -308,15 +305,15 @@ const GiftPurchasePage: React.FC = () => {
             {/* Delivery Date */}
             <div className="mb-10">
               <div className="space-y-2">
-                <Label className="text-gray-400 text-sm">Delivery date (optional)</Label>
+                <Label className="text-gray-700 text-sm font-medium">Delivery date (optional)</Label>
                 <Input
                   type="date"
                   value={deliveryDate}
                   onChange={(e) => setDeliveryDate(e.target.value)}
                   min={todayStr}
-                  className="bg-[#0d1627] border-white/10 text-white focus:border-red-500 max-w-xs"
+                  className="bg-white border-gray-300 text-gray-900 focus:border-red-500 max-w-xs"
                 />
-                <p className="text-xs text-gray-600">Leave empty to send immediately after purchase</p>
+                <p className="text-xs text-gray-400">Leave empty to send immediately after purchase</p>
               </div>
             </div>
 
@@ -338,7 +335,7 @@ const GiftPurchasePage: React.FC = () => {
                 </>
               )}
             </Button>
-            <p className="text-xs text-gray-600 text-center mt-3">
+            <p className="text-xs text-gray-400 text-center mt-3">
               Secure payment via Stripe. Recipient gets a beautiful email with their gift code instantly.
             </p>
           </div>
@@ -346,13 +343,13 @@ const GiftPurchasePage: React.FC = () => {
       )}
 
       {/* ── Testimonials ──────────────────────────────────── */}
-      <section className="py-16 border-t border-white/5">
+      <section className="py-16 bg-gray-50 border-t border-gray-200">
         <div className="container mx-auto px-4 max-w-5xl">
           <div className="grid md:grid-cols-3 gap-8">
-            {testimonials.map((t, i) => (
+            {testimonials.map((item, i) => (
               <div key={i} className="text-center">
-                <p className="text-gray-400 italic text-sm leading-relaxed mb-4">"{t.quote}"</p>
-                <p className="text-xs text-gray-600">— {t.name}, {t.city}</p>
+                <p className="text-gray-600 italic text-sm leading-relaxed mb-4">"{item.quote}"</p>
+                <p className="text-xs text-gray-500">— {item.name}, {item.city}</p>
               </div>
             ))}
           </div>
