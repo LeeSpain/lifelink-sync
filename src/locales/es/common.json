@@ -869,6 +869,30 @@
       }
     }
   },
+  "giftSection": {
+    "label": "Regalar Proteccion",
+    "heading": "Regala tranquilidad a quien mas quieres",
+    "subtitle": "El regalo mas significativo que puedes dar — saber que CLARA cuida de ellos 24/7.",
+    "mumHeading": "Vive sola y me preocupo cada dia",
+    "mumDesc": "Dale a tu madre CLARA — ella recibe proteccion 24/7, tu recibes tranquilidad.",
+    "dadHeading": "Es terco cuando se trata de pedir ayuda",
+    "dadDesc": "CLARA funciona en silencio. Un boton si algo va mal. Tu padre mantiene su independencia.",
+    "partnerHeading": "El regalo mas considerado que se me ocurrio",
+    "partnerDesc": "Ya sea para tu pareja, un abuelo o un trabajador solitario — CLARA los protege cada dia.",
+    "quote": "Compre el regalo anual para mi madre en Malaga. Estuvo configurada en 10 minutos.",
+    "quoteAuthor": "James T., Amsterdam",
+    "chooseGift": "Elige un regalo",
+    "noCardNeeded": "Sin tarjeta para canjear. Activo en minutos.",
+    "viewAll": "Ver todas las opciones →",
+    "secureCheckout": "Pago seguro",
+    "instantDelivery": "Entrega instantanea",
+    "refundPolicy": "Reembolso en 7 dias",
+    "forMum": "Para mama",
+    "forDad": "Para papa",
+    "forGrandparents": "Para abuelos",
+    "forPartner": "Para tu pareja",
+    "forColleague": "Para un colega"
+  },
   "finalCta": {
     "title": "¿Listo para Proteger a Tu Familia?",
     "description": "Únete a familias en Europa que confían en LifeLink Sync para protección integral de emergencia. Comienza hoy y experimenta tranquilidad con monitoreo profesional, conectividad familiar y asistencia con IA.",

@@ -838,6 +838,30 @@
       }
     }
   },
+  "giftSection": {
+    "label": "Cadeau geven",
+    "heading": "Geef het cadeau van gemoedsrust",
+    "subtitle": "Het meest betekenisvolle cadeau dat je iemand kunt geven — wetende dat CLARA over hen waakt 24/7.",
+    "mumHeading": "Ze woont alleen en ik maak me elke dag zorgen",
+    "mumDesc": "Geef je moeder CLARA — zij krijgt 24/7 bescherming, jij krijgt gemoedsrust.",
+    "dadHeading": "Hij is koppig als het gaat om hulp vragen",
+    "dadDesc": "CLARA werkt stil op de achtergrond. Een knop als er iets misgaat. Je vader behoudt zijn onafhankelijkheid.",
+    "partnerHeading": "Het meest attente cadeau dat ik kon bedenken",
+    "partnerDesc": "Of het nu voor een partner, grootouder of alleenwerker is — CLARA houdt hen elke dag veilig.",
+    "quote": "Ik kocht het jaarcadeau voor mijn moeder in Malaga. Ze was in 10 minuten klaar.",
+    "quoteAuthor": "James T., Amsterdam",
+    "chooseGift": "Kies een cadeau",
+    "noCardNeeded": "Geen creditcard nodig om in te wisselen. Binnen minuten actief.",
+    "viewAll": "Bekijk alle cadeau-opties →",
+    "secureCheckout": "Veilig afrekenen",
+    "instantDelivery": "Direct bezorgd",
+    "refundPolicy": "7 dagen retour",
+    "forMum": "Voor mama",
+    "forDad": "Voor papa",
+    "forGrandparents": "Voor grootouders",
+    "forPartner": "Voor je partner",
+    "forColleague": "Voor een collega"
+  },
   "finalCta": {
     "title": "Klaar om Je Familie te Beschermen?",
     "description": "Sluit je aan bij families in Europa die LifeLink Sync vertrouwen voor uitgebreide noodbescherming. Begin vandaag en ervaar gemoedsrust met professionele monitoring, familieconnectiviteit en AI-assistentie.",

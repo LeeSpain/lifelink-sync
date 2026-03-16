@@ -873,6 +873,30 @@
       }
     }
   },
+  "giftSection": {
+    "label": "Gift Protection",
+    "heading": "Give the gift of peace of mind",
+    "subtitle": "The most meaningful present you can give someone you love — knowing CLARA is watching over them 24/7.",
+    "mumHeading": "She lives alone and I worry every day",
+    "mumDesc": "Give your mum CLARA — she gets 24/7 protection, you get peace of mind. No technical setup needed for her.",
+    "dadHeading": "He's stubborn about asking for help",
+    "dadDesc": "CLARA works quietly in the background. One button if anything goes wrong. Your dad keeps his independence.",
+    "partnerHeading": "The most thoughtful gift I could think of",
+    "partnerDesc": "Whether it's for a partner, a grandparent, or a lone worker — CLARA is the gift that keeps them safe every day.",
+    "quote": "I bought the annual gift for my mum in Málaga. She was set up in 10 minutes and I finally sleep at night knowing CLARA is with her.",
+    "quoteAuthor": "James T., Amsterdam",
+    "chooseGift": "Choose a gift",
+    "noCardNeeded": "No card needed to redeem. Active within minutes.",
+    "viewAll": "View all gift options →",
+    "secureCheckout": "Secure checkout",
+    "instantDelivery": "Instant delivery",
+    "refundPolicy": "7-day refund",
+    "forMum": "For Mum",
+    "forDad": "For Dad",
+    "forGrandparents": "For Grandparents",
+    "forPartner": "For a Partner",
+    "forColleague": "For a Colleague"
+  },
   "finalCta": {
     "title": "Ready to Protect Your Family?",
     "description": "Join families across Europe who trust LifeLink Sync for comprehensive emergency protection. Start today and experience peace of mind with professional monitoring, family connectivity, and AI-powered assistance.",

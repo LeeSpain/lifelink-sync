@@ -8,6 +8,7 @@ import HowItWorksModal from "@/components/HowItWorksModal";
 
 import FamilySection from "@/components/FamilySection";
 import Pricing from "@/components/Pricing";
+import GiftSection from "@/components/GiftSection";
 import FinalCTA from "@/components/FinalCTA";
 import PendantPromo from "@/components/PendantPromo";
 import Footer from "@/components/Footer";
@@ -79,7 +80,10 @@ const Index = () => {
       {/* 7. Pricing */}
       <Pricing />
 
-      {/* 8. Pendant Promo */}
+      {/* 8. Gift Section */}
+      <GiftSection />
+
+      {/* 9. Pendant Promo */}
       <PendantPromo />
 
       {/* 9. CTA Banner */}
