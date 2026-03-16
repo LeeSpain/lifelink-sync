@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { Bot, Send, X, Volume2, VolumeX, Mic, MicOff, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useTranslation } from 'react-i18next';
+import { formatClaraMessage } from '@/lib/formatClaraMessage';
 import type { ChatMessage } from '@/hooks/useTabletVoice';
 
 interface TabletClaraPanelProps {
@@ -31,6 +33,7 @@ export function TabletClaraPanel({
   expanded,
   onToggleExpand,
 }: TabletClaraPanelProps) {
+  const { t } = useTranslation();
   const [inputText, setInputText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -121,7 +124,7 @@ export function TabletClaraPanel({
                   : 'bg-slate-800 text-slate-200 rounded-bl-md'
               }`}
             >
-              {msg.content}
+              <span dangerouslySetInnerHTML={{ __html: formatClaraMessage(msg.content) }} />
               <p className={`text-[9px] mt-1 ${msg.role === 'user' ? 'text-white/50' : 'text-slate-500'}`}>
                 {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </p>
@@ -151,7 +154,7 @@ export function TabletClaraPanel({
             ref={inputRef}
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            placeholder="Type a message..."
+            placeholder={t('clara.placeholder', { defaultValue: 'Type a message...' })}
             className="flex-1 bg-slate-800 border-slate-600 text-white placeholder-slate-500 text-sm h-9"
             disabled={isThinking}
           />

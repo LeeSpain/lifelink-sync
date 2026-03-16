@@ -28,11 +28,21 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from 'react-i18next';
 import { supabase } from "@/integrations/supabase/client";
+import { usePreferences } from '@/contexts/PreferencesContext';
+import { formatClaraMessage } from '@/lib/formatClaraMessage';
 
 export function SupportPage() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { language, currency } = usePreferences();
+  const [sessionId] = useState(() => {
+    const stored = localStorage.getItem('clara_session_id_support');
+    if (stored) return stored;
+    const newId = `support-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+    localStorage.setItem('clara_session_id_support', newId);
+    return newId;
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [messages, setMessages] = useState([
     {
@@ -71,8 +81,10 @@ export function SupportPage() {
       const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: {
           message: currentMessage,
-          sessionId: `support-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          sessionId,
           userId: user?.id || null,
+          language,
+          currency,
           context: `dashboard-support - User: ${user?.user_metadata?.first_name || user?.email?.split('@')[0] || 'User'}`,
           conversation_history: messages.slice(-5)
         }
@@ -246,7 +258,7 @@ export function SupportPage() {
                         : 'bg-muted text-foreground'
                     }`}
                   >
-                    <p className="text-xs whitespace-pre-wrap">{message.content}</p>
+                    <p className="text-xs whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: !message.isUser ? formatClaraMessage(message.content) : message.content }} />
                     <p className="text-xs mt-1 opacity-70">
                       {message.timestamp.toLocaleTimeString([], { 
                         hour: '2-digit', 

@@ -7,6 +7,7 @@ import { Send, MessageCircle, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
+import { usePreferences } from '@/contexts/PreferencesContext';
 import { formatClaraMessage } from '@/lib/formatClaraMessage';
 
 interface Message {
@@ -25,7 +26,8 @@ const ContactChatWidget: React.FC<ContactChatWidgetProps> = ({
   className = "",
   placeholder
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const { currency } = usePreferences();
   const resolvedPlaceholder = placeholder ?? t('chat.placeholder');
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -75,8 +77,8 @@ const ContactChatWidget: React.FC<ContactChatWidgetProps> = ({
           sessionId: sessionId,
           userId: null,
           context: "contact - Customer support and general inquiries",
-          language: 'en',
-          currency: 'EUR',
+          language: i18n.language,
+          currency,
           conversation_history: messages.slice(-5) // Send last 5 messages for context
         }
       });

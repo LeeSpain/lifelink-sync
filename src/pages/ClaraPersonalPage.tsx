@@ -46,7 +46,13 @@ const ClaraPersonalPage = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(() => localStorage.getItem('clara_voice') !== 'off');
-  const sessionId = useRef(`personal-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`);
+  const [sessionId] = useState(() => {
+    const stored = localStorage.getItem('clara_session_id_personal');
+    if (stored) return stored;
+    const newId = `personal-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+    localStorage.setItem('clara_session_id_personal', newId);
+    return newId;
+  });
 
   // Load speech synthesis voices
   useEffect(() => {
@@ -151,7 +157,7 @@ const ClaraPersonalPage = () => {
       const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: {
           message: text,
-          sessionId: sessionId.current,
+          sessionId,
           userId: null,
           language: 'en',
           currency: 'EUR',

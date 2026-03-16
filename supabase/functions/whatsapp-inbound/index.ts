@@ -224,7 +224,7 @@ Keep responses to 2-3 short paragraphs. No bullet points.`;
             'content-type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'claude-3-haiku-20240307',
+            model: 'claude-haiku-4-5-20251001',
             max_tokens: 300,
             system: ownerPrompt,
             messages: [{ role: 'user', content: body }],
@@ -298,6 +298,43 @@ Laat me je bericht lezen en je nu goed antwoorden...`,
 
     const currentSessionId = `wa-${phone}`;
 
+    // ── Fetch training data for knowledge base ─────────────────
+    let knowledgeBase = '';
+    try {
+      const { data: trainingRows } = await supabase
+        .from('training_data')
+        .select('question, answer')
+        .or('is_active.eq.true,status.eq.active')
+        .limit(10);
+      if (trainingRows && trainingRows.length > 0) {
+        knowledgeBase = '\n\nKNOWLEDGE BASE:\n' + trainingRows.map(
+          (r: { question: string; answer: string }) => `Q: ${r.question}\nA: ${r.answer}`
+        ).join('\n\n');
+      }
+    } catch (e) { console.warn('Training data fetch failed:', e); }
+
+    // ── Fetch conversation history ──────────────────────────────
+    let conversationMessages: Array<{ role: string; content: string }> = [];
+    try {
+      if (existingConv?.id) {
+        const { data: history } = await supabase
+          .from('whatsapp_messages')
+          .select('direction, content')
+          .eq('conversation_id', existingConv.id)
+          .order('created_at', { ascending: true })
+          .limit(10);
+        if (history?.length) {
+          conversationMessages = history.map((h: { direction: string; content: string }) => ({
+            role: h.direction === 'inbound' ? 'user' : 'assistant',
+            content: h.content,
+          }));
+        }
+      }
+    } catch { /* non-fatal */ }
+
+    // Add current message
+    conversationMessages.push({ role: 'user', content: userMessage });
+
     // ── Call Claude ─────────────────────────────────────────────
     let aiResponse: string;
     const triggerWord = detectAmberTrigger(body);
@@ -312,10 +349,10 @@ Laat me je bericht lezen en je nu goed antwoorden...`,
           'content-type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'claude-3-haiku-20240307',
+          model: 'claude-haiku-4-5-20251001',
           max_tokens: 250,
-          system: SYSTEM_PROMPT,
-          messages: [{ role: 'user', content: userMessage }],
+          system: SYSTEM_PROMPT + knowledgeBase,
+          messages: conversationMessages,
         }),
       });
 

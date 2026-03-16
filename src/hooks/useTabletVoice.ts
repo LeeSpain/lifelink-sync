@@ -1,5 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
+import { usePreferences } from '@/contexts/PreferencesContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { useVoiceActivation, type VoiceCommand } from '@/hooks/useVoiceActivation';
@@ -18,6 +20,8 @@ interface UseTabletVoiceOptions {
 
 export function useTabletVoice({ onSOSTrigger, micPermission }: UseTabletVoiceOptions) {
   const { user } = useAuth();
+  const { i18n } = useTranslation();
+  const { currency } = usePreferences();
   const tts = useTextToSpeech({ rate: 0.9 });
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isThinking, setIsThinking] = useState(false);
@@ -66,7 +70,8 @@ export function useTabletVoice({ onSOSTrigger, micPermission }: UseTabletVoiceOp
           sessionId,
           userId: user?.id,
           context: 'tablet-dashboard',
-          language: 'en',
+          language: i18n.language,
+          currency,
         },
       });
 
@@ -92,7 +97,7 @@ export function useTabletVoice({ onSOSTrigger, micPermission }: UseTabletVoiceOp
     } finally {
       setIsThinking(false);
     }
-  }, [sessionId, user?.id]);
+  }, [sessionId, user?.id, i18n.language, currency]);
 
   // Add a Clara message to chat (used by alert system)
   const addClaraMessage = useCallback((content: string, speak = true) => {
