@@ -96,18 +96,52 @@ serve(async (req) => {
         return new Response('', { status: 200 });
       }
 
+      const needsProtectedName = ['mum', 'dad', 'parents', 'business'].includes(whoFor);
+
       await supabase.from('whatsapp_signups')
-        .update({ who_for: whoFor, step: 2, updated_at: new Date().toISOString() })
+        .update({ who_for: whoFor, step: needsProtectedName ? 2 : 3, updated_at: new Date().toISOString() })
         .eq('id', signup.id);
 
-      const step2Key = `step2_${whoFor}` as keyof typeof T;
-      const step2Msg = T[step2Key]?.[lang] || T.step2_self[lang];
-      await sendWhatsApp(from, step2Msg);
+      if (needsProtectedName) {
+        // Step 2: ask for protected person's name
+        const protectedQ: Record<string, Record<string, string>> = {
+          mum:     { en: "What's your mum's name?", es: "¿Cómo se llama tu madre?", nl: "Hoe heet je moeder?" },
+          dad:     { en: "What's your dad's name?", es: "¿Cómo se llama tu padre?", nl: "Hoe heet je vader?" },
+          parents: { en: "What are your parents' names?", es: "¿Cómo se llaman tus padres?", nl: "Hoe heten je ouders?" },
+          business:{ en: "What's your company name?", es: "¿Cuál es el nombre de tu empresa?", nl: "Wat is je bedrijfsnaam?" },
+        };
+        await sendWhatsApp(from, protectedQ[whoFor]?.[lang] || protectedQ.mum[lang]);
+      } else {
+        // Skip to subscriber name (step 3)
+        const step2Key = `step2_${whoFor}` as keyof typeof T;
+        await sendWhatsApp(from, T[step2Key]?.[lang] || T.step2_self[lang]);
+      }
       return new Response('', { status: 200 });
     }
 
-    // ── STEP 2: Name ───────────────────────────────────────────
+    // ── STEP 2: Protected person's name (mum/dad/parents/business only)
     if (signup.step === 2) {
+      const protectedName = msg.trim();
+      if (protectedName.length < 2) {
+        await sendWhatsApp(from, lang === 'es' ? 'Necesito el nombre por favor.' : lang === 'nl' ? 'Ik heb de naam nodig.' : 'I need the name please.');
+        return new Response('', { status: 200 });
+      }
+
+      await supabase.from('whatsapp_signups')
+        .update({ protected_person_name: protectedName, step: 3, updated_at: new Date().toISOString() })
+        .eq('id', signup.id);
+
+      const yourNameQ: Record<string, string> = {
+        en: "And what's your name? (So I know who I'm talking to)",
+        es: "¿Y cómo te llamas tú? (Para saber con quién hablo)",
+        nl: "En hoe heet jij? (Zodat ik weet met wie ik praat)",
+      };
+      await sendWhatsApp(from, yourNameQ[lang]);
+      return new Response('', { status: 200 });
+    }
+
+    // ── STEP 3: Subscriber name ────────────────────────────────
+    if (signup.step === 3) {
       const name = msg.trim();
       if (name.length < 2) {
         await sendWhatsApp(from, lang === 'es' ? 'Necesito tu nombre por favor.' : lang === 'nl' ? 'Ik heb je naam nodig.' : 'I need your name please.');
@@ -115,7 +149,7 @@ serve(async (req) => {
       }
 
       await supabase.from('whatsapp_signups')
-        .update({ full_name: name, step: 3, updated_at: new Date().toISOString() })
+        .update({ full_name: name, step: 4, updated_at: new Date().toISOString() })
         .eq('id', signup.id);
 
       const firstName = name.split(' ')[0];
@@ -124,8 +158,8 @@ serve(async (req) => {
       return new Response('', { status: 200 });
     }
 
-    // ── STEP 3: Email → Account Creation ───────────────────────
-    if (signup.step === 3) {
+    // ── STEP 4: Email → Account Creation ───────────────────────
+    if (signup.step === 4) {
       const email = msg.trim().toLowerCase();
       if (!email.includes('@') || !email.includes('.')) {
         await sendWhatsApp(from, lang === 'es' ? 'Necesito un email válido por favor.' : lang === 'nl' ? 'Ik heb een geldig e-mailadres nodig.' : 'I need a valid email address please.');
@@ -241,9 +275,10 @@ serve(async (req) => {
         },
       }).catch(() => {});
 
-      // Send confirmation
+      // Send confirmation — use protected person name if available
       const firstName = signup.full_name?.split(' ')[0] || '';
-      const whoText = WHO_FOR_TEXT[signup.who_for || 'self']?.[lang] || WHO_FOR_TEXT.self[lang];
+      const protectedName = signup.protected_person_name;
+      const whoText = protectedName || WHO_FOR_TEXT[signup.who_for || 'self']?.[lang] || WHO_FOR_TEXT.self[lang];
 
       const confirmations: Record<string, string> = {
         en: `🛡️ You're protected, ${firstName}!\n\nYour 7-day free trial is now active.\nNo card needed yet.\n\n✅ CLARA is watching over ${whoText}\n✅ Emergency contacts can be added online\n✅ SOS alerts active from day one\n\nSet up your full account here:\nhttps://lifelink-sync.com/auth\n\nYou'll get a setup email at ${email} shortly.\n\nAny questions? Just message me here 24/7.`,
@@ -254,8 +289,11 @@ serve(async (req) => {
       await sendWhatsApp(from, confirmations[lang]);
 
       // Alert Lee
+      const forText = protectedName
+        ? `${protectedName} (${signup.who_for} of ${signup.full_name})`
+        : signup.who_for;
       await sendWhatsApp(leeNumber,
-        `🆕 New WhatsApp sign-up!\nName: ${signup.full_name}\nEmail: ${email}\nPhone: ${cleanPhone}\nFor: ${signup.who_for}\nLanguage: ${lang}\nTrial activated ✅`
+        `🆕 New WhatsApp sign-up!\nName: ${signup.full_name}\nEmail: ${email}\nPhone: ${cleanPhone}\nFor: ${forText}\nLanguage: ${lang}\nTrial activated ✅`
       );
 
       return new Response('', { status: 200 });
