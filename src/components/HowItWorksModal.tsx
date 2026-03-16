@@ -1,27 +1,12 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { X, Smartphone, Radio, Mic, MessageSquare, MapPin, FileText, Phone, AlertTriangle, Shield } from 'lucide-react';
 
 interface HowItWorksModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
-const triggerCards = [
-  { icon: Smartphone, label: 'App SOS Button', sub: 'One tap', color: 'bg-red-500/20 text-red-400' },
-  { icon: Radio, label: 'Bluetooth Pendant', sub: 'Press anywhere', color: 'bg-blue-500/20 text-blue-400' },
-  { icon: Mic, label: 'Say: CLARA, help me', sub: 'Hands-free', color: 'bg-purple-500/20 text-purple-400' },
-];
-
-const responseItems = [
-  { n: 1, title: 'Family alerted instantly', sub: 'WhatsApp + SMS to all contacts' },
-  { n: 2, title: 'Location shared live', sub: 'GPS coordinates sent' },
-  { n: 3, title: 'Medical profile sent', sub: 'To emergency responders' },
-  { n: 4, title: 'Conference bridge opens', sub: 'Family coordinating live' },
-  { n: 5, title: 'Callback arranged', sub: 'Real person calls back' },
-];
-
-const chips = ['CLARA AI', 'Family Circle', 'SOS Pendant', 'Daily Wellbeing', 'Medication', 'Tablet', 'Conference Bridge', 'GPS Live'];
 
 const dashStyle = `
 @keyframes hiw-dash { to { stroke-dashoffset: -16; } }
@@ -30,6 +15,8 @@ const dashStyle = `
 `;
 
 const HowItWorksModal: React.FC<HowItWorksModalProps> = ({ isOpen, onClose }) => {
+  const { t } = useTranslation();
+
   useEffect(() => {
     if (!isOpen) return;
     const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
@@ -39,6 +26,31 @@ const HowItWorksModal: React.FC<HowItWorksModalProps> = ({ isOpen, onClose }) =>
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
+
+  const triggerCards = [
+    { icon: Smartphone, label: t('howItWorksModal.trigger1Label'), sub: t('howItWorksModal.trigger1Sub'), color: 'bg-red-500/20 text-red-400' },
+    { icon: Radio, label: t('howItWorksModal.trigger2Label'), sub: t('howItWorksModal.trigger2Sub'), color: 'bg-blue-500/20 text-blue-400' },
+    { icon: Mic, label: t('howItWorksModal.trigger3Label'), sub: t('howItWorksModal.trigger3Sub'), color: 'bg-purple-500/20 text-purple-400' },
+  ];
+
+  const responseItems = [
+    { n: 1, title: t('howItWorksModal.response1Title'), sub: t('howItWorksModal.response1Sub') },
+    { n: 2, title: t('howItWorksModal.response2Title'), sub: t('howItWorksModal.response2Sub') },
+    { n: 3, title: t('howItWorksModal.response3Title'), sub: t('howItWorksModal.response3Sub') },
+    { n: 4, title: t('howItWorksModal.response4Title'), sub: t('howItWorksModal.response4Sub') },
+    { n: 5, title: t('howItWorksModal.response5Title'), sub: t('howItWorksModal.response5Sub') },
+  ];
+
+  const chips = [
+    t('howItWorksModal.chipClaraAI'),
+    t('howItWorksModal.chipFamilyCircle'),
+    t('howItWorksModal.chipSOSPendant'),
+    t('howItWorksModal.chipDailyWellbeing'),
+    t('howItWorksModal.chipMedication'),
+    t('howItWorksModal.chipTablet'),
+    t('howItWorksModal.chipConferenceBridge'),
+    t('howItWorksModal.chipGPSLive'),
+  ];
 
   return (
     <>
@@ -65,7 +77,7 @@ const HowItWorksModal: React.FC<HowItWorksModalProps> = ({ isOpen, onClose }) =>
               <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
               <span className="font-semibold text-white">LifeLink Sync</span>
               <span className="text-white/20">·</span>
-              <span className="text-gray-400">How It All Works</span>
+              <span className="text-gray-400">{t('howItWorksModal.headerTitle')}</span>
             </div>
             <button onClick={onClose} className="w-7 h-7 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors">
               <X className="h-3.5 w-3.5 text-gray-400" />
@@ -79,8 +91,8 @@ const HowItWorksModal: React.FC<HowItWorksModalProps> = ({ isOpen, onClose }) =>
 
               {/* COL A — Triggers */}
               <div style={{ animation: 'hiw-fade 300ms ease' }}>
-                <p className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-1">You need help</p>
-                <p className="text-[11px] text-gray-500 mb-4">3 ways to call CLARA</p>
+                <p className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-1">{t('howItWorksModal.youNeedHelp')}</p>
+                <p className="text-[11px] text-gray-500 mb-4">{t('howItWorksModal.threeWays')}</p>
                 <div className="space-y-2">
                   {triggerCards.map((c, i) => {
                     const Icon = c.icon;
@@ -136,8 +148,8 @@ const HowItWorksModal: React.FC<HowItWorksModalProps> = ({ isOpen, onClose }) =>
 
               {/* COL C — Response */}
               <div style={{ animation: 'hiw-fade 300ms ease 300ms both' }}>
-                <p className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-1">Help is on the way</p>
-                <p className="text-[11px] text-gray-500 mb-4">In the next 30 seconds</p>
+                <p className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-1">{t('howItWorksModal.helpOnTheWay')}</p>
+                <p className="text-[11px] text-gray-500 mb-4">{t('howItWorksModal.inThirtySeconds')}</p>
                 <div className="space-y-1.5">
                   {responseItems.map((item) => (
                     <div key={item.n} className="flex items-start gap-2.5 py-1.5 px-2 rounded-md hover:bg-white/[0.02] transition-colors">
@@ -158,7 +170,7 @@ const HowItWorksModal: React.FC<HowItWorksModalProps> = ({ isOpen, onClose }) =>
             <div className="md:hidden space-y-6">
               {/* Triggers */}
               <div>
-                <p className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-3">3 ways to call CLARA</p>
+                <p className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-3">{t('howItWorksModal.threeWays')}</p>
                 <div className="flex gap-2 overflow-x-auto pb-2">
                   {triggerCards.map((c, i) => {
                     const Icon = c.icon;
@@ -187,11 +199,11 @@ const HowItWorksModal: React.FC<HowItWorksModalProps> = ({ isOpen, onClose }) =>
                   </div>
                 </div>
               </div>
-              <p className="text-[10px] text-gray-500 text-center -mt-3">Responds in seconds</p>
+              <p className="text-[10px] text-gray-500 text-center -mt-3">{t('howItWorksModal.respondsInSeconds')}</p>
 
               {/* Response items */}
               <div>
-                <p className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-3">Help arrives in 30 seconds</p>
+                <p className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-3">{t('howItWorksModal.helpArrivesInThirty')}</p>
                 <div className="space-y-2">
                   {responseItems.map((item) => (
                     <div key={item.n} className="flex items-start gap-2.5">
@@ -224,7 +236,7 @@ const HowItWorksModal: React.FC<HowItWorksModalProps> = ({ isOpen, onClose }) =>
               className="flex-shrink-0 px-4 py-1.5 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors flex items-center gap-1.5"
             >
               <Shield className="h-3.5 w-3.5" />
-              Start Free Trial
+              {t('howItWorksModal.startFreeTrial')}
             </Link>
           </div>
         </div>

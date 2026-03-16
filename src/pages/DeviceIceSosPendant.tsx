@@ -44,17 +44,17 @@ const DeviceIceSosPendant = () => {
   // DB status check removed — hardcoded to Coming Soon for pre-launch
 
   const features = [
-    { icon: Bluetooth, title: "Bluetooth 5.0", description: "Low energy instant pairing with your smartphone" },
-    { icon: Droplets, title: "IP67 Waterproof", description: "Shower, swim, and wear in any weather" },
-    { icon: Battery, title: "7+ Day Battery", description: "Long-lasting with magnetic USB charging" },
-    { icon: MapPin, title: "100m Range", description: "Professional Bluetooth range from your phone" },
+    { icon: Bluetooth, title: t('devicePendant.feature1Title'), description: t('devicePendant.feature1Desc') },
+    { icon: Droplets, title: t('devicePendant.feature2Title'), description: t('devicePendant.feature2Desc') },
+    { icon: Battery, title: t('devicePendant.feature3Title'), description: t('devicePendant.feature3Desc') },
+    { icon: MapPin, title: t('devicePendant.feature4Title'), description: t('devicePendant.feature4Desc') },
   ];
 
   const steps = [
-    { num: "1", title: "Download App", desc: "Install LifeLink Sync on iOS or Android" },
-    { num: "2", title: "Pair Device", desc: "Secure Bluetooth 5.0 encrypted connection" },
-    { num: "3", title: "Set Up Contacts", desc: "Add your emergency contacts and configure alerts" },
-    { num: "4", title: "You're Protected", desc: "One button press alerts all your contacts" },
+    { num: "1", title: t('devicePendant.step1Title'), desc: t('devicePendant.step1Desc') },
+    { num: "2", title: t('devicePendant.step2Title'), desc: t('devicePendant.step2Desc') },
+    { num: "3", title: t('devicePendant.step3Title'), desc: t('devicePendant.step3Desc') },
+    { num: "4", title: t('devicePendant.step4Title'), desc: t('devicePendant.step4Desc') },
   ];
 
   return (
@@ -92,21 +92,20 @@ const DeviceIceSosPendant = () => {
               <div className="text-center lg:text-left">
                 <div className="inline-flex items-center gap-2 bg-primary/10 rounded-full px-4 py-2 mb-6">
                   <Shield className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-medium text-primary">Optional Add-On Device</span>
+                  <span className="text-sm font-medium text-primary">{t('devicePendant.optionalAddon', 'Optional Add-On Device')}</span>
                 </div>
 
                 <h1 className="text-4xl md:text-6xl font-bold font-poppins mb-6 leading-tight text-[hsl(215,25%,27%)]">
-                  LifeLink Sync{' '}
-                  <span className="text-primary">Bluetooth Pendant</span>
+                  {t('devicePendant.pageTitle')}
                 </h1>
 
                 <p className="text-xl md:text-2xl mb-8 text-gray-600 leading-relaxed font-inter">
-                  Hands-free emergency protection. One button press on the pendant activates CLARA via your phone and alerts all your emergency contacts with your exact location.
+                  {t('devicePendant.heroDescription')}
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8">
                   {comingSoon ? (
-                    <Badge className="px-6 py-3 text-lg font-semibold bg-secondary text-white">Coming Soon</Badge>
+                    <Badge className="px-6 py-3 text-lg font-semibold bg-secondary text-white">{t('devicePendant.comingSoon', 'Coming Soon')}</Badge>
                   ) : (
                     <Button
                       asChild
@@ -115,7 +114,7 @@ const DeviceIceSosPendant = () => {
                     >
                       <Link to="/register">
                         <Shield className="h-5 w-5 mr-2" />
-                        Get Protected
+                        {t('devicePendant.getProtected', 'Get Protected')}
                       </Link>
                     </Button>
                   )}
@@ -126,22 +125,22 @@ const DeviceIceSosPendant = () => {
                     onClick={openClaraChat}
                   >
                     <MessageCircle className="h-5 w-5 mr-2" />
-                    Ask Clara
+                    {t('devicePendant.askClara', 'Ask Clara')}
                   </Button>
                 </div>
 
                 <div className="flex flex-wrap gap-6 justify-center lg:justify-start text-sm text-gray-500">
                   <div className="flex items-center gap-1.5">
                     <Check className="h-4 w-4 text-wellness" />
-                    <span>No monthly fees</span>
+                    <span>{t('devicePendant.noMonthlyFees')}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Check className="h-4 w-4 text-wellness" />
-                    <span>2-year warranty</span>
+                    <span>{t('devicePendant.twoYearWarranty')}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Check className="h-4 w-4 text-wellness" />
-                    <span>Free setup support</span>
+                    <span>{t('devicePendant.freeSetupSupport')}</span>
                   </div>
                 </div>
               </div>
@@ -169,10 +168,10 @@ const DeviceIceSosPendant = () => {
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-5xl font-bold font-poppins mb-4 text-[hsl(215,25%,27%)]">
-                Built for <span className="text-primary">Real Protection</span>
+                {t('devicePendant.builtForProtection', 'Built for Real Protection')}
               </h2>
               <p className="text-lg text-gray-600 font-inter max-w-2xl mx-auto">
-                Professional-grade safety technology in a compact, wearable design
+                {t('devicePendant.builtForProtectionDesc', 'Professional-grade safety technology in a compact, wearable design')}
               </p>
             </div>
 
@@ -197,18 +196,18 @@ const DeviceIceSosPendant = () => {
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-5xl font-bold font-poppins mb-4 text-[hsl(215,25%,27%)]">
-                Three Ways to <span className="text-primary">Wear It</span>
+                {t('devicePendant.wearYourWay')}
               </h2>
               <p className="text-lg text-gray-600 font-inter max-w-2xl mx-auto">
-                Every pendant comes with a complete accessory kit for any lifestyle
+                {t('devicePendant.wearDescription')}
               </p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-8">
               {[
-                { src: "/lovable-uploads/lifelink-pendant-hero.png", alt: "Pendant with comfortable lanyard", title: "Comfortable Lanyard", desc: "Adjustable lanyard for daily wear" },
-                { src: "/lovable-uploads/51174548-f504-43a6-b947-a681fdfb6552.png", alt: "Pendant with secure carabiner clip", title: "Secure Clip", desc: "Carabiner attachment for bags & belts" },
-                { src: "/lovable-uploads/a9a98b5b-436a-488c-b4f0-4a9c3ba75614.png", alt: "Pendant with sport wristbands", title: "Sport Wristbands", desc: "Active wear in white & black options" },
+                { src: "/lovable-uploads/lifelink-pendant-hero.png", alt: "Pendant with comfortable lanyard", title: t('devicePendant.lanyardTitle'), desc: t('devicePendant.lanyardDesc') },
+                { src: "/lovable-uploads/51174548-f504-43a6-b947-a681fdfb6552.png", alt: "Pendant with secure carabiner clip", title: t('devicePendant.clipTitle'), desc: t('devicePendant.clipDesc') },
+                { src: "/lovable-uploads/a9a98b5b-436a-488c-b4f0-4a9c3ba75614.png", alt: "Pendant with sport wristbands", title: t('devicePendant.wristbandTitle'), desc: t('devicePendant.wristbandDesc') },
               ].map((item, i) => (
                 <div key={i} className="relative rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 group">
                   <OptimizedImage
@@ -237,40 +236,40 @@ const DeviceIceSosPendant = () => {
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-5xl font-bold font-poppins mb-4 text-[hsl(215,25%,27%)]">
-                Works With Your <span className="text-primary">Smart Home</span>
+                {t('devicePendant.connectsToDevices')}
               </h2>
               <p className="text-lg text-gray-600 font-inter max-w-3xl mx-auto">
-                Seamless integration with your favourite voice assistants and smart home platforms
+                {t('devicePendant.connectsDesc')}
               </p>
             </div>
 
             <div className="grid lg:grid-cols-3 gap-8">
               {[
                 {
-                  letter: "A", label: "Amazon Alexa",
+                  letter: "A", label: t('devicePendant.alexaTitle'),
                   iconBg: "bg-primary/10", iconText: "text-primary",
-                  desc: "Voice-activated emergency alerts across all Alexa devices in your home.",
-                  items: ["All Alexa devices", "Multi-room alerts", '"Alexa, help help help"', "Account linking"],
+                  desc: t('devicePendant.alexaDesc'),
+                  items: [t('devicePendant.alexaItem1', 'All Alexa devices'), t('devicePendant.alexaItem2', 'Multi-room alerts'), t('devicePendant.alexaItem3', '"Alexa, help help help"'), t('devicePendant.alexaItem4', 'Account linking')],
                   comingSoon: true
                 },
                 {
-                  letter: "G", label: "Google Home",
+                  letter: "G", label: t('devicePendant.googleTitle'),
                   iconBg: "bg-guardian/10", iconText: "text-guardian",
-                  desc: "AI-powered emergency response with intelligent location sharing.",
-                  items: ["Google Nest support", "Intelligent routing", '"Hey Google, emergency"', "Real-time location"],
+                  desc: t('devicePendant.googleDesc'),
+                  items: [t('devicePendant.googleItem1', 'Google Nest support'), t('devicePendant.googleItem2', 'Intelligent routing'), t('devicePendant.googleItem3', '"Hey Google, emergency"'), t('devicePendant.googleItem4', 'Real-time location')],
                   comingSoon: true
                 },
                 {
-                  icon: Smartphone, label: "Universal Mobile",
+                  icon: Smartphone, label: t('devicePendant.mobileTitle'),
                   iconBg: "bg-primary/10", iconText: "text-primary",
-                  desc: "Cross-platform compatibility with enterprise-grade security.",
-                  items: ["iOS & Android", "Bluetooth 5.0 LE", "Active while app is open", "100m range"],
+                  desc: t('devicePendant.mobileDesc'),
+                  items: [t('devicePendant.mobileItem1', 'iOS & Android'), t('devicePendant.mobileItem2', 'Bluetooth 5.0 LE'), t('devicePendant.mobileItem3', 'Active while app is open'), t('devicePendant.mobileItem4', '100m range')],
                   comingSoon: false
                 },
               ].map((card, i) => (
                 <Card key={i} className={`bg-white border-[#E5E7EB] rounded-2xl hover:shadow-lg transition-shadow duration-300 p-8 text-center ${card.comingSoon ? 'opacity-80' : ''}`}>
                   {card.comingSoon && (
-                    <Badge className="mb-4 bg-secondary text-white">Coming Soon</Badge>
+                    <Badge className="mb-4 bg-secondary text-white">{t('devicePendant.comingSoon', 'Coming Soon')}</Badge>
                   )}
                   <div className={`w-16 h-16 mx-auto mb-6 rounded-2xl flex items-center justify-center ${card.iconBg}`}>
                     {card.icon ? (
@@ -302,10 +301,10 @@ const DeviceIceSosPendant = () => {
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-5xl font-bold font-poppins mb-4 text-[hsl(215,25%,27%)]">
-                Setup in <span className="text-primary">Minutes</span>
+                {t('devicePendant.setupInMinutes', 'Setup in Minutes')}
               </h2>
               <p className="text-lg text-gray-600 font-inter max-w-2xl mx-auto">
-                Professional-grade protection with a simple setup process
+                {t('devicePendant.setupDesc', 'Professional-grade protection with a simple setup process')}
               </p>
             </div>
 
@@ -331,24 +330,24 @@ const DeviceIceSosPendant = () => {
             <div className="max-w-lg mx-auto">
               <Card className="bg-white border-[#E5E7EB] rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
                 <div className="bg-primary/5 px-8 pt-8 pb-6 text-center">
-                  <h2 className="text-2xl font-bold font-poppins text-[hsl(215,25%,27%)] mb-1">Complete Protection Package</h2>
-                  <p className="text-gray-500 font-inter text-sm">Everything included — no hidden costs</p>
+                  <h2 className="text-2xl font-bold font-poppins text-[hsl(215,25%,27%)] mb-1">{t('devicePendant.completePackage')}</h2>
+                  <p className="text-gray-500 font-inter text-sm">{t('devicePendant.everythingIncluded')}</p>
                 </div>
                 <CardContent className="p-8">
                   <div className="text-center mb-6">
                     <div className="text-5xl font-bold font-poppins text-primary mb-1">{formatPrice(prices.pendant_price)}</div>
-                    <div className="text-gray-500 font-inter">+ €4.99 shipping</div>
-                    <div className="text-xs text-gray-400 mt-1">One-time purchase</div>
+                    <div className="text-gray-500 font-inter">{t('devicePendant.shippingCost')}</div>
+                    <div className="text-xs text-gray-400 mt-1">{t('devicePendant.oneTimePurchase')}</div>
                   </div>
 
                   <div className="space-y-3 mb-8">
                     {[
-                      "Pendant device with all accessories",
-                      "Lanyard, clip & wristbands included",
-                      "2-year warranty",
-                      "Free professional setup support",
-                      "24/7 technical support",
-                      "Works with iOS & Android",
+                      t('devicePendant.packageFeature1'),
+                      t('devicePendant.packageFeature2'),
+                      t('devicePendant.packageFeature3'),
+                      t('devicePendant.packageFeature4'),
+                      t('devicePendant.packageFeature5'),
+                      t('devicePendant.packageFeature6'),
                     ].map((item, i) => (
                       <div key={i} className="flex items-center gap-2.5">
                         <CheckCircle2 className="h-4 w-4 text-wellness flex-shrink-0" />
@@ -358,14 +357,14 @@ const DeviceIceSosPendant = () => {
                   </div>
 
                   {comingSoon ? (
-                    <Badge className="w-full justify-center px-6 py-3 text-lg font-semibold bg-secondary text-white">Coming Soon</Badge>
+                    <Badge className="w-full justify-center px-6 py-3 text-lg font-semibold bg-secondary text-white">{t('devicePendant.comingSoon', 'Coming Soon')}</Badge>
                   ) : (
                     <Button
                       asChild
                       size="lg"
                       className="w-full bg-primary text-white hover:bg-primary/90 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 font-semibold text-lg py-6 rounded-xl"
                     >
-                      <Link to="/register">Get Protected Today</Link>
+                      <Link to="/register">{t('devicePendant.getProtectedToday', 'Get Protected Today')}</Link>
                     </Button>
                   )}
                 </CardContent>
@@ -392,10 +391,10 @@ const DeviceIceSosPendant = () => {
               </div>
               <div className="text-center md:text-left">
                 <h2 className="text-2xl md:text-3xl font-bold font-poppins mb-3 text-[hsl(215,25%,27%)]">
-                  Have questions about the pendant?
+                  {t('devicePendant.claraQuestion', 'Have questions about the pendant?')}
                 </h2>
                 <p className="text-gray-600 font-inter mb-5">
-                  Clara, our AI assistant, knows everything about the LifeLink Sync Bluetooth Pendant. Ask about features, compatibility, setup, or anything else.
+                  {t('devicePendant.claraDescription', 'Clara, our AI assistant, knows everything about the LifeLink Sync Bluetooth Pendant. Ask about features, compatibility, setup, or anything else.')}
                 </p>
                 <Button
                   size="lg"
@@ -403,7 +402,7 @@ const DeviceIceSosPendant = () => {
                   onClick={openClaraChat}
                 >
                   <MessageCircle className="h-5 w-5 mr-2" />
-                  Chat with Clara
+                  {t('devicePendant.chatWithClara', 'Chat with Clara')}
                 </Button>
               </div>
             </div>
@@ -417,26 +416,26 @@ const DeviceIceSosPendant = () => {
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-5xl font-bold font-poppins mb-4 text-[hsl(215,25%,27%)]">
-                Real Stories, <span className="text-primary">Real Protection</span>
+                {t('devicePendant.testimonialsTitle')}
               </h2>
               <p className="text-lg text-gray-600 font-inter max-w-2xl mx-auto">
-                Hear from families who trust LifeLink Sync every day
+                {t('devicePendant.testimonialsSubtitle', 'Hear from families who trust LifeLink Sync every day')}
               </p>
             </div>
 
             <div className="grid lg:grid-cols-3 gap-8">
               {[
                 {
-                  icon: Heart, iconBg: "bg-primary/10", iconText: "text-primary", category: "Medical Emergency", initial: "M", name: "Maria S.", location: "Barcelona, Spain",
-                  quote: "LifeLink Sync saved my father's life when he collapsed during his morning walk. Within seconds, all emergency contacts received his exact GPS location and medical profile. The ambulance arrived in under 8 minutes."
+                  icon: Heart, iconBg: "bg-primary/10", iconText: "text-primary", category: t('devicePendant.testimonial1Category'), initial: "M", name: t('devicePendant.testimonial1Name'), location: t('devicePendant.testimonial1Location'),
+                  quote: t('devicePendant.testimonial1Quote')
                 },
                 {
-                  icon: Shield, iconBg: "bg-guardian/10", iconText: "text-guardian", category: "Home Emergency", initial: "J", name: "James K.", location: "London, UK",
-                  quote: "Living alone at 78, I had a severe reaction to medication. One button press instantly alerted my daughter and neighbors with my complete medical information and exact location. Professional response saved my life."
+                  icon: Shield, iconBg: "bg-guardian/10", iconText: "text-guardian", category: t('devicePendant.testimonial2Category'), initial: "J", name: t('devicePendant.testimonial2Name'), location: t('devicePendant.testimonial2Location'),
+                  quote: t('devicePendant.testimonial2Quote')
                 },
                 {
-                  icon: Users, iconBg: "bg-primary/10", iconText: "text-primary", category: "Family Security", initial: "A", name: "Anna P.", location: "Madrid, Spain",
-                  quote: "My mother accidentally pressed the pendant while gardening. Every family member received immediate alerts with her location. The system works flawlessly — exactly when we need it most. Peace of mind achieved."
+                  icon: Users, iconBg: "bg-primary/10", iconText: "text-primary", category: t('devicePendant.testimonial3Category'), initial: "A", name: t('devicePendant.testimonial3Name'), location: t('devicePendant.testimonial3Location'),
+                  quote: t('devicePendant.testimonial3Quote')
                 },
               ].map((story, i) => (
                 <Card key={i} className="bg-white border-[#E5E7EB] rounded-2xl hover:shadow-lg transition-shadow duration-300 p-8">
@@ -480,25 +479,25 @@ const DeviceIceSosPendant = () => {
           <div className="max-w-3xl mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-5xl font-bold font-poppins mb-4 text-[hsl(215,25%,27%)]">
-                Frequently Asked <span className="text-primary">Questions</span>
+                {t('devicePendant.faqTitle')}
               </h2>
               <p className="text-lg text-gray-600 font-inter max-w-2xl mx-auto">
-                Everything you need to know about the LifeLink Sync Bluetooth Pendant
+                {t('devicePendant.faqSubtitle', 'Everything you need to know about the LifeLink Sync Bluetooth Pendant')}
               </p>
             </div>
 
             <Accordion type="single" collapsible className="space-y-3">
               {[
-                { q: "How does the emergency system work?", a: "One button press on the pendant sends a signal via Bluetooth to your phone. The LifeLink app activates CLARA, which instantly alerts ALL emergency contacts with your exact GPS location, sends emergency calls, and shares your live location. Your phone must be within Bluetooth range (typically 10-30 metres)." },
-                { q: "What's the battery life and charging process?", a: "7+ days typical use with intelligent power management. Magnetic USB charging takes 2 hours for full charge. Low battery alerts ensure you're never caught unprepared." },
-                { q: "Is the device waterproof for all activities?", a: "IP67 certified waterproof rating for swimming, showering, and extreme weather. Saltwater resistant for beach activities with full functionality maintained underwater up to 1 metre." },
-                { q: "What wearing options are included?", a: "Complete package includes: adjustable lanyard for daily wear, secure carabiner clip for bags & belts, and comfortable sport wristbands in white and black. All attachments are tested for security and comfort." },
-                { q: "Which smartphones and smart homes are compatible?", a: "Universal compatibility: iOS 12+ and Android 8+. Bluetooth 5.0 LE pendant works with LifeLink Sync app. Amazon Alexa and Google Home integrations are coming soon." },
-                { q: "What's the range and connection reliability?", a: "The pendant connects via Bluetooth to your phone, which must have the LifeLink app installed. Typical range is 10-30 metres depending on environment. Automatic reconnection when back in range with missed alert notifications." },
-                { q: "How much does the pendant cost?", a: `Device: ${formatPrice(prices.pendant_price)} + €4.99 shipping. No monthly fees for basic emergency contacts. Optional professional monitoring services available.` },
-                { q: "What privacy and security measures are in place?", a: "End-to-end encryption for all data. GDPR compliant with zero data sharing. Full control over who receives alerts and when." },
-                { q: "Is international travel supported?", a: "Global coverage with local emergency service integration in 50+ countries. Automatic regional compliance and language support." },
-                { q: "What warranty and support is provided?", a: "2-year full warranty covering device, battery, and accessories. 24/7 technical support. Free replacement for manufacturing defects." },
+                { q: t('devicePendant.faq1Q'), a: t('devicePendant.faq1A') },
+                { q: t('devicePendant.faq2Q'), a: t('devicePendant.faq2A') },
+                { q: t('devicePendant.faq3Q'), a: t('devicePendant.faq3A') },
+                { q: t('devicePendant.faq4Q'), a: t('devicePendant.faq4A') },
+                { q: t('devicePendant.faq5Q'), a: t('devicePendant.faq5A') },
+                { q: t('devicePendant.faq6Q', "What's the range and connection reliability?"), a: t('devicePendant.faq6A', "The pendant connects via Bluetooth to your phone, which must have the LifeLink app installed. Typical range is 10-30 metres depending on environment. Automatic reconnection when back in range with missed alert notifications.") },
+                { q: t('devicePendant.faq7Q', 'How much does the pendant cost?'), a: t('devicePendant.faq7A', { defaultValue: `Device: ${formatPrice(prices.pendant_price)} + €4.99 shipping. No monthly fees for basic emergency contacts. Optional professional monitoring services available.` }) },
+                { q: t('devicePendant.faq8Q', 'What privacy and security measures are in place?'), a: t('devicePendant.faq8A', 'End-to-end encryption for all data. GDPR compliant with zero data sharing. Full control over who receives alerts and when.') },
+                { q: t('devicePendant.faq9Q', 'Is international travel supported?'), a: t('devicePendant.faq9A', 'Global coverage with local emergency service integration in 50+ countries. Automatic regional compliance and language support.') },
+                { q: t('devicePendant.faq10Q', 'What warranty and support is provided?'), a: t('devicePendant.faq10A', '2-year full warranty covering device, battery, and accessories. 24/7 technical support. Free replacement for manufacturing defects.') },
               ].map((faq, i) => (
                 <AccordionItem key={i} value={`item-${i}`} className="bg-white border border-[#E5E7EB] rounded-xl overflow-hidden">
                   <AccordionTrigger className="px-6 py-4 text-left font-medium text-sm text-[hsl(215,25%,27%)] hover:no-underline hover:bg-gray-50 transition-colors font-inter">
@@ -520,14 +519,14 @@ const DeviceIceSosPendant = () => {
           <div className="container mx-auto px-4">
             <div className="text-center max-w-3xl mx-auto">
               <h2 className="text-3xl md:text-5xl font-bold font-poppins mb-6 text-white">
-                Ready for Complete Protection?
+                {t('devicePendant.readyForProtection')}
               </h2>
               <p className="text-lg text-white/90 mb-10 font-inter leading-relaxed">
-                Join families across Europe who trust LifeLink Sync for emergency protection. One device, total peace of mind.
+                {t('devicePendant.readyDescription')}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 {comingSoon ? (
-                  <Badge className="px-6 py-3 text-lg font-semibold bg-white/20 text-white border border-white/30">Coming Soon</Badge>
+                  <Badge className="px-6 py-3 text-lg font-semibold bg-white/20 text-white border border-white/30">{t('devicePendant.comingSoon', 'Coming Soon')}</Badge>
                 ) : (
                   <>
                     <Button
@@ -537,7 +536,7 @@ const DeviceIceSosPendant = () => {
                     >
                       <Link to="/register">
                         <Shield className="h-5 w-5 mr-2" />
-                        Order Now — {formatPrice(prices.pendant_price)}
+                        {t('devicePendant.orderNow')} — {formatPrice(prices.pendant_price)}
                       </Link>
                     </Button>
                     <Button
@@ -547,7 +546,7 @@ const DeviceIceSosPendant = () => {
                       onClick={openClaraChat}
                     >
                       <MessageCircle className="h-5 w-5 mr-2" />
-                      Ask Clara
+                      {t('devicePendant.askClara', 'Ask Clara')}
                     </Button>
                   </>
                 )}

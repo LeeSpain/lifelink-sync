@@ -142,22 +142,22 @@ const Contact: React.FC = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Mail className="h-5 w-5 text-primary" />
-                  Send us a Message
+                  {t('contactPage.sendMessage')}
                 </CardTitle>
                 <CardDescription>
-                  Fill out the form below and we'll get back to you within 24-48 hours.
+                  {t('contactPage.formDescription')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 {isSubmitted ? (
                   <div className="text-center py-8">
                     <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold mb-2">Message Sent Successfully!</h3>
+                    <h3 className="text-xl font-semibold mb-2">{t('contactPage.messageSentTitle')}</h3>
                     <p className="text-muted-foreground mb-4">
-                      Thank you for contacting us. We've sent a confirmation email to your inbox.
+                      {t('contactPage.messageSentDescription')}
                     </p>
                     <Button onClick={() => setIsSubmitted(false)} variant="outline">
-                      Send Another Message
+                      {t('contactPage.sendAnother')}
                     </Button>
                   </div>
                 ) : (
@@ -279,9 +279,9 @@ const Contact: React.FC = () => {
                 <div className="flex items-start gap-3">
                   <Clock className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                   <div>
-                    <h3 className="font-semibold text-primary mb-1">Response Time</h3>
+                    <h3 className="font-semibold text-primary mb-1">{t('contactPage.responseTime')}</h3>
                     <p className="text-sm text-muted-foreground">
-                      We typically respond within 24-48 hours during business days.
+                      {t('contactPage.responseTimeDescription')}
                     </p>
                   </div>
                 </div>
@@ -296,7 +296,7 @@ const Contact: React.FC = () => {
                 <div className="h-[600px] border rounded-lg overflow-hidden">
                   <ContactChatWidget 
                     className="h-full"
-                    placeholder="Hi! I'm Clara, your LifeLink Sync assistant. How can I help you today?"
+                    placeholder={t('contactPage.claraPlaceholder')}
                   />
                 </div>
               </CardContent>
