@@ -179,6 +179,29 @@ serve(async (req) => {
       return new Response(TWIML_OK, { status: 200, headers: { ...corsHeaders, 'Content-Type': 'text/xml' } });
     }
 
+    // ── Check for active WhatsApp signup flow ──────────────────
+    const isLee = normalizedAdmin && normalizedFrom === normalizedAdmin;
+    const { data: activeSignup } = await supabase
+      .from('whatsapp_signups')
+      .select('status')
+      .eq('phone', fromRaw)
+      .eq('status', 'in_progress')
+      .maybeSingle();
+
+    const signupKeywords = ['sign up','join','start','trial','free trial','get started','protect','registrar','unirse','prueba','aanmelden','probeer','gratis','interested','interesado','interesse'];
+    const hasSignupIntent = signupKeywords.some(k => body.toLowerCase().includes(k));
+
+    if (activeSignup || (hasSignupIntent && !isLee)) {
+      try {
+        await fetch(Deno.env.get('SUPABASE_URL') + '/functions/v1/whatsapp-signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}` },
+          body: JSON.stringify({ from: fromRaw, body }),
+        });
+      } catch (e) { console.warn('Signup forward failed:', e); }
+      return new Response(TWIML_OK, { status: 200, headers: { ...corsHeaders, 'Content-Type': 'text/xml' } });
+    }
+
     // ── Owner business mode: Lee gets assistant, not sales ─────
     const isOwner = normalizedAdmin && normalizedFrom === normalizedAdmin && bypassAdminRoute;
 
