@@ -91,12 +91,13 @@ const GiftPurchasePage: React.FC = () => {
     },
     {
       type: 'bundle', months: 12,
-      badge: t('gift.bestValue', { defaultValue: 'Best Value' }), badgeColor: 'bg-amber-500',
-      icon: <Package className="h-6 w-6" />,
+      badge: t('gift.comingSoon', { defaultValue: 'Coming Soon' }), badgeColor: 'bg-gray-400',
+      icon: <Package className="h-6 w-6 opacity-50" />,
       title: t('gift.bundle', { defaultValue: 'Bundle + Pendant' }),
-      desc: t('gift.bundleDesc', { defaultValue: '12 months + an SOS pendant shipped directly to them. Everything they need in one box.' }),
+      desc: t('gift.bundleComingSoonDesc', { defaultValue: '12 months + SOS pendant. Available soon — choose another option for now.' }),
       includesPendant: true,
       tag: t('gift.bundleTag', { defaultValue: '+ ICE SOS Pendant included' }),
+      disabled: true,
       features: [
         t('gift.bundleF1', { defaultValue: '12 months protection' }),
         t('gift.bundleF2', { defaultValue: 'SOS pendant shipped to them' }),
@@ -324,14 +325,18 @@ const GiftPurchasePage: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {packages.map((pkg) => {
               const isSelected = selectedType === pkg.type;
+              const isDisabled = (pkg as any).disabled;
               return (
                 <button
                   key={pkg.type}
-                  onClick={() => setSelectedType(pkg.type)}
+                  disabled={isDisabled}
+                  onClick={() => !isDisabled && setSelectedType(pkg.type)}
                   className={`relative rounded-2xl p-6 text-left transition-all duration-200 border ${
-                    isSelected
-                      ? 'border-red-500 ring-2 ring-red-500 ring-offset-2 bg-red-50 shadow-md'
-                      : 'border-gray-200 bg-white shadow-sm hover:border-red-300 hover:shadow-md'
+                    isDisabled
+                      ? 'border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed'
+                      : isSelected
+                        ? 'border-red-500 ring-2 ring-red-500 ring-offset-2 bg-red-50 shadow-md'
+                        : 'border-gray-200 bg-white shadow-sm hover:border-red-300 hover:shadow-md'
                   }`}
                 >
                   {pkg.badge && (
