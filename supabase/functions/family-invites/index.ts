@@ -25,6 +25,7 @@ async function sendInviteEmail(
   inviterName: string,
   inviteeName: string,
   token: string,
+  lang: string = 'en',
 ): Promise<boolean> {
   if (!resendApiKey) {
     logStep('RESEND_API_KEY not set — skipping email', { to });
@@ -32,6 +33,40 @@ async function sendInviteEmail(
   }
 
   const inviteUrl = `https://lifelink-sync.com/invite/connections/${token}`;
+
+  const invI18n: Record<string, Record<string, string>> = {
+    en: {
+      subtitle: 'Emergency Protection Platform',
+      hi: 'Hi', setup: 'has set up CLARA emergency protection for you through LifeLink Sync.',
+      meaning: 'This means if you ever need help in an emergency, NAME will be instantly notified with your GPS location, and our AI assistant CLARA will coordinate the response. It takes 2 minutes to activate and you do not need a credit card.',
+      getLabel: 'Here is what you get:',
+      f1: 'One-touch SOS alerts to your family circle', f2: 'Live GPS location sharing during emergencies',
+      f3: 'CLARA AI assistant available 24/7', f4: 'Medical profile shared with first responders',
+      cta: 'Activate my CLARA', expires: 'This invite expires in 7 days. If you have any questions, just reply to this email.',
+      subject: 'NAME has set up CLARA protection for you',
+    },
+    es: {
+      subtitle: 'Plataforma de Protección de Emergencias',
+      hi: 'Hola', setup: 'ha configurado la protección de emergencia CLARA para ti a través de LifeLink Sync.',
+      meaning: 'Esto significa que si alguna vez necesitas ayuda en una emergencia, NAME será notificado/a instantáneamente con tu ubicación GPS, y nuestra asistente IA CLARA coordinará la respuesta. Toma 2 minutos activar y no necesitas tarjeta de crédito.',
+      getLabel: 'Esto es lo que recibes:',
+      f1: 'Alertas SOS con un solo toque a tu círculo familiar', f2: 'Ubicación GPS en vivo durante emergencias',
+      f3: 'Asistente IA CLARA disponible 24/7', f4: 'Perfil médico compartido con servicios de emergencia',
+      cta: 'Activar mi CLARA', expires: 'Esta invitación expira en 7 días. Si tienes preguntas, responde a este correo.',
+      subject: 'NAME ha configurado protección CLARA para ti',
+    },
+    nl: {
+      subtitle: 'Noodbeschermingsplatform',
+      hi: 'Hallo', setup: 'heeft CLARA noodbescherming voor je ingesteld via LifeLink Sync.',
+      meaning: 'Dit betekent dat als je ooit hulp nodig hebt in een noodsituatie, NAME direct wordt gewaarschuwd met je GPS-locatie, en onze AI-assistent CLARA de respons coördineert. Het activeren duurt 2 minuten en je hebt geen creditcard nodig.',
+      getLabel: 'Dit is wat je krijgt:',
+      f1: 'Eén-druk SOS-meldingen naar je familiekring', f2: 'Live GPS-locatie delen tijdens noodsituaties',
+      f3: 'CLARA AI-assistent 24/7 beschikbaar', f4: 'Medisch profiel gedeeld met hulpdiensten',
+      cta: 'Mijn CLARA activeren', expires: 'Deze uitnodiging verloopt over 7 dagen. Heb je vragen? Beantwoord dan deze e-mail.',
+      subject: 'NAME heeft CLARA-bescherming voor je ingesteld',
+    },
+  };
+  const it = invI18n[lang] || invI18n.en;
 
   const html = `
 <!DOCTYPE html>
@@ -41,29 +76,29 @@ async function sendInviteEmail(
 
 <div style="text-align: center; padding: 30px 20px; background: linear-gradient(135deg, #ef4444, #dc2626); border-radius: 12px 12px 0 0;">
   <h1 style="color: white; margin: 0; font-size: 24px;">LifeLink Sync</h1>
-  <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0; font-size: 14px;">Emergency Protection Platform</p>
+  <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0; font-size: 14px;">${it.subtitle}</p>
 </div>
 
 <div style="background: #fff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
-  <h2 style="color: #111; margin: 0 0 16px;">Hi ${inviteeName},</h2>
+  <h2 style="color: #111; margin: 0 0 16px;">${it.hi} ${inviteeName},</h2>
 
-  <p>${inviterName} has set up CLARA emergency protection for you through LifeLink Sync.</p>
+  <p>${inviterName} ${it.setup}</p>
 
-  <p>This means if you ever need help in an emergency, ${inviterName} will be instantly notified with your GPS location, and our AI assistant CLARA will coordinate the response. It takes 2 minutes to activate and you do not need a credit card.</p>
+  <p>${it.meaning.replace(/NAME/g, inviterName)}</p>
 
-  <p>Here is what you get:</p>
+  <p>${it.getLabel}</p>
   <ul style="padding-left: 20px; color: #555;">
-    <li>One-touch SOS alerts to your family circle</li>
-    <li>Live GPS location sharing during emergencies</li>
-    <li>CLARA AI assistant available 24/7</li>
-    <li>Medical profile shared with first responders</li>
+    <li>${it.f1}</li>
+    <li>${it.f2}</li>
+    <li>${it.f3}</li>
+    <li>${it.f4}</li>
   </ul>
 
   <div style="text-align: center; margin: 30px 0;">
-    <a href="${inviteUrl}" style="display: inline-block; background: #ef4444; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Activate my CLARA &rarr;</a>
+    <a href="${inviteUrl}" style="display: inline-block; background: #ef4444; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">${it.cta} &rarr;</a>
   </div>
 
-  <p style="color: #888; font-size: 13px;">This invite expires in 7 days. If you have any questions, just reply to this email.</p>
+  <p style="color: #888; font-size: 13px;">${it.expires}</p>
 
   <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;">
 
@@ -83,7 +118,7 @@ async function sendInviteEmail(
       body: JSON.stringify({
         from: 'CLARA from LifeLink Sync <clara@lifelink-sync.com>',
         to: [to],
-        subject: `${inviterName} has set up CLARA protection for you`,
+        subject: it.subject.replace(/NAME/g, inviterName),
         html,
       }),
     });
@@ -156,10 +191,10 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    // Get inviter's name for the email
+    // Get inviter's name and language for the email
     const { data: profile } = await supabaseClient
       .from('profiles')
-      .select('first_name, last_name')
+      .select('first_name, last_name, language_preference')
       .eq('user_id', user.id)
       .maybeSingle();
 
@@ -196,7 +231,8 @@ serve(async (req) => {
       logStep("Family invite created", { inviteId: invite.id, inviteeEmail: email });
 
       // Send invite email via Resend
-      const emailSent = await sendInviteEmail(email, inviterName, name, inviteToken);
+      const inviteLang = profile?.language_preference || 'en';
+      const emailSent = await sendInviteEmail(email, inviterName, name, inviteToken, inviteLang);
 
       // Send WhatsApp confirmation to billing owner
       await notifyOwnerWhatsApp(name, email);

@@ -65,7 +65,7 @@ const PendantPromo: React.FC = () => {
 
             {/* CTA — Coming Soon */}
             <Badge className="px-6 py-3 text-base font-semibold bg-white/10 text-white border border-white/20">
-              Coming Soon
+              {t('pendantPromo.comingSoon', 'Coming Soon')}
             </Badge>
           </div>
         </div>

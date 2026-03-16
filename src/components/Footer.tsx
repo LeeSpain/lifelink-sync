@@ -29,7 +29,7 @@ const Footer = () => {
               </span>
             </div>
             <p className="text-sm text-gray-400">
-              Complete emergency protection for individuals and families. One-touch SOS, Clara AI, live location sharing, and coordinated family response.
+              {t('footer.description', 'Complete emergency protection for individuals and families. One-touch SOS, Clara AI, live location sharing, and coordinated family response.')}
             </p>
             <div className="flex items-center space-x-4 pt-2">
               <a href="https://twitter.com/lifelinksync" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-primary transition-colors">
@@ -76,7 +76,7 @@ const Footer = () => {
                     {t('footer.signIn', 'Sign In')}
                   </Link>
                   <Link to="/register" className="block text-sm text-gray-400 hover:text-primary transition-colors" onClick={() => handleFooterLinkClick('auth', '/register', 'Get Protected')}>
-                    Get Protected
+                    {t('footer.getProtected', 'Get Protected')}
                   </Link>
                 </>
               ) : (
@@ -96,7 +96,7 @@ const Footer = () => {
         <div className="mt-10 pt-6 border-t border-gray-700">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-sm text-gray-400">
-              &copy; 2026 LifeLink Sync. All rights reserved.
+              &copy; 2026 LifeLink Sync. {t('footer.allRightsReserved', 'All rights reserved.')}
             </p>
             <p className="text-xs text-gray-500">
               A Vision-Sync platform

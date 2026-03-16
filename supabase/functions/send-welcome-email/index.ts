@@ -13,6 +13,7 @@ interface WelcomeEmailRequest {
   firstName?: string;
   lastName?: string;
   subscriptionTier?: string;
+  language?: string;
 }
 
 const supabase = createClient(
@@ -28,12 +29,99 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { userId, email, firstName, lastName, subscriptionTier }: WelcomeEmailRequest = await req.json();
+    const { userId, email, firstName, lastName, subscriptionTier, language: reqLang }: WelcomeEmailRequest = await req.json();
 
     console.log(`Sending welcome email to ${email} for user ${userId}`);
 
+    // Determine language — from request, profile, or default to 'en'
+    let lang = reqLang || 'en';
+    if (!reqLang) {
+      const { data: prof } = await supabase.from('profiles').select('language_preference').eq('id', userId).maybeSingle();
+      if (prof?.language_preference) lang = prof.language_preference;
+    }
+
+    const i18n: Record<string, Record<string, string>> = {
+      en: {
+        welcome: 'Welcome to LifeLink Sync!',
+        active: 'Your personal safety network is now active',
+        hello: 'Hello',
+        thankYou: 'Thank you for joining LifeLink Sync, the ultimate personal safety platform. Your account has been successfully created and you\'re now protected by our advanced emergency response system.',
+        getStarted: 'Get Started:',
+        step1: 'Complete your profile and emergency contacts',
+        step2: 'Set up your medical information',
+        step3: 'Download our mobile app for instant SOS alerts',
+        step4: 'Configure your location sharing preferences',
+        dashboard: 'Access Your Dashboard',
+        support: 'Get Support',
+        planFeatures: 'Plan Features:',
+        feat1: '24/7 Emergency Response', feat2: 'GPS Location Tracking', feat3: 'Medical Information Storage', feat4: 'Emergency Contact Alerts',
+        nextSteps: 'Next Steps:',
+        ns1: 'Complete Your Profile:', ns1d: 'Add your emergency contacts and medical information',
+        ns2: 'Test the System:', ns2d: 'Try the SOS button in a safe environment',
+        ns3: 'Share with Family:', ns3d: 'Invite family members to your safety network',
+        claraHelp: 'If you have any questions, our AI assistant Clara is available 24/7 to help you.',
+        footer: 'LifeLink Sync - Your Personal Safety Network',
+        footerHelp: 'Need help? Visit our',
+        supportCenter: 'support center',
+        footerReply: 'or reply to this email.',
+        subject: 'Welcome to LifeLink Sync - Your Safety Network is Active!',
+      },
+      es: {
+        welcome: '¡Bienvenido a LifeLink Sync!',
+        active: 'Tu red de seguridad personal está activa',
+        hello: 'Hola',
+        thankYou: 'Gracias por unirte a LifeLink Sync, la plataforma de seguridad personal definitiva. Tu cuenta ha sido creada y ahora estás protegido por nuestro sistema avanzado de respuesta de emergencia.',
+        getStarted: 'Primeros pasos:',
+        step1: 'Completa tu perfil y contactos de emergencia',
+        step2: 'Configura tu información médica',
+        step3: 'Descarga nuestra app móvil para alertas SOS instantáneas',
+        step4: 'Configura tus preferencias de ubicación',
+        dashboard: 'Accede a tu Panel',
+        support: 'Obtener Soporte',
+        planFeatures: 'Funciones del Plan:',
+        feat1: 'Respuesta de Emergencia 24/7', feat2: 'Seguimiento GPS', feat3: 'Almacenamiento de Información Médica', feat4: 'Alertas a Contactos de Emergencia',
+        nextSteps: 'Próximos pasos:',
+        ns1: 'Completa tu Perfil:', ns1d: 'Añade tus contactos de emergencia e información médica',
+        ns2: 'Prueba el Sistema:', ns2d: 'Prueba el botón SOS en un entorno seguro',
+        ns3: 'Comparte con tu Familia:', ns3d: 'Invita a familiares a tu red de seguridad',
+        claraHelp: 'Si tienes alguna pregunta, nuestra asistente IA Clara está disponible 24/7 para ayudarte.',
+        footer: 'LifeLink Sync - Tu Red de Seguridad Personal',
+        footerHelp: '¿Necesitas ayuda? Visita nuestro',
+        supportCenter: 'centro de soporte',
+        footerReply: 'o responde a este correo.',
+        subject: '¡Bienvenido a LifeLink Sync - Tu Red de Seguridad está Activa!',
+      },
+      nl: {
+        welcome: 'Welkom bij LifeLink Sync!',
+        active: 'Je persoonlijke veiligheidsnetwerk is nu actief',
+        hello: 'Hallo',
+        thankYou: 'Bedankt dat je lid bent geworden van LifeLink Sync, het ultieme persoonlijke veiligheidsplatform. Je account is aangemaakt en je bent nu beschermd door ons geavanceerde noodresponssysteem.',
+        getStarted: 'Aan de slag:',
+        step1: 'Vul je profiel en noodcontacten aan',
+        step2: 'Stel je medische informatie in',
+        step3: 'Download onze mobiele app voor directe SOS-meldingen',
+        step4: 'Stel je locatievoorkeuren in',
+        dashboard: 'Ga naar je Dashboard',
+        support: 'Hulp Krijgen',
+        planFeatures: 'Plan Functies:',
+        feat1: '24/7 Noodrespons', feat2: 'GPS Locatie Tracking', feat3: 'Medische Informatie Opslag', feat4: 'Noodcontact Meldingen',
+        nextSteps: 'Volgende stappen:',
+        ns1: 'Vul je Profiel aan:', ns1d: 'Voeg je noodcontacten en medische informatie toe',
+        ns2: 'Test het Systeem:', ns2d: 'Probeer de SOS-knop in een veilige omgeving',
+        ns3: 'Deel met Familie:', ns3d: 'Nodig familieleden uit voor je veiligheidsnetwerk',
+        claraHelp: 'Heb je vragen? Onze AI-assistent Clara is 24/7 beschikbaar om je te helpen.',
+        footer: 'LifeLink Sync - Je Persoonlijke Veiligheidsnetwerk',
+        footerHelp: 'Hulp nodig? Bezoek ons',
+        supportCenter: 'ondersteuningscentrum',
+        footerReply: 'of beantwoord deze e-mail.',
+        subject: 'Welkom bij LifeLink Sync - Je Veiligheidsnetwerk is Actief!',
+      },
+    };
+
+    const t = i18n[lang] || i18n.en;
+
     // Create personalized welcome email content
-    const fullName = firstName && lastName ? `${firstName} ${lastName}` : firstName || "Valued Customer";
+    const fullName = firstName && lastName ? `${firstName} ${lastName}` : firstName || (lang === 'es' ? 'Cliente Estimado' : lang === 'nl' ? 'Gewaardeerde Klant' : 'Valued Customer');
     const dashboardUrl = `${Deno.env.get("SUPABASE_URL")?.replace('.supabase.co', '')}.lovableproject.com/dashboard`;
     const supportUrl = `${Deno.env.get("SUPABASE_URL")?.replace('.supabase.co', '')}.lovableproject.com/dashboard/support`;
 
@@ -54,49 +142,48 @@ const handler = async (req: Request): Promise<Response> => {
         <body>
           <div class="container">
             <div class="header">
-              <h1>🛡️ Welcome to LifeLink Sync!</h1>
-              <p>Your personal safety network is now active</p>
+              <h1>🛡️ ${t.welcome}</h1>
+              <p>${t.active}</p>
             </div>
             <div class="content">
-              <h2>Hello ${fullName}!</h2>
-              <p>Thank you for joining LifeLink Sync, the ultimate personal safety platform. Your account has been successfully created and you're now protected by our advanced emergency response system.</p>
-              
-              <h3>🚀 Get Started:</h3>
+              <h2>${t.hello} ${fullName}!</h2>
+              <p>${t.thankYou}</p>
+
+              <h3>🚀 ${t.getStarted}</h3>
               <ul>
-                <li>Complete your profile and emergency contacts</li>
-                <li>Set up your medical information</li>
-                <li>Download our mobile app for instant SOS alerts</li>
-                <li>Configure your location sharing preferences</li>
+                <li>${t.step1}</li>
+                <li>${t.step2}</li>
+                <li>${t.step3}</li>
+                <li>${t.step4}</li>
               </ul>
 
               <div style="text-align: center; margin: 30px 0;">
-                <a href="${dashboardUrl}" class="button">Access Your Dashboard</a>
-                <a href="${supportUrl}" class="button" style="background: #10B981;">Get Support</a>
+                <a href="${dashboardUrl}" class="button">${t.dashboard}</a>
+                <a href="${supportUrl}" class="button" style="background: #10B981;">${t.support}</a>
               </div>
 
               ${subscriptionTier ? `
                 <div style="background: #EFF6FF; padding: 20px; border-radius: 6px; margin: 20px 0;">
-                  <h3>🎯 Your ${subscriptionTier} Plan Features:</h3>
+                  <h3>🎯 ${subscriptionTier} ${t.planFeatures}</h3>
                   <ul>
-                    <li>24/7 Emergency Response</li>
-                    <li>GPS Location Tracking</li>
-                    <li>Medical Information Storage</li>
-                    <li>Emergency Contact Alerts</li>
-                    ${subscriptionTier.toLowerCase().includes('premium') ? '<li>Family Account Sharing</li><li>Advanced AI Chat Support</li>' : ''}
+                    <li>${t.feat1}</li>
+                    <li>${t.feat2}</li>
+                    <li>${t.feat3}</li>
+                    <li>${t.feat4}</li>
                   </ul>
                 </div>
               ` : ''}
 
-              <h3>📱 Next Steps:</h3>
-              <p>1. <strong>Complete Your Profile:</strong> Add your emergency contacts and medical information<br>
-              2. <strong>Test the System:</strong> Try the SOS button in a safe environment<br>
-              3. <strong>Share with Family:</strong> Invite family members to your safety network</p>
+              <h3>📱 ${t.nextSteps}</h3>
+              <p>1. <strong>${t.ns1}</strong> ${t.ns1d}<br>
+              2. <strong>${t.ns2}</strong> ${t.ns2d}<br>
+              3. <strong>${t.ns3}</strong> ${t.ns3d}</p>
 
-              <p>If you have any questions, our AI assistant Clara is available 24/7 to help you.</p>
+              <p>${t.claraHelp}</p>
             </div>
             <div class="footer">
-              <p>LifeLink Sync - Your Personal Safety Network<br>
-              Need help? Visit our <a href="${supportUrl}">support center</a> or reply to this email.</p>
+              <p>${t.footer}<br>
+              ${t.footerHelp} <a href="${supportUrl}">${t.supportCenter}</a> ${t.footerReply}</p>
             </div>
           </div>
         </body>
@@ -107,7 +194,7 @@ const handler = async (req: Request): Promise<Response> => {
     const emailResponse = await resend.emails.send({
       from: "LifeLink Sync <noreply@resend.dev>",
       to: [email],
-      subject: "🛡️ Welcome to LifeLink Sync - Your Safety Network is Active!",
+      subject: `🛡️ ${t.subject}`,
       html: emailHtml,
     });
 
@@ -117,7 +204,7 @@ const handler = async (req: Request): Promise<Response> => {
     await supabase.from('email_logs').insert({
       user_id: userId,
       recipient_email: email,
-      subject: "Welcome to LifeLink Sync - Your Safety Network is Active!",
+      subject: t.subject,
       email_type: "welcome",
       status: "sent",
       provider_message_id: emailResponse.data?.id
@@ -142,7 +229,7 @@ const handler = async (req: Request): Promise<Response> => {
         await supabase.from('email_logs').insert({
           user_id: data.userId,
           recipient_email: data.email,
-          subject: "Welcome to LifeLink Sync - Your Safety Network is Active!",
+          subject: "Welcome email",
           email_type: "welcome",
           status: "failed",
           error_message: error.message

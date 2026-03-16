@@ -52,9 +52,10 @@ async function runTriggers() {
       if (!trial.user_id) continue;
       const { count } = await supabase.from('emergency_contacts').select('id', { count: 'exact' }).eq('user_id', trial.user_id);
       if ((count ?? 0) === 0) {
-        const { data: profile } = await supabase.from('profiles').select('full_name, email').eq('id', trial.user_id).maybeSingle();
+        const { data: profile } = await supabase.from('profiles').select('full_name, email, language_preference').eq('id', trial.user_id).maybeSingle();
         if (profile?.email) {
-          const email = await generateEmail('trial_nudge_setup', profile.full_name || 'there', 'en', 'Trial day 3, no emergency contacts added', 'self');
+          const lang = profile.language_preference || 'en';
+          const email = await generateEmail('trial_nudge_setup', profile.full_name || 'there', lang, 'Trial day 3, no emergency contacts added', 'self');
           await sendEmail(profile.email, email.subject, email.body_html, email.body_text);
           results.push(`Trial nudge: ${profile.email}`);
         }
@@ -75,7 +76,8 @@ async function runTriggers() {
 
     for (const lead of hotLeads || []) {
       if (!lead.email) continue;
-      const email = await generateEmail('hot_lead_personal_email', 'there', 'en', 'Lead score reached 7+', 'unknown');
+      const leadLang = (lead.metadata as Record<string, unknown>)?.language as string || 'en';
+      const email = await generateEmail('hot_lead_personal_email', 'there', leadLang, 'Lead score reached 7+', 'unknown');
       await sendEmail(lead.email, email.subject, email.body_html, email.body_text);
       await supabase.from('leads').update({ status: 'contacted' }).eq('id', lead.id);
       results.push(`Hot lead email: ${lead.email}`);
@@ -91,13 +93,13 @@ async function runTriggers() {
       .limit(10);
     // Check if any have been subscribed for exactly 1 year — simplified check
     for (const sub of anniversaries || []) {
-      const { data: profile } = await supabase.from('profiles').select('full_name, email, created_at').eq('id', sub.user_id).maybeSingle();
+      const { data: profile } = await supabase.from('profiles').select('full_name, email, created_at, language_preference').eq('id', sub.user_id).maybeSingle();
       if (profile?.created_at) {
         const created = new Date(profile.created_at);
         const now = new Date();
         if (created.getMonth() === now.getMonth() && created.getDate() === now.getDate() && now.getFullYear() - created.getFullYear() >= 1) {
           if (profile.email) {
-            const email = await generateEmail('anniversary_thank_you', profile.full_name || 'there', 'en', '1 year anniversary', 'self');
+            const email = await generateEmail('anniversary_thank_you', profile.full_name || 'there', profile.language_preference || 'en', '1 year anniversary', 'self');
             await sendEmail(profile.email, email.subject, email.body_html, email.body_text);
             results.push(`Anniversary: ${profile.email}`);
           }

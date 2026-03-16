@@ -12,6 +12,7 @@ interface FreeTrialSignupData {
   email: string;
   phone: string;
   sessionId?: string;
+  language?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -45,9 +46,10 @@ const handler = async (req: Request): Promise<Response> => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     const resend = new Resend(resendApiKey);
 
-    const { name, email, phone, sessionId }: FreeTrialSignupData = await req.json();
+    const { name, email, phone, sessionId, language: reqLang }: FreeTrialSignupData = await req.json();
+    const lang = reqLang || 'en';
 
-    console.log('Processing free trial signup:', { name, email, phone, sessionId });
+    console.log('Processing free trial signup:', { name, email, phone, sessionId, lang });
 
     // Validation
     if (!name || !email || !phone) {
@@ -142,71 +144,118 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log('Trial signup stored:', leadData.id);
 
+    // i18n for trial email
+    const trialI18n: Record<string, Record<string, string>> = {
+      en: {
+        subject: 'Your 7-Day Free Trial is Ready!',
+        welcome: 'Welcome to LifeLink Sync!',
+        trialStarts: 'Your 7-day free trial starts now',
+        dear: 'Dear',
+        congrats: 'Congratulations! Your 7-day free trial has been activated. You now have full access to all LifeLink Sync premium features including:',
+        included: "What's Included in Your Trial:",
+        f1: 'Emergency SOS with live location sharing', f2: 'Family protection plans', f3: 'Mobile app access',
+        f4: 'AI-powered emergency assistance', f5: 'Flic button integration', f6: '24/7 emergency contact system',
+        activate: 'Activate Your Trial Now',
+        details: 'Trial Details:',
+        expires: 'Trial expires:', contact: 'Your contact:', noCard: 'No credit card required',
+        cancel: 'Cancel anytime',
+        helpText: 'Need help getting started? Our support team is here to assist you. Simply reply to this email or use our in-app chat feature.',
+        regards: 'Best regards,', team: 'The LifeLink Sync Team',
+      },
+      es: {
+        subject: '¡Tu Prueba Gratuita de 7 Días está Lista!',
+        welcome: '¡Bienvenido a LifeLink Sync!',
+        trialStarts: 'Tu prueba gratuita de 7 días comienza ahora',
+        dear: 'Estimado/a',
+        congrats: '¡Felicidades! Tu prueba gratuita de 7 días ha sido activada. Ahora tienes acceso completo a todas las funciones premium de LifeLink Sync:',
+        included: 'Incluido en tu prueba:',
+        f1: 'SOS de emergencia con ubicación en vivo', f2: 'Planes de protección familiar', f3: 'Acceso a la app móvil',
+        f4: 'Asistencia de emergencia con IA', f5: 'Integración con botón Flic', f6: 'Sistema de contactos de emergencia 24/7',
+        activate: 'Activa tu Prueba Ahora',
+        details: 'Detalles de la prueba:',
+        expires: 'La prueba expira:', contact: 'Tu contacto:', noCard: 'No se requiere tarjeta de crédito',
+        cancel: 'Cancela cuando quieras',
+        helpText: '¿Necesitas ayuda para empezar? Nuestro equipo de soporte está aquí para ayudarte. Responde a este correo o usa el chat en la app.',
+        regards: 'Saludos cordiales,', team: 'El Equipo de LifeLink Sync',
+      },
+      nl: {
+        subject: 'Je 7-Dagen Gratis Proefperiode is Klaar!',
+        welcome: 'Welkom bij LifeLink Sync!',
+        trialStarts: 'Je 7-dagen gratis proefperiode begint nu',
+        dear: 'Beste',
+        congrats: 'Gefeliciteerd! Je 7-dagen gratis proefperiode is geactiveerd. Je hebt nu volledige toegang tot alle premium functies van LifeLink Sync:',
+        included: 'Inbegrepen in je proefperiode:',
+        f1: 'Nood-SOS met live locatie delen', f2: 'Familiebeschermingsplannen', f3: 'Mobiele app toegang',
+        f4: 'AI-gestuurde noodhulp', f5: 'Flic knop integratie', f6: '24/7 noodcontact systeem',
+        activate: 'Activeer je Proefperiode Nu',
+        details: 'Proefperiode details:',
+        expires: 'Proefperiode verloopt:', contact: 'Je contactnummer:', noCard: 'Geen creditcard vereist',
+        cancel: 'Op elk moment opzeggen',
+        helpText: 'Hulp nodig om te beginnen? Ons supportteam staat klaar om je te helpen. Beantwoord deze e-mail of gebruik de in-app chat.',
+        regards: 'Met vriendelijke groet,', team: 'Het LifeLink Sync Team',
+      },
+    };
+    const tt = trialI18n[lang] || trialI18n.en;
+    const dateLocale = lang === 'es' ? 'es-ES' : lang === 'nl' ? 'nl-NL' : 'en-US';
+
     // Send welcome email to user with trial activation
     const userEmailResponse = await resend.emails.send({
       from: 'LifeLink Sync <welcome@lifelink-sync.com>',
       to: [sanitizedEmail],
-      subject: '🎉 Your 7-Day Free Trial is Ready!',
+      subject: `🎉 ${tt.subject}`,
       html: `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 0; color: white;">
           <div style="padding: 40px 30px; text-align: center;">
-            <h1 style="color: white; margin: 0 0 20px 0; font-size: 28px;">Welcome to LifeLink Sync!</h1>
-            <p style="font-size: 18px; margin: 0; opacity: 0.9;">Your 7-day free trial starts now</p>
+            <h1 style="color: white; margin: 0 0 20px 0; font-size: 28px;">${tt.welcome}</h1>
+            <p style="font-size: 18px; margin: 0; opacity: 0.9;">${tt.trialStarts}</p>
           </div>
-          
+
           <div style="background: white; color: #333; padding: 40px 30px; margin: 0;">
-            <p style="font-size: 16px; margin: 0 0 20px 0;">Dear ${sanitizedName},</p>
-            
-            <p style="font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">
-              Congratulations! Your 7-day free trial has been activated. You now have full access to all LifeLink Sync premium features including:
-            </p>
-            
+            <p style="font-size: 16px; margin: 0 0 20px 0;">${tt.dear} ${sanitizedName},</p>
+
+            <p style="font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">${tt.congrats}</p>
+
             <div style="background: #f8fafc; border-radius: 8px; padding: 25px; margin: 25px 0;">
-              <h3 style="color: #1a202c; margin: 0 0 15px 0;">What's Included in Your Trial:</h3>
+              <h3 style="color: #1a202c; margin: 0 0 15px 0;">${tt.included}</h3>
               <ul style="margin: 0; padding-left: 20px; color: #4a5568;">
-                <li style="margin-bottom: 8px;">🚨 Emergency SOS with live location sharing</li>
-                <li style="margin-bottom: 8px;">👨‍👩‍👧‍👦 Family protection plans</li>
-                <li style="margin-bottom: 8px;">📱 Mobile app access</li>
-                <li style="margin-bottom: 8px;">🤖 AI-powered emergency assistance</li>
-                <li style="margin-bottom: 8px;">🔗 Flic button integration</li>
-                <li>📞 24/7 emergency contact system</li>
+                <li style="margin-bottom: 8px;">🚨 ${tt.f1}</li>
+                <li style="margin-bottom: 8px;">👨‍👩‍👧‍👦 ${tt.f2}</li>
+                <li style="margin-bottom: 8px;">📱 ${tt.f3}</li>
+                <li style="margin-bottom: 8px;">🤖 ${tt.f4}</li>
+                <li style="margin-bottom: 8px;">🔗 ${tt.f5}</li>
+                <li>📞 ${tt.f6}</li>
               </ul>
             </div>
-            
+
             <div style="text-align: center; margin: 30px 0;">
-              <a href="https://lifelink-sync.com/register?trial=true&email=${encodeURIComponent(sanitizedEmail)}" 
+              <a href="https://lifelink-sync.com/register?trial=true&email=${encodeURIComponent(sanitizedEmail)}"
                  style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
-                Activate Your Trial Now
+                ${tt.activate}
               </a>
             </div>
-            
+
             <div style="background: #fef7e0; border-left: 4px solid #f6ad55; padding: 20px; margin: 25px 0; border-radius: 0 8px 8px 0;">
-              <h4 style="color: #744210; margin: 0 0 10px 0;">Trial Details:</h4>
+              <h4 style="color: #744210; margin: 0 0 10px 0;">${tt.details}</h4>
               <p style="color: #744210; margin: 0; font-size: 14px;">
-                <strong>Trial expires:</strong> ${trialExpiresAt.toLocaleDateString('en-US', { 
-                  weekday: 'long', 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
+                <strong>${tt.expires}</strong> ${trialExpiresAt.toLocaleDateString(dateLocale, {
+                  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
                 })}<br>
-                <strong>Your contact:</strong> ${sanitizedPhone}<br>
-                <strong>No credit card required</strong> - Cancel anytime
+                <strong>${tt.contact}</strong> ${sanitizedPhone}<br>
+                <strong>${tt.noCard}</strong> - ${tt.cancel}
               </p>
             </div>
-            
-            <p style="font-size: 16px; line-height: 1.6; margin: 25px 0;">
-              Need help getting started? Our support team is here to assist you. Simply reply to this email or use our in-app chat feature.
-            </p>
-            
+
+            <p style="font-size: 16px; line-height: 1.6; margin: 25px 0;">${tt.helpText}</p>
+
             <p style="font-size: 16px; margin: 25px 0 0 0;">
-              Best regards,<br>
-              <strong>The LifeLink Sync Team</strong>
+              ${tt.regards}<br>
+              <strong>${tt.team}</strong>
             </p>
           </div>
-          
+
           <div style="padding: 20px 30px; text-align: center; opacity: 0.8;">
             <p style="margin: 0; font-size: 12px;">
-              Trial ID: ${leadData.id} | This email was sent to ${sanitizedEmail}
+              Trial ID: ${leadData.id} | ${sanitizedEmail}
             </p>
           </div>
         </div>

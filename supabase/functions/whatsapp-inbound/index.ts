@@ -196,7 +196,13 @@ serve(async (req) => {
           .eq('id', activeInvite.id);
 
         const leeNum = Deno.env.get('TWILIO_WHATSAPP_LEE')!;
-        await sendWhatsApp(`whatsapp:${phone}`, `That's great! Let me get you set up right now 🛡️`);
+        const convLang = detectLanguage(body);
+        const yesReplies: Record<string, string> = {
+          English: "That's great! Let me get you set up right now 🛡️",
+          Spanish: "¡Genial! Déjame configurarte ahora mismo 🛡️",
+          Dutch: "Geweldig! Laat me je nu meteen instellen 🛡️",
+        };
+        await sendWhatsApp(`whatsapp:${phone}`, yesReplies[convLang] || yesReplies.English);
 
         // Alert Lee
         try {
@@ -224,7 +230,13 @@ serve(async (req) => {
           .update({ status: 'opted_out' })
           .eq('id', activeInvite.id);
 
-        await sendWhatsApp(`whatsapp:${phone}`, `No problem at all — I won't message again. Take care 👋`);
+        const optOutLang = detectLanguage(body);
+        const optOutReplies: Record<string, string> = {
+          English: "No problem at all — I won't message again. Take care 👋",
+          Spanish: "Sin problema — no volveré a enviarte mensajes. ¡Cuídate! 👋",
+          Dutch: "Geen probleem — ik stuur geen berichten meer. Pas goed op jezelf! 👋",
+        };
+        await sendWhatsApp(`whatsapp:${phone}`, optOutReplies[optOutLang] || optOutReplies.English);
 
         try {
           const leeNum = Deno.env.get('TWILIO_WHATSAPP_LEE')!;
@@ -331,7 +343,13 @@ Keep responses to 2-3 short paragraphs. No bullet points.`;
       const entry = rateLimits.get(phone);
       if (entry && entry.count === 10) {
         entry.count++;
-        await sendWhatsApp(phone, 'I want to help — please give me a moment and try again shortly.');
+        const rlLang = detectLanguage(body);
+        const rlReplies: Record<string, string> = {
+          English: 'I want to help — please give me a moment and try again shortly.',
+          Spanish: 'Quiero ayudarte — por favor dame un momento e inténtalo de nuevo en breve.',
+          Dutch: 'Ik wil je graag helpen — geef me even en probeer het zo opnieuw.',
+        };
+        await sendWhatsApp(phone, rlReplies[rlLang] || rlReplies.English);
       }
       return new Response(TWIML_OK, { status: 200, headers: { ...corsHeaders, 'Content-Type': 'text/xml' } });
     }
@@ -444,7 +462,12 @@ Laat me je bericht lezen en je nu goed antwoorden...`,
       aiResponse = stripMarkdown(data.content?.[0]?.text ?? '');
     } catch (aiErr) {
       console.error('Claude error:', aiErr);
-      await sendWhatsApp(phone, 'Sorry, I am having a technical issue. Please try again in a moment.');
+      const errReplies: Record<string, string> = {
+        English: 'Sorry, I am having a technical issue. Please try again in a moment.',
+        Spanish: 'Lo siento, estoy teniendo un problema técnico. Por favor inténtalo de nuevo en un momento.',
+        Dutch: 'Sorry, ik heb een technisch probleem. Probeer het over een moment opnieuw.',
+      };
+      await sendWhatsApp(phone, errReplies[detectedLang] || errReplies.English);
       return new Response(TWIML_OK, { status: 200, headers: { ...corsHeaders, 'Content-Type': 'text/xml' } });
     }
 

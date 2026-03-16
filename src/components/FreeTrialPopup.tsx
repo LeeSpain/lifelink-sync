@@ -16,7 +16,7 @@ interface FreeTrialPopupProps {
 }
 
 export const FreeTrialPopup = ({ onClose }: FreeTrialPopupProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -58,7 +58,8 @@ export const FreeTrialPopup = ({ onClose }: FreeTrialPopupProps) => {
           name: formData.name,
           email: formData.email,
           phone: formData.phone,
-          sessionId: crypto.randomUUID()
+          sessionId: crypto.randomUUID(),
+          language: i18n.language,
         }
       });
 

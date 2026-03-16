@@ -222,7 +222,7 @@ const Pricing: React.FC = () => {
           <p className="text-sm text-muted-foreground">
             {t('pricing.pendantNote')}{' '}
             <span className="text-muted-foreground/70">
-              Bluetooth Pendant — Coming Soon
+              {t('pricing.pendantComingSoon', 'Bluetooth Pendant — Coming Soon')}
             </span>
           </p>
         </div>

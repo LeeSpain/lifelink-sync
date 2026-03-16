@@ -35,7 +35,7 @@ const contactSchema = z.object({
 type ContactFormData = z.infer<typeof contactSchema>;
 
 const Contact: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   useScrollToTop(); // Ensure page scrolls to top when navigated to
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -87,6 +87,7 @@ const Contact: React.FC = () => {
         body: {
           ...sanitizedData,
           sessionId,
+          language: i18n.language,
         },
       });
 

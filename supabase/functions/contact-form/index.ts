@@ -13,6 +13,7 @@ interface ContactFormData {
   subject: string;
   message: string;
   sessionId?: string;
+  language?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -47,7 +48,8 @@ const handler = async (req: Request): Promise<Response> => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     const resend = new Resend(resendApiKey);
 
-    const { name, email, subject, message, sessionId }: ContactFormData = await req.json();
+    const { name, email, subject, message, sessionId, language: reqLang }: ContactFormData = await req.json();
+    const lang = reqLang || 'en';
 
     console.log('Processing contact form submission:', { name, email, subject, sessionId });
 
@@ -204,37 +206,78 @@ const handler = async (req: Request): Promise<Response> => {
       console.log('Admin notification email sent successfully');
     }
 
+    // i18n for confirmation email
+    const contactI18n: Record<string, Record<string, string>> = {
+      en: {
+        subject: 'We received your message - LifeLink Sync',
+        title: 'Thank you for contacting us!',
+        dear: 'Dear',
+        received: 'We have received your message and will get back to you as soon as possible. Our typical response time is 24-48 hours during business days.',
+        summary: 'Your Message Summary:',
+        subjectLabel: 'Subject:', messageLabel: 'Message:',
+        emergency: 'If you have any urgent emergency needs, please remember that LifeLink Sync is designed to complement, not replace, traditional emergency services. In life-threatening situations, always contact your local emergency services (911, 112, etc.) immediately.',
+        claraHelp: 'For immediate assistance with our app, you can also use our AI assistant Clara directly in the application.',
+        regards: 'Best regards,', team: 'The LifeLink Sync Support Team',
+        auto: 'This is an automated response to confirm we received your message.',
+      },
+      es: {
+        subject: 'Hemos recibido tu mensaje - LifeLink Sync',
+        title: '¡Gracias por contactarnos!',
+        dear: 'Estimado/a',
+        received: 'Hemos recibido tu mensaje y te responderemos lo antes posible. Nuestro tiempo de respuesta típico es de 24-48 horas en días laborables.',
+        summary: 'Resumen de tu mensaje:',
+        subjectLabel: 'Asunto:', messageLabel: 'Mensaje:',
+        emergency: 'Si tienes alguna emergencia urgente, recuerda que LifeLink Sync está diseñado para complementar, no reemplazar, los servicios de emergencia tradicionales. En situaciones de riesgo vital, contacta siempre con los servicios de emergencia locales (112) inmediatamente.',
+        claraHelp: 'Para asistencia inmediata con nuestra app, también puedes usar nuestra asistente IA Clara directamente en la aplicación.',
+        regards: 'Saludos cordiales,', team: 'El Equipo de Soporte de LifeLink Sync',
+        auto: 'Esta es una respuesta automática para confirmar que hemos recibido tu mensaje.',
+      },
+      nl: {
+        subject: 'We hebben je bericht ontvangen - LifeLink Sync',
+        title: 'Bedankt voor je bericht!',
+        dear: 'Beste',
+        received: 'We hebben je bericht ontvangen en nemen zo snel mogelijk contact met je op. Onze gebruikelijke reactietijd is 24-48 uur op werkdagen.',
+        summary: 'Samenvatting van je bericht:',
+        subjectLabel: 'Onderwerp:', messageLabel: 'Bericht:',
+        emergency: 'Als je een dringende noodsituatie hebt, onthoud dan dat LifeLink Sync is ontworpen als aanvulling op de traditionele hulpdiensten. Bel bij levensbedreigende situaties altijd direct het alarmnummer (112).',
+        claraHelp: 'Voor directe hulp met onze app kun je ook onze AI-assistent Clara gebruiken in de applicatie.',
+        regards: 'Met vriendelijke groet,', team: 'Het LifeLink Sync Supportteam',
+        auto: 'Dit is een automatisch antwoord ter bevestiging dat we je bericht hebben ontvangen.',
+      },
+    };
+    const ct = contactI18n[lang] || contactI18n.en;
+
     // Send confirmation email to user
     const userEmailResponse = await resend.emails.send({
       from: 'LifeLink Sync Support <support@lifelink-sync.com>',
       to: [email],
-      subject: 'We received your message - LifeLink Sync',
+      subject: ct.subject,
       html: `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #1f2937; margin-bottom: 20px;">Thank you for contacting us!</h1>
-          
-          <p>Dear ${name},</p>
-          
-          <p>We have received your message and will get back to you as soon as possible. Our typical response time is 24-48 hours during business days.</p>
-          
+          <h1 style="color: #1f2937; margin-bottom: 20px;">${ct.title}</h1>
+
+          <p>${ct.dear} ${name},</p>
+
+          <p>${ct.received}</p>
+
           <div style="background-color: #f9fafb; border-left: 4px solid #3b82f6; padding: 20px; margin: 20px 0;">
-            <h3 style="margin: 0 0 10px 0; color: #1f2937;">Your Message Summary:</h3>
-            <p><strong>Subject:</strong> ${subject}</p>
-            <p><strong>Message:</strong></p>
+            <h3 style="margin: 0 0 10px 0; color: #1f2937;">${ct.summary}</h3>
+            <p><strong>${ct.subjectLabel}</strong> ${subject}</p>
+            <p><strong>${ct.messageLabel}</strong></p>
             <p style="color: #6b7280; font-style: italic;">${message.replace(/\n/g, '<br>')}</p>
           </div>
-          
-          <p>If you have any urgent emergency needs, please remember that LifeLink Sync is designed to complement, not replace, traditional emergency services. In life-threatening situations, always contact your local emergency services (911, 112, etc.) immediately.</p>
-          
-          <p>For immediate assistance with our app, you can also use our AI assistant Clara directly in the application.</p>
-          
-          <p>Best regards,<br>
-          The LifeLink Sync Support Team</p>
-          
+
+          <p>${ct.emergency}</p>
+
+          <p>${ct.claraHelp}</p>
+
+          <p>${ct.regards}<br>
+          ${ct.team}</p>
+
           <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
-          
+
           <p style="font-size: 12px; color: #6b7280;">
-            This is an automated response to confirm we received your message. 
+            ${ct.auto}
             Reference ID: ${submission.id}
           </p>
         </div>

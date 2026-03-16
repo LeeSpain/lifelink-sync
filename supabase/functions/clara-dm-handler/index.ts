@@ -78,10 +78,20 @@ serve(async (req) => {
         const lang = ['en', 'es', 'nl'].includes(classification.language) ? classification.language : 'en';
         responseText = DM_TEMPLATES[classification.category]?.[lang] || DM_TEMPLATES[classification.category]?.en || '';
       } else if (classification.category === 'support') {
-        responseText = 'Thanks for reaching out! I\'m CLARA from LifeLink Sync. I\'d love to help. Could you share your name and email so I can look into this for you?';
+        const supportReplies: Record<string, string> = {
+          en: "Thanks for reaching out! I'm CLARA from LifeLink Sync. I'd love to help. Could you share your name and email so I can look into this for you?",
+          es: "¡Gracias por contactarnos! Soy CLARA de LifeLink Sync. Me encantaría ayudarte. ¿Podrías compartir tu nombre y correo electrónico para investigar esto?",
+          nl: "Bedankt voor je bericht! Ik ben CLARA van LifeLink Sync. Ik help je graag. Kun je je naam en e-mailadres delen zodat ik dit kan onderzoeken?",
+        };
+        responseText = supportReplies[classification.language] || supportReplies.en;
         await sendWhatsApp(leePhone, `📱 Support DM on ${platform}:\n"${message_text.substring(0, 100)}"\nFrom: ${sender_name || sender_id}`);
       } else if (classification.category === 'complaint') {
-        responseText = 'I\'m really sorry to hear that. I completely understand your frustration and I\'m flagging this to Lee, our founder, right now. You\'ll hear back very shortly.';
+        const complaintReplies: Record<string, string> = {
+          en: "I'm really sorry to hear that. I completely understand your frustration and I'm flagging this to Lee, our founder, right now. You'll hear back very shortly.",
+          es: "Lamento mucho escuchar eso. Entiendo completamente tu frustración y estoy enviando esto a Lee, nuestro fundador, ahora mismo. Tendrás noticias muy pronto.",
+          nl: "Het spijt me dat te horen. Ik begrijp je frustratie volledig en ik stuur dit nu door naar Lee, onze oprichter. Je hoort heel snel van ons.",
+        };
+        responseText = complaintReplies[classification.language] || complaintReplies.en;
         await sendWhatsApp(leePhone, `⚠️ COMPLAINT DM on ${platform}:\n"${message_text.substring(0, 200)}"\nFrom: ${sender_name || sender_id}\nUrgency: ${classification.urgency}`);
       } else if (classification.category === 'spam') {
         // No response, just log

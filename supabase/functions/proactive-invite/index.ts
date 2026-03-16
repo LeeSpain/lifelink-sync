@@ -26,6 +26,12 @@ const sendWhatsApp = async (to: string, body: string) => {
   );
 };
 
+// ── i18n templates ─────────────────────────────────────────────
+// Day 0-7 sequence templates keyed by language then who_for/day
+// NOTE: proactive invites are currently initiated by Lee (admin),
+// so language defaults to 'en'. When i18n is wired to the invite
+// creation payload, pass { language } in invite_data.
+
 // ── Day 0 templates by who_for ─────────────────────────────────
 const DAY0: Record<string, string> = {
   self: `Hi NAME 👋\nLee Wakeman thought you might find this useful.\n\nLifeLink Sync gives you a personal emergency button that alerts your chosen contacts instantly if something happens — whether you're travelling solo, working late, or just want peace of mind.\n\n7-day free trial — no card needed.\nTakes 2 minutes to set up.\n\nInterested? Just reply YES and I'll get you started right now 🛡️\n\n— CLARA, LifeLink Sync`,
@@ -117,7 +123,7 @@ serve(async (req) => {
 
     // ── Create new invite ──────────────────────────────────────
     if (action === 'create_invite' && invite_data) {
-      const { contact_name, contact_phone, contact_email, who_for, channel } = invite_data;
+      const { contact_name, contact_phone, contact_email, who_for, channel, language } = invite_data;
 
       const template = DAY0[who_for || 'unsure'] || DAY0.unsure;
       const firstName = contact_name?.split(' ')[0] || contact_name;
@@ -135,7 +141,7 @@ serve(async (req) => {
         contact_phone: contact_phone?.replace('whatsapp:', '') || null,
         contact_email,
         who_for: who_for || 'unsure',
-        personalisation_context: `Invited by Lee for ${who_for}`,
+        personalisation_context: `Invited by Lee for ${who_for}${language ? `, lang: ${language}` : ''}`,
         channel: channel || 'whatsapp',
         sequence_day: 0,
         status: 'active',
