@@ -169,8 +169,8 @@
       }
     },
     "claraComplete": {
-      "badge": "FREE",
-      "description": "Automatically unlocked when you activate both Daily Wellbeing and Medication Reminder. Full CLARA AI experience at no extra cost."
+      "badge": "Included",
+      "description": "Unlocked automatically when both Daily Wellbeing (€2.99/month) and Medication Reminder (€2.99/month) are active — no separate charge for CLARA Complete itself."
     },
     "individualPlan": "Individual Plan",
     "monthlyPrice": "€9.99/month",
@@ -182,7 +182,7 @@
     "wellbeingAddon": "Daily Wellbeing",
     "medicationAddon": "Medication Reminder",
     "addonPrice": "€2.99/month each",
-    "claraCompleteNote": "Unlocks free when you have both add-ons",
+    "claraCompleteNote": "Included — no separate charge when both add-ons are active",
     "bestValue": "BEST VALUE"
   },
   "hero": {
@@ -460,7 +460,7 @@
     },
     "professionalSuccessStories": {
       "title": "Professional Success Stories",
-      "subtitle": "Real emergencies, real outcomes. Trusted by thousands of families worldwide for critical protection."
+      "subtitle": "Real emergencies, real outcomes. Trusted by families across Europe for critical protection."
     }
   },
   "register": {
@@ -801,7 +801,7 @@
       "ctaTitle": "Start Building Your",
       "ctaTitleHighlight": "Care Network",
       "ctaTitleSuffix": "Today",
-      "ctaSubtitle": "Join thousands of families who trust LifeLink Sync to keep their loved ones connected, protected, and cared for",
+      "ctaSubtitle": "Join families across Europe who trust LifeLink Sync to keep their loved ones connected, protected, and cared for",
       "startFamilyNetwork": "Start Your Family Network",
       "viewPricingPlans": "View Pricing Plans",
       "accessLevels": {
@@ -859,7 +859,7 @@
   },
   "finalCta": {
     "title": "Ready to Protect Your Family?",
-    "description": "Join thousands of families who trust LifeLink Sync for comprehensive emergency protection. Start today and experience peace of mind with professional monitoring, family connectivity, and AI-powered assistance.",
+    "description": "Join families across Europe who trust LifeLink Sync for comprehensive emergency protection. Start today and experience peace of mind with professional monitoring, family connectivity, and AI-powered assistance.",
     "startProtection": "Start Protection",
     "connectFamily": "Connect Family"
   },
@@ -1833,8 +1833,8 @@
     "unlocked": "UNLOCKED",
     "locked": "LOCKED",
     "free": "FREE",
-    "claraUnlockedDesc": "Full CLARA AI experience is active with Daily Wellbeing + Medication Reminder.",
-    "claraLockedDesc": "Activate both Daily Wellbeing and Medication Reminder to unlock CLARA Complete for free."
+    "claraUnlockedDesc": "Full CLARA Complete experience is active with your Daily Wellbeing + Medication Reminder add-ons.",
+    "claraLockedDesc": "Activate both Daily Wellbeing and Medication Reminder add-ons (€5.98/month) to unlock CLARA Complete."
   },
   "subscriptionCard": {
     "title": "Subscription & Billing",
@@ -2208,9 +2208,8 @@
   },
   "cta": {
     "title": "Start protecting your family today.",
-    "description": "Join thousands of families who trust LifeLink Sync — because when a moment matters, you need to know someone is already there.",
-    "startFreeTrial": "Start Free Trial",
-    "bookDemo": "Book a Demo"
+    "description": "Join families across Europe who trust LifeLink Sync — because when a moment matters, you need to know someone is already there.",
+    "startFreeTrial": "Start Free Trial"
   },
   "cookies": {
     "message": "We use cookies to improve your experience and for analytics. By continuing, you agree to our",
@@ -3382,7 +3381,7 @@
     "familyF3": "Live GPS updates",
     "familyF4": "No cap on links",
     "claraCompleteTitle": "CLARA Complete",
-    "claraCompleteText": "Activate both Wellbeing and Medication add-ons and CLARA Complete unlocks FREE — weekly AI reports and enhanced monitoring included automatically.",
+    "claraCompleteText": "Activate both Wellbeing and Medication add-ons (€5.98/month total) and CLARA Complete unlocks — weekly AI reports and enhanced monitoring included automatically.",
     "claraCompleteBadge": "BEST VALUE",
     "bottomNote": "All prices in EUR · Cancel anytime · No contracts · GDPR compliant",
     "badgeRecommended": "RECOMMENDED",

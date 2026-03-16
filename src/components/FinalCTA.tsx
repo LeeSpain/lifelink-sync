@@ -27,16 +27,6 @@ const FinalCTA: React.FC = () => {
                 {t('cta.startFreeTrial')}
               </Link>
             </Button>
-            <Button
-              asChild
-              size="lg"
-              variant="outline"
-              className="border-2 border-white text-white hover:bg-white/10 font-semibold text-lg px-10 py-6 rounded-xl transition-all duration-300"
-            >
-              <Link to="/contact">
-                {t('cta.bookDemo')}
-              </Link>
-            </Button>
           </div>
         </div>
       </div>

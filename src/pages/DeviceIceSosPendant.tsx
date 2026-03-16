@@ -523,7 +523,7 @@ const DeviceIceSosPendant = () => {
                 Ready for Complete Protection?
               </h2>
               <p className="text-lg text-white/90 mb-10 font-inter leading-relaxed">
-                Join thousands who trust LifeLink Sync for emergency protection. One device, total peace of mind.
+                Join families across Europe who trust LifeLink Sync for emergency protection. One device, total peace of mind.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 {comingSoon ? (

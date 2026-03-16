@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Shield, Check, MapPin, Users, Activity, Wifi, Gift } from "lucide-react";
+import { Shield, Check, MapPin, Users, Activity, Wifi } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 import HowItAllConnectsModal from "@/components/dashboard/HowItAllConnectsModal";
@@ -125,7 +125,7 @@ const Hero = ({ onClaraClick }: HeroProps) => {
               {t('hero.subtitle')}
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-6">
               <Button
                 asChild
                 size="lg"
@@ -134,18 +134,6 @@ const Hero = ({ onClaraClick }: HeroProps) => {
                 <Link to="/register">
                   <Shield className="h-5 w-5 mr-2" />
                   {t('hero.startFreeTrial')}
-                </Link>
-              </Button>
-
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="border-primary text-primary hover:bg-primary/5 font-semibold text-lg px-8 py-6 rounded-xl transition-all duration-300"
-              >
-                <Link to="/gift">
-                  <Gift className="h-5 w-5 mr-2" />
-                  {t('hero.giveAsGift', 'Give as a Gift')}
                 </Link>
               </Button>
 

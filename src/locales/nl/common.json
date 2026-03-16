@@ -169,8 +169,8 @@
       }
     },
     "claraComplete": {
-      "badge": "GRATIS",
-      "description": "Automatisch ontgrendeld wanneer je zowel Dagelijks welzijn als Medicatieherinnering activeert. Volledige CLARA AI-ervaring zonder extra kosten."
+      "badge": "Inbegrepen",
+      "description": "Automatisch ontgrendeld wanneer zowel Dagelijks Welzijn (€2,99/maand) als Medicatieherinnering (€2,99/maand) actief zijn — geen apart tarief voor CLARA Complete."
     },
     "individualPlan": "Individueel Plan",
     "monthlyPrice": "€9,99/maand",
@@ -182,7 +182,7 @@
     "wellbeingAddon": "Dagelijks Welzijn",
     "medicationAddon": "Medicatieherinnering",
     "addonPrice": "€2,99/maand per stuk",
-    "claraCompleteNote": "Wordt gratis ontgrendeld wanneer u beide toevoegingen heeft",
+    "claraCompleteNote": "Inbegrepen — geen apart tarief wanneer beide add-ons actief zijn",
     "bestValue": "BESTE WAARDE"
   },
   "hero": {
@@ -472,7 +472,7 @@
     },
     "professionalSuccessStories": {
       "title": "Professionele Succesverhalen",
-      "subtitle": "Echte noodsituaties, echte resultaten. Vertrouwd door duizenden gezinnen wereldwijd voor kritische bescherming."
+      "subtitle": "Echte noodsituaties, echte resultaten. Vertrouwd door gezinnen in heel Europa voor kritische bescherming."
     }
   },
   "register": {
@@ -778,7 +778,7 @@
       "ctaTitle": "Begin Vandaag met het Bouwen van Je",
       "ctaTitleHighlight": "Zorgnetwerk",
       "ctaTitleSuffix": "",
-      "ctaSubtitle": "Sluit je aan bij duizenden families die LifeLink Sync vertrouwen om hun dierbaren verbonden, beschermd en verzorgd te houden",
+      "ctaSubtitle": "Sluit je aan bij families in Europa die LifeLink Sync vertrouwen om hun dierbaren verbonden, beschermd en verzorgd te houden",
       "startFamilyNetwork": "Start Je Familienetwerk",
       "viewPricingPlans": "Bekijk Prijsplannen",
       "accessLevels": {
@@ -836,7 +836,7 @@
   },
   "finalCta": {
     "title": "Klaar om Je Familie te Beschermen?",
-    "description": "Sluit je aan bij duizenden families die LifeLink Sync vertrouwen voor uitgebreide noodbescherming. Begin vandaag en ervaar gemoedsrust met professionele monitoring, familieconnectiviteit en AI-assistentie.",
+    "description": "Sluit je aan bij families in Europa die LifeLink Sync vertrouwen voor uitgebreide noodbescherming. Begin vandaag en ervaar gemoedsrust met professionele monitoring, familieconnectiviteit en AI-assistentie.",
     "startProtection": "Start Bescherming",
     "connectFamily": "Verbind Familie"
   },
@@ -1706,8 +1706,8 @@
     "unlocked": "ONTGRENDELD",
     "locked": "VERGRENDELD",
     "free": "GRATIS",
-    "claraUnlockedDesc": "De volledige CLARA AI-ervaring is actief met Dagelijks Welzijn + Medicatieherinnering.",
-    "claraLockedDesc": "Activeer zowel Dagelijks Welzijn als Medicatieherinnering om CLARA Complete gratis te ontgrendelen."
+    "claraUnlockedDesc": "De volledige CLARA Complete-ervaring is actief met je Dagelijks Welzijn + Medicatieherinnering add-ons.",
+    "claraLockedDesc": "Activeer de add-ons Dagelijks Welzijn en Medicatieherinnering (€5,98/maand) om CLARA Complete te ontgrendelen."
   },
   "subscriptionCard": {
     "title": "Abonnement & Facturering",
@@ -3181,9 +3181,8 @@
   },
   "cta": {
     "title": "Begin vandaag met het beschermen van uw familie.",
-    "description": "Sluit u aan bij duizenden families die vertrouwen op LifeLink Sync — want als een moment ertoe doet, moet u weten dat er al iemand is.",
-    "startFreeTrial": "Start Gratis Proefperiode",
-    "bookDemo": "Boek een Demo"
+    "description": "Sluit u aan bij families in Europa die vertrouwen op LifeLink Sync — want als een moment ertoe doet, moet u weten dat er al iemand is.",
+    "startFreeTrial": "Start Gratis Proefperiode"
   },
   "cookies": {
     "message": "Wij gebruiken cookies om uw ervaring te verbeteren en voor analyse. Door verder te gaan, gaat u akkoord met ons",
@@ -3521,7 +3520,7 @@
     "familyF3": "Live GPS-updates",
     "familyF4": "Geen limiet op verbindingen",
     "claraCompleteTitle": "CLARA Compleet",
-    "claraCompleteText": "Activeer zowel Welzijn als Medicatie add-ons en CLARA Compleet wordt GRATIS ontgrendeld — wekelijkse AI-rapporten en verbeterde monitoring automatisch inbegrepen.",
+    "claraCompleteText": "Activeer zowel Welzijn als Medicatie add-ons (€5,98/maand totaal) en CLARA Compleet wordt ontgrendeld — wekelijkse AI-rapporten en verbeterde monitoring automatisch inbegrepen.",
     "claraCompleteBadge": "BESTE WAARDE",
     "bottomNote": "Prijzen in EUR · Altijd opzegbaar · Geen contracten · AVG-conform",
     "badgeRecommended": "AANBEVOLEN",

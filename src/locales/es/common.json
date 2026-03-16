@@ -169,8 +169,8 @@
       }
     },
     "claraComplete": {
-      "badge": "GRATIS",
-      "description": "Se desbloquea automáticamente cuando activas Bienestar diario y Recordatorio de medicación. Experiencia completa de CLARA IA sin coste adicional."
+      "badge": "Incluido",
+      "description": "Se desbloquea automáticamente cuando están activos Bienestar Diario (€2,99/mes) y Recordatorio de Medicación (€2,99/mes) — sin cargo adicional por CLARA Completo."
     },
     "individualPlan": "Plan Individual",
     "monthlyPrice": "€9,99/mes",
@@ -182,7 +182,7 @@
     "wellbeingAddon": "Bienestar Diario",
     "medicationAddon": "Recordatorio de Medicación",
     "addonPrice": "€2,99/mes cada uno",
-    "claraCompleteNote": "Se desbloquea gratis cuando tienes ambos complementos",
+    "claraCompleteNote": "Incluido — sin cargo adicional cuando ambos complementos están activos",
     "bestValue": "MEJOR VALOR"
   },
   "hero": {
@@ -472,7 +472,7 @@
     },
     "professionalSuccessStories": {
       "title": "Historias de Éxito Profesionales",
-      "subtitle": "Emergencias reales, resultados reales. Confiado por miles de familias en todo el mundo para protección crítica."
+      "subtitle": "Emergencias reales, resultados reales. Confiado por familias en toda Europa para protección crítica."
     }
   },
   "register": {
@@ -809,7 +809,7 @@
       "ctaTitle": "Comienza a Construir Tu",
       "ctaTitleHighlight": "Red de Atención",
       "ctaTitleSuffix": "Hoy",
-      "ctaSubtitle": "Únete a miles de familias que confían en LifeLink Sync para mantener a sus seres queridos conectados, protegidos y atendidos",
+      "ctaSubtitle": "Únete a familias en Europa que confían en LifeLink Sync para mantener a sus seres queridos conectados, protegidos y atendidos",
       "startFamilyNetwork": "Inicia Tu Red Familiar",
       "viewPricingPlans": "Ver Planes de Precios",
       "accessLevels": {
@@ -867,7 +867,7 @@
   },
   "finalCta": {
     "title": "¿Listo para Proteger a Tu Familia?",
-    "description": "Únete a miles de familias que confían en LifeLink Sync para protección integral de emergencia. Comienza hoy y experimenta tranquilidad con monitoreo profesional, conectividad familiar y asistencia con IA.",
+    "description": "Únete a familias en Europa que confían en LifeLink Sync para protección integral de emergencia. Comienza hoy y experimenta tranquilidad con monitoreo profesional, conectividad familiar y asistencia con IA.",
     "startProtection": "Iniciar Protección",
     "connectFamily": "Conectar Familia"
   },
@@ -1841,8 +1841,8 @@
     "unlocked": "DESBLOQUEADO",
     "locked": "BLOQUEADO",
     "free": "GRATIS",
-    "claraUnlockedDesc": "La experiencia completa de CLARA AI está activa con Bienestar Diario + Recordatorio de Medicación.",
-    "claraLockedDesc": "Activa tanto Bienestar Diario como Recordatorio de Medicación para desbloquear CLARA Completo gratis."
+    "claraUnlockedDesc": "La experiencia completa de CLARA está activa con tus complementos Bienestar Diario + Recordatorio de Medicación.",
+    "claraLockedDesc": "Activa los complementos Bienestar Diario y Recordatorio de Medicación (€5,98/mes) para desbloquear CLARA Completo."
   },
   "subscriptionCard": {
     "title": "Suscripción y Facturación",
@@ -2216,9 +2216,8 @@
   },
   "cta": {
     "title": "Empieza a proteger a tu familia hoy.",
-    "description": "Únete a miles de familias que confían en LifeLink Sync — porque cuando un momento importa, necesitas saber que alguien ya está ahí.",
-    "startFreeTrial": "Prueba gratuita",
-    "bookDemo": "Reservar una demo"
+    "description": "Únete a familias en Europa que confían en LifeLink Sync — porque cuando un momento importa, necesitas saber que alguien ya está ahí.",
+    "startFreeTrial": "Prueba gratuita"
   },
   "cookies": {
     "message": "Usamos cookies para mejorar tu experiencia y con fines analíticos. Al continuar, aceptas nuestra",
@@ -3521,7 +3520,7 @@
     "familyF3": "Actualizaciones GPS en vivo",
     "familyF4": "Sin límite de enlaces",
     "claraCompleteTitle": "CLARA Completo",
-    "claraCompleteText": "Activa Bienestar y Medicación y CLARA Completo se desbloquea GRATIS — informes semanales IA y monitorización mejorada incluidos automáticamente.",
+    "claraCompleteText": "Activa los complementos Bienestar y Medicación (€5,98/mes en total) y CLARA Completo se desbloquea — informes semanales IA y monitorización mejorada incluidos automáticamente.",
     "claraCompleteBadge": "MEJOR VALOR",
     "bottomNote": "Precios en EUR · Cancela cuando quieras · Sin contratos · Cumple RGPD",
     "badgeRecommended": "RECOMENDADO",
