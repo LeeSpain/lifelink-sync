@@ -6,7 +6,7 @@ import StatsBar from "@/components/StatsBar";
 import HowItWorks from "@/components/HowItWorks";
 import Features from "@/components/Features";
 import HowItAllConnectsModal from "@/components/dashboard/HowItAllConnectsModal";
-import CallCentrePartner from "@/components/CallCentrePartner";
+
 import FamilySection from "@/components/FamilySection";
 import Pricing from "@/components/Pricing";
 import FinalCTA from "@/components/FinalCTA";
@@ -78,10 +78,7 @@ const Index = () => {
         onClose={() => setShowEcosystem(false)}
       />
 
-      {/* 5. Call Centre Partner */}
-      <CallCentrePartner />
-
-      {/* 6. Family Section */}
+      {/* 5. Family Section */}
       <FamilySection />
 
       {/* 7. Pricing */}
