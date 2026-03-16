@@ -143,15 +143,12 @@ export function useOptimizedUserRole() {
   const { user } = useAuth();
   
   return useQuery({
-    queryKey: QUERY_KEYS.userRole,
+    queryKey: ['user', 'role', user?.id ?? 'none'],
     queryFn: async () => {
       if (!user?.id) {
-        console.log('🔧 useOptimizedUserRole: No user ID available');
         return null;
       }
-      
-      console.log('🔧 useOptimizedUserRole: Fetching role for user:', user.id);
-      
+
       const { data, error } = await supabase
         .from('profiles')
         .select('role')
@@ -159,21 +156,20 @@ export function useOptimizedUserRole() {
         .maybeSingle();
 
       if (error) {
-        console.error('🔧 useOptimizedUserRole: Error fetching role:', error);
+        console.error('useOptimizedUserRole: Error fetching role:', error);
         throw error;
       }
-      
+
       const role = data?.role || 'user';
-      console.log('🔧 useOptimizedUserRole: Retrieved role:', role);
       return role;
     },
     enabled: !!user?.id,
-    staleTime: 15 * 60 * 1000, // 15 minutes - much longer to prevent re-fetching
-    gcTime: 30 * 60 * 1000, // 30 minutes in cache
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes in cache
     refetchOnWindowFocus: false,
-    refetchOnMount: false, // Don't refetch on mount to prevent loops
-    refetchOnReconnect: false, // Don't refetch on network reconnect
-    retry: 1, // Reduce retries to prevent loops
+    refetchOnMount: true, // Refetch on mount to get fresh role after login
+    refetchOnReconnect: false,
+    retry: 1,
   });
 }
 
