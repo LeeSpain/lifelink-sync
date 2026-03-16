@@ -52,7 +52,14 @@ import {
   LayoutGrid,
   LayoutDashboard,
   Settings2,
-  Gift
+  Gift,
+  Cpu,
+  Gauge,
+  Sliders,
+  Rocket,
+  HeartPulse,
+  CheckCircle,
+  CreditCard
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -90,9 +97,15 @@ const useAdminMenuItems = () => {
       items: [
         { title: 'AI Overview', url: "/admin-dashboard/ai-overview", icon: LayoutDashboard },
         { title: 'Clara', url: "/admin-dashboard/clara-activity", icon: Bot },
+        { title: 'Training Data', url: "/admin-dashboard/ai-training", icon: BookOpen },
+        { title: 'AI Agent Config', url: "/admin-dashboard/ai-agent-config", icon: Cpu },
+        { title: 'Dev Agent', url: "/admin-dashboard/dev-agent", icon: Rocket },
+        { title: 'PA Dashboard', url: "/admin-dashboard/pa-dashboard", icon: CheckCircle },
         { title: t('admin.rivenMarketingAi'), url: "/admin-dashboard/riven-marketing", icon: Brain },
         { title: 'AI Settings', url: "/admin-dashboard/ai-settings", icon: Settings2 },
         { title: 'AI Analytics', url: "/admin-dashboard/ai-analytics", icon: BarChart3 },
+        { title: 'AI Performance', url: "/admin-dashboard/ai-performance", icon: Gauge },
+        { title: 'AI Model Settings', url: "/admin-dashboard/ai-model-settings", icon: Sliders },
       ]
     },
     {
@@ -109,6 +122,7 @@ const useAdminMenuItems = () => {
         { title: t('admin.leadManagement'), url: "/admin-dashboard/leads", icon: MessageSquare },
         { title: t('admin.leadIntelligence'), url: "/admin-dashboard/lead-intelligence", icon: Target },
         { title: t('admin.conversations'), url: "/admin-dashboard/conversations", icon: MessageSquare },
+        { title: 'Manual Invite', url: "/admin-dashboard/manual-invite", icon: Send },
       ]
     },
     {
@@ -116,6 +130,8 @@ const useAdminMenuItems = () => {
       items: [
         { title: t('admin.contactSubmissions'), url: "/admin-dashboard/contact-submissions", icon: Mail },
         { title: t('admin.communicationCenter'), url: "/admin-dashboard/communication", icon: MessageSquare },
+        { title: 'WhatsApp Settings', url: "/admin-dashboard/whatsapp", icon: Phone },
+        { title: 'Email Management', url: "/admin-dashboard/email-management", icon: Mail },
       ]
     },
     {
@@ -150,9 +166,11 @@ const useAdminMenuItems = () => {
         { title: t('admin.products'), url: "/admin-dashboard/products", icon: Package },
         { title: t('admin.regionalServices'), url: "/admin-dashboard/regional-services", icon: MapPin },
         { title: t('admin.subscriptionPlans'), url: "/admin-dashboard/protection-plans", icon: Shield },
+        { title: 'Pricing Editor', url: "/admin-dashboard/pricing", icon: DollarSign },
         { title: 'Add-On Management', url: "/admin-dashboard/addon-management", icon: Package },
         { title: 'Trial Management', url: "/admin-dashboard/trial-management", icon: Clock },
         { title: 'Gift Management', url: "/admin-dashboard/gift-management", icon: Gift },
+        { title: 'Referrals', url: "/admin-dashboard/referrals", icon: Gift },
         { title: t('admin.flickControl'), url: "/admin-dashboard/flic-control", icon: Bluetooth },
       ]
     },
@@ -164,6 +182,11 @@ const useAdminMenuItems = () => {
         { title: t('admin.systemSettings'), url: "/admin-dashboard/settings", icon: Settings },
         { title: t('admin.reports'), url: "/admin-dashboard/reports", icon: FileText },
         { title: t('admin.appTesting'), url: "/admin-dashboard/app-testing", icon: Smartphone },
+        { title: 'Health Check', url: "/admin-dashboard/health-check", icon: HeartPulse },
+        { title: 'Production Check', url: "/admin-dashboard/production-check", icon: CheckCircle },
+        { title: 'Go Live', url: "/admin-dashboard/go-live", icon: Rocket },
+        { title: 'Stripe Setup', url: "/admin-dashboard/stripe-setup", icon: CreditCard },
+        { title: 'Mobile Launch', url: "/admin-dashboard/mobile-launch", icon: Smartphone },
       ]
     }
   ];

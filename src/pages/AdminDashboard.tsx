@@ -54,6 +54,14 @@ import AIOverview from '@/components/admin/pages/AIOverview';
 import ClaraActivity from '@/components/admin/pages/ClaraActivity';
 import AISettings from '@/components/admin/pages/AISettings';
 import AIAnalytics from '@/components/admin/pages/AIAnalytics';
+import AITrainingPage from '@/components/admin/pages/AITrainingPage';
+import AIAgentPage from '@/components/admin/pages/AIAgentPage';
+import AIModelSettingsPage from '@/components/admin/pages/AIModelSettingsPage';
+import AIPerformancePage from '@/components/admin/pages/AIPerformancePage';
+import ReferralAdminPage from '@/components/admin/pages/ReferralAdminPage';
+import DevAgentDashboard from '@/components/admin/pages/DevAgentDashboard';
+import PAModeDashboard from '@/components/admin/pages/PAModeDashboard';
+import ManualInvitePage from '@/components/admin/pages/ManualInvitePage';
 
 const AdminDashboard: React.FC = () => {
   useScrollToTop();
@@ -70,6 +78,10 @@ const AdminDashboard: React.FC = () => {
         <Route path="clara-activity" element={<ClaraActivity />} />
         <Route path="ai-settings" element={<AISettings />} />
         <Route path="ai-analytics" element={<AIAnalytics />} />
+        <Route path="ai-training" element={<AITrainingPage />} />
+        <Route path="ai-agent-config" element={<AIAgentPage />} />
+        <Route path="ai-model-settings" element={<AIModelSettingsPage />} />
+        <Route path="ai-performance" element={<AIPerformancePage />} />
         <Route path="ai-agent" element={<Navigate to="/admin-dashboard/ai-settings" replace />} />
         <Route path="riven-marketing" element={<RivenMarketingAI />} />
         <Route path="email-management" element={<EmailManagement />} />
@@ -113,6 +125,10 @@ const AdminDashboard: React.FC = () => {
         <Route path="gift-management" element={<GiftManagementPage />} />
         <Route path="pricing" element={<PricingEditorPage />} />
         <Route path="dashboards-apps" element={<DashboardsAndApps />} />
+        <Route path="referrals" element={<ReferralAdminPage />} />
+        <Route path="dev-agent" element={<DevAgentDashboard />} />
+        <Route path="pa-dashboard" element={<PAModeDashboard />} />
+        <Route path="manual-invite" element={<ManualInvitePage />} />
         <Route path="profile" element={<AdminProfile />} />
         <Route path="*" element={<Navigate to="/admin-dashboard" replace />} />
       </Route>
