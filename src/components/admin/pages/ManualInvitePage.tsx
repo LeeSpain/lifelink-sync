@@ -153,7 +153,7 @@ Return the message text only. No preamble.`,
         },
       });
 
-      const enhanced = response.data?.reply || response.data?.message || '';
+      const enhanced = response.data?.response || response.data?.reply || '';
       if (enhanced) {
         setEnhancedMessage(enhanced);
       } else {
@@ -172,20 +172,35 @@ Return the message text only. No preamble.`,
     setSending(true);
 
     try {
-      if (form.sendVia === 'whatsapp' || form.sendVia === 'both') {
-        if (form.whatsapp.trim()) {
-          await supabase.functions.invoke('clara-escalation', {
-            body: {
-              type: 'manual_invite',
-              contact_name: form.name,
-              contact_phone: form.whatsapp,
-              message: previewMessage,
-            },
-          });
-        }
+      // Send via clara-escalation (handles both WhatsApp and email)
+      const sendPayload: Record<string, unknown> = {
+        type: 'manual_invite',
+        contact_name: form.name,
+        message: previewMessage,
+      };
+
+      // Add contact channels based on sendVia
+      if ((form.sendVia === 'whatsapp' || form.sendVia === 'both') && form.whatsapp.trim()) {
+        sendPayload.contact_phone = form.whatsapp.trim();
+      }
+      if ((form.sendVia === 'email' || form.sendVia === 'both') && form.email.trim()) {
+        sendPayload.contact_email = form.email.trim();
       }
 
-      await (supabase as any).from('manual_invites').insert({
+      const { data: sendResult, error: sendError } = await supabase.functions.invoke('clara-escalation', {
+        body: sendPayload,
+      });
+
+      if (sendError) {
+        throw new Error(sendError.message || 'Failed to send invite');
+      }
+
+      if (!sendResult?.success) {
+        throw new Error('Invite delivery failed — check WhatsApp number or email address');
+      }
+
+      // Log the invite to DB
+      const { error: dbError } = await (supabase as any).from('manual_invites').insert({
         contact_name: form.name,
         contact_email: form.email || null,
         contact_whatsapp: form.whatsapp || null,
@@ -195,19 +210,32 @@ Return the message text only. No preamble.`,
         message_sent: previewMessage,
         relationship_tone: relationship,
         clara_enhanced: useEnhanced,
+        email_sent: sendResult?.email_sent || false,
+        whatsapp_sent: sendResult?.whatsapp_sent || false,
+        email_error: sendResult?.email_error || null,
+        whatsapp_error: null,
         status: 'sent',
-      }).then(() => {});
+      });
+
+      if (dbError) {
+        console.warn('Failed to log invite to DB (invite still sent):', dbError);
+      }
 
       setSent(true);
+      const channels = [
+        sendResult?.whatsapp_sent && 'WhatsApp',
+        sendResult?.email_sent && 'Email',
+      ].filter(Boolean).join(' + ');
+
       toast({
         title: 'Invite Sent',
-        description: `Personalised invite sent to ${form.name}`,
+        description: `Personalised invite sent to ${form.name} via ${channels || form.sendVia}`,
       });
     } catch (err) {
       console.error('Failed to send invite:', err);
       toast({
         title: 'Send Failed',
-        description: 'Could not send the invite. Check logs.',
+        description: (err as Error).message || 'Could not send the invite. Check logs.',
         variant: 'destructive',
       });
     } finally {

@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { Resend } from 'npm:resend@2.0.0';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -14,9 +15,10 @@ const twilioFrom         = Deno.env.get('TWILIO_WHATSAPP_FROM')!;
 const twilioLee          = Deno.env.get('TWILIO_WHATSAPP_LEE')!;
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
+const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
 
 interface EscalationRequest {
-  type: 'hot_lead' | 'amber' | 'morning_briefing';
+  type: 'hot_lead' | 'amber' | 'morning_briefing' | 'manual_invite';
   lead_id?: string;
   session_id?: string;
   contact_name?: string;
@@ -29,6 +31,7 @@ interface EscalationRequest {
   last_message?: string;
   clara_recommendation?: string;
   custom_message?: string;
+  message?: string;
 }
 
 const sendWhatsApp = async (to: string, from: string, body: string): Promise<boolean> => {
@@ -127,6 +130,61 @@ serve(async (req) => {
       message = buildAmberMessage(body);
     } else if (body.type === 'morning_briefing') {
       message = body.custom_message ?? '☀️ LifeLink Sync — Morning briefing ready.';
+    } else if (body.type === 'manual_invite') {
+      // Manual invite: send to contact via WhatsApp and/or email
+      if (!body.message) {
+        return new Response(
+          JSON.stringify({ error: 'manual_invite requires message' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      const result: Record<string, unknown> = { type: 'manual_invite' };
+
+      // Send WhatsApp if phone provided
+      if (body.contact_phone) {
+        const contactWhatsApp = body.contact_phone.startsWith('whatsapp:')
+          ? body.contact_phone
+          : `whatsapp:${body.contact_phone.replace(/\s/g, '')}`;
+        const whatsappSent = await sendWhatsApp(contactWhatsApp, twilioFrom, body.message);
+        result.whatsapp_sent = whatsappSent;
+        result.whatsapp_to = contactWhatsApp;
+      }
+
+      // Send email if email provided
+      if (body.contact_email) {
+        try {
+          const contactFirst = (body.contact_name || '').split(' ')[0] || 'there';
+          await resend.emails.send({
+            from: 'Lee from LifeLink Sync <lee@lifelink-sync.com>',
+            to: body.contact_email,
+            subject: `${contactFirst}, Lee thought you'd want to see this`,
+            html: `<div style="font-family: -apple-system, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; color: #333;">
+              <p style="white-space: pre-wrap; line-height: 1.6; font-size: 15px;">${body.message.replace(/\n/g, '<br>')}</p>
+              <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
+              <p style="font-size: 12px; color: #999;">Sent via LifeLink Sync — 24/7 AI emergency protection<br/>
+              <a href="https://lifelink-sync.com" style="color: #ef4444;">lifelink-sync.com</a></p>
+            </div>`,
+            text: body.message,
+          });
+          result.email_sent = true;
+          result.email_to = body.contact_email;
+        } catch (emailErr) {
+          console.error('Resend email error:', emailErr);
+          result.email_sent = false;
+          result.email_error = (emailErr as Error).message;
+        }
+      }
+
+      result.success = (result.whatsapp_sent === true || result.email_sent === true);
+
+      return new Response(
+        JSON.stringify(result),
+        {
+          status: result.success ? 200 : 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
     } else {
       return new Response(
         JSON.stringify({ error: 'Invalid type' }),
