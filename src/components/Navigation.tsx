@@ -52,8 +52,11 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
     }
   }, [isHomepage, navigate]);
 
+  const routeLinks = [
+    { to: '/how-it-works', label: t('nav.howItWorks', 'How It Works') },
+  ];
+
   const navLinks = [
-    { hash: 'how-it-works', label: t('nav.howItWorks', 'How It Works') },
     { hash: 'features', label: t('nav.features', 'Features') },
     { hash: 'family', label: t('nav.family', 'Family') },
     { hash: 'pricing', label: t('nav.pricing', 'Pricing') },
@@ -81,6 +84,15 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
+            {routeLinks.map(({ to, label }) => (
+              <Link
+                key={to}
+                to={to}
+                className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+              >
+                {label}
+              </Link>
+            ))}
             {navLinks.map(({ hash, label }) => (
               <button
                 key={hash}
@@ -170,6 +182,16 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
               <div className="mb-4 px-4">
                 <LanguageCurrencySelector />
               </div>
+              {routeLinks.map(({ to, label }) => (
+                <Link
+                  key={to}
+                  to={to}
+                  onClick={() => setIsMenuOpen(false)}
+                  className="text-sm font-medium text-foreground hover:text-primary px-4 py-2 text-left"
+                >
+                  {label}
+                </Link>
+              ))}
               {navLinks.map(({ hash, label }) => (
                 <button
                   key={hash}

@@ -840,6 +840,22 @@
     "startProtection": "Start Bescherming",
     "connectFamily": "Verbind Familie"
   },
+  "howItWorksPage": {
+    "label": "HOE HET WERKT",
+    "heading": "Bescherming die werkt terwijl je leeft",
+    "subtitle": "Instellen in 2 minuten. CLARA waakt over jou en je dierbaren 24/7.",
+    "step1Title": "Registreer",
+    "step1Desc": "Start je gratis 7-daagse proefperiode. Geen creditcard nodig. Duurt 2 minuten.",
+    "step2Title": "Voeg je kring toe",
+    "step2Desc": "Voeg noodcontacten toe. Ze krijgen direct bericht als je hulp nodig hebt.",
+    "step3Title": "CLARA waakt over je",
+    "step3Desc": "CLARA bewaakt je veiligheid 24/7 via app, hanger of tablet.",
+    "step4Title": "Hulp komt snel",
+    "step4Desc": "Je kring wordt direct gewaarschuwd met je locatie.",
+    "ctaHeading": "Begin vandaag met het beschermen van jezelf of iemand van wie je houdt",
+    "ctaStart": "Gratis proefperiode",
+    "ctaGift": "Cadeau geven"
+  },
   "mockupNames": {
     "dad": "Papa",
     "mom": "Mama",
@@ -3413,7 +3429,12 @@
       "online": "{{count}} online",
       "checking": "Controleren...",
       "medication": "Medicatie",
-      "noMedication": "Geen gepland"
+      "noMedication": "Geen gepland",
+      "clara": "Clara",
+      "claraListening": "Luisteren...",
+      "claraSpeaking": "Spreken...",
+      "claraOffline": "Mic uit",
+      "claraReady": "Gereed"
     },
     "messages": {
       "title": "Berichten",

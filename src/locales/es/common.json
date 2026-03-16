@@ -871,6 +871,22 @@
     "startProtection": "Iniciar Protección",
     "connectFamily": "Conectar Familia"
   },
+  "howItWorksPage": {
+    "label": "COMO FUNCIONA",
+    "heading": "Proteccion que funciona mientras vives tu vida",
+    "subtitle": "Configuracion en 2 minutos. CLARA te cuida a ti y a tus seres queridos 24/7.",
+    "step1Title": "Registrate",
+    "step1Desc": "Inicia tu prueba gratuita de 7 dias. Sin tarjeta. Tarda 2 minutos.",
+    "step2Title": "Agrega tu circulo",
+    "step2Desc": "Agrega contactos de emergencia. Reciben alertas instantaneas si necesitas ayuda.",
+    "step3Title": "CLARA te cuida",
+    "step3Desc": "CLARA monitorea tu seguridad 24/7 via app, colgante o tablet.",
+    "step4Title": "La ayuda llega rapido",
+    "step4Desc": "Tu circulo es alertado al instante con tu ubicacion.",
+    "ctaHeading": "Empieza a protegerte a ti o a alguien que amas hoy",
+    "ctaStart": "Prueba gratuita",
+    "ctaGift": "Regalar como presente"
+  },
   "mockupNames": {
     "dad": "Papá",
     "mom": "Mamá",
@@ -3413,7 +3429,12 @@
       "online": "{{count}} en línea",
       "checking": "Comprobando...",
       "medication": "Medicación",
-      "noMedication": "Ninguna programada"
+      "noMedication": "Ninguna programada",
+      "clara": "Clara",
+      "claraListening": "Escuchando...",
+      "claraSpeaking": "Hablando...",
+      "claraOffline": "Micro apagado",
+      "claraReady": "Lista"
     },
     "messages": {
       "title": "Mensajes",

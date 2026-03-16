@@ -863,6 +863,22 @@
     "startProtection": "Start Protection",
     "connectFamily": "Connect Family"
   },
+  "howItWorksPage": {
+    "label": "HOW IT WORKS",
+    "heading": "Protection that works while you live your life",
+    "subtitle": "Set up in 2 minutes. CLARA watches over you and your loved ones 24/7.",
+    "step1Title": "Sign Up",
+    "step1Desc": "Start your free 7-day trial. No card needed. Takes 2 minutes.",
+    "step2Title": "Add Your Circle",
+    "step2Desc": "Add emergency contacts. They get instant alerts if you need help.",
+    "step3Title": "CLARA Watches Over You",
+    "step3Desc": "CLARA monitors your safety 24/7 via app, pendant, or tablet.",
+    "step4Title": "Help Arrives Fast",
+    "step4Desc": "Your circle is alerted instantly with your location.",
+    "ctaHeading": "Start protecting yourself or someone you love today",
+    "ctaStart": "Start Free Trial",
+    "ctaGift": "Give as a Gift"
+  },
   "mockupNames": {
     "dad": "Dad",
     "mom": "Mom",
