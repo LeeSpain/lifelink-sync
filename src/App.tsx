@@ -66,7 +66,7 @@ import TrialSignupPage from "./pages/TrialSignupPage";
 import CheckoutSuccessPage from "./pages/CheckoutSuccessPage";
 import CheckoutCancelPage from "./pages/CheckoutCancelPage";
 import GiftPurchasePage from "./pages/GiftPurchasePage";
-import HowItWorksPage from "./pages/HowItWorksPage";
+// HowItWorksPage kept as file but route removed — experience lives as popup modal only
 import GiftConfirmationPage from "./pages/GiftConfirmationPage";
 import GiftRedeemPage from "./pages/GiftRedeemPage";
 
@@ -238,11 +238,6 @@ function AppWithTracking() {
                 } />
 
                 {/* Gift Pages */}
-                <Route path="/how-it-works" element={
-                  <OptimizedSuspense skeletonType="card">
-                    <HowItWorksPage />
-                  </OptimizedSuspense>
-                } />
                 <Route path="/gift/purchase" element={<Navigate to="/gift" replace />} />
                 <Route path="/gift" element={
                   <OptimizedSuspense skeletonType="card">

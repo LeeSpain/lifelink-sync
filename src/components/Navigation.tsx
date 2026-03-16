@@ -7,6 +7,7 @@ import LanguageCurrencySelector from '@/components/LanguageCurrencySelector';
 import { usePreferences } from '@/contexts/PreferencesContext';
 import { useInteractionTracking } from '@/hooks/useInteractionTracking';
 import { useClaraChat } from '@/contexts/ClaraChatContext';
+import HowItWorksModal from '@/components/HowItWorksModal';
 
 interface NavigationProps {
   onJoinNowClick?: () => void;
@@ -52,9 +53,7 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
     }
   }, [isHomepage, navigate]);
 
-  const routeLinks = [
-    { to: '/how-it-works', label: t('nav.howItWorks', 'How It Works') },
-  ];
+  const [showHowItWorks, setShowHowItWorks] = useState(false);
 
   const navLinks = [
     { hash: 'features', label: t('nav.features', 'Features') },
@@ -84,15 +83,12 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
-            {routeLinks.map(({ to, label }) => (
-              <Link
-                key={to}
-                to={to}
-                className="text-sm font-medium text-foreground hover:text-primary transition-colors"
-              >
-                {label}
-              </Link>
-            ))}
+            <button
+              onClick={() => setShowHowItWorks(true)}
+              className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+            >
+              {t('nav.howItWorks', 'How It Works')}
+            </button>
             {navLinks.map(({ hash, label }) => (
               <button
                 key={hash}
@@ -182,16 +178,12 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
               <div className="mb-4 px-4">
                 <LanguageCurrencySelector />
               </div>
-              {routeLinks.map(({ to, label }) => (
-                <Link
-                  key={to}
-                  to={to}
-                  onClick={() => setIsMenuOpen(false)}
-                  className="text-sm font-medium text-foreground hover:text-primary px-4 py-2 text-left"
-                >
-                  {label}
-                </Link>
-              ))}
+              <button
+                onClick={() => { setIsMenuOpen(false); setShowHowItWorks(true); }}
+                className="text-sm font-medium text-foreground hover:text-primary px-4 py-2 text-left"
+              >
+                {t('nav.howItWorks', 'How It Works')}
+              </button>
               {navLinks.map(({ hash, label }) => (
                 <button
                   key={hash}
@@ -248,6 +240,7 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
         )}
       </div>
     </nav>
+    <HowItWorksModal isOpen={showHowItWorks} onClose={() => setShowHowItWorks(false)} />
     </>
   );
 };

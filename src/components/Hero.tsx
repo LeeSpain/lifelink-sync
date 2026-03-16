@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Shield, Check, MapPin, Users, Activity, Wifi } from "lucide-react";
+import { Shield, Check, MapPin, Users, Activity, Wifi, Play } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
-import HowItAllConnectsModal from "@/components/dashboard/HowItAllConnectsModal";
+import HowItWorksModal from "@/components/HowItWorksModal";
 
 interface HeroProps {
   onClaraClick?: () => void;
@@ -101,7 +101,7 @@ const HeroPhoneMockup = () => {
 
 const Hero = ({ onClaraClick }: HeroProps) => {
   const { t } = useTranslation();
-  const [showEcosystem, setShowEcosystem] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   return (
     <section className="relative min-h-[100dvh] sm:min-h-[85vh] flex items-center justify-center overflow-hidden bg-[#FAFAF9] pt-20 sm:pt-16">
       {/* Subtle background texture */}
@@ -136,21 +136,19 @@ const Hero = ({ onClaraClick }: HeroProps) => {
                   {t('hero.startFreeTrial')}
                 </Link>
               </Button>
-
-              <HowItAllConnectsModal
-                isOpen={showEcosystem}
-                onClose={() => setShowEcosystem(false)}
-              />
             </div>
 
             <div className="flex justify-center lg:justify-start mb-4">
               <button
-                onClick={() => setShowEcosystem(true)}
-                className="text-sm text-primary hover:text-primary/80 font-medium underline underline-offset-2 transition-colors"
+                onClick={() => setShowModal(true)}
+                className="text-sm text-gray-400 hover:text-primary font-medium underline underline-offset-4 transition-colors flex items-center gap-1.5"
               >
+                <Play className="w-3 h-3" />
                 {t('hero.seeHowItWorks')}
               </button>
             </div>
+
+            <HowItWorksModal isOpen={showModal} onClose={() => setShowModal(false)} />
 
             {/* Trust row */}
             <div className="flex flex-wrap gap-6 justify-center lg:justify-start text-sm text-gray-500">

@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import React, { useEffect } from 'react';
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import StatsBar from "@/components/StatsBar";
 import HowItWorks from "@/components/HowItWorks";
 import Features from "@/components/Features";
-import HowItAllConnectsModal from "@/components/dashboard/HowItAllConnectsModal";
 
 import FamilySection from "@/components/FamilySection";
 import Pricing from "@/components/Pricing";
@@ -29,8 +27,6 @@ const Index = () => {
   useScrollToTop();
   usePerformanceMonitoring();
   const { openClaraChat } = useClaraChat();
-  const { t } = useTranslation();
-  const [showEcosystem, setShowEcosystem] = useState(false);
 
   useEffect(() => {
     preloadCriticalImages();
@@ -61,22 +57,6 @@ const Index = () => {
 
       {/* 4. Platform Features */}
       <Features />
-
-      {/* 4b. Ecosystem Map */}
-      <section className="py-12 bg-white">
-        <div className="container mx-auto px-4 text-center">
-          <button
-            onClick={() => setShowEcosystem(true)}
-            className="border border-primary text-primary hover:bg-primary/5 font-semibold px-8 py-3 rounded-xl transition-all duration-300"
-          >
-            {t('ecosystem.triggerButton', 'See How It All Connects')}
-          </button>
-        </div>
-      </section>
-      <HowItAllConnectsModal
-        isOpen={showEcosystem}
-        onClose={() => setShowEcosystem(false)}
-      />
 
       {/* 5. Family Section */}
       <FamilySection />
