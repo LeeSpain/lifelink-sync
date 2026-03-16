@@ -63,6 +63,8 @@ import DevAgentDashboard from '@/components/admin/pages/DevAgentDashboard';
 import PAModeDashboard from '@/components/admin/pages/PAModeDashboard';
 import ManualInvitePage from '@/components/admin/pages/ManualInvitePage';
 import ConstitutionPage from '@/components/admin/pages/ConstitutionPage';
+import BudgetControlPage from '@/components/admin/pages/BudgetControlPage';
+import ClaraCommandCentre from '@/components/admin/pages/ClaraCommandCentre';
 
 const AdminDashboard: React.FC = () => {
   useScrollToTop();
@@ -75,6 +77,7 @@ const AdminDashboard: React.FC = () => {
         <Route path="video-analytics" element={<VideoAnalyticsPage />} />
         <Route path="revenue" element={<RevenueAnalyticsPage />} />
         <Route path="growth" element={<UserGrowthPage />} />
+        <Route path="command-centre" element={<ClaraCommandCentre />} />
         <Route path="ai-overview" element={<AIOverview />} />
         <Route path="clara-activity" element={<ClaraActivity />} />
         <Route path="ai-settings" element={<AISettings />} />
@@ -131,6 +134,7 @@ const AdminDashboard: React.FC = () => {
         <Route path="pa-dashboard" element={<PAModeDashboard />} />
         <Route path="manual-invite" element={<ManualInvitePage />} />
         <Route path="constitution" element={<ConstitutionPage />} />
+        <Route path="budget-control" element={<BudgetControlPage />} />
         <Route path="profile" element={<AdminProfile />} />
         <Route path="*" element={<Navigate to="/admin-dashboard" replace />} />
       </Route>

@@ -95,6 +95,7 @@ const useAdminMenuItems = () => {
     {
       title: t('admin.sidebarAI', 'AI'),
       items: [
+        { title: 'Command Centre', url: "/admin-dashboard/command-centre", icon: Activity },
         { title: 'AI Overview', url: "/admin-dashboard/ai-overview", icon: LayoutDashboard },
         { title: 'Clara', url: "/admin-dashboard/clara-activity", icon: Bot },
         { title: 'Training Data', url: "/admin-dashboard/ai-training", icon: BookOpen },
@@ -107,6 +108,7 @@ const useAdminMenuItems = () => {
         { title: 'AI Performance', url: "/admin-dashboard/ai-performance", icon: Gauge },
         { title: 'AI Model Settings', url: "/admin-dashboard/ai-model-settings", icon: Sliders },
         { title: 'Constitution', url: "/admin-dashboard/constitution", icon: Shield },
+        { title: 'Budget Control', url: "/admin-dashboard/budget-control", icon: DollarSign },
       ]
     },
     {
