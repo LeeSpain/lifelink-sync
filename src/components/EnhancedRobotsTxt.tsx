@@ -182,7 +182,6 @@ Allow: /terms
 Allow: /support
 Allow: /contact
 Allow: /devices/
-Allow: /regional-center/
 Allow: /family-carer-access
 Allow: /payment-success
 Allow: /about

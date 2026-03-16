@@ -63,13 +63,10 @@ const PendantPromo: React.FC = () => {
               <p className="text-xs text-gray-500 mt-1">{t('pendantPromo.oneTime')}</p>
             </div>
 
-            {/* CTA */}
-            <Button asChild size="lg" className="font-semibold bg-primary text-white hover:bg-primary/90">
-              <Link to="/devices/lifelink-sync-pendant">
-                {t('pendantPromo.cta')}
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </Link>
-            </Button>
+            {/* CTA — Coming Soon */}
+            <Badge className="px-6 py-3 text-base font-semibold bg-white/10 text-white border border-white/20">
+              Coming Soon
+            </Badge>
           </div>
         </div>
       </div>

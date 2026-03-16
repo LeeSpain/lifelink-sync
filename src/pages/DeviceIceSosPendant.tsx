@@ -19,7 +19,7 @@ const DeviceIceSosPendant = () => {
   const { t } = useTranslation();
   const { openClaraChat } = useClaraChat();
   const { prices, formatPrice } = usePricing();
-  const [comingSoon, setComingSoon] = useState(false);
+  const [comingSoon] = useState(true); // Pre-launch: pendant not yet available
   const title = t('devices.icePendant.seoTitle', { defaultValue: 'LifeLink Sync Bluetooth Pendant – LifeLink Sync' });
   const description = t('devices.icePendant.metaDescription', { defaultValue: 'Hands-free emergency pendant with Bluetooth, waterproof design, and 7-day battery. Works with LifeLink Sync app.' });
   const canonical = typeof window !== "undefined" ? `${window.location.origin}/devices/lifelink-sync-pendant` : "https://example.com/devices/lifelink-sync-pendant";
@@ -35,27 +35,13 @@ const DeviceIceSosPendant = () => {
       "@type": "Offer",
       priceCurrency: "EUR",
       price: String((prices.pendant_price + 4.99).toFixed(2)),
-      availability: "https://schema.org/InStock",
+      availability: "https://schema.org/PreOrder",
       url: canonical,
       description: `LifeLink Sync Bluetooth Pendant ${formatPrice(prices.pendant_price)} + €4.99 shipping`
     }
   };
 
-  React.useEffect(() => {
-    const fetchStatus = async () => {
-      try {
-        const { data } = await supabase
-          .from('products')
-          .select('status')
-          .eq('name', 'LifeLink Sync Bluetooth Pendant')
-          .maybeSingle();
-        if (data?.status === 'coming_soon') setComingSoon(true);
-      } catch (error) {
-        // Silently fail - default to available
-      }
-    };
-    fetchStatus();
-  }, []);
+  // DB status check removed — hardcoded to Coming Soon for pre-launch
 
   const features = [
     { icon: Bluetooth, title: "Bluetooth 5.0", description: "Low energy instant pairing with your smartphone" },

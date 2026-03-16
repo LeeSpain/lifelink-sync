@@ -410,10 +410,10 @@ const EnhancedMyProductsPage = () => {
                   className="justify-start"
                   asChild
                 >
-                  <a href="/devices/lifelink-sync-pendant" target="_blank" rel="noreferrer">
+                  <span className="inline-flex items-center opacity-50 cursor-not-allowed">
                     <ExternalLink className="mr-2 h-4 w-4" />
-                    {t('products.deviceLandingPage')}
-                  </a>
+                    Coming Soon
+                  </span>
                 </Button>
               </div>
             </CardContent>

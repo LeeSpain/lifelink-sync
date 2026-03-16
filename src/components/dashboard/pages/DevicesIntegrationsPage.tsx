@@ -193,10 +193,8 @@ export function DevicesIntegrationsPage() {
             >
               <Bluetooth className="mr-2 h-4 w-4" /> Bluetooth
             </Button>
-            <Button variant="outline" size="sm" asChild>
-              <Link to="/devices/lifelink-sync-pendant">
-                <ShoppingCart className="mr-2 h-4 w-4" /> Order Pendant
-              </Link>
+            <Button variant="outline" size="sm" disabled className="opacity-50 cursor-not-allowed">
+              <ShoppingCart className="mr-2 h-4 w-4" /> Coming Soon
             </Button>
           </div>
 
@@ -390,10 +388,8 @@ export function DevicesIntegrationsPage() {
           </p>
 
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" asChild>
-              <Link to="/devices/lifelink-sync-pendant">
-                <ShoppingCart className="mr-2 h-4 w-4" /> Order Flic 2
-              </Link>
+            <Button variant="outline" size="sm" disabled className="opacity-50 cursor-not-allowed">
+              <ShoppingCart className="mr-2 h-4 w-4" /> Coming Soon
             </Button>
             <Button
               variant="outline"

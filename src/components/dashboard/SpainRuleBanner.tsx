@@ -14,6 +14,8 @@ interface SpainRuleBannerProps {
 }
 
 export const SpainRuleBanner: React.FC<SpainRuleBannerProps> = ({ spainRule }) => {
+  // REMOVED - Regional Services not yet active
+  return null;
   const { t } = useTranslation();
   if (!spainRule || !spainRule.isSpain || spainRule.canProceed) {
     return null;

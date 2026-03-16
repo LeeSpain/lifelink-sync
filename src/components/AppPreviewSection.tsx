@@ -69,15 +69,13 @@ const AppPreviewSection: React.FC = () => {
 
               <div className="flex flex-col gap-3">
                 <div className="flex gap-3">
-                  <Button 
-                    asChild 
-                    size="lg" 
-                    className="bg-wellness hover:bg-wellness/90 text-black font-semibold px-8 py-4 shadow-lg hover:shadow-xl transition-all duration-300"
+                  <Button
+                    disabled
+                    size="lg"
+                    className="bg-wellness/50 text-black/50 font-semibold px-8 py-4 cursor-not-allowed"
                   >
-                    <Link to="/devices/lifelink-sync-pendant">
-                      <Bluetooth className="h-5 w-5 mr-2" />
-                      {t('common.learnMore')}
-                    </Link>
+                    <Bluetooth className="h-5 w-5 mr-2" />
+                    Coming Soon
                   </Button>
                   <IntroVideoModal 
                     defaultVideoId="lifelink-sync-pendant"

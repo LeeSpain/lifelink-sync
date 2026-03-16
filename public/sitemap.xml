@@ -29,12 +29,7 @@
     </image:image>
   </url>
 
-  <url>
-    <loc>https://lifelink-sync.com/regional-center/spain</loc>
-    <lastmod>2026-03-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
+  <!-- REMOVED - Regional Services not yet active -->
 
   <url>
     <loc>https://lifelink-sync.com/family-carer-access</loc>

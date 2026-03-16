@@ -210,9 +210,9 @@ const Pricing: React.FC = () => {
         <div className="mt-6 text-center">
           <p className="text-sm text-muted-foreground">
             {t('pricing.pendantNote')}{' '}
-            <Link to="/devices/lifelink-sync-pendant" className="text-primary underline hover:text-primary/80 font-medium">
-              {t('pricing.pendantLink')}
-            </Link>
+            <span className="text-muted-foreground/70">
+              Bluetooth Pendant — Coming Soon
+            </span>
           </p>
         </div>
 

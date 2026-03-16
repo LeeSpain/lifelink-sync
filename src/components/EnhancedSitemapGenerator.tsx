@@ -171,12 +171,6 @@ const generateEnhancedSitemaps = () => {
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-  <url>
-    <loc>${baseUrl}/regional-center/spain</loc>
-    <lastmod>${currentDate}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
 </urlset>`;
 
   // Images sitemap

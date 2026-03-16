@@ -81,10 +81,8 @@ export const FlicControlPage: React.FC = () => {
             <h1 className="text-2xl font-semibold">Flic Control</h1>
             <p className="text-sm text-muted-foreground">Order, connect and check status of your Flic 2 SOS button.</p>
           </div>
-          <Button asChild>
-            <a href="/devices/lifelink-sync-pendant">
-              <ShoppingCart className="h-4 w-4 mr-2" /> Order Flic 2
-            </a>
+          <Button disabled className="opacity-50 cursor-not-allowed">
+            <ShoppingCart className="h-4 w-4 mr-2" /> Coming Soon
           </Button>
         </div>
 

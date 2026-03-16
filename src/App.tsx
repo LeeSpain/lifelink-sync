@@ -431,12 +431,12 @@ function AppWithTracking() {
                   </OptimizedSuspense>
                 } />
 
-                {/* Regional Pages */}
-                <Route path="/regional-center/spain" element={
+                {/* REMOVED - Regional Services not yet active */}
+                {/* <Route path="/regional-center/spain" element={
                   <OptimizedSuspense skeletonType="card">
                     <RegionalCenterSpain />
                   </OptimizedSuspense>
-                } />
+                } /> */}
 
                 {/* About & AI Collaboration */}
                 <Route path="/about" element={
