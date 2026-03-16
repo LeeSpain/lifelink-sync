@@ -307,6 +307,56 @@ serve(async (req) => {
       return new Response('', { status: 200 });
     }
 
+    // ── Route to Riven sub-functions ──────────────────────
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const serviceHeaders = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}` };
+
+    if (/\b(content calendar|weekly content|generate content)\b/i.test(lower)) {
+      try {
+        await fetch(`${supabaseUrl}/functions/v1/clara-content-engine`, {
+          method: 'POST', headers: serviceHeaders,
+          body: JSON.stringify({ action: 'generate_weekly', from }),
+        });
+      } catch (e) { console.warn('Content engine failed:', e); }
+      return new Response('', { status: 200 });
+    }
+
+    if (/\b(outreach report|cold leads|outreach stats)\b/i.test(lower)) {
+      try {
+        await fetch(`${supabaseUrl}/functions/v1/clara-outreach-engine`, {
+          method: 'POST', headers: serviceHeaders,
+          body: JSON.stringify({ action: 'weekly_report' }),
+        });
+      } catch (e) { console.warn('Outreach report failed:', e); }
+      return new Response('', { status: 200 });
+    }
+
+    if (/\b(cmo report|weekly report|marketing report)\b/i.test(lower)) {
+      try {
+        await fetch(`${supabaseUrl}/functions/v1/clara-cmo-report`, {
+          method: 'POST', headers: serviceHeaders,
+          body: JSON.stringify({ action: 'send_report', from }),
+        });
+      } catch (e) { console.warn('CMO report failed:', e); }
+      return new Response('', { status: 200 });
+    }
+
+    if (/\b(budget|set\s+\w+\s+budget|lock budget|unlock budget|pause spending|resume spending)\b/i.test(lower)) {
+      try {
+        await fetch(`${supabaseUrl}/functions/v1/clara-budget-control`, {
+          method: 'POST', headers: serviceHeaders,
+          body: JSON.stringify({ from, body: msg }),
+        });
+      } catch (e) { console.warn('Budget control failed:', e); }
+      return new Response('', { status: 200 });
+    }
+
+    if (/\b(dm stats|instagram dms|facebook dms|social dms)\b/i.test(lower)) {
+      const { count: totalDMs } = await supabase.from('whatsapp_conversations').select('id', { count: 'exact' }).like('metadata->>source', '%_dm');
+      await sendWhatsApp(from, `📱 DM STATS\n\nTotal DM conversations: ${totalDMs ?? 0}\n\nSay "content calendar" for weekly content\nSay "cmo report" for full report`);
+      return new Response('', { status: 200 });
+    }
+
     // ── Detect and handle marketing command ──────────────
     const actionType = detectMarketingAction(msg);
     let result: { proposal: string; data: unknown };
