@@ -476,8 +476,20 @@ serve(async (req) => {
 
     const currentMode = adminMode?.current_mode || 'dev'; // default to dev for admin
 
-    // If business mode — route to normal CLARA (not dev agent)
-    if (currentMode === 'business') {
+    // Business/sales/ops/marketing modes — route to business ops
+    if (['business', 'sales', 'ops', 'marketing'].includes(currentMode)) {
+      try {
+        await fetch(Deno.env.get('SUPABASE_URL') + '/functions/v1/clara-business-ops', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}` },
+          body: JSON.stringify({ from: fromNumber, body: messageBody }),
+        });
+      } catch (e) { console.warn('Business ops forward failed:', e); }
+      return new Response('', { status: 200 });
+    }
+
+    // Legacy business mode fallback (should not reach here)
+    if (currentMode === '_legacy_business') {
       try {
         const claraUrl = Deno.env.get('SUPABASE_URL') + '/functions/v1/whatsapp-inbound';
         // Remove admin routing flag to prevent infinite loop — call CLARA directly
