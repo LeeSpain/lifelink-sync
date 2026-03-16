@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ClaraOrb } from '@/components/clara-personal/ClaraOrb';
 import { ChatInterface } from '@/components/clara-personal/ChatInterface';
 import type { OrbState, ClaraMessage } from '@/components/clara-personal/types';
@@ -163,10 +163,6 @@ const ClaraPersonalPage = () => {
           currency: 'EUR',
           isOwnerPersonal: true,
           currentMode,
-          conversation_history: messages.slice(-10).map(m => ({
-            role: m.role === 'lee' ? 'user' : 'assistant',
-            content: m.content,
-          })),
           systemOverride: `You are CLARA, Lee Wakeman's AI. Current mode: ${currentMode.toUpperCase()}. ${MODE_PROMPTS[currentMode] || ''} Be brief — max 3 sentences. Lee is on mobile. He built this platform. Talk to him like a trusted colleague.`,
         }
       });
