@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import StatsBar from "@/components/StatsBar";
 import HowItWorks from "@/components/HowItWorks";
 import Features from "@/components/Features";
+import HowItWorksModal from "@/components/HowItWorksModal";
 
 import FamilySection from "@/components/FamilySection";
 import Pricing from "@/components/Pricing";
@@ -27,6 +28,7 @@ const Index = () => {
   useScrollToTop();
   usePerformanceMonitoring();
   const { openClaraChat } = useClaraChat();
+  const [showHowItWorks, setShowHowItWorks] = useState(false);
 
   useEffect(() => {
     preloadCriticalImages();
@@ -57,6 +59,19 @@ const Index = () => {
 
       {/* 4. Platform Features */}
       <Features />
+
+      {/* 4b. See How It All Connects — popup trigger */}
+      <section className="py-12 bg-white">
+        <div className="container mx-auto px-4 text-center">
+          <button
+            onClick={() => setShowHowItWorks(true)}
+            className="border border-primary text-primary hover:bg-primary/5 font-semibold px-8 py-3 rounded-xl transition-all duration-300"
+          >
+            See How It All Connects
+          </button>
+        </div>
+      </section>
+      <HowItWorksModal isOpen={showHowItWorks} onClose={() => setShowHowItWorks(false)} />
 
       {/* 5. Family Section */}
       <FamilySection />
