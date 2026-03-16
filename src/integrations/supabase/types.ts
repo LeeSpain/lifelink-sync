@@ -3520,6 +3520,7 @@ export type Database = {
         Row: {
           address: string | null
           allergies: string[] | null
+          avatar_url: string | null
           blood_type: string | null
           call_center_number: string | null
           care_transfer_date: string | null
@@ -3552,6 +3553,7 @@ export type Database = {
         Insert: {
           address?: string | null
           allergies?: string[] | null
+          avatar_url?: string | null
           blood_type?: string | null
           call_center_number?: string | null
           care_transfer_date?: string | null
@@ -3584,6 +3586,7 @@ export type Database = {
         Update: {
           address?: string | null
           allergies?: string[] | null
+          avatar_url?: string | null
           blood_type?: string | null
           call_center_number?: string | null
           care_transfer_date?: string | null
