@@ -106,6 +106,7 @@ const useAdminMenuItems = () => {
         { title: 'AI Analytics', url: "/admin-dashboard/ai-analytics", icon: BarChart3 },
         { title: 'AI Performance', url: "/admin-dashboard/ai-performance", icon: Gauge },
         { title: 'AI Model Settings', url: "/admin-dashboard/ai-model-settings", icon: Sliders },
+        { title: 'Constitution', url: "/admin-dashboard/constitution", icon: Shield },
       ]
     },
     {

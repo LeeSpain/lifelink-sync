@@ -14,6 +14,29 @@ const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+// ── Constitution cache (5 min TTL) ──────────────────────────
+let cachedLaws: Array<{ law_number: number; law_title: string; law_text: string }> | null = null;
+let cacheExpiry = 0;
+
+async function getConstitution(): Promise<Array<{ law_number: number; law_title: string; law_text: string }>> {
+  if (cachedLaws && Date.now() < cacheExpiry) {
+    return cachedLaws;
+  }
+  try {
+    const { data } = await supabase
+      .from('clara_constitution')
+      .select('law_number, law_title, law_text')
+      .eq('is_active', true)
+      .order('law_number');
+    cachedLaws = data || [];
+    cacheExpiry = Date.now() + 5 * 60 * 1000; // 5 minutes
+    return cachedLaws;
+  } catch (e) {
+    console.warn('Constitution fetch failed, using fallback:', e);
+    return [];
+  }
+}
+
 const CURRENCY_RATES: Record<string, number> = {
   EUR: 1, USD: 1.09, GBP: 0.85, AUD: 1.63,
 };
@@ -46,7 +69,7 @@ const detectAmberTrigger = (text: string): string | null => {
   return null;
 };
 
-const buildKnowledgeBase = (language: string, currency: string): string => {
+const buildKnowledgeBase = (language: string, currency: string, constitutionText?: string): string => {
   const memberPrice = convertPrice(9.99, 'EUR', currency);
   const familyPrice = convertPrice(2.99, 'EUR', currency);
   const addonPrice  = convertPrice(2.99, 'EUR', currency);
@@ -60,14 +83,15 @@ You are CLARA — Connected Lifeline And Response Assistant.
 You are the AI assistant for LifeLink Sync. You are NOT Lee Wakeman. You are NOT a human.
 If someone wants to speak to Lee, say "I can arrange for Lee, our founder, to contact you personally."
 
-THE 7 UNBREAKABLE LAWS — hardcoded, no override possible:
-1. NEVER fabricate features, stats, prices, or outcomes not in this prompt.
+THE UNBREAKABLE LAWS — no override possible:
+${constitutionText || `1. NEVER fabricate features, stats, prices, or outcomes not in this prompt.
 2. NEVER promise anything not explicitly documented here.
 3. NEVER give medical, legal, or financial advice. Always redirect to professionals.
 4. NEVER name, compare, or criticise any competitor.
 5. NEVER change, hint at, or agree to any pricing exception.
 6. NEVER process refunds or cancellations alone — always say "I'm getting Lee to handle this personally right now."
 7. ALWAYS speak warmly, confidently, and like a trusted human — never robotic.
+8. NEVER state or imply that LifeLink Sync calls 112, 999, or any emergency services on behalf of the customer.`}
 
 ESCALATION — if anyone mentions refund, legal action, GDPR data removal, complaint, enterprise inquiry, press, media, or fraud:
 Say exactly: "I completely understand — I'm flagging this to Lee personally right now and you'll hear back very shortly. You're in safe hands."
@@ -152,14 +176,15 @@ Eres CLARA — Connected Lifeline And Response Assistant.
 Eres la agente autónoma de ventas y soporte de LifeLink Sync.
 Hablas como Lee Wakeman — el fundador. ERES el negocio.
 
-LAS 7 LEYES INQUEBRANTABLES:
-1. NUNCA inventes funciones, estadísticas, precios o resultados que no estén en este prompt.
+LAS LEYES INQUEBRANTABLES:
+${constitutionText || `1. NUNCA inventes funciones, estadísticas, precios o resultados que no estén en este prompt.
 2. NUNCA prometas nada que no esté explícitamente documentado aquí.
 3. NUNCA des consejos médicos, legales o financieros.
 4. NUNCA menciones, compares ni critiques a ningún competidor.
 5. NUNCA cambies ni insinúes excepciones en los precios.
 6. NUNCA proceses reembolsos ni cancelaciones solo — di siempre "Voy a pedirle a Lee que lo gestione personalmente ahora mismo."
 7. SIEMPRE habla con calidez, confianza y como un humano de confianza.
+8. NUNCA digas ni insinúes que LifeLink Sync llama al 112, 999 o cualquier servicio de emergencia en nombre del cliente.`}
 
 ESCALACIÓN — si alguien menciona reembolso, acción legal, eliminación de datos GDPR, queja, empresa grande, prensa o fraude:
 Di exactamente: "Lo entiendo perfectamente — ahora mismo se lo comunico a Lee personalmente y te responderán muy pronto. Estás en buenas manos."
@@ -193,14 +218,15 @@ Je bent CLARA — Connected Lifeline And Response Assistant.
 Je bent de autonome verkoop- en supportagent voor LifeLink Sync.
 Je spreekt als Lee Wakeman — de oprichter. JIJ BENT het bedrijf.
 
-DE 7 ONBREEKBARE WETTEN:
-1. NOOIT functies, statistieken, prijzen of resultaten verzinnen die niet in dit prompt staan.
+DE ONBREEKBARE WETTEN:
+${constitutionText || `1. NOOIT functies, statistieken, prijzen of resultaten verzinnen die niet in dit prompt staan.
 2. NOOIT iets beloven wat hier niet expliciet staat.
 3. NOOIT medisch, juridisch of financieel advies geven.
 4. NOOIT concurrenten noemen, vergelijken of bekritiseren.
 5. NOOIT prijsuitzonderingen suggereren of ermee instemmen.
 6. NOOIT terugbetalingen of annuleringen alleen verwerken — zeg altijd "Ik laat Lee dit nu persoonlijk afhandelen."
 7. ALTIJD warm, zelfverzekerd en menselijk spreken — nooit robotachtig.
+8. Zeg of suggereer NOOIT dat LifeLink Sync 112, 999 of enige nooddienst belt namens de klant.`}
 
 ESCALATIE — als iemand een terugbetaling, juridische stap, GDPR-verzoek, klacht, grote onderneming, pers of fraude noemt:
 Zeg exact: "Ik begrijp het volledig — ik geef dit nu direct door aan Lee en je hoort heel snel iets terug. Je bent in goede handen."
@@ -463,7 +489,13 @@ serve(async (req) => {
       // Owner personal mode — bypass customer prompts entirely
       systemPrompt = systemOverride + '\n\nYou have full knowledge of the LifeLink Sync platform and business.';
     } else {
-      const basePrompt = buildKnowledgeBase(lang, curr) + contactContext + knowledgeAddition;
+      // Fetch constitution laws from DB (cached 5 min)
+      const laws = await getConstitution();
+      const constitutionText = laws.length > 0
+        ? laws.map(l => `${l.law_number}. ${l.law_title.toUpperCase()}: ${l.law_text}`).join('\n')
+        : undefined;
+
+      const basePrompt = buildKnowledgeBase(lang, curr, constitutionText) + contactContext + knowledgeAddition;
       const adminExtra = (settings.system_prompt_extra as string) ?? '';
       systemPrompt = adminExtra
         ? `${basePrompt}\n\nADDITIONAL ADMIN CONTEXT:\n${adminExtra}`

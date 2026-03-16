@@ -62,6 +62,7 @@ import ReferralAdminPage from '@/components/admin/pages/ReferralAdminPage';
 import DevAgentDashboard from '@/components/admin/pages/DevAgentDashboard';
 import PAModeDashboard from '@/components/admin/pages/PAModeDashboard';
 import ManualInvitePage from '@/components/admin/pages/ManualInvitePage';
+import ConstitutionPage from '@/components/admin/pages/ConstitutionPage';
 
 const AdminDashboard: React.FC = () => {
   useScrollToTop();
@@ -129,6 +130,7 @@ const AdminDashboard: React.FC = () => {
         <Route path="dev-agent" element={<DevAgentDashboard />} />
         <Route path="pa-dashboard" element={<PAModeDashboard />} />
         <Route path="manual-invite" element={<ManualInvitePage />} />
+        <Route path="constitution" element={<ConstitutionPage />} />
         <Route path="profile" element={<AdminProfile />} />
         <Route path="*" element={<Navigate to="/admin-dashboard" replace />} />
       </Route>
