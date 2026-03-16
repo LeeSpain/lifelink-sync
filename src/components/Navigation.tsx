@@ -135,7 +135,7 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
                 className="bg-primary text-white hover:bg-primary/90 font-medium transition-all duration-200 hover:scale-105 shadow-lg"
                 onClick={handleGetProtectedClick}
               >
-                <Link to="/register">{t('nav.getProtected', 'Get Protected')}</Link>
+                <Link to="/onboarding">{t('nav.getProtected', 'Get Protected')}</Link>
               </Button>
             </div>
           </div>
@@ -228,7 +228,7 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
                   size="sm"
                   className="bg-primary text-white hover:bg-primary/90 font-medium transition-all duration-200 shadow-lg"
                 >
-                  <Link to="/register" onClick={() => setIsMenuOpen(false)}>
+                  <Link to="/onboarding" onClick={() => setIsMenuOpen(false)}>
                     {t('nav.getProtected', 'Get Protected')}
                   </Link>
                 </Button>

@@ -123,12 +123,14 @@ function AppWithTracking() {
                     <AuthPage />
                   </OptimizedSuspense>
                 } />
-                <Route path="/register" element={
+                <Route path="/onboarding" element={
                   <OptimizedSuspense skeletonType="card">
                     <RegisterPage />
                   </OptimizedSuspense>
                 } />
-                <Route path="/ai-register" element={<Navigate to="/register" replace />} />
+                <Route path="/register" element={<Navigate to="/onboarding" replace />} />
+                <Route path="/signup" element={<Navigate to="/onboarding" replace />} />
+                <Route path="/ai-register" element={<Navigate to="/onboarding" replace />} />
                 <Route path="/trial-signup" element={
                   <OptimizedSuspense skeletonType="card">
                     <TrialSignupPage />

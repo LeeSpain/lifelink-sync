@@ -225,7 +225,7 @@ const HowItWorksModal: React.FC<HowItWorksModalProps> = ({ isOpen, onClose }) =>
               ))}
             </div>
             <Link
-              to="/register"
+              to="/onboarding"
               onClick={onClose}
               className="flex-shrink-0 px-4 py-1.5 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors flex items-center gap-1.5"
             >

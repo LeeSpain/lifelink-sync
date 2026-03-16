@@ -113,7 +113,7 @@ const FamilyInviteAccept = () => {
     // Owner-paid: activate immediately
     if (!user) {
       // Need to sign in first
-      navigate('/register', { state: { returnTo: `/family-invite/${token}` } });
+      navigate('/onboarding', { state: { returnTo: `/family-invite/${token}` } });
       return;
     }
 
@@ -379,7 +379,7 @@ const FamilyInviteAccept = () => {
                     {t('familyInvite.signInRequired')}
                   </p>
                   <Button
-                    onClick={() => navigate('/register', { state: { returnTo: `/family-invite/${token}` } })}
+                    onClick={() => navigate('/onboarding', { state: { returnTo: `/family-invite/${token}` } })}
                     disabled={!gdprConsent}
                   >
                     {t('familyInvite.signInToAccept')}

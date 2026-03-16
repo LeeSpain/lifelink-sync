@@ -64,7 +64,7 @@ export const HeroSection = () => {
                     size="lg"
                     className="bg-wellness hover:bg-wellness/90 text-black font-semibold px-8 py-4 shadow-lg hover:shadow-xl transition-all duration-300"
                   >
-                    <Link to="/register">
+                    <Link to="/onboarding">
                       <Shield className="h-5 w-5 mr-2" />
                       {t('familyCarer.hero.startProtecting')}
                     </Link>

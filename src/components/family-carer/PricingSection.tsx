@@ -119,7 +119,7 @@ export const PricingSection = () => {
                       className={`w-full ${option.popular ? 'bg-primary hover:bg-primary/90' : 'bg-wellness hover:bg-wellness/90'} text-white`}
                       size="lg"
                     >
-                      <Link to="/register">
+                      <Link to="/onboarding">
                         {option.buttonText}
                       </Link>
                     </Button>

@@ -402,7 +402,7 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
                 <p className="text-muted-foreground mb-4">
                   {t('subscriptionCard.noSubscription')}
                 </p>
-                <Button onClick={() => window.location.href = '/register'}>
+                <Button onClick={() => window.location.href = '/onboarding'}>
                   {t('subscriptionCard.completeSubscriptionBtn')}
                 </Button>
               </div>
@@ -453,7 +453,7 @@ const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
                 <p className="text-lg font-medium mb-2">{t('subscriptionCard.noInvoicesYet')}</p>
                 <p className="text-sm">{t('subscriptionCard.billingHistoryAppear')}</p>
                 {!subscription?.subscribed && (
-                  <Button onClick={() => window.location.href = '/register'} className="mt-4">
+                  <Button onClick={() => window.location.href = '/onboarding'} className="mt-4">
                     {t('subscriptionCard.startSubscription')}
                   </Button>
                 )}

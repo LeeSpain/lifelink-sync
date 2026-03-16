@@ -70,7 +70,7 @@ const RegionalCenterSpain: React.FC = () => {
                     size="xl"
                     className="bg-wellness text-white hover:bg-wellness/90 shadow-glow hover:shadow-xl transform hover:scale-105 transition-all duration-300 font-semibold text-lg px-8 py-4 rounded-xl border-2 border-wellness/20"
                   >
-                    <Link to="/register">{t('regionalSpain.joinNow')}</Link>
+                    <Link to="/onboarding">{t('regionalSpain.joinNow')}</Link>
                   </Button>
                 </div>
               </div>
@@ -348,7 +348,7 @@ const RegionalCenterSpain: React.FC = () => {
                 <p className="text-lg text-muted-foreground mb-8">{t('regionalSpain.readyToJoinDesc')}</p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button asChild size="xl" className="bg-primary hover:bg-primary/90 text-white">
-                    <Link to="/register">{t('regionalSpain.joinNow')}</Link>
+                    <Link to="/onboarding">{t('regionalSpain.joinNow')}</Link>
                   </Button>
                   <Button asChild variant="outline" size="xl">
                     <Link to="/support">{t('regionalSpain.learnMorePlan', 'Learn More')}</Link>

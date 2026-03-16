@@ -21,13 +21,13 @@ const TrialSignupPage: React.FC = () => {
   // Redirect unauthenticated users to registration with trial pre-selected
   useEffect(() => {
     if (!authLoading && !user) {
-      navigate('/register?trial=true', { replace: true });
+      navigate('/onboarding?trial=true', { replace: true });
     }
   }, [user, authLoading, navigate]);
 
   const handleActivateTrial = async () => {
     if (!user) {
-      navigate('/register?trial=true');
+      navigate('/onboarding?trial=true');
       return;
     }
 

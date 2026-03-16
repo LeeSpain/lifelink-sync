@@ -39,7 +39,7 @@ export const CallToActionSection = () => {
                 size="xl"
                 className="bg-wellness text-black hover:bg-wellness/90 shadow-glow font-bold text-2xl px-16 py-8 rounded-2xl hover-scale"
               >
-                <Link to="/register">
+                <Link to="/onboarding">
                   <UserPlus className="mr-4 h-8 w-8" />
                   {t('familyCarer.cta.startProtecting')}
                   <ArrowRight className="ml-4 h-8 w-8" />

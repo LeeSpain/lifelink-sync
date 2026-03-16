@@ -22,7 +22,7 @@ const FinalCTA: React.FC = () => {
               size="lg"
               className="bg-white text-primary hover:bg-white/90 font-semibold text-lg px-10 py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
             >
-              <Link to="/register">
+              <Link to="/onboarding">
                 <Shield className="h-5 w-5 mr-2" />
                 {t('cta.startFreeTrial')}
               </Link>

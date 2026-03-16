@@ -87,7 +87,7 @@ export const FreeTrialPopup = ({ onClose }: FreeTrialPopupProps) => {
         email: formData.email,
         name: formData.name,
       });
-      navigate(`/register?${params.toString()}`);
+      navigate(`/onboarding?${params.toString()}`);
 
     } catch (error: any) {
       console.error('Trial signup error:', error);

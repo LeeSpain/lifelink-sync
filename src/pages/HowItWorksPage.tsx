@@ -249,7 +249,7 @@ function CTASection() {
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
           <Button asChild size="lg" className="bg-red-500 text-white hover:bg-red-600 font-semibold text-lg px-8 py-6 rounded-xl shadow-lg shadow-red-500/20">
-            <Link to="/register">
+            <Link to="/onboarding">
               <Shield className="h-5 w-5 mr-2" />
               {t('howItWorksPage.ctaStart', 'Start Free Trial')}
             </Link>

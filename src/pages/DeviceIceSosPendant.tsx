@@ -112,7 +112,7 @@ const DeviceIceSosPendant = () => {
                       size="lg"
                       className="bg-primary text-white hover:bg-primary/90 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 font-semibold text-lg px-8 py-6 rounded-xl"
                     >
-                      <Link to="/register">
+                      <Link to="/onboarding">
                         <Shield className="h-5 w-5 mr-2" />
                         {t('devicePendant.getProtected', 'Get Protected')}
                       </Link>
@@ -364,7 +364,7 @@ const DeviceIceSosPendant = () => {
                       size="lg"
                       className="w-full bg-primary text-white hover:bg-primary/90 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 font-semibold text-lg py-6 rounded-xl"
                     >
-                      <Link to="/register">{t('devicePendant.getProtectedToday', 'Get Protected Today')}</Link>
+                      <Link to="/onboarding">{t('devicePendant.getProtectedToday', 'Get Protected Today')}</Link>
                     </Button>
                   )}
                 </CardContent>
@@ -534,7 +534,7 @@ const DeviceIceSosPendant = () => {
                       size="lg"
                       className="bg-white text-primary hover:bg-white/90 font-semibold text-lg px-10 py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
                     >
-                      <Link to="/register">
+                      <Link to="/onboarding">
                         <Shield className="h-5 w-5 mr-2" />
                         {t('devicePendant.orderNow')} — {formatPrice(prices.pendant_price)}
                       </Link>

@@ -424,10 +424,13 @@ const AuthPage = () => {
             {/* Link to registration */}
             <div className="mt-6 text-center">
               <p className="text-sm text-muted-foreground">
-                {t('auth.noAccount')}{" "}
-                <Button asChild variant="link" className="p-0 h-auto font-medium">
-                  <Link to="/register">{t('auth.registerHere')}</Link>
-                </Button>
+                {t('auth.noAccount', 'New to LifeLink Sync?')}{" "}
+                <Link
+                  to="/onboarding"
+                  className="text-primary font-medium hover:text-primary/80 transition-colors"
+                >
+                  {t('auth.startFreeTrial', 'Start your free trial →')}
+                </Link>
               </p>
             </div>
           </>
