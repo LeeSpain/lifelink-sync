@@ -895,7 +895,17 @@
     "forDad": "For Dad",
     "forGrandparents": "For Grandparents",
     "forPartner": "For a Partner",
-    "forColleague": "For a Colleague"
+    "forColleague": "For a Colleague",
+    "monthlyTitle": "1 Month Gift",
+    "monthlySub": "Perfect to try together",
+    "annualTitle": "12 Month Gift",
+    "annualSub": "Save €19.98 · 2 months free",
+    "bundleTitle": "Bundle + Pendant",
+    "bundleSub": "12 months + SOS pendant shipped",
+    "voucherTitle": "Gift Voucher",
+    "voucherSub": "They choose when to activate",
+    "mostPopular": "Most Popular",
+    "comingSoon": "Coming Soon"
   },
   "finalCta": {
     "title": "Ready to Protect Your Family?",

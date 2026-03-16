@@ -891,7 +891,17 @@
     "forDad": "Para papa",
     "forGrandparents": "Para abuelos",
     "forPartner": "Para tu pareja",
-    "forColleague": "Para un colega"
+    "forColleague": "Para un colega",
+    "monthlyTitle": "Regalo de 1 Mes",
+    "monthlySub": "Perfecto para probarlo juntos",
+    "annualTitle": "Regalo de 12 Meses",
+    "annualSub": "Ahorra €19,98 · 2 meses gratis",
+    "bundleTitle": "Pack + Colgante",
+    "bundleSub": "12 meses + colgante SOS enviado",
+    "voucherTitle": "Vale Regalo",
+    "voucherSub": "Ellos eligen cuándo activarlo",
+    "mostPopular": "Más Popular",
+    "comingSoon": "Próximamente"
   },
   "finalCta": {
     "title": "¿Listo para Proteger a Tu Familia?",

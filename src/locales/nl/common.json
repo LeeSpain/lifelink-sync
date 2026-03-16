@@ -860,7 +860,17 @@
     "forDad": "Voor papa",
     "forGrandparents": "Voor grootouders",
     "forPartner": "Voor je partner",
-    "forColleague": "Voor een collega"
+    "forColleague": "Voor een collega",
+    "monthlyTitle": "1 Maand Cadeau",
+    "monthlySub": "Perfect om samen te proberen",
+    "annualTitle": "12 Maanden Cadeau",
+    "annualSub": "Bespaar €19,98 · 2 maanden gratis",
+    "bundleTitle": "Bundel + Hanger",
+    "bundleSub": "12 maanden + SOS-hanger verzonden",
+    "voucherTitle": "Cadeaubon",
+    "voucherSub": "Zij kiezen wanneer ze activeren",
+    "mostPopular": "Meest Populair",
+    "comingSoon": "Binnenkort beschikbaar"
   },
   "finalCta": {
     "title": "Klaar om Je Familie te Beschermen?",

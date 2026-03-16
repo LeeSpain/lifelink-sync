@@ -31,52 +31,7 @@ const stories = [
   },
 ];
 
-const giftOptions = [
-  {
-    key: 'monthly',
-    icon: Clock,
-    iconBg: 'bg-red-50',
-    iconColor: 'text-red-500',
-    title: '1 Month Gift',
-    sub: 'Perfect to try together',
-    price: '€9.99',
-    border: 'border-gray-200 hover:border-red-300 bg-white',
-  },
-  {
-    key: 'annual',
-    icon: Shield,
-    iconBg: 'bg-red-100',
-    iconColor: 'text-red-500',
-    title: '12 Month Gift',
-    sub: 'Save €19.98 · 2 months free',
-    price: '€99.90',
-    border: 'border-red-200 bg-red-50 hover:border-red-400',
-    badge: 'Most Popular',
-    badgeColor: 'bg-red-500',
-  },
-  {
-    key: 'bundle',
-    icon: Package,
-    iconBg: 'bg-amber-50',
-    iconColor: 'text-amber-500',
-    title: 'Bundle + Pendant',
-    sub: '12 months + SOS pendant shipped',
-    price: '€149',
-    border: 'border-gray-200 hover:border-amber-300 bg-white',
-    badge: 'Best Value',
-    badgeColor: 'bg-amber-500',
-  },
-  {
-    key: 'voucher',
-    icon: Heart,
-    iconBg: 'bg-purple-50',
-    iconColor: 'text-purple-500',
-    title: 'Gift Voucher',
-    sub: 'They choose when to activate',
-    price: '€99.90',
-    border: 'border-gray-200 hover:border-purple-300 bg-white',
-  },
-];
+// giftOptions moved inside component to access t()
 
 const personas = [
   { emoji: '👩‍🦳', labelKey: 'giftSection.forMum', fallback: 'For Mum' },
@@ -89,6 +44,54 @@ const personas = [
 const GiftSection: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+
+  const giftOptions = [
+    {
+      key: 'monthly',
+      icon: Clock,
+      iconBg: 'bg-red-50',
+      iconColor: 'text-red-500',
+      title: t('giftSection.monthlyTitle', '1 Month Gift'),
+      sub: t('giftSection.monthlySub', 'Perfect to try together'),
+      price: '€9.99',
+      border: 'border-gray-200 hover:border-red-300 bg-white',
+    },
+    {
+      key: 'annual',
+      icon: Shield,
+      iconBg: 'bg-red-100',
+      iconColor: 'text-red-500',
+      title: t('giftSection.annualTitle', '12 Month Gift'),
+      sub: t('giftSection.annualSub', 'Save €19.98 · 2 months free'),
+      price: '€99.90',
+      border: 'border-red-200 bg-red-50 hover:border-red-400',
+      badge: t('giftSection.mostPopular', 'Most Popular'),
+      badgeColor: 'bg-red-500',
+    },
+    {
+      key: 'bundle',
+      icon: Package,
+      iconBg: 'bg-gray-100',
+      iconColor: 'text-gray-400',
+      title: t('giftSection.bundleTitle', 'Bundle + Pendant'),
+      sub: t('giftSection.bundleSub', '12 months + SOS pendant shipped'),
+      price: t('giftSection.comingSoon', 'Coming Soon'),
+      border: 'border-gray-200 bg-gray-50 opacity-60 cursor-default',
+      badge: t('giftSection.comingSoon', 'Coming Soon'),
+      badgeColor: 'bg-gray-400',
+      disabled: true,
+    },
+    {
+      key: 'voucher',
+      icon: Heart,
+      iconBg: 'bg-purple-50',
+      iconColor: 'text-purple-500',
+      title: t('giftSection.voucherTitle', 'Gift Voucher'),
+      sub: t('giftSection.voucherSub', 'They choose when to activate'),
+      price: '€99.90',
+      border: 'border-gray-200 hover:border-purple-300 bg-white',
+    },
+  ];
 
   return (
     <section className="py-20 bg-white border-t border-gray-100 overflow-hidden">
@@ -145,8 +148,9 @@ const GiftSection: React.FC = () => {
                 return (
                   <button
                     key={opt.key}
-                    onClick={() => navigate(`/gift?package=${opt.key}`)}
-                    className={`w-full flex items-center justify-between p-4 rounded-xl border transition-all cursor-pointer relative ${opt.border}`}
+                    onClick={() => !(opt as any).disabled && navigate(`/gift?package=${opt.key}`)}
+                    disabled={(opt as any).disabled}
+                    className={`w-full flex items-center justify-between p-4 rounded-xl border transition-all relative ${(opt as any).disabled ? '' : 'cursor-pointer'} ${opt.border}`}
                   >
                     {opt.badge && (
                       <span className={`absolute -top-2 -right-2 ${opt.badgeColor} text-white text-[10px] px-2 py-0.5 rounded-full font-medium`}>
