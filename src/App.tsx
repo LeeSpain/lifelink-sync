@@ -50,6 +50,7 @@ import FamilyCarerAccessPage from "./pages/FamilyCarerAccess";
 import FamilyAccessSetup from "./pages/FamilyAccessSetup";
 import AIRegister from "./pages/AIRegister";
 import RegisterPage from "./pages/RegisterPage";
+import OnboardingWizard from "./components/onboarding/OnboardingWizard";
 import FamilyInviteAccept from "./pages/FamilyInviteAccept";
 import { ConnectionAcceptPage } from "./pages/ConnectionAcceptPage";
 const TestRegistration = import.meta.env.DEV ? React.lazy(() => import("./pages/TestRegistration")) : null;
@@ -125,7 +126,7 @@ function AppWithTracking() {
                 } />
                 <Route path="/onboarding" element={
                   <OptimizedSuspense skeletonType="card">
-                    <RegisterPage />
+                    <OnboardingWizard />
                   </OptimizedSuspense>
                 } />
                 <Route path="/register" element={<Navigate to="/onboarding" replace />} />
