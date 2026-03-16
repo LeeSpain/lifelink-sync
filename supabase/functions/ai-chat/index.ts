@@ -140,7 +140,7 @@ Medication Reminder Add-on: ${fmAddon}/month
 - CLARA reminds member to take medication
 - Logs confirmation, notifies family if missed
 
-CLARA Complete: FREE — auto-unlocks when both Daily Wellbeing AND Medication Reminder are active
+CLARA Complete: Included (no separate charge) — unlocks when both Daily Wellbeing AND Medication Reminder add-ons are active
 - Weekly AI wellbeing report sent to member and all family circle
 
 HARDWARE:
@@ -203,7 +203,7 @@ Plan Individual: ${fmMember}/mes (o 99,90 EUR/año — ahorra 2 meses gratis) �
 Enlace Familiar: ${fmFamily}/mes por miembro adicional (el primero es GRATIS)
 Bienestar Diario: ${fmAddon}/mes
 Recordatorio de Medicación: ${fmAddon}/mes
-CLARA Complete: GRATIS — se activa automáticamente con los dos complementos anteriores
+CLARA Complete: Incluido (sin cargo adicional) — se desbloquea cuando ambos complementos están activos
 
 CÓMO VENDE CLARA:
 Empieza preguntando a quién protegen. Conecta su miedo con la función exacta que lo resuelve.
@@ -245,7 +245,7 @@ Individueel Plan: ${fmMember}/maand (of 99,90 EUR/jaar — bespaar 2 maanden gra
 Familie Link: ${fmFamily}/maand per extra lid (eerste is GRATIS)
 Dagelijks Welzijn: ${fmAddon}/maand
 Medicijnherinnering: ${fmAddon}/maand
-CLARA Complete: GRATIS — automatisch ontgrendeld met beide add-ons
+CLARA Complete: Inbegrepen (geen apart tarief) — ontgrendeld wanneer beide add-ons actief zijn
 
 HOE CLARA VERKOOPT:
 Begin altijd met begrijpen wie ze beschermen. Verbind hun specifieke angst met de exacte functie die het oplost.

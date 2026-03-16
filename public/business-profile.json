@@ -67,7 +67,8 @@
       ],
       "claraComplete": {
         "price": 0,
-        "condition": "Auto-unlocks when both Wellbeing and Medication add-ons active",
+        "note": "No separate charge — included when both add-ons are active",
+        "condition": "Unlocked when both Daily Wellbeing (€2.99/month) and Medication Reminder (€2.99/month) add-ons are active",
         "description": "Weekly AI reports and enhanced monitoring"
       }
     },
