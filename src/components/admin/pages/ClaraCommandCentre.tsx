@@ -4,270 +4,172 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
+import { Input } from '@/components/ui/input';
 import {
-  Activity, Megaphone, ShoppingCart, ListChecks, MessageCircle,
-  HeartPulse, Wallet, Zap, Loader2, RefreshCw, CheckCircle,
-  XCircle, Clock, AlertTriangle, ArrowRight, Play, Pause,
-  DollarSign, Users, Bot, Send, TrendingUp, Eye
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import {
+  TrendingUp, Megaphone, Settings, Zap, BookOpen, UserPlus,
+  MessageSquare, Loader2, RefreshCw, CheckCircle, XCircle,
+  Clock, AlertTriangle, Play, Pause, DollarSign, Users, Bot,
+  Send, Eye, Lock, Unlock, RotateCcw, Monitor, ChevronDown,
+  ChevronRight, Flame, Thermometer, Snowflake
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
-// ─── Types ───────────────────────────────────────────────────────────
+// ─── Safe query helper ───────────────────────────────────────────────
 
-interface FeedItem {
-  id: string;
-  source: string;
-  action: string;
-  detail: string;
-  created_at: string;
-  status?: string;
-}
+const sb = supabase as any;
 
-interface CampaignRow {
-  id: string;
-  campaign_name: string;
-  channel: string;
-  status: string;
-  sent_count: number;
-  open_rate: number;
-  created_at: string;
-}
-
-interface SalesAction {
-  id: string;
-  action_type: string;
-  lead_name: string;
-  channel: string;
-  status: string;
-  result: string;
-  created_at: string;
-}
-
-interface PlanExecution {
-  id: string;
-  plan_name: string;
-  status: string;
-  progress: number;
-  steps_total: number;
-  steps_done: number;
-  created_at: string;
-  updated_at: string;
-}
-
-interface PendingAction {
-  id: string;
-  action_type: string;
-  description: string;
-  priority: string;
-  status: string;
-  created_at: string;
-}
-
-interface WhatsAppSignup {
-  id: string;
-  phone: string;
-  name: string;
-  step: string;
-  status: string;
-  created_at: string;
-}
-
-interface OpsLogEntry {
-  id: string;
-  function_name: string;
-  status: string;
-  message: string;
-  duration_ms: number;
-  created_at: string;
-}
-
-interface BudgetRow {
-  id: string;
-  category: string;
-  allocated: number;
-  spent: number;
-  currency: string;
-  period: string;
-}
-
-interface RivenCommand {
-  id: string;
-  command_type: string;
-  payload: string;
-  status: string;
-  result: string;
-  created_at: string;
-}
-
-interface RivenPerf {
-  id: string;
-  metric: string;
-  value: number;
-  period: string;
-  created_at: string;
+async function sq<T>(table: string, opts?: {
+  select?: string; order?: string; ascending?: boolean;
+  limit?: number; eq?: [string, string]; neq?: [string, string];
+  gte?: [string, string]; in_?: [string, string[]];
+  count?: boolean; head?: boolean;
+}): Promise<{ data: T[]; count: number }> {
+  try {
+    let q = sb.from(table).select(opts?.select || '*', opts?.count ? { count: 'exact', head: opts?.head } : undefined);
+    if (opts?.eq) q = q.eq(opts.eq[0], opts.eq[1]);
+    if (opts?.neq) q = q.neq(opts.neq[0], opts.neq[1]);
+    if (opts?.gte) q = q.gte(opts.gte[0], opts.gte[1]);
+    if (opts?.in_) q = q.in(opts.in_[0], opts.in_[1]);
+    if (opts?.order) q = q.order(opts.order, { ascending: opts.ascending ?? false });
+    if (opts?.limit) q = q.limit(opts.limit);
+    const res = await q;
+    if (res.error) throw res.error;
+    return { data: (res.data || []) as T[], count: res.count ?? (res.data || []).length };
+  } catch {
+    return { data: [], count: 0 };
+  }
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────
 
-const timeAgo = (dateStr: string) => {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'just now';
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  return `${Math.floor(hrs / 24)}d ago`;
+const timeAgo = (d: string) => {
+  if (!d) return '—';
+  const m = Math.floor((Date.now() - new Date(d).getTime()) / 60000);
+  if (m < 1) return 'just now';
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h / 24)}d ago`;
 };
 
-const statusBadge = (status: string) => {
+const statusClass = (s: string) => {
   const map: Record<string, string> = {
-    active: 'bg-green-500/10 text-green-500',
-    completed: 'bg-blue-500/10 text-blue-500',
-    success: 'bg-green-500/10 text-green-500',
-    running: 'bg-amber-500/10 text-amber-500',
-    pending: 'bg-yellow-500/10 text-yellow-500',
-    failed: 'bg-red-500/10 text-red-500',
-    error: 'bg-red-500/10 text-red-500',
-    paused: 'bg-gray-500/10 text-gray-400',
-    queued: 'bg-purple-500/10 text-purple-500',
-    sent: 'bg-blue-500/10 text-blue-500',
-    draft: 'bg-gray-500/10 text-gray-400',
-    approved: 'bg-green-500/10 text-green-500',
-    rejected: 'bg-red-500/10 text-red-500',
+    active: 'bg-green-500/10 text-green-500', running: 'bg-green-500/10 text-green-500',
+    complete: 'bg-teal-500/10 text-teal-500', completed: 'bg-teal-500/10 text-teal-500',
+    converted: 'bg-teal-500/10 text-teal-500', success: 'bg-green-500/10 text-green-500',
+    approved: 'bg-blue-500/10 text-blue-500', sent: 'bg-blue-500/10 text-blue-500',
+    pending: 'bg-yellow-500/10 text-yellow-500', in_progress: 'bg-amber-500/10 text-amber-500',
+    draft: 'bg-gray-500/10 text-gray-400', paused: 'bg-amber-500/10 text-amber-500',
+    failed: 'bg-red-500/10 text-red-500', error: 'bg-red-500/10 text-red-500',
+    rejected: 'bg-red-500/10 text-red-500', cancelled: 'bg-gray-500/10 text-gray-400',
+    opted_out: 'bg-gray-500/10 text-gray-400', queued: 'bg-purple-500/10 text-purple-500',
+    executing: 'bg-blue-500/10 text-blue-400',
+    info: 'bg-blue-500/10 text-blue-400', warning: 'bg-amber-500/10 text-amber-400',
+    critical: 'bg-red-500/10 text-red-500',
   };
-  return map[status?.toLowerCase()] || 'bg-muted text-muted-foreground';
+  return map[s?.toLowerCase()] || 'bg-muted text-muted-foreground';
 };
 
-const sourceIcon = (source: string) => {
-  switch (source) {
-    case 'campaign': return <Megaphone className="h-4 w-4 text-purple-400" />;
-    case 'sales': return <ShoppingCart className="h-4 w-4 text-green-400" />;
-    case 'plan': return <ListChecks className="h-4 w-4 text-blue-400" />;
-    case 'whatsapp': return <MessageCircle className="h-4 w-4 text-emerald-400" />;
-    case 'ops': return <HeartPulse className="h-4 w-4 text-red-400" />;
-    case 'riven': return <Zap className="h-4 w-4 text-amber-400" />;
-    case 'budget': return <Wallet className="h-4 w-4 text-cyan-400" />;
-    default: return <Activity className="h-4 w-4 text-muted-foreground" />;
-  }
-};
-
-// ─── Data Fetcher ────────────────────────────────────────────────────
-
-const sb = supabase as any;
-
-async function safeQuery<T>(table: string, options?: {
-  select?: string;
-  order?: string;
-  ascending?: boolean;
-  limit?: number;
-  eq?: [string, string];
-}): Promise<T[]> {
-  try {
-    let q = sb.from(table).select(options?.select || '*');
-    if (options?.eq) q = q.eq(options.eq[0], options.eq[1]);
-    if (options?.order) q = q.order(options.order, { ascending: options.ascending ?? false });
-    if (options?.limit) q = q.limit(options.limit);
-    const { data, error } = await q;
-    if (error) throw error;
-    return (data || []) as T[];
-  } catch {
-    return [];
-  }
-}
+const pctColor = (pct: number) => pct > 80 ? 'text-red-400' : pct > 60 ? 'text-amber-400' : 'text-green-400';
+const barColor = (pct: number) => pct > 80 ? '[&>div]:bg-red-500' : pct > 60 ? '[&>div]:bg-amber-500' : '';
 
 // ─── Main Component ──────────────────────────────────────────────────
 
 export default function ClaraCommandCentre() {
   const [tab, setTab] = useState('feed');
   const [loading, setLoading] = useState(true);
-  const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+  const [claraActive, setClaraActive] = useState(false);
+  const [lastRefresh, setLastRefresh] = useState(new Date());
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // State for all tabs
-  const [feed, setFeed] = useState<FeedItem[]>([]);
-  const [campaigns, setCampaigns] = useState<CampaignRow[]>([]);
-  const [rivenCommands, setRivenCommands] = useState<RivenCommand[]>([]);
-  const [salesActions, setSalesActions] = useState<SalesAction[]>([]);
+  // All data state
+  const [feed, setFeed] = useState<any[]>([]);
+  const [campaigns, setCampaigns] = useState<any[]>([]);
+  const [rivenCommands, setRivenCommands] = useState<any[]>([]);
+  const [salesActions, setSalesActions] = useState<any[]>([]);
   const [proactiveInvites, setProactiveInvites] = useState<any[]>([]);
-  const [plans, setPlans] = useState<PlanExecution[]>([]);
-  const [pendingActions, setPendingActions] = useState<PendingAction[]>([]);
-  const [whatsappSignups, setWhatsappSignups] = useState<WhatsAppSignup[]>([]);
-  const [whatsappMessages, setWhatsappMessages] = useState<any[]>([]);
-  const [opsLog, setOpsLog] = useState<OpsLogEntry[]>([]);
-  const [budgets, setBudgets] = useState<BudgetRow[]>([]);
-  const [rivenPerf, setRivenPerf] = useState<RivenPerf[]>([]);
+  const [plans, setPlans] = useState<any[]>([]);
+  const [pendingApprovals, setPendingApprovals] = useState<any[]>([]);
+  const [whatsappSignups, setWhatsappSignups] = useState<any[]>([]);
+  const [pendingBizActions, setPendingBizActions] = useState<any[]>([]);
+  const [opsLog, setOpsLog] = useState<any[]>([]);
+  const [budgets, setBudgets] = useState<any[]>([]);
+  const [rivenPerf, setRivenPerf] = useState<any[]>([]);
+  const [leads, setLeads] = useState<any[]>([]);
+  const [inviteFilter, setInviteFilter] = useState('all');
+  const [opsFilter, setOpsFilter] = useState('all');
+  const [rivenFilter, setRivenFilter] = useState('all');
+  const [expandedPlan, setExpandedPlan] = useState<string | null>(null);
+  const [editingBudget, setEditingBudget] = useState<string | null>(null);
+  const [editLimit, setEditLimit] = useState('');
 
-  // ─── Fetch All Data ──────────────────────────────────────────────
+  // ─── Fetch ─────────────────────────────────────────────────────
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
 
+    const fiveMinAgo = new Date(Date.now() - 5 * 60000).toISOString();
+
     const [
-      campaignData,
-      salesData,
-      planData,
-      pendingData,
-      whatsappSData,
-      whatsappMData,
-      opsData,
-      budgetData,
-      rivenCmdData,
-      rivenPerfData,
-      proactiveData,
+      campR, salesR, planR, approvR, waR, opsR, budgR, rivenR, rivenPR, invR, pendBizR, leadsR,
+      recentSales, recentCamp, recentOps,
     ] = await Promise.all([
-      safeQuery<CampaignRow>('clara_campaign_log', { order: 'created_at', limit: 50 }),
-      safeQuery<SalesAction>('clara_sales_actions', { order: 'created_at', limit: 50 }),
-      safeQuery<PlanExecution>('clara_plan_executions', { order: 'created_at', limit: 30 }),
-      safeQuery<PendingAction>('clara_pending_actions', { order: 'created_at', limit: 30 }),
-      safeQuery<WhatsAppSignup>('whatsapp_signups', { order: 'created_at', limit: 30 }),
-      safeQuery<any>('whatsapp_messages', { order: 'created_at', limit: 30 }),
-      safeQuery<OpsLogEntry>('clara_ops_log', { order: 'created_at', limit: 50 }),
-      safeQuery<BudgetRow>('clara_budget', { limit: 20 }),
-      safeQuery<RivenCommand>('clara_riven_commands', { order: 'created_at', limit: 50 }),
-      safeQuery<RivenPerf>('riven_performance', { order: 'created_at', limit: 30 }),
-      safeQuery<any>('proactive_invites', { order: 'created_at', limit: 30 }),
+      sq('clara_campaign_log', { order: 'created_at', limit: 20 }),
+      sq('clara_sales_actions', { order: 'created_at', limit: 25 }),
+      sq('clara_plan_executions', { order: 'created_at', limit: 30 }),
+      sq('clara_plan_approvals', { order: 'created_at', limit: 20 }),
+      sq('whatsapp_signups', { order: 'created_at', limit: 30 }),
+      sq('clara_ops_log', { order: 'created_at', limit: 50 }),
+      sq('clara_budget', { limit: 20 }),
+      sq('clara_riven_commands', { order: 'created_at', limit: 50 }),
+      sq('riven_performance', { order: 'created_at', limit: 30 }),
+      sq('proactive_invites', { order: 'created_at', limit: 30 }),
+      sq('clara_pending_actions', { order: 'created_at', limit: 20 }),
+      sq('leads', { order: 'created_at', limit: 200 }),
+      // Check recent activity for Active/Idle
+      sq('clara_sales_actions', { select: 'id', gte: ['created_at', fiveMinAgo], limit: 1, head: true, count: true }),
+      sq('clara_campaign_log', { select: 'id', gte: ['created_at', fiveMinAgo], limit: 1, head: true, count: true }),
+      sq('clara_ops_log', { select: 'id', gte: ['created_at', fiveMinAgo], limit: 1, head: true, count: true }),
     ]);
 
-    setCampaigns(campaignData);
-    setSalesActions(salesData);
-    setPlans(planData);
-    setPendingActions(pendingData);
-    setWhatsappSignups(whatsappSData);
-    setWhatsappMessages(whatsappMData);
-    setOpsLog(opsData);
-    setBudgets(budgetData);
-    setRivenCommands(rivenCmdData);
-    setRivenPerf(rivenPerfData);
-    setProactiveInvites(proactiveData);
+    setCampaigns(campR.data);
+    setSalesActions(salesR.data);
+    setPlans(planR.data);
+    setPendingApprovals(approvR.data);
+    setWhatsappSignups(waR.data);
+    setOpsLog(opsR.data);
+    setBudgets(budgR.data);
+    setRivenCommands(rivenR.data);
+    setRivenPerf(rivenPR.data);
+    setProactiveInvites(invR.data);
+    setPendingBizActions(pendBizR.data);
+    setLeads(leadsR.data);
 
-    // Build unified feed from all sources
-    const unified: FeedItem[] = [
-      ...campaignData.map(c => ({
-        id: `camp-${c.id}`, source: 'campaign', action: c.campaign_name,
-        detail: `${c.channel} — ${c.sent_count} sent`, created_at: c.created_at, status: c.status
-      })),
-      ...salesData.map(s => ({
-        id: `sale-${s.id}`, source: 'sales', action: s.action_type,
-        detail: `${s.lead_name} via ${s.channel}`, created_at: s.created_at, status: s.status
-      })),
-      ...planData.map(p => ({
-        id: `plan-${p.id}`, source: 'plan', action: p.plan_name,
-        detail: `${p.steps_done}/${p.steps_total} steps`, created_at: p.created_at, status: p.status
-      })),
-      ...opsData.map(o => ({
-        id: `ops-${o.id}`, source: 'ops', action: o.function_name,
-        detail: o.message, created_at: o.created_at, status: o.status
-      })),
-      ...rivenCmdData.map(r => ({
-        id: `riv-${r.id}`, source: 'riven', action: r.command_type,
-        detail: r.payload?.substring(0, 80) || '', created_at: r.created_at, status: r.status
-      })),
-      ...whatsappSData.map(w => ({
-        id: `wa-${w.id}`, source: 'whatsapp', action: `Signup: ${w.step}`,
-        detail: w.name || w.phone, created_at: w.created_at, status: w.status
-      })),
-    ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-     .slice(0, 100);
+    // Active/idle
+    const anyRecent = (recentSales.count || 0) + (recentCamp.count || 0) + (recentOps.count || 0) > 0;
+    setClaraActive(anyRecent);
+
+    // Build unified feed
+    const unified = [
+      ...salesR.data.map((r: any) => ({ id: `s-${r.id}`, src: 'sales', icon: 'sales', label: `Sales: ${r.action_type || 'action'}`, detail: r.notes || r.outcome || '', ts: r.created_at, status: r.status })),
+      ...campR.data.map((r: any) => ({ id: `c-${r.id}`, src: 'campaign', icon: 'campaign', label: `Campaign: ${r.name || r.campaign_name || ''}`, detail: `${r.sent_count || 0} sent`, ts: r.created_at, status: r.status })),
+      ...opsR.data.map((r: any) => ({ id: `o-${r.id}`, src: 'ops', icon: 'ops', label: `Ops: ${r.incident_type || r.function_name || ''}`, detail: r.description || r.message || '', ts: r.created_at, status: r.severity || r.status })),
+      ...rivenR.data.map((r: any) => ({ id: `r-${r.id}`, src: 'riven', icon: 'riven', label: `Riven: ${r.command_type || ''}`, detail: r.status || '', ts: r.created_at, status: r.status })),
+      ...planR.data.map((r: any) => ({ id: `p-${r.id}`, src: 'plan', icon: 'plan', label: `Plan: ${r.plan_name || ''}`, detail: `Step ${r.steps_done || 0}/${r.steps_total || 0}`, ts: r.created_at, status: r.status })),
+      ...invR.data.map((r: any) => ({ id: `i-${r.id}`, src: 'invite', icon: 'invite', label: `Invite: ${r.contact_name || r.name || ''}`, detail: `Day ${r.sequence_day || 1}`, ts: r.created_at, status: r.status })),
+      ...waR.data.map((r: any) => ({ id: `w-${r.id}`, src: 'whatsapp', icon: 'whatsapp', label: `Signup: ${r.full_name || r.name || r.phone || ''}`, detail: r.status || '', ts: r.created_at, status: r.status })),
+    ].sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime()).slice(0, 50);
 
     setFeed(unified);
     setLastRefresh(new Date());
@@ -279,18 +181,13 @@ export default function ClaraCommandCentre() {
   useEffect(() => {
     fetchAll();
 
-    // Realtime subscriptions
-    const channel = supabase.channel('clara-command-centre')
+    const channel = supabase.channel('clara-cc')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'clara_sales_actions' }, () => fetchAll())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'clara_campaign_log' }, () => fetchAll())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'clara_ops_log' }, () => fetchAll())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'clara_pending_actions' }, () => fetchAll())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'clara_plan_executions' }, () => fetchAll())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'whatsapp_signups' }, () => fetchAll())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'clara_riven_commands' }, () => fetchAll())
       .subscribe();
 
-    // 30-second polling fallback
     pollingRef.current = setInterval(fetchAll, 30000);
 
     return () => {
@@ -299,102 +196,195 @@ export default function ClaraCommandCentre() {
     };
   }, [fetchAll]);
 
-  // ─── Counts for badges ───────────────────────────────────────────
+  // ─── Action Handlers ─────────────────────────────────────────────
 
-  const pendingApprovals = pendingActions.filter(a => a.status === 'pending').length;
-  const criticalOps = opsLog.filter(o => o.status === 'error' || o.status === 'failed').length;
-  const activePlans = plans.filter(p => p.status === 'running' || p.status === 'active').length;
-  const queuedRiven = rivenCommands.filter(r => r.status === 'queued' || r.status === 'pending').length;
-
-  // ─── Approve / Reject pending actions ────────────────────────────
-
-  const updatePending = async (id: string, newStatus: string) => {
+  const approveAction = async (table: string, id: string, field: string, val: string) => {
     try {
-      await sb.from('clara_pending_actions').update({ status: newStatus }).eq('id', id);
-      setPendingActions(prev => prev.map(a => a.id === id ? { ...a, status: newStatus } : a));
-    } catch (err) {
-      console.error('Failed to update pending action:', err);
+      await sb.from(table).update({ [field]: val }).eq('id', id);
+      fetchAll();
+    } catch (e) { console.error('Update failed:', e); }
+  };
+
+  const markResolved = async (id: string) => {
+    try {
+      await sb.from('clara_ops_log').update({ resolved: true }).eq('id', id);
+      setOpsLog(prev => prev.map(o => o.id === id ? { ...o, resolved: true } : o));
+    } catch (e) { console.error('Resolve failed:', e); }
+  };
+
+  const retryRiven = async (id: string) => {
+    try {
+      await sb.from('clara_riven_commands').update({ status: 'pending' }).eq('id', id);
+      setRivenCommands(prev => prev.map(r => r.id === id ? { ...r, status: 'pending' } : r));
+    } catch (e) { console.error('Retry failed:', e); }
+  };
+
+  const toggleBudgetLock = async (id: string, locked: boolean) => {
+    try {
+      await sb.from('clara_budget').update({ is_locked: locked }).eq('id', id);
+      setBudgets(prev => prev.map(b => b.id === id ? { ...b, is_locked: locked } : b));
+    } catch (e) { console.error('Lock toggle failed:', e); }
+  };
+
+  const lockAllBudgets = async () => {
+    try {
+      for (const b of budgets) {
+        await sb.from('clara_budget').update({ is_locked: true }).eq('id', b.id);
+      }
+      setBudgets(prev => prev.map(b => ({ ...b, is_locked: true })));
+    } catch (e) { console.error('Lock all failed:', e); }
+  };
+
+  const unlockAllBudgets = async () => {
+    try {
+      for (const b of budgets) {
+        await sb.from('clara_budget').update({ is_locked: false }).eq('id', b.id);
+      }
+      setBudgets(prev => prev.map(b => ({ ...b, is_locked: false })));
+    } catch (e) { console.error('Unlock all failed:', e); }
+  };
+
+  const saveBudgetLimit = async (id: string) => {
+    const val = parseFloat(editLimit);
+    if (isNaN(val)) return;
+    try {
+      await sb.from('clara_budget').update({ limit: val }).eq('id', id);
+      setBudgets(prev => prev.map(b => b.id === id ? { ...b, limit: val } : b));
+      setEditingBudget(null);
+    } catch (e) { console.error('Save limit failed:', e); }
+  };
+
+  const pausePlan = async (id: string) => {
+    await approveAction('clara_plan_executions', id, 'status', 'paused');
+  };
+  const cancelPlan = async (id: string) => {
+    await approveAction('clara_plan_executions', id, 'status', 'cancelled');
+  };
+
+  // ─── Computed ────────────────────────────────────────────────────
+
+  const pendingApprovalCount = pendingApprovals.filter(a => a.approval_status === 'pending').length;
+  const criticalOpsCount = opsLog.filter(o => (o.severity === 'critical') && !o.resolved).length;
+  const unresolvedOps = opsLog.filter(o => !o.resolved);
+
+  const hotLeads = leads.filter(l => (l.score || 0) >= 7).length;
+  const warmLeads = leads.filter(l => (l.score || 0) >= 4 && (l.score || 0) < 7).length;
+  const coldLeads = leads.filter(l => (l.score || 0) >= 1 && (l.score || 0) < 4).length;
+  const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+  const convertedThisWeek = leads.filter(l => l.status === 'converted' && l.created_at >= weekAgo).length;
+  const activeTrials = leads.filter(l => l.status === 'trial' || l.status === 'active_trial').length;
+
+  const filteredInvites = inviteFilter === 'all' ? proactiveInvites : proactiveInvites.filter(i => i.status === inviteFilter);
+  const filteredOps = opsFilter === 'all' ? opsLog : opsFilter === 'unresolved' ? unresolvedOps : opsLog.filter(o => o.severity === 'critical' && !o.resolved);
+  const filteredRiven = rivenFilter === 'all' ? rivenCommands : rivenCommands.filter(r => r.status === rivenFilter);
+
+  // Error summary for ops tab
+  const errorSummary = opsLog.reduce((acc: Record<string, number>, o) => {
+    const key = o.incident_type || o.function_name || 'unknown';
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {});
+
+  // ─── Feed icon helper ────────────────────────────────────────────
+
+  const feedIcon = (src: string) => {
+    switch (src) {
+      case 'sales': return <TrendingUp className="h-4 w-4 text-green-400" />;
+      case 'campaign': return <Megaphone className="h-4 w-4 text-blue-400" />;
+      case 'ops': return <Settings className="h-4 w-4 text-gray-400" />;
+      case 'riven': return <Zap className="h-4 w-4 text-purple-400" />;
+      case 'plan': return <BookOpen className="h-4 w-4 text-amber-400" />;
+      case 'invite': return <UserPlus className="h-4 w-4 text-teal-400" />;
+      case 'whatsapp': return <MessageSquare className="h-4 w-4 text-green-400" />;
+      default: return <Monitor className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
-  // ─── Tab badge helper ────────────────────────────────────────────
+  // Step dots for WhatsApp signup progress
+  const stepDots = (step: string) => {
+    const steps = ['name', 'who_for', 'protected_name', 'email', 'complete'];
+    const idx = steps.indexOf(step?.toLowerCase() || '');
+    return (
+      <div className="flex gap-1">
+        {steps.map((_, i) => (
+          <span key={i} className={`w-2 h-2 rounded-full ${i <= idx ? 'bg-green-500' : 'bg-gray-600'}`} />
+        ))}
+      </div>
+    );
+  };
 
-  const tabBadge = (count: number, color: string = 'bg-red-500') =>
-    count > 0 ? <span className={`ml-1.5 inline-flex items-center justify-center h-5 min-w-[20px] px-1 rounded-full text-[10px] font-bold text-white ${color}`}>{count}</span> : null;
+  // Health check for ops tab
+  const healthCheck = (funcName: string) => {
+    const entry = opsLog.find(o => (o.function_name || o.incident_type) === funcName);
+    if (!entry) return { color: 'bg-gray-500', label: 'No data' };
+    const hoursAgo = (Date.now() - new Date(entry.created_at).getTime()) / 3600000;
+    if (hoursAgo <= 24) return { color: 'bg-green-500', label: 'Healthy' };
+    if (hoursAgo <= 48) return { color: 'bg-amber-500', label: '24-48h ago' };
+    return { color: 'bg-red-500', label: '48h+ ago' };
+  };
+
+  const keyFunctions = ['ai-chat', 'whatsapp-inbound', 'clara-escalation', 'clara-marketing', 'clara-riven'];
 
   // ─── Render ──────────────────────────────────────────────────────
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+      {/* ═══ Header ═══ */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-            <Bot className="h-6 w-6 text-amber-500" />
+            <Monitor className="h-6 w-6 text-amber-500" />
             CLARA Command Centre
           </h1>
           <p className="text-muted-foreground text-sm">
-            Real-time view of everything CLARA is doing across all channels
+            Everything CLARA is doing across every channel in real time.
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-xs text-muted-foreground">
-            Last refresh: {lastRefresh.toLocaleTimeString()}
+          {/* Live status pill */}
+          <Badge className={claraActive ? 'bg-green-500/10 text-green-500 border-green-500/30' : 'bg-amber-500/10 text-amber-500 border-amber-500/30'} variant="outline">
+            <span className={`inline-block w-2 h-2 rounded-full mr-1.5 ${claraActive ? 'bg-green-500 animate-pulse' : 'bg-amber-500'}`} />
+            {claraActive ? 'CLARA Active' : 'CLARA Idle'}
+          </Badge>
+          <span className="text-xs text-muted-foreground hidden sm:inline">
+            {lastRefresh.toLocaleTimeString()}
           </span>
           <Button variant="outline" size="sm" onClick={fetchAll} disabled={loading}>
-            <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} />
-            Refresh
+            <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} /> Refresh
           </Button>
         </div>
       </div>
 
-      {/* Summary strip */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
-        <MiniStat icon={<Activity className="h-4 w-4" />} label="Feed items" value={feed.length} />
-        <MiniStat icon={<Megaphone className="h-4 w-4" />} label="Campaigns" value={campaigns.length} />
-        <MiniStat icon={<ShoppingCart className="h-4 w-4" />} label="Sales" value={salesActions.length} />
-        <MiniStat icon={<ListChecks className="h-4 w-4" />} label="Plans" value={activePlans} color="text-blue-400" />
-        <MiniStat icon={<MessageCircle className="h-4 w-4" />} label="WA Signups" value={whatsappSignups.length} />
-        <MiniStat icon={<HeartPulse className="h-4 w-4" />} label="Ops Errors" value={criticalOps} color={criticalOps > 0 ? 'text-red-400' : undefined} />
-        <MiniStat icon={<Clock className="h-4 w-4" />} label="Pending" value={pendingApprovals} color={pendingApprovals > 0 ? 'text-amber-400' : undefined} />
-        <MiniStat icon={<Zap className="h-4 w-4" />} label="Riven Queue" value={queuedRiven} />
-      </div>
-
-      {/* Tabs */}
+      {/* ═══ Tabs ═══ */}
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="flex-wrap h-auto gap-1">
           <TabsTrigger value="feed" className="text-xs">Live Feed</TabsTrigger>
-          <TabsTrigger value="campaigns" className="text-xs">Campaigns {tabBadge(campaigns.length, 'bg-purple-500')}</TabsTrigger>
-          <TabsTrigger value="sales" className="text-xs">Sales {tabBadge(salesActions.length, 'bg-green-600')}</TabsTrigger>
-          <TabsTrigger value="plans" className="text-xs">Plans {tabBadge(pendingApprovals, 'bg-amber-500')}</TabsTrigger>
-          <TabsTrigger value="whatsapp" className="text-xs">WhatsApp {tabBadge(whatsappSignups.length, 'bg-emerald-500')}</TabsTrigger>
-          <TabsTrigger value="ops" className="text-xs">Ops {tabBadge(criticalOps, 'bg-red-500')}</TabsTrigger>
+          <TabsTrigger value="campaigns" className="text-xs">Campaigns</TabsTrigger>
+          <TabsTrigger value="sales" className="text-xs">Sales</TabsTrigger>
+          <TabsTrigger value="plans" className="text-xs">Plans {pendingApprovalCount > 0 && <Dot color="amber" />}</TabsTrigger>
+          <TabsTrigger value="whatsapp" className="text-xs">WhatsApp</TabsTrigger>
+          <TabsTrigger value="ops" className="text-xs">Ops {criticalOpsCount > 0 && <Dot color="red" />}</TabsTrigger>
           <TabsTrigger value="budget" className="text-xs">Budget</TabsTrigger>
-          <TabsTrigger value="riven" className="text-xs">Riven {tabBadge(queuedRiven, 'bg-amber-500')}</TabsTrigger>
+          <TabsTrigger value="riven" className="text-xs">Riven</TabsTrigger>
         </TabsList>
 
-        {/* ── Tab 1: Live Feed ─────────────────────────────────────── */}
+        {/* ═══ TAB 1 — LIVE FEED ═══ */}
         <TabsContent value="feed">
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Live Activity Feed</CardTitle>
-              <CardDescription>Unified chronological feed from all CLARA systems</CardDescription>
+              <CardDescription>Last 50 events across all CLARA systems, sorted by time</CardDescription>
             </CardHeader>
             <CardContent>
-              {loading ? <LoadingState /> : feed.length === 0 ? (
-                <EmptyState message="No activity recorded yet" />
-              ) : (
-                <div className="space-y-1 max-h-[600px] overflow-y-auto">
+              {loading ? <Spinner /> : feed.length === 0 ? <Empty msg="No activity recorded yet" /> : (
+                <div className="space-y-0.5 max-h-[650px] overflow-y-auto">
                   {feed.map(item => (
                     <div key={item.id} className="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-muted/50 text-sm">
-                      {sourceIcon(item.source)}
-                      <Badge variant="outline" className="text-[10px] w-16 justify-center">{item.source}</Badge>
-                      <span className="font-medium truncate max-w-[200px]">{item.action}</span>
-                      <span className="text-muted-foreground truncate flex-1">{item.detail}</span>
-                      {item.status && (
-                        <Badge className={`${statusBadge(item.status)} text-[10px]`} variant="secondary">{item.status}</Badge>
-                      )}
-                      <span className="text-xs text-muted-foreground whitespace-nowrap">{timeAgo(item.created_at)}</span>
+                      {feedIcon(item.src)}
+                      <span className="font-medium truncate max-w-[250px]">{item.label}</span>
+                      <span className="text-muted-foreground truncate flex-1 text-xs">{item.detail}</span>
+                      <span className="text-xs text-muted-foreground whitespace-nowrap">{timeAgo(item.ts)}</span>
+                      {item.status && <Badge className={`${statusClass(item.status)} text-[10px]`} variant="secondary">{item.status}</Badge>}
                     </div>
                   ))}
                 </div>
@@ -403,289 +393,195 @@ export default function ClaraCommandCentre() {
           </Card>
         </TabsContent>
 
-        {/* ── Tab 2: Campaigns ─────────────────────────────────────── */}
+        {/* ═══ TAB 2 — CAMPAIGNS ═══ */}
         <TabsContent value="campaigns">
           <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <StatCard title="Total Campaigns" value={campaigns.length} icon={<Megaphone className="h-5 w-5 text-purple-400" />} />
-              <StatCard title="Active" value={campaigns.filter(c => c.status === 'active' || c.status === 'running').length} icon={<Play className="h-5 w-5 text-green-400" />} />
-              <StatCard title="Avg Open Rate" value={`${campaigns.length > 0 ? Math.round(campaigns.reduce((s, c) => s + (c.open_rate || 0), 0) / campaigns.length) : 0}%`} icon={<Eye className="h-5 w-5 text-blue-400" />} />
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <Stat label="Total Campaigns" value={campaigns.length} icon={<Megaphone className="h-5 w-5 text-purple-400" />} />
+              <Stat label="Running Now" value={campaigns.filter(c => c.status === 'running').length} icon={<Play className="h-5 w-5 text-green-400" />} />
+              <Stat label="Completed" value={campaigns.filter(c => c.status === 'complete' || c.status === 'completed').length} icon={<CheckCircle className="h-5 w-5 text-teal-400" />} />
+              <Stat label="Messages Sent" value={campaigns.reduce((s: number, c: any) => s + (c.sent_count || 0), 0)} icon={<Send className="h-5 w-5 text-blue-400" />} />
             </div>
             <Card>
-              <CardHeader><CardTitle className="text-base">Campaign Log</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="text-base">Campaigns</CardTitle></CardHeader>
               <CardContent>
-                {campaigns.length === 0 ? <EmptyState message="No campaigns recorded" /> : (
-                  <DataTable
-                    headers={['Campaign', 'Channel', 'Status', 'Sent', 'Open Rate', 'Date']}
-                    rows={campaigns.map(c => [
-                      c.campaign_name,
-                      c.channel,
-                      <Badge key={c.id} className={`${statusBadge(c.status)} text-[10px]`} variant="secondary">{c.status}</Badge>,
-                      String(c.sent_count || 0),
-                      `${c.open_rate || 0}%`,
-                      timeAgo(c.created_at),
-                    ])}
-                  />
+                {campaigns.length === 0 ? <Empty msg="No campaigns" /> : (
+                  <Table headers={['Name', 'Type', 'Audience', 'Sent', 'Conversions', 'Status', 'Created']}>
+                    {campaigns.map((c: any) => (
+                      <tr key={c.id} className="border-b last:border-0 hover:bg-muted/30">
+                        <td className="py-2 pr-3 font-medium">{c.name || c.campaign_name}</td>
+                        <td className="py-2 pr-3">{c.type || c.channel || '—'}</td>
+                        <td className="py-2 pr-3">{c.audience || c.audience_size || '—'}</td>
+                        <td className="py-2 pr-3">{c.sent_count || 0}</td>
+                        <td className="py-2 pr-3">{c.conversions || 0}</td>
+                        <td className="py-2 pr-3"><Badge className={`${statusClass(c.status)} text-[10px]`} variant="secondary">{c.status}</Badge></td>
+                        <td className="py-2 pr-3 text-muted-foreground text-xs">{timeAgo(c.created_at)}</td>
+                      </tr>
+                    ))}
+                  </Table>
                 )}
               </CardContent>
             </Card>
             <Card>
               <CardHeader><CardTitle className="text-base">Riven Command Queue</CardTitle></CardHeader>
               <CardContent>
-                {rivenCommands.length === 0 ? <EmptyState message="No Riven commands" /> : (
-                  <DataTable
-                    headers={['Command', 'Status', 'Result', 'Date']}
-                    rows={rivenCommands.slice(0, 20).map(r => [
-                      r.command_type,
-                      <Badge key={r.id} className={`${statusBadge(r.status)} text-[10px]`} variant="secondary">{r.status}</Badge>,
-                      <span key={`r-${r.id}`} className="truncate max-w-[200px] inline-block">{r.result || '—'}</span>,
-                      timeAgo(r.created_at),
-                    ])}
-                  />
+                {rivenCommands.filter(r => r.status === 'pending' || r.status === 'executing').length === 0 ? <Empty msg="No queued commands" /> : (
+                  <Table headers={['Type', 'Status', 'Priority', 'Created', 'Picked Up']}>
+                    {rivenCommands.filter(r => r.status === 'pending' || r.status === 'executing').map((r: any) => (
+                      <tr key={r.id} className="border-b last:border-0 hover:bg-muted/30">
+                        <td className="py-2 pr-3 font-medium">{r.command_type}</td>
+                        <td className="py-2 pr-3"><Badge className={`${statusClass(r.status)} text-[10px]`} variant="secondary">{r.status}</Badge></td>
+                        <td className="py-2 pr-3">{r.priority || '—'}</td>
+                        <td className="py-2 pr-3 text-xs text-muted-foreground">{timeAgo(r.created_at)}</td>
+                        <td className="py-2 pr-3 text-xs text-muted-foreground">{r.picked_up_at ? timeAgo(r.picked_up_at) : '—'}</td>
+                      </tr>
+                    ))}
+                  </Table>
                 )}
               </CardContent>
             </Card>
           </div>
         </TabsContent>
 
-        {/* ── Tab 3: Sales Pipeline ────────────────────────────────── */}
+        {/* ═══ TAB 3 — SALES ═══ */}
         <TabsContent value="sales">
           <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <StatCard title="Sales Actions" value={salesActions.length} icon={<ShoppingCart className="h-5 w-5 text-green-400" />} />
-              <StatCard title="Proactive Invites" value={proactiveInvites.length} icon={<Send className="h-5 w-5 text-blue-400" />} />
-              <StatCard title="Converted" value={salesActions.filter(s => s.status === 'completed' || s.status === 'converted').length} icon={<CheckCircle className="h-5 w-5 text-emerald-400" />} />
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+              <Stat label="Hot Leads (7+)" value={hotLeads} icon={<Flame className="h-5 w-5 text-red-400" />} />
+              <Stat label="Warm (4-6)" value={warmLeads} icon={<Thermometer className="h-5 w-5 text-amber-400" />} />
+              <Stat label="Cold (1-3)" value={coldLeads} icon={<Snowflake className="h-5 w-5 text-blue-400" />} />
+              <Stat label="Converted (week)" value={convertedThisWeek} icon={<CheckCircle className="h-5 w-5 text-teal-400" />} />
+              <Stat label="Active Trials" value={activeTrials} icon={<Play className="h-5 w-5 text-green-400" />} />
             </div>
             <Card>
-              <CardHeader><CardTitle className="text-base">Sales Actions</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="text-base">CLARA Sales Actions</CardTitle></CardHeader>
               <CardContent>
-                {salesActions.length === 0 ? <EmptyState message="No sales actions yet" /> : (
-                  <DataTable
-                    headers={['Action', 'Lead', 'Channel', 'Status', 'Result', 'Date']}
-                    rows={salesActions.map(s => [
-                      s.action_type,
-                      s.lead_name,
-                      s.channel,
-                      <Badge key={s.id} className={`${statusBadge(s.status)} text-[10px]`} variant="secondary">{s.status}</Badge>,
-                      s.result || '—',
-                      timeAgo(s.created_at),
-                    ])}
-                  />
+                {salesActions.length === 0 ? <Empty msg="No sales actions" /> : (
+                  <Table headers={['Action', 'Lead', 'Outcome', 'Date']}>
+                    {salesActions.map((s: any) => (
+                      <tr key={s.id} className="border-b last:border-0 hover:bg-muted/30">
+                        <td className="py-2 pr-3 font-medium">{s.action_type}</td>
+                        <td className="py-2 pr-3">{s.lead_name || s.lead_id || '—'}</td>
+                        <td className="py-2 pr-3">{s.outcome || s.result || s.notes || '—'}</td>
+                        <td className="py-2 pr-3 text-xs text-muted-foreground">{timeAgo(s.created_at)}</td>
+                      </tr>
+                    ))}
+                  </Table>
                 )}
               </CardContent>
             </Card>
             <Card>
-              <CardHeader><CardTitle className="text-base">Proactive Invites</CardTitle></CardHeader>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-base">Proactive Invites</CardTitle>
+                  <div className="flex gap-1">
+                    {['all', 'active', 'converted', 'opted_out'].map(f => (
+                      <Button key={f} variant={inviteFilter === f ? 'default' : 'outline'} size="sm" className="text-xs h-7" onClick={() => setInviteFilter(f)}>
+                        {f === 'all' ? 'All' : f === 'opted_out' ? 'Opted Out' : f.charAt(0).toUpperCase() + f.slice(1)}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </CardHeader>
               <CardContent>
-                {proactiveInvites.length === 0 ? <EmptyState message="No proactive invites" /> : (
-                  <DataTable
-                    headers={['Name', 'Channel', 'Status', 'Date']}
-                    rows={proactiveInvites.map((p: any) => [
-                      p.name || p.phone || p.email || '—',
-                      p.channel || '—',
-                      <Badge key={p.id} className={`${statusBadge(p.status || 'pending')} text-[10px]`} variant="secondary">{p.status || 'pending'}</Badge>,
-                      timeAgo(p.created_at),
-                    ])}
-                  />
+                {filteredInvites.length === 0 ? <Empty msg="No invites" /> : (
+                  <Table headers={['Contact', 'Who For', 'Channel', 'Day', 'Status', 'Last Contact', 'Next Contact']}>
+                    {filteredInvites.map((p: any) => (
+                      <tr key={p.id} className="border-b last:border-0 hover:bg-muted/30">
+                        <td className="py-2 pr-3 font-medium">{p.contact_name || p.name || '—'}</td>
+                        <td className="py-2 pr-3">{p.who_for || p.protected_name || '—'}</td>
+                        <td className="py-2 pr-3">{p.channel || '—'}</td>
+                        <td className="py-2 pr-3">{p.sequence_day || 1}</td>
+                        <td className="py-2 pr-3"><Badge className={`${statusClass(p.status || 'active')} text-[10px]`} variant="secondary">{p.status || 'active'}</Badge></td>
+                        <td className="py-2 pr-3 text-xs text-muted-foreground">{p.last_contact ? timeAgo(p.last_contact) : '—'}</td>
+                        <td className="py-2 pr-3 text-xs text-muted-foreground">{p.next_contact ? new Date(p.next_contact).toLocaleDateString() : '—'}</td>
+                      </tr>
+                    ))}
+                  </Table>
                 )}
               </CardContent>
             </Card>
           </div>
         </TabsContent>
 
-        {/* ── Tab 4: Plan Executions ───────────────────────────────── */}
+        {/* ═══ TAB 4 — PLANS ═══ */}
         <TabsContent value="plans">
           <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <StatCard title="Active Plans" value={activePlans} icon={<Play className="h-5 w-5 text-blue-400" />} />
-              <StatCard title="Pending Approvals" value={pendingApprovals} icon={<Clock className="h-5 w-5 text-amber-400" />} />
-              <StatCard title="Completed" value={plans.filter(p => p.status === 'completed').length} icon={<CheckCircle className="h-5 w-5 text-green-400" />} />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <Stat label="Active Plans" value={plans.filter(p => p.status === 'running' || p.status === 'active').length} icon={<Play className="h-5 w-5 text-blue-400" />} />
+              <Stat label="Pending Approvals" value={pendingApprovalCount} icon={<Clock className="h-5 w-5 text-amber-400" />} />
+              <Stat label="Completed" value={plans.filter(p => p.status === 'completed' || p.status === 'complete').length} icon={<CheckCircle className="h-5 w-5 text-green-400" />} />
             </div>
 
-            {/* Active plans with progress */}
+            {/* Active executions with progress */}
             {plans.filter(p => p.status === 'running' || p.status === 'active').length > 0 && (
               <Card>
-                <CardHeader><CardTitle className="text-base">Active Plans</CardTitle></CardHeader>
+                <CardHeader><CardTitle className="text-base">Active Executions</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
-                  {plans.filter(p => p.status === 'running' || p.status === 'active').map(p => (
-                    <div key={p.id} className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium text-sm">{p.plan_name}</span>
-                        <span className="text-xs text-muted-foreground">{p.steps_done}/{p.steps_total} steps</span>
+                  {plans.filter(p => p.status === 'running' || p.status === 'active').map(p => {
+                    const pct = p.steps_total > 0 ? Math.round((p.steps_done / p.steps_total) * 100) : 0;
+                    return (
+                      <div key={p.id} className="space-y-2 p-3 rounded-lg border">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span className="font-medium">{p.plan_name}</span>
+                            <Badge className={`ml-2 ${statusClass(p.status)} text-[10px]`} variant="secondary">{p.status}</Badge>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground">{p.steps_done}/{p.steps_total} steps ({pct}%)</span>
+                            <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => pausePlan(p.id)}>
+                              <Pause className="h-3 w-3 mr-1" /> Pause
+                            </Button>
+                            <Button size="sm" variant="outline" className="h-7 text-xs text-red-500" onClick={() => cancelPlan(p.id)}>
+                              <XCircle className="h-3 w-3 mr-1" /> Cancel
+                            </Button>
+                          </div>
+                        </div>
+                        {p.current_step && <p className="text-xs text-muted-foreground">Current: {p.current_step}</p>}
+                        <Progress value={pct} className="h-2" />
+                        <p className="text-xs text-muted-foreground">Started {timeAgo(p.created_at)}</p>
                       </div>
-                      <Progress value={p.steps_total > 0 ? (p.steps_done / p.steps_total) * 100 : 0} className="h-2" />
-                    </div>
-                  ))}
+                    );
+                  })}
                 </CardContent>
               </Card>
             )}
 
-            {/* Pending approvals */}
+            {/* Execution history (expandable) */}
             <Card>
-              <CardHeader>
-                <CardTitle className="text-base">
-                  Pending Approvals {pendingApprovals > 0 && <Badge className="ml-2 bg-amber-500/10 text-amber-500">{pendingApprovals}</Badge>}
-                </CardTitle>
-              </CardHeader>
+              <CardHeader><CardTitle className="text-base">Execution History</CardTitle></CardHeader>
               <CardContent>
-                {pendingActions.length === 0 ? <EmptyState message="No pending actions" /> : (
-                  <div className="space-y-2">
-                    {pendingActions.map(a => (
-                      <div key={a.id} className="flex items-center gap-3 p-3 rounded-lg border text-sm">
-                        <div className="flex-1">
-                          <p className="font-medium">{a.action_type}</p>
-                          <p className="text-xs text-muted-foreground">{a.description}</p>
-                        </div>
-                        <Badge className={`${statusBadge(a.priority)} text-[10px]`} variant="secondary">{a.priority}</Badge>
-                        <Badge className={`${statusBadge(a.status)} text-[10px]`} variant="secondary">{a.status}</Badge>
-                        {a.status === 'pending' && (
-                          <div className="flex gap-1">
-                            <Button size="sm" variant="outline" className="h-7 text-xs text-green-500" onClick={() => updatePending(a.id, 'approved')}>
-                              <CheckCircle className="h-3 w-3 mr-1" /> Approve
-                            </Button>
-                            <Button size="sm" variant="outline" className="h-7 text-xs text-red-500" onClick={() => updatePending(a.id, 'rejected')}>
-                              <XCircle className="h-3 w-3 mr-1" /> Reject
-                            </Button>
-                          </div>
-                        )}
-                        <span className="text-xs text-muted-foreground">{timeAgo(a.created_at)}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Plan history */}
-            <Card>
-              <CardHeader><CardTitle className="text-base">Plan History</CardTitle></CardHeader>
-              <CardContent>
-                {plans.length === 0 ? <EmptyState message="No plan executions" /> : (
-                  <DataTable
-                    headers={['Plan', 'Status', 'Progress', 'Started', 'Updated']}
-                    rows={plans.map(p => [
-                      p.plan_name,
-                      <Badge key={p.id} className={`${statusBadge(p.status)} text-[10px]`} variant="secondary">{p.status}</Badge>,
-                      `${p.steps_done}/${p.steps_total}`,
-                      timeAgo(p.created_at),
-                      timeAgo(p.updated_at || p.created_at),
-                    ])}
-                  />
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* ── Tab 5: WhatsApp Activity ─────────────────────────────── */}
-        <TabsContent value="whatsapp">
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <StatCard title="Signup Flows" value={whatsappSignups.length} icon={<MessageCircle className="h-5 w-5 text-emerald-400" />} />
-              <StatCard title="Completed" value={whatsappSignups.filter(w => w.status === 'completed').length} icon={<CheckCircle className="h-5 w-5 text-green-400" />} />
-              <StatCard title="Messages" value={whatsappMessages.length} icon={<Send className="h-5 w-5 text-blue-400" />} />
-            </div>
-            <Card>
-              <CardHeader><CardTitle className="text-base">WhatsApp Signups</CardTitle></CardHeader>
-              <CardContent>
-                {whatsappSignups.length === 0 ? <EmptyState message="No WhatsApp signups" /> : (
-                  <DataTable
-                    headers={['Name', 'Phone', 'Step', 'Status', 'Date']}
-                    rows={whatsappSignups.map(w => [
-                      w.name || '—',
-                      w.phone,
-                      w.step,
-                      <Badge key={w.id} className={`${statusBadge(w.status)} text-[10px]`} variant="secondary">{w.status}</Badge>,
-                      timeAgo(w.created_at),
-                    ])}
-                  />
-                )}
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader><CardTitle className="text-base">Recent Messages</CardTitle></CardHeader>
-              <CardContent>
-                {whatsappMessages.length === 0 ? <EmptyState message="No messages" /> : (
-                  <DataTable
-                    headers={['From', 'Direction', 'Message', 'Date']}
-                    rows={whatsappMessages.slice(0, 30).map((m: any) => [
-                      m.phone || m.from_number || '—',
-                      m.direction || m.type || '—',
-                      <span key={m.id} className="truncate max-w-[300px] inline-block">{m.body || m.message || '—'}</span>,
-                      timeAgo(m.created_at),
-                    ])}
-                  />
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* ── Tab 6: Ops & Health ──────────────────────────────────── */}
-        <TabsContent value="ops">
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <StatCard title="Total Ops" value={opsLog.length} icon={<HeartPulse className="h-5 w-5 text-blue-400" />} />
-              <StatCard title="Errors" value={criticalOps} icon={<AlertTriangle className="h-5 w-5 text-red-400" />} />
-              <StatCard title="Avg Duration" value={`${opsLog.length > 0 ? Math.round(opsLog.reduce((s, o) => s + (o.duration_ms || 0), 0) / opsLog.length) : 0}ms`} icon={<Clock className="h-5 w-5 text-amber-400" />} />
-            </div>
-            <Card>
-              <CardHeader><CardTitle className="text-base">Operations Log</CardTitle></CardHeader>
-              <CardContent>
-                {opsLog.length === 0 ? <EmptyState message="No ops log entries" /> : (
-                  <DataTable
-                    headers={['Function', 'Status', 'Message', 'Duration', 'Date']}
-                    rows={opsLog.map(o => [
-                      o.function_name,
-                      <Badge key={o.id} className={`${statusBadge(o.status)} text-[10px]`} variant="secondary">{o.status}</Badge>,
-                      <span key={`m-${o.id}`} className="truncate max-w-[250px] inline-block">{o.message || '—'}</span>,
-                      o.duration_ms ? `${o.duration_ms}ms` : '—',
-                      timeAgo(o.created_at),
-                    ])}
-                  />
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* ── Tab 7: Budget ────────────────────────────────────────── */}
-        <TabsContent value="budget">
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <StatCard
-                title="Total Allocated"
-                value={`€${budgets.reduce((s, b) => s + (b.allocated || 0), 0).toFixed(0)}`}
-                icon={<Wallet className="h-5 w-5 text-cyan-400" />}
-              />
-              <StatCard
-                title="Total Spent"
-                value={`€${budgets.reduce((s, b) => s + (b.spent || 0), 0).toFixed(0)}`}
-                icon={<DollarSign className="h-5 w-5 text-red-400" />}
-              />
-              <StatCard
-                title="Remaining"
-                value={`€${(budgets.reduce((s, b) => s + (b.allocated || 0), 0) - budgets.reduce((s, b) => s + (b.spent || 0), 0)).toFixed(0)}`}
-                icon={<TrendingUp className="h-5 w-5 text-green-400" />}
-              />
-            </div>
-            <Card>
-              <CardHeader><CardTitle className="text-base">Budget Breakdown</CardTitle></CardHeader>
-              <CardContent>
-                {budgets.length === 0 ? <EmptyState message="No budget data" /> : (
-                  <div className="space-y-4">
-                    {budgets.map(b => {
-                      const pct = b.allocated > 0 ? Math.min(100, (b.spent / b.allocated) * 100) : 0;
-                      const isOver = pct > 90;
+                {plans.length === 0 ? <Empty msg="No plan executions" /> : (
+                  <div className="space-y-1">
+                    {plans.map(p => {
+                      const dur = p.completed_at && p.created_at
+                        ? Math.round((new Date(p.completed_at).getTime() - new Date(p.created_at).getTime()) / 60000) + 'm'
+                        : '—';
+                      const isExpanded = expandedPlan === p.id;
+                      const stepsLog = typeof p.steps_log === 'string' ? JSON.parse(p.steps_log || '[]') : (p.steps_log || []);
                       return (
-                        <div key={b.id} className="space-y-2">
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="font-medium">{b.category}</span>
-                            <span className={`text-xs ${isOver ? 'text-red-400' : 'text-muted-foreground'}`}>
-                              €{(b.spent || 0).toFixed(0)} / €{(b.allocated || 0).toFixed(0)} ({b.period || 'monthly'})
-                            </span>
+                        <div key={p.id}>
+                          <div
+                            className="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-muted/50 text-sm cursor-pointer"
+                            onClick={() => setExpandedPlan(isExpanded ? null : p.id)}
+                          >
+                            {stepsLog.length > 0 ? (isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />) : <span className="w-4" />}
+                            <span className="font-medium flex-1">{p.plan_name}</span>
+                            <span className="text-xs">{p.steps_done}/{p.steps_total}</span>
+                            <Badge className={`${statusClass(p.status)} text-[10px]`} variant="secondary">{p.status}</Badge>
+                            <span className="text-xs text-muted-foreground">{timeAgo(p.created_at)}</span>
+                            <span className="text-xs text-muted-foreground">{dur}</span>
                           </div>
-                          <Progress value={pct} className={`h-2 ${isOver ? '[&>div]:bg-red-500' : ''}`} />
+                          {isExpanded && stepsLog.length > 0 && (
+                            <div className="ml-10 mb-2 space-y-1 border-l-2 border-muted pl-4">
+                              {stepsLog.map((step: any, i: number) => (
+                                <div key={i} className="flex items-center gap-2 text-xs">
+                                  <span>{step.status === 'completed' || step.done ? '✅' : step.status === 'running' ? '⏳' : '○'}</span>
+                                  <span className="text-muted-foreground">{step.name || step.description || `Step ${i + 1}`}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       );
                     })}
@@ -693,46 +589,333 @@ export default function ClaraCommandCentre() {
                 )}
               </CardContent>
             </Card>
-          </div>
-        </TabsContent>
 
-        {/* ── Tab 8: Riven ─────────────────────────────────────────── */}
-        <TabsContent value="riven">
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <StatCard title="Commands" value={rivenCommands.length} icon={<Zap className="h-5 w-5 text-amber-400" />} />
-              <StatCard title="Queued" value={queuedRiven} icon={<Clock className="h-5 w-5 text-purple-400" />} />
-              <StatCard title="Performance Metrics" value={rivenPerf.length} icon={<TrendingUp className="h-5 w-5 text-blue-400" />} />
-            </div>
+            {/* Pending approvals */}
             <Card>
-              <CardHeader><CardTitle className="text-base">Command Queue</CardTitle></CardHeader>
+              <CardHeader>
+                <CardTitle className="text-base">
+                  Pending Approvals {pendingApprovalCount > 0 && <Badge className="ml-2 bg-amber-500/10 text-amber-500">{pendingApprovalCount}</Badge>}
+                </CardTitle>
+              </CardHeader>
               <CardContent>
-                {rivenCommands.length === 0 ? <EmptyState message="No Riven commands" /> : (
-                  <DataTable
-                    headers={['Command', 'Status', 'Result', 'Date']}
-                    rows={rivenCommands.map(r => [
-                      r.command_type,
-                      <Badge key={r.id} className={`${statusBadge(r.status)} text-[10px]`} variant="secondary">{r.status}</Badge>,
-                      <span key={`r-${r.id}`} className="truncate max-w-[200px] inline-block">{r.result || '—'}</span>,
-                      timeAgo(r.created_at),
-                    ])}
-                  />
+                {pendingApprovals.filter(a => a.approval_status === 'pending').length === 0 ? <Empty msg="No pending approvals" /> : (
+                  <div className="space-y-2">
+                    {pendingApprovals.filter(a => a.approval_status === 'pending').map(a => (
+                      <div key={a.id} className="flex items-center gap-3 p-3 rounded-lg border text-sm">
+                        <div className="flex-1">
+                          <p className="font-medium">{a.plan_name || a.action_type || 'Approval Required'}</p>
+                          <p className="text-xs text-muted-foreground">{a.description || a.notes || ''}</p>
+                        </div>
+                        <div className="flex gap-1">
+                          <Button size="sm" variant="outline" className="h-7 text-xs text-green-500" onClick={() => approveAction('clara_plan_approvals', a.id, 'approval_status', 'approved')}>
+                            <CheckCircle className="h-3 w-3 mr-1" /> Approve
+                          </Button>
+                          <Button size="sm" variant="outline" className="h-7 text-xs text-red-500" onClick={() => approveAction('clara_plan_approvals', a.id, 'approval_status', 'rejected')}>
+                            <XCircle className="h-3 w-3 mr-1" /> Reject
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </CardContent>
             </Card>
+          </div>
+        </TabsContent>
+
+        {/* ═══ TAB 5 — WHATSAPP ═══ */}
+        <TabsContent value="whatsapp">
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <Stat label="Signups Today" value={whatsappSignups.filter(w => w.created_at >= new Date().toISOString().split('T')[0]).length} icon={<MessageSquare className="h-5 w-5 text-emerald-400" />} />
+              <Stat label="Active Flows" value={whatsappSignups.filter(w => w.status === 'in_progress').length} icon={<Play className="h-5 w-5 text-blue-400" />} />
+              <Stat label="Completed" value={whatsappSignups.filter(w => w.status === 'completed' || w.status === 'complete').length} icon={<CheckCircle className="h-5 w-5 text-green-400" />} />
+              <Stat label="Active Invites" value={proactiveInvites.filter(i => i.status === 'active').length} icon={<UserPlus className="h-5 w-5 text-teal-400" />} />
+            </div>
+
+            {/* Active signup flows */}
+            <Card>
+              <CardHeader><CardTitle className="text-base">Active Signup Flows</CardTitle></CardHeader>
+              <CardContent>
+                {whatsappSignups.filter(w => w.status === 'in_progress').length === 0 ? <Empty msg="No active flows" /> : (
+                  <Table headers={['Phone', 'Who For', 'Step', 'Protected Name', 'Started', 'Last Activity']}>
+                    {whatsappSignups.filter(w => w.status === 'in_progress').map((w: any) => (
+                      <tr key={w.id} className="border-b last:border-0 hover:bg-muted/30">
+                        <td className="py-2 pr-3 font-medium">{w.phone}</td>
+                        <td className="py-2 pr-3">{w.who_for || '—'}</td>
+                        <td className="py-2 pr-3">{stepDots(w.step || w.current_step)}</td>
+                        <td className="py-2 pr-3">{w.protected_name || '—'}</td>
+                        <td className="py-2 pr-3 text-xs text-muted-foreground">{timeAgo(w.created_at)}</td>
+                        <td className="py-2 pr-3 text-xs text-muted-foreground">{timeAgo(w.updated_at || w.created_at)}</td>
+                      </tr>
+                    ))}
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Recent completed */}
+            <Card>
+              <CardHeader><CardTitle className="text-base">Recent Completed Signups</CardTitle></CardHeader>
+              <CardContent>
+                {whatsappSignups.filter(w => w.status === 'completed' || w.status === 'complete').length === 0 ? <Empty msg="No completed signups" /> : (
+                  <Table headers={['Name', 'Protected Person', 'Who For', 'Email', 'Language', 'Signed Up']}>
+                    {whatsappSignups.filter(w => w.status === 'completed' || w.status === 'complete').slice(0, 20).map((w: any) => (
+                      <tr key={w.id} className="border-b last:border-0 hover:bg-muted/30">
+                        <td className="py-2 pr-3 font-medium">{w.full_name || w.name || '—'}</td>
+                        <td className="py-2 pr-3">{w.protected_name || '—'}</td>
+                        <td className="py-2 pr-3">{w.who_for || '—'}</td>
+                        <td className="py-2 pr-3">{w.email || '—'}</td>
+                        <td className="py-2 pr-3">{w.language || '—'}</td>
+                        <td className="py-2 pr-3 text-xs text-muted-foreground">{timeAgo(w.created_at)}</td>
+                      </tr>
+                    ))}
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Pending business actions */}
+            <Card>
+              <CardHeader><CardTitle className="text-base">Pending Business Actions</CardTitle></CardHeader>
+              <CardContent>
+                {pendingBizActions.filter(a => a.status === 'pending').length === 0 ? <Empty msg="No pending actions" /> : (
+                  <div className="space-y-2">
+                    {pendingBizActions.filter(a => a.status === 'pending').map(a => (
+                      <div key={a.id} className="flex items-center gap-3 p-3 rounded-lg border text-sm">
+                        <div className="flex-1">
+                          <p className="font-medium">{a.action_type}</p>
+                          <p className="text-xs text-muted-foreground">{a.description || a.proposal || ''}</p>
+                          {a.expires_at && <p className="text-xs text-amber-400">Expires: {new Date(a.expires_at).toLocaleDateString()}</p>}
+                        </div>
+                        <span className="text-xs text-muted-foreground">{timeAgo(a.created_at)}</span>
+                        <div className="flex gap-1">
+                          <Button size="sm" variant="outline" className="h-7 text-xs text-green-500" onClick={() => approveAction('clara_pending_actions', a.id, 'status', 'approved')}>Approve</Button>
+                          <Button size="sm" variant="outline" className="h-7 text-xs text-red-500" onClick={() => approveAction('clara_pending_actions', a.id, 'status', 'rejected')}>Reject</Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* ═══ TAB 6 — OPS ═══ */}
+        <TabsContent value="ops">
+          <div className="space-y-4">
+            {/* Platform health cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+              {keyFunctions.map(fn => {
+                const h = healthCheck(fn);
+                return (
+                  <Card key={fn} className="p-3">
+                    <div className="flex items-center gap-2">
+                      <span className={`w-3 h-3 rounded-full ${h.color}`} />
+                      <div>
+                        <p className="text-xs font-medium">{fn}</p>
+                        <p className="text-[10px] text-muted-foreground">{h.label}</p>
+                      </div>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+
+            {/* Ops log with filters */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-base">Operations Log</CardTitle>
+                  <div className="flex gap-1">
+                    {['all', 'unresolved', 'critical'].map(f => (
+                      <Button key={f} variant={opsFilter === f ? 'default' : 'outline'} size="sm" className="text-xs h-7" onClick={() => setOpsFilter(f)}>
+                        {f.charAt(0).toUpperCase() + f.slice(1)}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {filteredOps.length === 0 ? <Empty msg="No ops entries" /> : (
+                  <Table headers={['Type', 'Severity', 'Description', 'Action Taken', 'Resolved', 'Date', '']}>
+                    {filteredOps.map((o: any) => (
+                      <tr key={o.id} className="border-b last:border-0 hover:bg-muted/30">
+                        <td className="py-2 pr-3 font-medium">{o.incident_type || o.function_name}</td>
+                        <td className="py-2 pr-3"><Badge className={`${statusClass(o.severity || 'info')} text-[10px]`} variant="secondary">{o.severity || 'info'}</Badge></td>
+                        <td className="py-2 pr-3 text-xs max-w-[200px] truncate">{o.description || o.message || '—'}</td>
+                        <td className="py-2 pr-3 text-xs max-w-[150px] truncate">{o.action_taken || '—'}</td>
+                        <td className="py-2 pr-3">{o.resolved ? <CheckCircle className="h-4 w-4 text-green-500" /> : <XCircle className="h-4 w-4 text-red-400" />}</td>
+                        <td className="py-2 pr-3 text-xs text-muted-foreground">{timeAgo(o.created_at)}</td>
+                        <td className="py-2">
+                          {!o.resolved && (
+                            <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => markResolved(o.id)}>
+                              Mark Resolved
+                            </Button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Error summary */}
+            <Card>
+              <CardHeader><CardTitle className="text-base">Error Summary</CardTitle></CardHeader>
+              <CardContent>
+                {Object.keys(errorSummary).length === 0 ? <Empty msg="No errors to summarize" /> : (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {Object.entries(errorSummary).sort(([, a], [, b]) => b - a).map(([type, count]) => (
+                      <div key={type} className="flex items-center gap-2 p-2 rounded-lg border">
+                        <AlertTriangle className="h-4 w-4 text-amber-400" />
+                        <div>
+                          <p className="text-xs font-medium">{type}</p>
+                          <p className="text-lg font-bold">{count}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* ═══ TAB 7 — BUDGET ═══ */}
+        <TabsContent value="budget">
+          <div className="space-y-4">
+            {/* Lock/Unlock All */}
+            <div className="flex gap-2 justify-end">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="sm" className="text-xs">
+                    <Lock className="h-3 w-3 mr-1" /> Lock All Spending
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Lock All Budgets?</AlertDialogTitle>
+                    <AlertDialogDescription>This will prevent CLARA from spending on any budget category. All automated spending will be paused.</AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={lockAllBudgets}>Lock All</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+              <Button variant="outline" size="sm" className="text-xs" onClick={unlockAllBudgets}>
+                <Unlock className="h-3 w-3 mr-1" /> Unlock All
+              </Button>
+            </div>
+
+            {/* Budget cards */}
+            {budgets.length === 0 ? <Card><CardContent className="py-8"><Empty msg="No budget data" /></CardContent></Card> : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {budgets.map((b: any) => {
+                  const limit = b.limit || b.allocated || 0;
+                  const spent = b.spent || 0;
+                  const pct = limit > 0 ? Math.min(100, Math.round((spent / limit) * 100)) : 0;
+                  const isEditing = editingBudget === b.id;
+                  return (
+                    <Card key={b.id} className={b.is_locked ? 'opacity-60 border-red-500/30' : ''}>
+                      <CardContent className="pt-6 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <p className="font-medium">{(b.category || b.type || 'Budget').replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())}</p>
+                          <div className="flex items-center gap-2">
+                            {b.is_locked && <Lock className="h-4 w-4 text-red-400" />}
+                            <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => toggleBudgetLock(b.id, !b.is_locked)}>
+                              {b.is_locked ? <Unlock className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
+                            </Button>
+                          </div>
+                        </div>
+                        <Progress value={pct} className={`h-3 ${barColor(pct)}`} />
+                        <div className="flex items-center justify-between text-sm">
+                          <span className={pctColor(pct)}>
+                            &euro;{spent.toFixed(0)} of &euro;{limit.toFixed(0)}
+                          </span>
+                          <span className={`font-bold ${pctColor(pct)}`}>{pct}%</span>
+                        </div>
+                        {isEditing ? (
+                          <div className="flex gap-2">
+                            <Input type="number" value={editLimit} onChange={e => setEditLimit(e.target.value)} className="h-8 text-sm" placeholder="New limit" />
+                            <Button size="sm" className="h-8 text-xs" onClick={() => saveBudgetLimit(b.id)}>Save</Button>
+                            <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => setEditingBudget(null)}>Cancel</Button>
+                          </div>
+                        ) : (
+                          <Button variant="outline" size="sm" className="text-xs h-7 w-full" onClick={() => { setEditingBudget(b.id); setEditLimit(String(limit)); }}>
+                            Edit Limit
+                          </Button>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </TabsContent>
+
+        {/* ═══ TAB 8 — RIVEN ═══ */}
+        <TabsContent value="riven">
+          <div className="space-y-4">
+            {/* Filters */}
+            <div className="flex gap-1 flex-wrap">
+              {['all', 'pending', 'executing', 'complete', 'failed'].map(f => (
+                <Button key={f} variant={rivenFilter === f ? 'default' : 'outline'} size="sm" className="text-xs h-7" onClick={() => setRivenFilter(f)}>
+                  {f.charAt(0).toUpperCase() + f.slice(1)}
+                </Button>
+              ))}
+            </div>
+
+            <Card>
+              <CardHeader><CardTitle className="text-base">Riven Commands</CardTitle></CardHeader>
+              <CardContent>
+                {filteredRiven.length === 0 ? <Empty msg="No commands" /> : (
+                  <Table headers={['Type', 'Status', 'Priority', 'Data Preview', 'Created', 'Completed', '']}>
+                    {filteredRiven.map((r: any) => (
+                      <tr key={r.id} className="border-b last:border-0 hover:bg-muted/30">
+                        <td className="py-2 pr-3 font-medium">{r.command_type}</td>
+                        <td className="py-2 pr-3"><Badge className={`${statusClass(r.status)} text-[10px]`} variant="secondary">{r.status}</Badge></td>
+                        <td className="py-2 pr-3">{r.priority || '—'}</td>
+                        <td className="py-2 pr-3 text-xs max-w-[200px] truncate">{typeof r.data === 'string' ? r.data?.substring(0, 60) : JSON.stringify(r.data || r.payload || '').substring(0, 60)}</td>
+                        <td className="py-2 pr-3 text-xs text-muted-foreground">{timeAgo(r.created_at)}</td>
+                        <td className="py-2 pr-3 text-xs text-muted-foreground">{r.completed_at ? timeAgo(r.completed_at) : '—'}</td>
+                        <td className="py-2">
+                          {r.status === 'failed' && (
+                            <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => retryRiven(r.id)}>
+                              <RotateCcw className="h-3 w-3 mr-1" /> Retry
+                            </Button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Riven performance */}
             <Card>
               <CardHeader><CardTitle className="text-base">Performance Data</CardTitle></CardHeader>
               <CardContent>
-                {rivenPerf.length === 0 ? <EmptyState message="No performance data" /> : (
-                  <DataTable
-                    headers={['Metric', 'Value', 'Period', 'Date']}
-                    rows={rivenPerf.map(r => [
-                      r.metric,
-                      String(r.value),
-                      r.period || '—',
-                      timeAgo(r.created_at),
-                    ])}
-                  />
+                {rivenPerf.length === 0 ? <Empty msg="No performance data" /> : (
+                  <Table headers={['Type', 'Audience', 'Sent', 'Opens', 'Replies', 'Conversions', 'Engagement %', 'Revenue']}>
+                    {rivenPerf.map((r: any) => (
+                      <tr key={r.id} className="border-b last:border-0 hover:bg-muted/30">
+                        <td className="py-2 pr-3 font-medium">{r.type || r.metric || '—'}</td>
+                        <td className="py-2 pr-3">{r.audience || r.audience_size || '—'}</td>
+                        <td className="py-2 pr-3">{r.sent || r.sent_count || 0}</td>
+                        <td className="py-2 pr-3">{r.opens || r.open_count || 0}</td>
+                        <td className="py-2 pr-3">{r.replies || r.reply_count || 0}</td>
+                        <td className="py-2 pr-3">{r.conversions || 0}</td>
+                        <td className="py-2 pr-3">{r.engagement_pct || r.engagement || r.value || 0}%</td>
+                        <td className="py-2 pr-3">{r.revenue ? `€${r.revenue}` : '—'}</td>
+                      </tr>
+                    ))}
+                  </Table>
                 )}
               </CardContent>
             </Card>
@@ -743,23 +926,9 @@ export default function ClaraCommandCentre() {
   );
 }
 
-// ─── Subcomponents ───────────────────────────────────────────────────
+// ─── Shared Subcomponents ────────────────────────────────────────────
 
-function MiniStat({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: number | string; color?: string }) {
-  return (
-    <Card className="p-3">
-      <div className="flex items-center gap-2">
-        {icon}
-        <div>
-          <p className={`text-lg font-bold leading-none ${color || ''}`}>{value}</p>
-          <p className="text-[10px] text-muted-foreground">{label}</p>
-        </div>
-      </div>
-    </Card>
-  );
-}
-
-function StatCard({ title, value, icon }: { title: string; value: string | number; icon: React.ReactNode }) {
+function Stat({ label, value, icon }: { label: string; value: string | number; icon: React.ReactNode }) {
   return (
     <Card>
       <CardContent className="pt-6">
@@ -767,7 +936,7 @@ function StatCard({ title, value, icon }: { title: string; value: string | numbe
           {icon}
           <div>
             <p className="text-2xl font-bold">{value}</p>
-            <p className="text-xs text-muted-foreground">{title}</p>
+            <p className="text-xs text-muted-foreground">{label}</p>
           </div>
         </div>
       </CardContent>
@@ -775,25 +944,21 @@ function StatCard({ title, value, icon }: { title: string; value: string | numbe
   );
 }
 
-function LoadingState() {
-  return (
-    <div className="flex items-center justify-center py-12">
-      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-    </div>
-  );
+function Spinner() {
+  return <div className="flex items-center justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
 }
 
-function EmptyState({ message }: { message: string }) {
+function Empty({ msg }: { msg: string }) {
   return (
     <div className="text-center py-8 text-muted-foreground">
       <Bot className="h-10 w-10 mx-auto mb-2 opacity-40" />
-      <p className="text-sm">{message}</p>
+      <p className="text-sm">{msg}</p>
       <p className="text-xs mt-1">Data will appear here as CLARA starts operating</p>
     </div>
   );
 }
 
-function DataTable({ headers, rows }: { headers: string[]; rows: React.ReactNode[][] }) {
+function Table({ headers, children }: { headers: string[]; children: React.ReactNode }) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
@@ -802,14 +967,12 @@ function DataTable({ headers, rows }: { headers: string[]; rows: React.ReactNode
             {headers.map(h => <th key={h} className="pb-2 pr-3 font-medium text-xs text-muted-foreground">{h}</th>)}
           </tr>
         </thead>
-        <tbody>
-          {rows.map((row, i) => (
-            <tr key={i} className="border-b last:border-0 hover:bg-muted/30">
-              {row.map((cell, j) => <td key={j} className="py-2 pr-3">{cell}</td>)}
-            </tr>
-          ))}
-        </tbody>
+        <tbody>{children}</tbody>
       </table>
     </div>
   );
+}
+
+function Dot({ color }: { color: 'red' | 'amber' }) {
+  return <span className={`ml-1 inline-block w-2 h-2 rounded-full ${color === 'red' ? 'bg-red-500' : 'bg-amber-500'}`} />;
 }

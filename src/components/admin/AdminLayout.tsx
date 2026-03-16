@@ -59,7 +59,8 @@ import {
   Rocket,
   HeartPulse,
   CheckCircle,
-  CreditCard
+  CreditCard,
+  Monitor
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -95,7 +96,7 @@ const useAdminMenuItems = () => {
     {
       title: t('admin.sidebarAI', 'AI'),
       items: [
-        { title: 'Command Centre', url: "/admin-dashboard/command-centre", icon: Activity },
+        { title: 'Command Centre', url: "/admin-dashboard/command-centre", icon: Monitor },
         { title: 'AI Overview', url: "/admin-dashboard/ai-overview", icon: LayoutDashboard },
         { title: 'Clara', url: "/admin-dashboard/clara-activity", icon: Bot },
         { title: 'Training Data', url: "/admin-dashboard/ai-training", icon: BookOpen },
