@@ -127,6 +127,8 @@
     "addOnsSubtitle": "Enhance your protection after joining. Add from your dashboard anytime.",
     "availableAfterJoining": "Available in your dashboard",
     "callCentreNote": "Professional call centre support (Spain only) is available as a separate add-on via our regional partner. Not included in any plan by default.",
+    "buyForSomeone": "Want to buy this for someone you love?",
+    "buyAsGift": "Buy as a Gift \u2192",
     "pendantNote": "Need hands-free protection?",
     "pendantLink": "Add the Bluetooth Pendant for €59.99",
     "basePlan": {
@@ -206,7 +208,8 @@
     "gpsLocation": "GPS Location",
     "liveTrackingActive": "Live tracking active",
     "familyCircle": "Family Circle",
-    "membersConnected": "3 members connected"
+    "membersConnected": "3 members connected",
+    "giveAsGift": "Give as a Gift"
   },
   "features": {
     "familyTracker": "Family Tracker",

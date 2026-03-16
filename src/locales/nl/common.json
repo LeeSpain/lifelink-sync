@@ -127,6 +127,8 @@
     "addOnsSubtitle": "Verbeter je bescherming na het aanmelden. Voeg toe vanuit je dashboard op elk moment.",
     "availableAfterJoining": "Beschikbaar in je dashboard",
     "callCentreNote": "Professioneel callcenter (alleen Spanje) is beschikbaar als aparte uitbreiding via onze regionale partner. Niet standaard inbegrepen in enig plan.",
+    "buyForSomeone": "Wil je dit voor iemand kopen die je liefhebt?",
+    "buyAsGift": "Kopen als cadeau \u2192",
     "pendantNote": "Handsfree bescherming nodig?",
     "pendantLink": "Voeg de Bluetooth Hanger toe voor €59.99",
     "basePlan": {
@@ -206,7 +208,8 @@
     "liveTrackingActive": "Live tracking actief",
     "familyCircle": "Familiekring",
     "membersConnected": "3 leden verbonden",
-    "meetClara": "Maak Kennis met Clara"
+    "meetClara": "Maak Kennis met Clara",
+    "giveAsGift": "Cadeau geven"
   },
   "features": {
     "title": "Complete noodbeschermingssuite",

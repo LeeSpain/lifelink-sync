@@ -237,6 +237,7 @@ function AppWithTracking() {
                 } />
 
                 {/* Gift Pages */}
+                <Route path="/gift/purchase" element={<Navigate to="/gift" replace />} />
                 <Route path="/gift" element={
                   <OptimizedSuspense skeletonType="card">
                     <GiftPurchasePage />

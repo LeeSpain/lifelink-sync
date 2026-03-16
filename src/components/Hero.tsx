@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Shield, Check, MapPin, Users, Activity, Wifi } from "lucide-react";
+import { Shield, Check, MapPin, Users, Activity, Wifi, Gift } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 import HowItAllConnectsModal from "@/components/dashboard/HowItAllConnectsModal";
@@ -138,18 +138,30 @@ const Hero = ({ onClaraClick }: HeroProps) => {
               </Button>
 
               <Button
+                asChild
                 size="lg"
                 variant="outline"
                 className="border-primary text-primary hover:bg-primary/5 font-semibold text-lg px-8 py-6 rounded-xl transition-all duration-300"
-                onClick={() => setShowEcosystem(true)}
               >
-                {t('hero.seeHowItWorks')}
+                <Link to="/gift">
+                  <Gift className="h-5 w-5 mr-2" />
+                  {t('hero.giveAsGift', 'Give as a Gift')}
+                </Link>
               </Button>
 
               <HowItAllConnectsModal
                 isOpen={showEcosystem}
                 onClose={() => setShowEcosystem(false)}
               />
+            </div>
+
+            <div className="flex justify-center lg:justify-start mb-4">
+              <button
+                onClick={() => setShowEcosystem(true)}
+                className="text-sm text-primary hover:text-primary/80 font-medium underline underline-offset-2 transition-colors"
+              >
+                {t('hero.seeHowItWorks')}
+              </button>
             </div>
 
             {/* Trust row */}

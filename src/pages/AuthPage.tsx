@@ -123,7 +123,7 @@ const AuthPage = () => {
         const planParam = searchParams.get('plan');
 
         const isTabletPWA = localStorage.getItem('pwa_intent') === 'tablet';
-        let redirectTo = isTabletPWA ? '/tablet-dashboard' : '/dashboard';
+        let redirectTo = isTabletPWA ? '/tablet-dashboard' : '/member-dashboard';
         if (nextUrl) {
           redirectTo = nextUrl;
           if (planParam) {
@@ -159,10 +159,8 @@ const AuthPage = () => {
     setSuccess('');
 
     try {
-      // Use canonical URL — must be in Supabase Auth redirect allowlist
-      const siteUrl = window.location.hostname === 'localhost'
-        ? window.location.origin
-        : 'https://lifelink-sync.vercel.app';
+      // Use canonical production URL — must be in Supabase Auth redirect allowlist
+      const siteUrl = 'https://lifelink-sync.vercel.app';
 
       const { error } = await supabase.auth.resetPasswordForEmail(emailTrimmed, {
         redirectTo: `${siteUrl}/auth?tab=reset`,
@@ -199,7 +197,7 @@ const AuthPage = () => {
       if (error) throw error;
       setSuccess(t('auth.passwordUpdated'));
       setTimeout(() => {
-        navigate('/dashboard');
+        navigate('/member-dashboard');
       }, 1500);
     } catch (error: any) {
       console.error('Password update error:', error);

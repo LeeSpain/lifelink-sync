@@ -127,6 +127,8 @@
     "addOnsSubtitle": "Mejora tu protección después de unirte. Añade desde tu panel en cualquier momento.",
     "availableAfterJoining": "Disponible en tu panel",
     "callCentreNote": "El soporte profesional de centro de llamadas (solo España) está disponible como complemento separado a través de nuestro socio regional. No incluido en ningún plan por defecto.",
+    "buyForSomeone": "¿Quieres comprarlo para alguien que quieres?",
+    "buyAsGift": "Comprar como regalo \u2192",
     "pendantNote": "¿Necesitas protección manos libres?",
     "pendantLink": "Añade el Colgante Bluetooth por €59.99",
     "basePlan": {
@@ -206,7 +208,8 @@
     "liveTrackingActive": "Seguimiento en vivo activo",
     "familyCircle": "Círculo familiar",
     "membersConnected": "3 miembros conectados",
-    "meetClara": "Conoce a Clara"
+    "meetClara": "Conoce a Clara",
+    "giveAsGift": "Regalar como presente"
   },
   "features": {
     "title": "Suite completa de protección de emergencia",

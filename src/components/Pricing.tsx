@@ -175,6 +175,17 @@ const Pricing: React.FC = () => {
           </div>
         </div>
 
+        {/* Gift / Loved One entry */}
+        <div className="max-w-lg mx-auto mb-8 text-center">
+          <p className="text-sm text-muted-foreground mb-2">
+            {t('pricing.buyForSomeone', { defaultValue: 'Want to buy this for someone you love?' })}
+          </p>
+          <Link to="/gift" className="inline-flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 font-semibold hover:underline">
+            <Gift className="h-4 w-4" />
+            {t('pricing.buyAsGift', { defaultValue: 'Buy as a Gift \u2192' })}
+          </Link>
+        </div>
+
         {/* Add-ons Section */}
         <div className="max-w-4xl mx-auto mb-8">
           <h3 className="text-2xl font-bold text-center mb-2 text-foreground">
