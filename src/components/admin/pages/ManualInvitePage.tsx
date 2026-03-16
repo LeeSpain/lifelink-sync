@@ -97,20 +97,22 @@ export default function ManualInvitePage() {
     setSent(false);
   };
 
-  const finalMessage = useEnhanced && enhancedMessage
-    ? enhancedMessage
-    : form.personalMessage;
-
+  // The message that will actually be sent
   const previewMessage = useEnhanced && enhancedMessage
     ? enhancedMessage
     : generateMessage(form.name || 'there', form.protectionFor, form.personalMessage);
 
-  const displayMessage = enhancedMessage || rawNote || '';
-  const hasMessage = displayMessage.trim().length > 0;
-  const hasContact = form.name.trim().length > 0;
-  const hasChannel = !!(form.email.trim() || form.whatsapp.trim());
+  // What to display in the preview panel (matches what's sent)
+  const displayMessage = useEnhanced && enhancedMessage
+    ? enhancedMessage
+    : rawNote
+      ? rawNote
+      : '';
 
-  const canSend = form.name.trim() && form.protectionFor && hasMessage && (
+  const hasMessage = !!(enhancedMessage || rawNote.trim() || form.personalMessage.trim());
+  const hasContact = form.name.trim().length > 0;
+
+  const canSend = form.name.trim() && form.protectionFor && (
     (form.sendVia === 'email' && form.email.trim()) ||
     (form.sendVia === 'whatsapp' && form.whatsapp.trim()) ||
     (form.sendVia === 'both' && form.email.trim() && form.whatsapp.trim())
@@ -196,7 +198,7 @@ Return the message text only. No preamble.`,
         contact_email: form.email || null,
         contact_whatsapp: form.whatsapp || null,
         protection_for: form.protectionFor,
-        personal_message: finalMessage || null,
+        personal_message: (useEnhanced ? enhancedMessage : rawNote || form.personalMessage) || null,
         send_via: form.sendVia,
         message_sent: previewMessage,
         relationship_tone: relationship,
@@ -336,6 +338,14 @@ Return the message text only. No preamble.`,
               <p className="text-gray-400 text-sm text-center italic">
                 Write a rough note and click "Let CLARA write this" to generate the message
               </p>
+            </div>
+          ) : !enhancedMessage && rawNote ? (
+            <div className="mb-4">
+              <p className="text-[10px] text-amber-500 font-medium mb-2 uppercase tracking-wider">Raw note (not yet enhanced by CLARA)</p>
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">{rawNote}</p>
+              </div>
+              <p className="text-xs text-amber-600 mt-2">Click "Let CLARA write this" to turn this into a polished invite, or send as-is using the template.</p>
             </div>
           ) : isEditingPreview ? (
             <Textarea

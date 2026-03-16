@@ -155,14 +155,21 @@ serve(async (req) => {
       if (body.contact_email) {
         try {
           const contactFirst = (body.contact_name || '').split(' ')[0] || 'there';
+          // Escape HTML entities to prevent XSS
+          const safeMessage = body.message
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/\n/g, '<br>');
           await resend.emails.send({
             from: 'Lee from LifeLink Sync <lee@lifelink-sync.com>',
             to: body.contact_email,
             subject: `${contactFirst}, Lee thought you'd want to see this`,
             html: `<div style="font-family: -apple-system, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; color: #333;">
-              <p style="white-space: pre-wrap; line-height: 1.6; font-size: 15px;">${body.message.replace(/\n/g, '<br>')}</p>
+              <p style="white-space: pre-wrap; line-height: 1.6; font-size: 15px;">${safeMessage}</p>
               <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
-              <p style="font-size: 12px; color: #999;">Sent via LifeLink Sync — 24/7 AI emergency protection<br/>
+              <p style="font-size: 12px; color: #999;">Sent via LifeLink Sync &mdash; 24/7 AI emergency protection<br/>
               <a href="https://lifelink-sync.com" style="color: #ef4444;">lifelink-sync.com</a></p>
             </div>`,
             text: body.message,
