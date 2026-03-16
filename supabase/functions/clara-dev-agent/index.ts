@@ -476,8 +476,144 @@ serve(async (req) => {
 
     const currentMode = adminMode?.current_mode || 'dev'; // default to dev for admin
 
-    // Business/sales/ops/marketing modes — route to business ops
-    if (['business', 'sales', 'ops', 'marketing'].includes(currentMode)) {
+    // ── PLAN COMMANDS — intercept from any mode ──────────
+    const lowerBody = messageBody.toLowerCase().trim();
+    const supabaseBaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const serviceHeaders = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}` };
+
+    const isPlanCommand =
+      /^(execute|run)\s+/i.test(lowerBody) ||
+      /^resume\s+/i.test(lowerBody) ||
+      lowerBody === 'pause plan' || lowerBody === 'stop execution' ||
+      lowerBody === 'cancel plan' ||
+      lowerBody === 'plan status' ||
+      lowerBody === 'list plans' || lowerBody === 'my plans';
+
+    // Also check YES/NO/DONE/SKIP when there's a running plan with pending approval
+    let hasPendingPlanApproval = false;
+    if (['yes', 'y', '👍', 'no', 'n', '❌', 'done', 'skip'].includes(lowerBody)) {
+      const { data: runningExec } = await supabase
+        .from('clara_plan_executions')
+        .select('id')
+        .eq('status', 'running')
+        .order('started_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (runningExec) {
+        const { data: pendingApproval } = await supabase
+          .from('clara_plan_approvals')
+          .select('id')
+          .eq('execution_id', runningExec.id)
+          .eq('approval_status', 'pending')
+          .maybeSingle();
+
+        hasPendingPlanApproval = !!pendingApproval;
+      }
+
+      // Also check for execute_plan pending action (initial YES to start)
+      if (!hasPendingPlanApproval && (lowerBody === 'yes' || lowerBody === 'y' || lowerBody === '👍')) {
+        const { data: pendingExecAction } = await supabase
+          .from('clara_pending_actions')
+          .select('id, action_data')
+          .eq('owner_phone', fromNumber)
+          .eq('status', 'pending')
+          .eq('action_type', 'execute_plan')
+          .order('proposed_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (pendingExecAction) {
+          // Approve and launch
+          await supabase.from('clara_pending_actions')
+            .update({ status: 'approved', executed_at: new Date().toISOString() })
+            .eq('id', pendingExecAction.id);
+
+          const actionData = pendingExecAction.action_data as { plan_id: string; plan_name: string; steps: unknown[] };
+          try {
+            await fetch(`${supabaseBaseUrl}/functions/v1/execute-plan`, {
+              method: 'POST', headers: serviceHeaders,
+              body: JSON.stringify({
+                action: 'launch',
+                from: fromNumber,
+                plan_id: actionData.plan_id,
+                plan_name: actionData.plan_name,
+                steps: actionData.steps,
+              }),
+            });
+          } catch (e) { console.warn('Execute plan launch failed:', e); }
+          return new Response('', { status: 200 });
+        }
+      }
+
+      // NO to execute_plan pending action
+      if (!hasPendingPlanApproval && (lowerBody === 'no' || lowerBody === 'n' || lowerBody === '❌')) {
+        const { data: pendingExecAction } = await supabase
+          .from('clara_pending_actions')
+          .select('id')
+          .eq('owner_phone', fromNumber)
+          .eq('status', 'pending')
+          .eq('action_type', 'execute_plan')
+          .order('proposed_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (pendingExecAction) {
+          await supabase.from('clara_pending_actions')
+            .update({ status: 'rejected' })
+            .eq('id', pendingExecAction.id);
+          await sendWhatsApp(fromNumber, 'Plan execution cancelled.');
+          return new Response('', { status: 200 });
+        }
+      }
+    }
+
+    if (isPlanCommand || hasPendingPlanApproval) {
+      try {
+        if (hasPendingPlanApproval) {
+          // Route YES/NO/DONE/SKIP to execute-plan step_response
+          await fetch(`${supabaseBaseUrl}/functions/v1/execute-plan`, {
+            method: 'POST', headers: serviceHeaders,
+            body: JSON.stringify({ action: 'step_response', from: fromNumber, step_response: lowerBody }),
+          });
+        } else if (/^(execute|run)\s+/i.test(lowerBody)) {
+          const planName = messageBody.replace(/^(execute|run)\s+/i, '').trim();
+          await fetch(`${supabaseBaseUrl}/functions/v1/execute-plan`, {
+            method: 'POST', headers: serviceHeaders,
+            body: JSON.stringify({ action: 'start', from: fromNumber, plan_name: planName }),
+          });
+        } else if (/^resume\s+/i.test(lowerBody)) {
+          await fetch(`${supabaseBaseUrl}/functions/v1/execute-plan`, {
+            method: 'POST', headers: serviceHeaders,
+            body: JSON.stringify({ action: 'resume', from: fromNumber }),
+          });
+        } else if (lowerBody === 'pause plan' || lowerBody === 'stop execution') {
+          await fetch(`${supabaseBaseUrl}/functions/v1/execute-plan`, {
+            method: 'POST', headers: serviceHeaders,
+            body: JSON.stringify({ action: 'pause', from: fromNumber }),
+          });
+        } else if (lowerBody === 'cancel plan') {
+          await fetch(`${supabaseBaseUrl}/functions/v1/execute-plan`, {
+            method: 'POST', headers: serviceHeaders,
+            body: JSON.stringify({ action: 'cancel', from: fromNumber }),
+          });
+        } else if (lowerBody === 'plan status') {
+          await fetch(`${supabaseBaseUrl}/functions/v1/execute-plan`, {
+            method: 'POST', headers: serviceHeaders,
+            body: JSON.stringify({ action: 'status', from: fromNumber }),
+          });
+        } else if (lowerBody === 'list plans' || lowerBody === 'my plans') {
+          await fetch(`${supabaseBaseUrl}/functions/v1/execute-plan`, {
+            method: 'POST', headers: serviceHeaders,
+            body: JSON.stringify({ action: 'list', from: fromNumber }),
+          });
+        }
+      } catch (e) { console.warn('Plan command forward failed:', e); }
+      return new Response('', { status: 200 });
+    }
+
+    // Business mode — route to business ops
+    if (currentMode === 'business') {
       try {
         await fetch(Deno.env.get('SUPABASE_URL') + '/functions/v1/clara-business-ops', {
           method: 'POST',
@@ -485,6 +621,42 @@ serve(async (req) => {
           body: JSON.stringify({ from: fromNumber, body: messageBody }),
         });
       } catch (e) { console.warn('Business ops forward failed:', e); }
+      return new Response('', { status: 200 });
+    }
+
+    // Sales mode — route to clara-sales
+    if (currentMode === 'sales') {
+      try {
+        await fetch(Deno.env.get('SUPABASE_URL') + '/functions/v1/clara-sales', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}` },
+          body: JSON.stringify({ from: fromNumber, body: messageBody }),
+        });
+      } catch (e) { console.warn('Sales mode forward failed:', e); }
+      return new Response('', { status: 200 });
+    }
+
+    // Marketing mode — route to clara-marketing
+    if (currentMode === 'marketing') {
+      try {
+        await fetch(Deno.env.get('SUPABASE_URL') + '/functions/v1/clara-marketing', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}` },
+          body: JSON.stringify({ from: fromNumber, body: messageBody }),
+        });
+      } catch (e) { console.warn('Marketing mode forward failed:', e); }
+      return new Response('', { status: 200 });
+    }
+
+    // Ops mode — route to clara-ops
+    if (currentMode === 'ops') {
+      try {
+        await fetch(Deno.env.get('SUPABASE_URL') + '/functions/v1/clara-ops', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}` },
+          body: JSON.stringify({ from: fromNumber, body: messageBody }),
+        });
+      } catch (e) { console.warn('Ops mode forward failed:', e); }
       return new Response('', { status: 200 });
     }
 

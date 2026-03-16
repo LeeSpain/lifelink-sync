@@ -26,12 +26,62 @@ const sendWhatsApp = async (to: string, body: string) => {
   );
 };
 
+const invokeFunction = async (fnName: string, body: Record<string, unknown>) => {
+  await fetch(Deno.env.get('SUPABASE_URL') + `/functions/v1/${fnName}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+    },
+    body: JSON.stringify(body),
+  });
+};
+
 serve(async (req) => {
   try {
     const { message, from } = await req.json();
+    const lower = message.toLowerCase().trim();
 
-    // Save plan command
-    if (message.toLowerCase().startsWith('save ')) {
+    // ── Execute plan command ────────────────────────────────
+    if (lower.startsWith('execute ') || lower.startsWith('run ')) {
+      const planName = message.replace(/^(execute|run)\s+/i, '').trim();
+      await invokeFunction('execute-plan', { action: 'start', from, plan_name: planName });
+      return new Response('', { status: 200 });
+    }
+
+    // ── Resume plan command ─────────────────────────────────
+    if (lower.startsWith('resume ')) {
+      await invokeFunction('execute-plan', { action: 'resume', from });
+      return new Response('', { status: 200 });
+    }
+
+    // ── Pause plan command ──────────────────────────────────
+    if (lower === 'pause plan' || lower === 'stop execution' || lower === 'pause') {
+      await invokeFunction('execute-plan', { action: 'pause', from });
+      return new Response('', { status: 200 });
+    }
+
+    // ── Cancel plan command ─────────────────────────────────
+    if (lower === 'cancel plan' || lower.startsWith('cancel ') || lower.startsWith('stop ')) {
+      await invokeFunction('execute-plan', { action: 'cancel', from });
+      return new Response('', { status: 200 });
+    }
+
+    // ── Plan status command ─────────────────────────────────
+    if (lower === 'plan status' || lower.includes('how is') || lower === 'progress') {
+      await invokeFunction('execute-plan', { action: 'status', from });
+      return new Response('', { status: 200 });
+    }
+
+    // ── List plans command ──────────────────────────────────
+    if (lower === 'list plans' || lower === 'my plans' ||
+        lower.includes('show my plans') || lower.includes('show plans')) {
+      await invokeFunction('execute-plan', { action: 'list', from });
+      return new Response('', { status: 200 });
+    }
+
+    // ── Save plan command ───────────────────────────────────
+    if (lower.startsWith('save ')) {
       const planName = message.replace(/^save /i, '').trim();
 
       const { data: recentLogs } = await supabase
@@ -47,33 +97,43 @@ serve(async (req) => {
       });
 
       await sendWhatsApp(from,
-        `💾 Plan saved: "${planName}"\nSay "show my plans" to see all plans.\nSay "execute ${planName}" when ready to run it.`
+        `💾 Plan saved: "${planName}"\nSay "list plans" to see all plans.\nSay "execute ${planName}" to run it now.`
       );
       return new Response('', { status: 200 });
     }
 
-    // Show plans command
-    if (message.toLowerCase().includes('show my plans') ||
-        message.toLowerCase().includes('my plans')) {
-      const { data: plans } = await supabase
-        .from('clara_planning_journal')
-        .select('plan_name, status, created_at')
-        .order('created_at', { ascending: false });
+    // ── DONE/SKIP for manual plan steps ─────────────────────
+    if (lower === 'done' || lower === 'skip') {
+      // Check if there's a running plan with a pending manual step
+      const { data: execution } = await supabase
+        .from('clara_plan_executions')
+        .select('id')
+        .eq('status', 'running')
+        .order('started_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-      if (!plans || plans.length === 0) {
-        await sendWhatsApp(from,
-          '📋 No plans saved yet.\nSay "save [plan name]" to save your current plan.'
-        );
-      } else {
-        const list = plans.map((p: any) =>
-          `• ${p.plan_name} (${p.status})`
-        ).join('\n');
-        await sendWhatsApp(from, `📋 Your plans:\n\n${list}`);
+      if (execution) {
+        const { data: pendingApproval } = await supabase
+          .from('clara_plan_approvals')
+          .select('id')
+          .eq('execution_id', execution.id)
+          .eq('approval_status', 'pending')
+          .maybeSingle();
+
+        if (pendingApproval) {
+          await invokeFunction('execute-plan', {
+            action: 'step_response',
+            from,
+            step_response: lower,
+          });
+          return new Response('', { status: 200 });
+        }
       }
-      return new Response('', { status: 200 });
+      // If no running plan, fall through to planning conversation
     }
 
-    // Planning conversation
+    // ── Planning conversation ───────────────────────────────
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -84,7 +144,7 @@ serve(async (req) => {
       body: JSON.stringify({
         model: 'claude-sonnet-4-5',
         max_tokens: 400,
-        system: `You are CLARA in planning mode for Lee Wakeman, owner of LifeLink Sync (emergency protection platform). You are a strategic thinking partner. NEVER take any action — only think, suggest, develop ideas. Ask good questions. Challenge assumptions. Be concise — WhatsApp format. Help Lee develop the best possible plan. Remind him to say "save [plan name]" when ready.`,
+        system: `You are CLARA in planning mode for Lee Wakeman, owner of LifeLink Sync (emergency protection platform). You are a strategic thinking partner. NEVER take any action — only think, suggest, develop ideas. Ask good questions. Challenge assumptions. Be concise — WhatsApp format. Help Lee develop the best possible plan. Remind him to say "save [plan name]" when ready. He can also say "list plans" to see saved plans or "execute [plan name]" to run one.`,
         messages: [{ role: 'user', content: message }],
       }),
     });
