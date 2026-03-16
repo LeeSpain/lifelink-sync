@@ -179,6 +179,66 @@ serve(async (req) => {
       return new Response(TWIML_OK, { status: 200, headers: { ...corsHeaders, 'Content-Type': 'text/xml' } });
     }
 
+    // ── Check for proactive invite replies ─────────────────────
+    const { data: activeInvite } = await supabase
+      .from('proactive_invites')
+      .select('id, contact_name')
+      .eq('contact_phone', phone)
+      .eq('status', 'active')
+      .maybeSingle();
+
+    if (activeInvite) {
+      const lower = body.toLowerCase().trim();
+      if (['yes', 'y', 'sí', 'si', 'ja', '👍'].includes(lower)) {
+        // Convert — mark invite and route to signup
+        await supabase.from('proactive_invites')
+          .update({ status: 'converted', converted_at: new Date().toISOString() })
+          .eq('id', activeInvite.id);
+
+        const leeNum = Deno.env.get('TWILIO_WHATSAPP_LEE')!;
+        await sendWhatsApp(`whatsapp:${phone}`, `That's great! Let me get you set up right now 🛡️`);
+
+        // Alert Lee
+        try {
+          await fetch(`https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`, {
+            method: 'POST',
+            headers: { 'Authorization': 'Basic ' + btoa(`${twilioSid}:${twilioToken}`), 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ To: leeNum, From: twilioFrom, Body: `🎉 ${activeInvite.contact_name} said YES to the invite! Signing them up now.` }).toString(),
+          });
+        } catch { /* non-fatal */ }
+
+        // Route to signup flow
+        try {
+          await fetch(Deno.env.get('SUPABASE_URL') + '/functions/v1/whatsapp-signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}` },
+            body: JSON.stringify({ from: fromRaw, body: 'start trial' }),
+          });
+        } catch { /* non-fatal */ }
+
+        return new Response(TWIML_OK, { status: 200, headers: { ...corsHeaders, 'Content-Type': 'text/xml' } });
+      }
+
+      if (['no', 'stop', 'unsubscribe', 'leave me alone'].includes(lower)) {
+        await supabase.from('proactive_invites')
+          .update({ status: 'opted_out' })
+          .eq('id', activeInvite.id);
+
+        await sendWhatsApp(`whatsapp:${phone}`, `No problem at all — I won't message again. Take care 👋`);
+
+        try {
+          const leeNum = Deno.env.get('TWILIO_WHATSAPP_LEE')!;
+          await fetch(`https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`, {
+            method: 'POST',
+            headers: { 'Authorization': 'Basic ' + btoa(`${twilioSid}:${twilioToken}`), 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ To: leeNum, From: twilioFrom, Body: `📋 ${activeInvite.contact_name} opted out of invite.` }).toString(),
+          });
+        } catch { /* non-fatal */ }
+
+        return new Response(TWIML_OK, { status: 200, headers: { ...corsHeaders, 'Content-Type': 'text/xml' } });
+      }
+    }
+
     // ── Check for active WhatsApp signup flow ──────────────────
     const isLee = normalizedAdmin && normalizedFrom === normalizedAdmin;
     const { data: activeSignup } = await supabase

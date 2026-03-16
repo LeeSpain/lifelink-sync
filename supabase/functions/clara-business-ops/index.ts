@@ -168,6 +168,30 @@ async function handleStatus(): Promise<{ proposal: string; data: unknown }> {
   };
 }
 
+async function handleInvite(msg: string): Promise<{ proposal: string; data: unknown }> {
+  // Use Claude to extract invite details
+  const anthropicKey = Deno.env.get('ANTHROPIC_API_KEY')!;
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'x-api-key': anthropicKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-3-haiku-20240307',
+      max_tokens: 300,
+      messages: [{ role: 'user', content: `Extract invite details from this message. Respond with JSON only:\n{"contact_name":"name","contact_phone":"phone or null","contact_email":"email or null","who_for":"self|mum|dad|parents|business|unsure","channel":"whatsapp"}\n\nMessage: "${msg}"` }],
+    }),
+  });
+  const data = await res.json();
+  const parsed = JSON.parse(data.content[0].text.replace(/```json|```/g, '').trim());
+
+  const whoLabels: Record<string, string> = { self: 'themselves', mum: 'their mum', dad: 'their dad', parents: 'their parents', business: 'their team', unsure: 'someone they care about' };
+  const whoText = whoLabels[parsed.who_for] || 'someone they care about';
+
+  return {
+    proposal: `I'll send a personalised invite to ${parsed.contact_name} about protecting ${whoText}.\n\nChannel: ${parsed.channel || 'WhatsApp'}${parsed.contact_phone ? '\nPhone: ' + parsed.contact_phone : ''}${parsed.contact_email ? '\nEmail: ' + parsed.contact_email : ''}\n\nReply YES to send or NO to cancel.`,
+    data: { action: 'invite', invite_data: parsed },
+  };
+}
+
 // ── Execute approved actions ───────────────────────────────────
 
 async function executeAction(action: { action_type: string; action_data: Record<string, unknown> }) {
@@ -194,6 +218,17 @@ async function executeAction(action: { action_type: string; action_data: Record<
 
   if (action.action_type === 'revenue') {
     return '✅ Revenue report noted. (Email sending available when RESEND_API_KEY is set.)';
+  }
+
+  if (action.action_type === 'invite') {
+    try {
+      await supabase.functions.invoke('proactive-invite', {
+        body: { action: 'create_invite', invite_data: (action.action_data as Record<string, unknown>).invite_data },
+      });
+      return '✅ Invite sent! I\'ll follow up automatically on days 2, 4, and 7.';
+    } catch {
+      return '❌ Failed to send invite. Try again.';
+    }
   }
 
   return '✅ Action completed.';
@@ -275,6 +310,9 @@ serve(async (req) => {
         break;
       case 'status':
         result = await handleStatus();
+        break;
+      case 'invite':
+        result = await handleInvite(msg);
         break;
       default:
         // Unknown — use Claude to interpret
