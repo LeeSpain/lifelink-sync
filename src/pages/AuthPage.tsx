@@ -488,7 +488,7 @@ const AuthPage = () => {
               {/* Dashboards */}
               <div>
                 <p className="text-xs font-semibold text-foreground mb-2">Dashboards</p>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {[
                     { label: 'Member', href: '/member-dashboard?dev=1' },
                     { label: 'Admin', href: '/admin-dashboard?dev=1' },
@@ -503,7 +503,7 @@ const AuthPage = () => {
               {/* Apps */}
               <div>
                 <p className="text-xs font-semibold text-foreground mb-2">Apps</p>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {[
                     { label: 'SOS App', href: '/sos-app?dev=1' },
                     { label: 'Family App', href: '/family-app?dev=1' },

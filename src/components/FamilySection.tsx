@@ -19,7 +19,7 @@ const FamilySection: React.FC = () => {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left — Copy */}
             <div>
-              <h2 className="text-3xl md:text-5xl font-bold font-poppins mb-6 text-[hsl(215,25%,27%)]">
+              <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold font-poppins mb-6 text-[hsl(215,25%,27%)]">
                 {t('familySection.title')}
               </h2>
               <p className="text-lg text-gray-600 font-inter mb-8 leading-relaxed">

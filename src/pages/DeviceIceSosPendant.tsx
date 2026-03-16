@@ -176,7 +176,7 @@ const DeviceIceSosPendant = () => {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {features.map((feature, i) => (
                 <Card key={i} className="bg-white border-[#E5E7EB] rounded-2xl hover:shadow-lg transition-shadow duration-300 text-center p-6">
                   <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4">

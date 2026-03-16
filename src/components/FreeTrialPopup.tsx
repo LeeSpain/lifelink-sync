@@ -137,13 +137,13 @@ export const FreeTrialPopup = ({ onClose }: FreeTrialPopupProps) => {
         </CardHeader>
         
         <CardContent>
-          <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
             <div className="flex items-center gap-2 p-3 bg-green-50 rounded-lg">
-              <Shield className="h-5 w-5 text-green-600" />
+              <Shield className="h-5 w-5 text-green-600 flex-shrink-0" />
               <span className="text-sm font-medium text-green-800">{t('trialPopup.fullProtection')}</span>
             </div>
             <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg">
-              <Clock className="h-5 w-5 text-blue-600" />
+              <Clock className="h-5 w-5 text-blue-600 flex-shrink-0" />
               <span className="text-sm font-medium text-blue-800">{t('trialPopup.sevenDaysFree')}</span>
             </div>
           </div>

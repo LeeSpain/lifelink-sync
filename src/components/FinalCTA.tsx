@@ -10,7 +10,7 @@ const FinalCTA: React.FC = () => {
     <section className="py-20 bg-gradient-to-r from-[#991B1B] via-[#DC2626] to-[#EF4444]">
       <div className="container mx-auto px-4">
         <div className="text-center max-w-3xl mx-auto">
-          <h2 className="text-3xl md:text-5xl font-bold font-poppins mb-6 text-white">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold font-poppins mb-6 text-white">
             {t('cta.title')}
           </h2>
           <p className="text-lg text-white/90 mb-10 font-inter leading-relaxed">
