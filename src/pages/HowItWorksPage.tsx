@@ -17,15 +17,15 @@ import { useScrollToTop } from '@/hooks/useScrollToTop';
 function HeroSection() {
   const { t } = useTranslation();
   return (
-    <section className="pt-32 pb-20 text-center">
-      <div className="container mx-auto px-4 max-w-3xl">
-        <Badge className="bg-red-500/10 text-red-400 border-red-500/20 text-sm mb-6">
+    <section className="bg-[#FAFAF9] pt-32 pb-20">
+      <div className="container mx-auto px-4 max-w-3xl text-center">
+        <span className="text-primary text-sm font-semibold tracking-wider uppercase">
           {t('howItWorksPage.label', 'HOW IT WORKS')}
-        </Badge>
-        <h1 className="text-4xl md:text-6xl font-bold font-poppins mb-6 leading-tight text-white">
+        </span>
+        <h1 className="text-4xl md:text-6xl font-bold font-poppins mb-6 mt-4 leading-tight text-[hsl(215,25%,27%)]">
           {t('howItWorksPage.heading', 'Protection that works while you live your life')}
         </h1>
-        <p className="text-lg md:text-xl text-gray-400 max-w-xl mx-auto">
+        <p className="text-lg md:text-xl text-gray-500 max-w-xl mx-auto font-inter">
           {t('howItWorksPage.subtitle', 'Set up in 2 minutes. CLARA watches over you and your loved ones 24/7.')}
         </p>
       </div>
@@ -44,26 +44,26 @@ const steps = [
 function StepsSection() {
   const { t } = useTranslation();
   return (
-    <section className="py-20 border-t border-white/5">
+    <section className="py-20 bg-white">
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-4 gap-8 relative">
           {/* Connecting line (desktop only) */}
-          <div className="hidden md:block absolute top-12 left-[12.5%] right-[12.5%] h-[2px] bg-gradient-to-r from-red-500/40 via-red-500/20 to-red-500/40" />
+          <div className="hidden md:block absolute top-12 left-[12.5%] right-[12.5%] h-[2px] bg-gray-200" />
 
           {steps.map((step, i) => {
             const Icon = step.icon;
             return (
               <div key={i} className="text-center relative">
-                <div className="w-12 h-12 rounded-full bg-red-500 text-white font-bold text-lg flex items-center justify-center mx-auto mb-4 relative z-10 shadow-lg shadow-red-500/30">
+                <div className="w-12 h-12 rounded-full bg-red-500 text-white font-bold text-lg flex items-center justify-center mx-auto mb-4 relative z-10 shadow-lg shadow-red-500/20">
                   {i + 1}
                 </div>
-                <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mx-auto mb-3">
-                  <Icon className="h-5 w-5 text-red-400" />
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                  <Icon className="h-5 w-5 text-primary" />
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2">
+                <h3 className="text-lg font-semibold text-[hsl(215,25%,27%)] mb-2">
                   {t(`howItWorksPage.${step.titleKey}`, step.titleFallback)}
                 </h3>
-                <p className="text-sm text-gray-400 leading-relaxed max-w-[220px] mx-auto">
+                <p className="text-sm text-gray-500 leading-relaxed max-w-[220px] mx-auto font-inter">
                   {t(`howItWorksPage.${step.descKey}`, step.descFallback)}
                 </p>
               </div>
@@ -79,15 +79,14 @@ function StepsSection() {
 function PhoneMockup() {
   return (
     <div className="mt-4 mx-auto" style={{ maxWidth: 180 }}>
-      <div className="rounded-[32px] p-2 border-2 border-white/10 bg-[#0d1117]" style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(239,68,68,0.1)' }}>
-        {/* SCREENSHOT: Replace /screenshots/family-mobile.png with a real screenshot. Ideal: 390x844px */}
+      <div className="rounded-[32px] p-2 border-2 border-gray-200 bg-white shadow-lg">
         <img
           src="/screenshots/family-mobile.png"
           alt="Family mobile app"
           className="rounded-[26px] w-full block"
           onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; const next = (e.target as HTMLImageElement).nextElementSibling as HTMLElement; if (next) next.style.display = 'flex'; }}
         />
-        <div className="hidden h-[240px] items-center justify-center rounded-[26px] bg-[#0a0f1a] text-red-400 text-xs text-center p-5">
+        <div className="hidden h-[240px] items-center justify-center rounded-[26px] bg-gray-50 text-gray-400 text-xs text-center p-5">
           <div>
             <Smartphone className="h-8 w-8 mx-auto mb-2 opacity-50" />
             <span>Family App Preview</span>
@@ -102,8 +101,8 @@ function PendantVisual() {
   return (
     <div className="mt-4 flex justify-center">
       <div className="relative">
-        <div className="absolute inset-0 rounded-full blur-xl bg-red-500/20 animate-pulse" style={{ width: 100, height: 100 }} />
-        <div className="relative w-[100px] h-[100px] rounded-full flex items-center justify-center text-lg font-bold text-red-400" style={{ background: 'linear-gradient(135deg, #1a0505, #2d0a0a)', border: '2px solid #ef4444', boxShadow: '0 0 30px rgba(239,68,68,0.3)' }}>
+        <div className="absolute inset-0 rounded-full blur-xl bg-red-500/10 animate-pulse" style={{ width: 100, height: 100 }} />
+        <div className="relative w-[100px] h-[100px] rounded-full flex items-center justify-center text-lg font-bold text-white bg-red-500 shadow-lg shadow-red-500/20">
           SOS
         </div>
       </div>
@@ -114,15 +113,14 @@ function PendantVisual() {
 function TabletMockup() {
   return (
     <div className="mt-4 mx-auto" style={{ maxWidth: 260 }}>
-      <div className="rounded-2xl p-2 border-2 border-white/10 bg-[#0d1117]" style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(239,68,68,0.1)', aspectRatio: '4/3' }}>
-        {/* SCREENSHOT: Replace /screenshots/tablet-dashboard.png with a real screenshot. Ideal: 1280x800px */}
+      <div className="rounded-2xl p-2 border-2 border-gray-200 bg-white shadow-lg" style={{ aspectRatio: '4/3' }}>
         <img
           src="/screenshots/tablet-dashboard.png"
           alt="Tablet dashboard"
           className="rounded-[10px] w-full h-full object-cover block"
           onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; const next = (e.target as HTMLImageElement).nextElementSibling as HTMLElement; if (next) next.style.display = 'flex'; }}
         />
-        <div className="hidden h-full items-center justify-center rounded-[10px] bg-[#0a0f1a] text-red-400 text-xs text-center p-5">
+        <div className="hidden h-full items-center justify-center rounded-[10px] bg-gray-50 text-gray-400 text-xs text-center p-5">
           <div>
             <Monitor className="h-8 w-8 mx-auto mb-2 opacity-50" />
             <span>Tablet Dashboard Preview</span>
@@ -159,13 +157,13 @@ const triggerCards = [
 
 function TriggersSection() {
   return (
-    <section className="py-20 border-t border-white/5">
+    <section className="py-20 bg-[#F3F4F6]">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-[hsl(215,25%,27%)] font-poppins mb-4">
             Three ways to call for help
           </h2>
-          <p className="text-gray-400 text-lg">
+          <p className="text-gray-500 text-lg font-inter">
             However you need it, whenever you need it.
           </p>
         </div>
@@ -176,16 +174,16 @@ function TriggersSection() {
             return (
               <div
                 key={i}
-                className="rounded-2xl p-6 bg-white/[0.03] border border-white/10 hover:border-red-500/30 transition-all duration-300 group relative overflow-hidden"
+                className="rounded-2xl p-6 bg-white border border-[#E5E7EB] shadow-sm hover:shadow-lg hover:border-red-200 transition-all duration-300 group relative overflow-hidden"
               >
-                <Badge className="absolute top-4 right-4 bg-red-500/10 text-red-400 border-red-500/20 text-[10px]">
+                <Badge className="absolute top-4 right-4 bg-red-50 text-red-600 border-red-200 text-[10px]">
                   {card.tag}
                 </Badge>
-                <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center mb-4 group-hover:bg-red-500/20 transition-colors">
-                  <Icon className="h-5 w-5 text-red-400" />
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-red-100 transition-colors">
+                  <Icon className="h-5 w-5 text-primary" />
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2">{card.title}</h3>
-                <p className="text-sm text-gray-400 leading-relaxed">{card.desc}</p>
+                <h3 className="text-lg font-semibold text-[hsl(215,25%,27%)] mb-2">{card.title}</h3>
+                <p className="text-sm text-gray-500 leading-relaxed font-inter">{card.desc}</p>
                 {card.visual}
               </div>
             );
@@ -198,19 +196,19 @@ function TriggersSection() {
 
 // ── Section 4: What Happens When SOS Fires ──────────────────
 const sosSteps = [
-  { icon: MessageSquare, title: 'Circle alerted instantly', desc: 'WhatsApp + SMS sent to all emergency contacts', color: 'text-red-400 bg-red-500/10 border-red-500/30' },
-  { icon: MapPin, title: 'GPS location shared live', desc: 'Your real-time location streamed to your circle', color: 'text-red-400 bg-red-500/10 border-red-500/30' },
-  { icon: FileText, title: 'Medical profile sent', desc: 'Conditions, medications, and allergies shared with first responders', color: 'text-amber-400 bg-amber-500/10 border-amber-500/30' },
-  { icon: Phone, title: 'Conference call opens', desc: 'Your entire family circle connected on one call to coordinate', color: 'text-amber-400 bg-amber-500/10 border-amber-500/30' },
-  { icon: AlertTriangle, title: 'CLARA escalates', desc: 'If no one responds, CLARA escalates and keeps trying', color: 'text-green-400 bg-green-500/10 border-green-500/30' },
+  { icon: MessageSquare, title: 'Circle alerted instantly', desc: 'WhatsApp + SMS sent to all emergency contacts', color: 'text-red-500 bg-red-50 border-red-200' },
+  { icon: MapPin, title: 'GPS location shared live', desc: 'Your real-time location streamed to your circle', color: 'text-red-500 bg-red-50 border-red-200' },
+  { icon: FileText, title: 'Medical profile sent', desc: 'Conditions, medications, and allergies shared with first responders', color: 'text-amber-600 bg-amber-50 border-amber-200' },
+  { icon: Phone, title: 'Conference call opens', desc: 'Your entire family circle connected on one call to coordinate', color: 'text-amber-600 bg-amber-50 border-amber-200' },
+  { icon: AlertTriangle, title: 'CLARA escalates', desc: 'If no one responds, CLARA escalates and keeps trying', color: 'text-green-600 bg-green-50 border-green-200' },
 ];
 
 function SOSFlowSection() {
   return (
-    <section className="py-20 border-t border-white/5">
+    <section className="py-20 bg-white">
       <div className="container mx-auto px-4 max-w-3xl">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-[hsl(215,25%,27%)] font-poppins mb-4">
             What happens the moment you press SOS
           </h2>
         </div>
@@ -226,9 +224,9 @@ function SOSFlowSection() {
                 <div className="flex-1 pt-1">
                   <div className="flex items-center gap-2 mb-1">
                     <Icon className={`h-4 w-4 ${step.color.split(' ')[0]}`} />
-                    <h3 className="font-semibold text-white">{step.title}</h3>
+                    <h3 className="font-semibold text-[hsl(215,25%,27%)]">{step.title}</h3>
                   </div>
-                  <p className="text-sm text-gray-400">{step.desc}</p>
+                  <p className="text-sm text-gray-500 font-inter">{step.desc}</p>
                 </div>
               </div>
             );
@@ -243,9 +241,9 @@ function SOSFlowSection() {
 function CTASection() {
   const { t } = useTranslation();
   return (
-    <section className="py-20 border-t border-white/5">
+    <section className="py-20 bg-gray-900">
       <div className="container mx-auto px-4 text-center max-w-2xl">
-        <h2 className="text-3xl md:text-4xl font-bold text-white mb-8">
+        <h2 className="text-3xl md:text-4xl font-bold text-white font-poppins mb-8">
           {t('howItWorksPage.ctaHeading', 'Start protecting yourself or someone you love today')}
         </h2>
 
@@ -256,7 +254,7 @@ function CTASection() {
               {t('howItWorksPage.ctaStart', 'Start Free Trial')}
             </Link>
           </Button>
-          <Button asChild size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/5 font-semibold text-lg px-8 py-6 rounded-xl">
+          <Button asChild size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/10 font-semibold text-lg px-8 py-6 rounded-xl">
             <Link to="/gift">
               <Gift className="h-5 w-5 mr-2" />
               {t('howItWorksPage.ctaGift', 'Give as a Gift')}
@@ -264,7 +262,7 @@ function CTASection() {
           </Button>
         </div>
 
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-gray-400">
           7-day free trial &middot; No card required &middot; Cancel anytime
         </p>
       </div>
@@ -277,7 +275,7 @@ export default function HowItWorksPage() {
   useScrollToTop();
 
   return (
-    <div className="min-h-screen bg-[#070f1e] text-white">
+    <div className="min-h-screen bg-white">
       <Navigation />
       <HeroSection />
       <StepsSection />
