@@ -44,7 +44,10 @@
     "regionalServices": "Servicios Regionales",
     "familyCarerAccess": "Acceso Familia y Cuidador",
     "familyDashboard": "Panel Familiar",
-    "contactUs": "Contáctanos"
+    "contactUs": "Contáctanos",
+    "description": "Protección de emergencia completa para individuos y familias. SOS con un toque, Clara IA, ubicación en vivo y respuesta familiar coordinada.",
+    "getProtected": "Protégete",
+    "allRightsReserved": "Todos los derechos reservados."
   },
   "admin": {
     "title": "Panel de Administración",
@@ -130,6 +133,7 @@
     "buyForSomeone": "¿Quieres comprarlo para alguien que quieres?",
     "buyAsGift": "Comprar como regalo \u2192",
     "pendantNote": "¿Necesitas protección manos libres?",
+    "pendantComingSoon": "Colgante Bluetooth — Próximamente",
     "pendantLink": "Añade el Colgante Bluetooth por €59.99",
     "basePlan": {
       "badge": "Plan base",
@@ -870,6 +874,18 @@
     "description": "Únete a familias en Europa que confían en LifeLink Sync para protección integral de emergencia. Comienza hoy y experimenta tranquilidad con monitoreo profesional, conectividad familiar y asistencia con IA.",
     "startProtection": "Iniciar Protección",
     "connectFamily": "Conectar Familia"
+  },
+  "gift": {
+    "giftHeroLabel": "Regalar Proteccion",
+    "giftHeadline": "El mejor regalo que puedes dar a alguien que amas es tranquilidad.",
+    "giftSubtitle": "Configura CLARA para alguien especial. Reciben proteccion de emergencia 24/7 con IA.",
+    "giftTrust1": "Sin tarjeta para canjear",
+    "giftTrust2": "Activo en minutos",
+    "giftTrust3": "Familias en toda Europa confian en nosotros",
+    "giftChoose": "Elige tu regalo",
+    "giftPersonalMessage": "Agrega un mensaje personal",
+    "giftWhoFor": "Para quien es este regalo?",
+    "giftSend": "Enviar regalo"
   },
   "howItWorksPage": {
     "label": "COMO FUNCIONA",
@@ -2831,7 +2847,8 @@
     "price": "€59.99",
     "shipping": "+ €4.99 envío",
     "cta": "Ver Detalles del Colgante",
-    "oneTime": "Compra única · Sin cuotas mensuales"
+    "oneTime": "Compra única · Sin cuotas mensuales",
+    "comingSoon": "Próximamente"
   },
   "registration": {
     "steps": {

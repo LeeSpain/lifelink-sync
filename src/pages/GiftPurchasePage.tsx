@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import { Gift, Shield, Heart, Clock, Package, Loader2, Check, ArrowLeft } from 'lucide-react';
+import { Gift, Shield, Heart, Clock, Package, Loader2, Check } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -22,8 +21,13 @@ interface GiftPackage {
   type: GiftType;
   months: number;
   badge?: string;
+  badgeColor?: string;
   icon: React.ReactNode;
   includesPendant?: boolean;
+  title: string;
+  desc: string;
+  saving?: string;
+  tag?: string;
 }
 
 const GiftPurchasePage: React.FC = () => {
@@ -42,17 +46,12 @@ const GiftPurchasePage: React.FC = () => {
   const [purchaserEmail, setPurchaserEmail] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Pre-fill purchaser if logged in
   React.useEffect(() => {
-    if (user?.email) {
-      setPurchaserEmail(user.email);
-    }
+    if (user?.email) setPurchaserEmail(user.email);
     if (user) {
       supabase.from('profiles').select('first_name, last_name').eq('user_id', user.id).maybeSingle()
         .then(({ data }) => {
-          if (data?.first_name) {
-            setPurchaserName(`${data.first_name}${data.last_name ? ' ' + data.last_name : ''}`);
-          }
+          if (data?.first_name) setPurchaserName(`${data.first_name}${data.last_name ? ' ' + data.last_name : ''}`);
         });
     }
   }, [user]);
@@ -65,31 +64,36 @@ const GiftPurchasePage: React.FC = () => {
   };
 
   const packages: GiftPackage[] = [
-    { type: 'monthly', months: 1, icon: <Clock className="h-6 w-6" /> },
-    { type: 'annual', months: 12, badge: t('gift.mostPopular', { defaultValue: 'Most Popular' }), icon: <Shield className="h-6 w-6" /> },
-    { type: 'bundle', months: 12, badge: t('gift.bestValue', { defaultValue: 'Best Value' }), icon: <Package className="h-6 w-6" />, includesPendant: true },
-    { type: 'voucher', months: 12, icon: <Heart className="h-6 w-6" /> },
+    {
+      type: 'monthly', months: 1,
+      icon: <Clock className="h-6 w-6" />,
+      title: '1 Month',
+      desc: 'A full month of CLARA AI protection. Perfect for trying it out together.',
+    },
+    {
+      type: 'annual', months: 12,
+      badge: 'Most Popular', badgeColor: 'bg-red-500',
+      icon: <Shield className="h-6 w-6" />,
+      title: '12 Months',
+      desc: 'A full year of protection. The most thoughtful gift you can give.',
+      saving: 'Save \u20ac19.98 vs monthly',
+    },
+    {
+      type: 'bundle', months: 12,
+      badge: 'Best Value', badgeColor: 'bg-amber-500',
+      icon: <Package className="h-6 w-6" />,
+      title: 'Bundle + Pendant',
+      desc: '12 months + an SOS pendant shipped directly to them. Everything they need in one box.',
+      includesPendant: true,
+      tag: '+ ICE SOS Pendant included',
+    },
+    {
+      type: 'voucher', months: 12,
+      icon: <Heart className="h-6 w-6" />,
+      title: 'Gift Voucher',
+      desc: 'A redeemable code they choose when to activate. Perfect as a physical gift.',
+    },
   ];
-
-  const getPackageTitle = (type: GiftType): string => {
-    const titles: Record<GiftType, string> = {
-      monthly: t('gift.monthlyTitle', { defaultValue: '1 Month Gift' }),
-      annual: t('gift.annualTitle', { defaultValue: '12 Month Gift' }),
-      bundle: t('gift.bundleTitle', { defaultValue: 'Bundle + Pendant' }),
-      voucher: t('gift.voucherTitle', { defaultValue: 'Gift Voucher' }),
-    };
-    return titles[type];
-  };
-
-  const getPackageDesc = (type: GiftType): string => {
-    const descs: Record<GiftType, string> = {
-      monthly: t('gift.monthlyDesc', { defaultValue: '1 month of CLARA AI protection' }),
-      annual: t('gift.annualDesc', { defaultValue: '12 months of full protection' }),
-      bundle: t('gift.bundleDesc', { defaultValue: '12 months + ICE SOS Pendant' }),
-      voucher: t('gift.voucherDesc', { defaultValue: 'Flexible gift — recipient chooses' }),
-    };
-    return descs[type];
-  };
 
   const todayStr = new Date().toISOString().split('T')[0];
 
@@ -106,7 +110,6 @@ const GiftPurchasePage: React.FC = () => {
 
   const handlePurchase = async () => {
     if (!isFormValid() || !selectedType) return;
-
     setIsProcessing(true);
     try {
       const { data, error } = await supabase.functions.invoke('gift-checkout', {
@@ -120,15 +123,10 @@ const GiftPurchasePage: React.FC = () => {
           purchaser_email: purchaserEmail.trim(),
         },
       });
-
       if (error) throw new Error(error.message);
       if (data?.error) throw new Error(data.error);
-
-      if (data?.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error('No checkout URL returned');
-      }
+      if (data?.url) { window.location.href = data.url; }
+      else { throw new Error('No checkout URL returned'); }
     } catch (err) {
       toast({
         title: t('gift.purchaseError', { defaultValue: 'Purchase failed' }),
@@ -139,208 +137,227 @@ const GiftPurchasePage: React.FC = () => {
     }
   };
 
+  const testimonials = [
+    { quote: 'I bought this for my mum in Spain. She was set up in 10 minutes and I finally sleep at night.', name: 'James, 34', city: 'Amsterdam' },
+    { quote: "My dad is stubborn about asking for help. CLARA does it for him.", name: 'Sarah, 41', city: 'London' },
+    { quote: "Best birthday gift I've ever given. Mum loves talking to CLARA.", name: 'Miguel, 38', city: 'Madrid' },
+  ];
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#070f1e] text-white">
       <SEO
-        title={t('gift.seoTitle', { defaultValue: 'Gift LifeLink Sync — Give the Gift of Safety' })}
+        title={t('gift.seoTitle', { defaultValue: 'Gift LifeLink Sync \u2014 Give the Gift of Safety' })}
         description={t('gift.seoDesc', { defaultValue: 'Give someone you love 24/7 emergency protection with CLARA AI.' })}
       />
       <Navigation />
 
-      <div className="container mx-auto px-4 py-12">
-        <div className="max-w-4xl mx-auto space-y-8">
+      {/* ── Hero ──────────────────────────────────────────── */}
+      <section className="pt-32 pb-16 text-center relative overflow-hidden">
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-red-500/10 rounded-full blur-[100px] animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-red-500/5 rounded-full blur-[80px] animate-pulse" style={{ animationDelay: '2s' }} />
+        </div>
+        <div className="container mx-auto px-4 max-w-3xl relative z-10">
+          <Badge className="bg-red-500/10 text-red-400 border-red-500/20 text-sm mb-6 px-4 py-1.5">
+            <Gift className="h-3.5 w-3.5 mr-1.5" />
+            {t('gift.giftHeroLabel', { defaultValue: 'Gift Protection' })}
+          </Badge>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-poppins mb-6 leading-tight">
+            {t('gift.giftHeadline', { defaultValue: 'The best gift you can give someone you love is peace of mind.' })}
+          </h1>
+          <p className="text-lg text-gray-400 max-w-xl mx-auto leading-relaxed">
+            {t('gift.giftSubtitle', { defaultValue: "Set up CLARA for someone special. They get 24/7 AI emergency protection. You get the peace of mind you've been looking for." })}
+          </p>
+        </div>
+      </section>
 
-          {/* Hero */}
-          <div className="text-center space-y-3">
-            <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-              <Gift className="h-8 w-8 text-primary" />
-            </div>
-            <h1 className="text-3xl sm:text-4xl font-bold">
-              {t('gift.heroTitle', { defaultValue: 'Give the Gift of Safety' })}
-            </h1>
-            <p className="text-muted-foreground max-w-lg mx-auto">
-              {t('gift.heroSubtitle', { defaultValue: 'Protect someone you love with 24/7 CLARA AI emergency protection. No credit card needed to redeem.' })}
-            </p>
-          </div>
-
-          {/* Package Selection */}
-          <div>
-            <h2 className="text-xl font-semibold mb-4 text-center">
-              {t('gift.choosePackage', { defaultValue: 'Choose a gift package' })}
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {packages.map((pkg) => (
-                <Card
-                  key={pkg.type}
-                  className={`cursor-pointer transition-all hover:shadow-md ${
-                    selectedType === pkg.type
-                      ? 'ring-2 ring-primary border-primary'
-                      : 'hover:border-primary/50'
-                  }`}
-                  onClick={() => setSelectedType(pkg.type)}
-                >
-                  <CardContent className="p-5 text-center space-y-3">
-                    <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary">
-                      {pkg.icon}
-                    </div>
-                    {pkg.badge && (
-                      <Badge className="bg-primary/10 text-primary text-xs">{pkg.badge}</Badge>
-                    )}
-                    <h3 className="font-semibold">{getPackageTitle(pkg.type)}</h3>
-                    <p className="text-2xl font-bold text-primary">{formatPrice(GIFT_PRICES[pkg.type])}</p>
-                    <p className="text-xs text-muted-foreground">{getPackageDesc(pkg.type)}</p>
-                    {pkg.includesPendant && (
-                      <Badge variant="secondary" className="text-xs">
-                        {t('gift.includesPendant', { defaultValue: '+ ICE SOS Pendant' })}
-                      </Badge>
-                    )}
-                    {selectedType === pkg.type && (
-                      <div className="flex items-center justify-center text-primary">
-                        <Check className="h-5 w-5" />
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-
-          {/* Gift Form — only show after package selected */}
-          {selectedType && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">
-                  {t('gift.recipientDetails', { defaultValue: 'Gift Details' })}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-
-                {/* Recipient */}
-                <div className="space-y-4">
-                  <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-                    {t('gift.recipientSection', { defaultValue: 'Recipient' })}
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="recipient-name">{t('gift.recipientName', { defaultValue: 'Recipient name' })} *</Label>
-                      <Input
-                        id="recipient-name"
-                        value={recipientName}
-                        onChange={(e) => setRecipientName(e.target.value)}
-                        placeholder={t('gift.recipientNamePlaceholder', { defaultValue: 'Their full name' })}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="recipient-email">{t('gift.recipientEmail', { defaultValue: 'Recipient email' })} *</Label>
-                      <Input
-                        id="recipient-email"
-                        type="email"
-                        value={recipientEmail}
-                        onChange={(e) => setRecipientEmail(e.target.value)}
-                        placeholder={t('gift.recipientEmailPlaceholder', { defaultValue: 'their@email.com' })}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Personal Message */}
-                <div className="space-y-2">
-                  <Label htmlFor="personal-message">
-                    {t('gift.personalMessage', { defaultValue: 'Personal message (optional)' })}
-                  </Label>
-                  <Textarea
-                    id="personal-message"
-                    value={personalMessage}
-                    onChange={(e) => setPersonalMessage(e.target.value)}
-                    placeholder={t('gift.personalMessagePlaceholder', { defaultValue: 'Add a personal note to your gift...' })}
-                    maxLength={500}
-                    rows={3}
-                  />
-                  <p className="text-xs text-muted-foreground text-right">{personalMessage.length}/500</p>
-                </div>
-
-                {/* Delivery Date */}
-                <div className="space-y-2">
-                  <Label htmlFor="delivery-date">
-                    {t('gift.deliveryDate', { defaultValue: 'Delivery date (optional)' })}
-                  </Label>
-                  <Input
-                    id="delivery-date"
-                    type="date"
-                    value={deliveryDate}
-                    onChange={(e) => setDeliveryDate(e.target.value)}
-                    min={todayStr}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    {t('gift.deliveryDateHint', { defaultValue: 'Leave empty to send immediately after purchase' })}
-                  </p>
-                </div>
-
-                {/* Purchaser */}
-                <div className="space-y-4 pt-4 border-t">
-                  <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-                    {t('gift.purchaserSection', { defaultValue: 'Your Details' })}
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="purchaser-name">{t('gift.purchaserName', { defaultValue: 'Your name' })} *</Label>
-                      <Input
-                        id="purchaser-name"
-                        value={purchaserName}
-                        onChange={(e) => setPurchaserName(e.target.value)}
-                        placeholder={t('gift.purchaserNamePlaceholder', { defaultValue: 'Your full name' })}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="purchaser-email">{t('gift.purchaserEmail', { defaultValue: 'Your email' })} *</Label>
-                      <Input
-                        id="purchaser-email"
-                        type="email"
-                        value={purchaserEmail}
-                        onChange={(e) => setPurchaserEmail(e.target.value)}
-                        placeholder={t('gift.purchaserEmailPlaceholder', { defaultValue: 'your@email.com' })}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Purchase Button */}
-                <div className="pt-4">
-                  <Button
-                    onClick={handlePurchase}
-                    disabled={!isFormValid() || isProcessing}
-                    size="lg"
-                    className="w-full text-lg py-6"
-                  >
-                    {isProcessing ? (
-                      <>
-                        <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                        {t('gift.processing', { defaultValue: 'Processing...' })}
-                      </>
-                    ) : (
-                      <>
-                        <Gift className="h-5 w-5 mr-2" />
-                        {t('gift.purchaseButton', { defaultValue: 'Purchase Gift' })} — {formatPrice(GIFT_PRICES[selectedType])}
-                      </>
-                    )}
-                  </Button>
-                  <p className="text-xs text-muted-foreground text-center mt-3">
-                    {t('gift.securePayment', { defaultValue: 'Secure payment via Stripe. You will be redirected to complete payment.' })}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Back link */}
-          <div className="text-center">
-            <Button variant="ghost" onClick={() => navigate('/')}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              {t('gift.backToHome', { defaultValue: 'Back to home' })}
-            </Button>
+      {/* ── Trust Bar ─────────────────────────────────────── */}
+      <div className="border-y border-white/5 py-4">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-sm text-gray-500">
+            <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-red-400" /> {t('gift.giftTrust1', { defaultValue: 'No card needed to redeem' })}</span>
+            <span className="hidden sm:block text-white/10">|</span>
+            <span className="flex items-center gap-1.5"><Clock className="h-3.5 w-3.5 text-red-400" /> {t('gift.giftTrust2', { defaultValue: 'Active within minutes' })}</span>
+            <span className="hidden sm:block text-white/10">|</span>
+            <span className="flex items-center gap-1.5"><Heart className="h-3.5 w-3.5 text-red-400" /> {t('gift.giftTrust3', { defaultValue: 'Trusted by families across Europe' })}</span>
           </div>
         </div>
       </div>
+
+      {/* ── Gift Cards ────────────────────────────────────── */}
+      <section className="py-16">
+        <div className="container mx-auto px-4 max-w-5xl">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl md:text-3xl font-bold mb-2">{t('gift.giftChoose', { defaultValue: 'Choose your gift' })}</h2>
+            <p className="text-gray-500 text-sm">Every option includes a 7-day free trial for the recipient.</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {packages.map((pkg) => {
+              const isSelected = selectedType === pkg.type;
+              return (
+                <button
+                  key={pkg.type}
+                  onClick={() => setSelectedType(pkg.type)}
+                  className={`relative rounded-2xl p-6 text-left transition-all duration-200 border ${
+                    isSelected
+                      ? 'border-red-500 bg-red-500/5 shadow-[0_0_30px_rgba(239,68,68,0.15)]'
+                      : 'border-white/[0.08] bg-[#0d1627] hover:border-red-500/40'
+                  }`}
+                >
+                  {pkg.badge && (
+                    <Badge className={`absolute -top-2.5 left-4 ${pkg.badgeColor} text-white text-[10px] px-2.5 py-0.5`}>
+                      {pkg.badge}
+                    </Badge>
+                  )}
+                  <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center text-red-400 mb-4">
+                    {pkg.icon}
+                  </div>
+                  <h3 className="text-lg font-semibold text-white mb-1">{pkg.title}</h3>
+                  <div className="flex items-baseline gap-1 mb-3">
+                    <span className="text-2xl font-bold text-white">{formatPrice(GIFT_PRICES[pkg.type])}</span>
+                  </div>
+                  {pkg.saving && <p className="text-xs text-green-400 mb-2">{pkg.saving}</p>}
+                  <p className="text-sm text-gray-400 leading-relaxed">{pkg.desc}</p>
+                  {pkg.tag && (
+                    <Badge className="mt-3 bg-red-500/10 text-red-400 border-red-500/20 text-[10px]">{pkg.tag}</Badge>
+                  )}
+                  {isSelected && (
+                    <div className="absolute top-4 right-4 w-6 h-6 rounded-full bg-red-500 flex items-center justify-center">
+                      <Check className="h-3.5 w-3.5 text-white" />
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Form (shows after card selected) ──────────────── */}
+      {selectedType && (
+        <section className="pb-16">
+          <div className="container mx-auto px-4 max-w-2xl">
+
+            {/* Personal Message */}
+            <div className="mb-10">
+              <h3 className="text-lg font-semibold mb-1">{t('gift.giftPersonalMessage', { defaultValue: 'Add a personal message' })}</h3>
+              <p className="text-sm text-gray-500 mb-4">Optional — included with the gift email.</p>
+              <Textarea
+                value={personalMessage}
+                onChange={(e) => setPersonalMessage(e.target.value)}
+                placeholder="e.g. Mum, I set this up because I love you and want to know you're safe. — James"
+                maxLength={500}
+                rows={3}
+                className="bg-[#0d1627] border-white/10 text-white placeholder:text-gray-600 focus:border-red-500 resize-none"
+              />
+              <p className="text-xs text-gray-600 text-right mt-1">{personalMessage.length}/500</p>
+            </div>
+
+            {/* Recipient */}
+            <div className="mb-10">
+              <h3 className="text-lg font-semibold mb-1">{t('gift.giftWhoFor', { defaultValue: 'Who is this gift for?' })}</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                <div className="space-y-2">
+                  <Label className="text-gray-400 text-sm">Recipient name *</Label>
+                  <Input
+                    value={recipientName}
+                    onChange={(e) => setRecipientName(e.target.value)}
+                    placeholder="e.g. Margaret"
+                    className="bg-[#0d1627] border-white/10 text-white placeholder:text-gray-600 focus:border-red-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-gray-400 text-sm">Recipient email *</Label>
+                  <Input
+                    type="email"
+                    value={recipientEmail}
+                    onChange={(e) => setRecipientEmail(e.target.value)}
+                    placeholder="e.g. margaret@email.com"
+                    className="bg-[#0d1627] border-white/10 text-white placeholder:text-gray-600 focus:border-red-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Purchaser */}
+            <div className="mb-10">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-gray-400 text-sm">Your name *</Label>
+                  <Input
+                    value={purchaserName}
+                    onChange={(e) => setPurchaserName(e.target.value)}
+                    placeholder="e.g. James"
+                    className="bg-[#0d1627] border-white/10 text-white placeholder:text-gray-600 focus:border-red-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-gray-400 text-sm">Your email *</Label>
+                  <Input
+                    type="email"
+                    value={purchaserEmail}
+                    onChange={(e) => setPurchaserEmail(e.target.value)}
+                    placeholder="e.g. james@email.com"
+                    className="bg-[#0d1627] border-white/10 text-white placeholder:text-gray-600 focus:border-red-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Delivery Date */}
+            <div className="mb-10">
+              <div className="space-y-2">
+                <Label className="text-gray-400 text-sm">Delivery date (optional)</Label>
+                <Input
+                  type="date"
+                  value={deliveryDate}
+                  onChange={(e) => setDeliveryDate(e.target.value)}
+                  min={todayStr}
+                  className="bg-[#0d1627] border-white/10 text-white focus:border-red-500 max-w-xs"
+                />
+                <p className="text-xs text-gray-600">Leave empty to send immediately after purchase</p>
+              </div>
+            </div>
+
+            {/* Checkout Button */}
+            <Button
+              onClick={handlePurchase}
+              disabled={!isFormValid() || isProcessing}
+              size="lg"
+              className="w-full text-lg py-6 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-xl shadow-lg shadow-red-500/20 transition-all duration-200"
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  {t('gift.giftSend', { defaultValue: 'Send Gift' })} — {formatPrice(GIFT_PRICES[selectedType])}
+                </>
+              )}
+            </Button>
+            <p className="text-xs text-gray-600 text-center mt-3">
+              Secure payment via Stripe. Recipient gets a beautiful email with their gift code instantly.
+            </p>
+          </div>
+        </section>
+      )}
+
+      {/* ── Testimonials ──────────────────────────────────── */}
+      <section className="py-16 border-t border-white/5">
+        <div className="container mx-auto px-4 max-w-5xl">
+          <div className="grid md:grid-cols-3 gap-8">
+            {testimonials.map((t, i) => (
+              <div key={i} className="text-center">
+                <p className="text-gray-400 italic text-sm leading-relaxed mb-4">"{t.quote}"</p>
+                <p className="text-xs text-gray-600">— {t.name}, {t.city}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <Footer />
     </div>

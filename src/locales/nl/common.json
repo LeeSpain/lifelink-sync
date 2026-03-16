@@ -44,7 +44,10 @@
     "regionalServices": "Regionale Diensten",
     "familyCarerAccess": "Familie & Mantelzorger Toegang",
     "familyDashboard": "Familie Dashboard",
-    "contactUs": "Neem Contact Op"
+    "contactUs": "Neem Contact Op",
+    "description": "Volledige noodbescherming voor individuen en gezinnen. Eén-druk SOS, Clara AI, live locatie delen en gecoördineerde familiereactie.",
+    "getProtected": "Word Beschermd",
+    "allRightsReserved": "Alle rechten voorbehouden."
   },
   "admin": {
     "title": "Admin Dashboard",
@@ -130,6 +133,7 @@
     "buyForSomeone": "Wil je dit voor iemand kopen die je liefhebt?",
     "buyAsGift": "Kopen als cadeau \u2192",
     "pendantNote": "Handsfree bescherming nodig?",
+    "pendantComingSoon": "Bluetooth Hanger — Binnenkort Beschikbaar",
     "pendantLink": "Voeg de Bluetooth Hanger toe voor €59.99",
     "basePlan": {
       "badge": "Basisplan",
@@ -839,6 +843,18 @@
     "description": "Sluit je aan bij families in Europa die LifeLink Sync vertrouwen voor uitgebreide noodbescherming. Begin vandaag en ervaar gemoedsrust met professionele monitoring, familieconnectiviteit en AI-assistentie.",
     "startProtection": "Start Bescherming",
     "connectFamily": "Verbind Familie"
+  },
+  "gift": {
+    "giftHeroLabel": "Cadeau geven",
+    "giftHeadline": "Het mooiste cadeau dat je iemand kunt geven is gemoedsrust.",
+    "giftSubtitle": "Stel CLARA in voor iemand speciaal. Ze krijgen 24/7 AI-noodbescherming.",
+    "giftTrust1": "Geen creditcard nodig om in te wisselen",
+    "giftTrust2": "Binnen minuten actief",
+    "giftTrust3": "Vertrouwd door families in heel Europa",
+    "giftChoose": "Kies je cadeau",
+    "giftPersonalMessage": "Voeg een persoonlijk bericht toe",
+    "giftWhoFor": "Voor wie is dit cadeau?",
+    "giftSend": "Cadeau versturen"
   },
   "howItWorksPage": {
     "label": "HOE HET WERKT",
@@ -2644,7 +2660,8 @@
     "price": "€59.99",
     "shipping": "+ €4.99 verzending",
     "cta": "Bekijk Hanger Details",
-    "oneTime": "Eenmalige aankoop · Geen maandelijkse kosten"
+    "oneTime": "Eenmalige aankoop · Geen maandelijkse kosten",
+    "comingSoon": "Binnenkort Beschikbaar"
   },
   "registration": {
     "steps": {

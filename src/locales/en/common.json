@@ -863,6 +863,18 @@
     "startProtection": "Start Protection",
     "connectFamily": "Connect Family"
   },
+  "gift": {
+    "giftHeroLabel": "Gift Protection",
+    "giftHeadline": "The best gift you can give someone you love is peace of mind.",
+    "giftSubtitle": "Set up CLARA for someone special. They get 24/7 AI emergency protection. You get the peace of mind you've been looking for.",
+    "giftTrust1": "No card needed to redeem",
+    "giftTrust2": "Active within minutes",
+    "giftTrust3": "Trusted by families across Europe",
+    "giftChoose": "Choose your gift",
+    "giftPersonalMessage": "Add a personal message",
+    "giftWhoFor": "Who is this gift for?",
+    "giftSend": "Send Gift"
+  },
   "howItWorksPage": {
     "label": "HOW IT WORKS",
     "heading": "Protection that works while you live your life",
