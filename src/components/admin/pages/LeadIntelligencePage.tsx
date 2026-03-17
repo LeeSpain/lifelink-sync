@@ -1,925 +1,403 @@
 import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Separator } from '@/components/ui/separator';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { 
-  Search, 
-  Globe, 
-  FileText, 
-  History, 
-  Loader2, 
-  Building2, 
-  User, 
-  Mail, 
-  Phone, 
-  MapPin,
-  Target,
-  CheckCircle2,
-  AlertCircle,
-  Send,
-  Sparkles
+import { useNavigate } from 'react-router-dom';
+import {
+  DollarSign, TrendingUp, Flame, Clock, AlertCircle,
+  Loader2, Zap, Target, BarChart3, Users,
 } from 'lucide-react';
 
-interface ExtractedLead {
-  email: string | null;
-  phone: string | null;
-  name: string | null;
-  company: string | null;
-  role: string | null;
-  location: string | null;
-  lead_score_0_100: number;
-  interest_level_0_10: number;
-  recommended_plan: string | null;
-  notes: string;
-  tags: string[];
-  selected?: boolean;
-  // Classification fields (populated after save)
-  savedStatus?: 'saved' | 'duplicate';
-  segment?: string;
-  intent?: string;
-  priority?: string;
-}
-
-interface IntelligenceRun {
+interface LeadRow {
   id: string;
-  source_type: 'url' | 'text';
-  source_value: string;
-  extracted_count: number;
-  saved_count: number;
-  model: string | null;
-  summary: string | null;
+  first_name?: string;
+  last_name?: string;
+  full_name?: string;
+  email?: string;
+  phone?: string;
+  lead_source?: string;
+  lead_score?: number;
+  interest_level?: number;
+  status?: string;
+  language?: string;
+  last_contacted_at?: string;
+  next_follow_up_at?: string;
   created_at: string;
 }
 
-const LeadIntelligencePage: React.FC = () => {
-  const { t } = useTranslation();
-  const { toast } = useToast();
-  
-  // URL Analyzer state
-  const [url, setUrl] = useState('');
-  const [urlLoading, setUrlLoading] = useState(false);
-  
-  // Text Analyzer state
-  const [text, setText] = useState('');
-  const [sourceLabel, setSourceLabel] = useState('Other');
-  const [textLoading, setTextLoading] = useState(false);
-  
-  // Results state
-  const [leads, setLeads] = useState<ExtractedLead[]>([]);
-  const [summary, setSummary] = useState('');
-  const [model, setModel] = useState('');
-  const [currentSourceType, setCurrentSourceType] = useState<'url' | 'text'>('url');
-  const [currentSourceValue, setCurrentSourceValue] = useState('');
-  
-  // Saving state
-  const [saving, setSaving] = useState(false);
-  
-  // Audit runs state
-  const [runs, setRuns] = useState<IntelligenceRun[]>([]);
-  const [runsLoading, setRunsLoading] = useState(false);
+interface ClaraInsight {
+  title: string;
+  insight: string;
+  action: string;
+  icon: string;
+}
 
-  // Riven Send Modal state
-  const [rivenModalOpen, setRivenModalOpen] = useState(false);
-  const [selectedLeadForRiven, setSelectedLeadForRiven] = useState<ExtractedLead | null>(null);
-  const [generatingDraft, setGeneratingDraft] = useState(false);
-  const [emailSubject, setEmailSubject] = useState('');
-  const [emailBody, setEmailBody] = useState('');
-  const [sendingEmail, setSendingEmail] = useState(false);
+const LeadIntelligencePage: React.FC = () => {
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({ total: 0, hot: 0, stale: 0, followUpsDue: 0, avgScore: 0, conversionRate: 0, pipelineValue: 0 });
+  const [scoreBuckets, setScoreBuckets] = useState({ cold: 0, cool: 0, warm: 0, hot: 0, veryHot: 0 });
+  const [sourceBreakdown, setSourceBreakdown] = useState<Array<{ lead_source: string; count: number }>>([]);
+  const [hotLeadsList, setHotLeadsList] = useState<LeadRow[]>([]);
+  const [followUpList, setFollowUpList] = useState<LeadRow[]>([]);
+  const [staleList, setStaleList] = useState<LeadRow[]>([]);
+  const [claraInsights, setClaraInsights] = useState<ClaraInsight[]>([]);
+  const [analyzing, setAnalyzing] = useState(false);
 
   useEffect(() => {
-    loadRuns();
+    loadIntelligence();
   }, []);
 
-  const loadRuns = async () => {
-    setRunsLoading(true);
+  const loadIntelligence = async () => {
+    setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('lead_intelligence_runs')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(20);
+      const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+      const now = new Date().toISOString();
 
-      if (error) throw error;
-      setRuns((data as IntelligenceRun[]) || []);
-    } catch (error) {
-      console.error('Error loading runs:', error);
+      const [allLeadsRes, hotRes, followUpRes, staleRes] = await Promise.all([
+        supabase.from('leads').select('id, lead_score, lead_source, status, last_contacted_at, next_follow_up_at, created_at'),
+        supabase.from('leads').select('*').gte('lead_score', 70).neq('status', 'converted').order('lead_score', { ascending: false }).limit(8),
+        supabase.from('leads').select('*').lte('next_follow_up_at', now).not('status', 'in', '(converted,lost)').order('next_follow_up_at', { ascending: true }).limit(8),
+        supabase.from('leads').select('*').or(`last_contacted_at.lt.${sevenDaysAgo},last_contacted_at.is.null`).not('status', 'in', '(converted,lost)').order('created_at', { ascending: true }).limit(8),
+      ]);
+
+      const leads = allLeadsRes.data || [];
+      const total = leads.length;
+      const hot = leads.filter(l => (l.lead_score || 0) >= 70).length;
+      const staleCount = (staleRes.data || []).length;
+      const followUpsDue = (followUpRes.data || []).length;
+      const avgScore = total > 0 ? Math.round(leads.reduce((sum, l) => sum + (l.lead_score || 0), 0) / total) : 0;
+      const converted = leads.filter(l => l.status === 'converted').length;
+      const conversionRate = total > 0 ? Math.round((converted / total) * 100) : 0;
+      const activeLeads = leads.filter(l => l.status !== 'converted' && l.status !== 'lost').length;
+
+      setStats({ total, hot, stale: staleCount, followUpsDue, avgScore, conversionRate, pipelineValue: Math.round(activeLeads * 9.99) });
+
+      setScoreBuckets({
+        cold: leads.filter(l => (l.lead_score || 0) <= 20).length,
+        cool: leads.filter(l => (l.lead_score || 0) > 20 && (l.lead_score || 0) <= 40).length,
+        warm: leads.filter(l => (l.lead_score || 0) > 40 && (l.lead_score || 0) <= 60).length,
+        hot: leads.filter(l => (l.lead_score || 0) > 60 && (l.lead_score || 0) <= 80).length,
+        veryHot: leads.filter(l => (l.lead_score || 0) > 80).length,
+      });
+
+      // Source breakdown
+      const counts: Record<string, number> = {};
+      leads.forEach(l => { const src = l.lead_source || 'unknown'; counts[src] = (counts[src] || 0) + 1; });
+      setSourceBreakdown(Object.entries(counts).map(([lead_source, count]) => ({ lead_source, count })).sort((a, b) => b.count - a.count));
+
+      setHotLeadsList(hotRes.data || []);
+      setFollowUpList(followUpRes.data || []);
+      setStaleList(staleRes.data || []);
+    } catch (e) {
+      console.error('Load intelligence error:', e);
     } finally {
-      setRunsLoading(false);
+      setLoading(false);
     }
   };
 
-  const analyzeUrl = async () => {
-    if (!url.trim()) {
-      toast({ title: 'Error', description: 'Please enter a URL', variant: 'destructive' });
-      return;
-    }
-
-    setUrlLoading(true);
-    setLeads([]);
-    setSummary('');
-
+  const runClaraAnalysis = async () => {
+    setAnalyzing(true);
     try {
-      const { data, error } = await supabase.functions.invoke('lead-intelligence', {
-        body: { action: 'analyze_url', url: url.trim() }
-      });
-
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
-
-      const extractedLeads = (data.leads || []).map((lead: ExtractedLead) => ({
-        ...lead,
-        selected: !!(lead.email || lead.phone) // Auto-select if has contact info
-      }));
-
-      setLeads(extractedLeads);
-      setSummary(data.summary || '');
-      setModel(data.model || '');
-      setCurrentSourceType('url');
-      setCurrentSourceValue(url.trim());
-
-      toast({ 
-        title: 'Analysis Complete', 
-        description: `Found ${extractedLeads.length} potential leads` 
-      });
-
-    } catch (error) {
-      console.error('URL analysis error:', error);
-      toast({ 
-        title: 'Analysis Failed', 
-        description: error instanceof Error ? error.message : 'Unknown error',
-        variant: 'destructive' 
-      });
-    } finally {
-      setUrlLoading(false);
-    }
-  };
-
-  const analyzeText = async () => {
-    if (!text.trim() || text.trim().length < 20) {
-      toast({ title: 'Error', description: 'Please enter at least 20 characters', variant: 'destructive' });
-      return;
-    }
-
-    setTextLoading(true);
-    setLeads([]);
-    setSummary('');
-
-    try {
-      const { data, error } = await supabase.functions.invoke('lead-intelligence', {
-        body: { action: 'analyze_text', text: text.trim(), source: sourceLabel }
-      });
-
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
-
-      const extractedLeads = (data.leads || []).map((lead: ExtractedLead) => ({
-        ...lead,
-        selected: !!(lead.email || lead.phone)
-      }));
-
-      setLeads(extractedLeads);
-      setSummary(data.summary || '');
-      setModel(data.model || '');
-      setCurrentSourceType('text');
-      setCurrentSourceValue(`${sourceLabel}: ${text.substring(0, 100)}...`);
-
-      toast({ 
-        title: 'Analysis Complete', 
-        description: `Found ${extractedLeads.length} potential leads` 
-      });
-
-    } catch (error) {
-      console.error('Text analysis error:', error);
-      toast({ 
-        title: 'Analysis Failed', 
-        description: error instanceof Error ? error.message : 'Unknown error',
-        variant: 'destructive' 
-      });
-    } finally {
-      setTextLoading(false);
-    }
-  };
-
-  const toggleLeadSelection = (index: number) => {
-    setLeads(prev => prev.map((lead, i) => 
-      i === index ? { ...lead, selected: !lead.selected } : lead
-    ));
-  };
-
-  const selectAll = () => {
-    setLeads(prev => prev.map(lead => ({ ...lead, selected: true })));
-  };
-
-  const deselectAll = () => {
-    setLeads(prev => prev.map(lead => ({ ...lead, selected: false })));
-  };
-
-  const saveSelectedLeads = async () => {
-    const selectedLeads = leads.filter(l => l.selected);
-    if (selectedLeads.length === 0) {
-      toast({ title: 'No Selection', description: 'Please select at least one lead', variant: 'destructive' });
-      return;
-    }
-
-    setSaving(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('lead-intelligence', {
+      const { data } = await supabase.functions.invoke('ai-chat', {
         body: {
-          action: 'save_leads',
-          leads: selectedLeads,
-          source_type: currentSourceType,
-          source_value: currentSourceValue,
-          summary,
-          model
-        }
+          message: `You are CLARA, the AI assistant for LifeLink Sync. Analyze this sales pipeline data and give Lee 3 specific, actionable insights.
+
+Total leads: ${stats.total}
+Hot leads (score 70+): ${stats.hot}
+Stale leads (7+ days no contact): ${stats.stale}
+Follow-ups due: ${stats.followUpsDue}
+Average score: ${stats.avgScore}/100
+Pipeline value: ${stats.pipelineValue} EUR/month
+Conversion rate: ${stats.conversionRate}%
+Top source: ${sourceBreakdown[0]?.lead_source || 'unknown'} (${sourceBreakdown[0]?.count || 0} leads)
+
+For each insight: give a specific observation, one clear action Lee should take, keep under 3 sentences.
+
+Return as JSON array of 3 objects: [{"title":"","insight":"","action":"","icon":""}]
+Icons: fire, target, clock, trending-up, alert, zap`,
+          language: 'en',
+          isOwnerPersonal: true,
+        },
       });
 
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
-
-      // Update leads with saved status and classification info
-      const savedLeadsInfo = data.saved_leads || [];
-      setLeads(prev => prev.map(lead => {
-        if (!lead.selected) return lead;
-        
-        // Find matching saved lead info
-        const savedInfo = savedLeadsInfo.find((s: any) => s.email === lead.email);
-        
-        if (savedInfo) {
-          return {
-            ...lead,
-            savedStatus: 'saved' as const,
-            segment: savedInfo.segment,
-            intent: savedInfo.intent,
-            priority: savedInfo.priority,
-            tags: savedInfo.tags || lead.tags
-          };
-        } else {
-          // Was a duplicate or failed
-          return {
-            ...lead,
-            savedStatus: 'duplicate' as const
-          };
-        }
-      }));
-
-      toast({ 
-        title: 'Leads Saved & Classified', 
-        description: `Saved ${data.saved} leads, skipped ${data.duplicates} duplicates` 
-      });
-
-      // Reload runs
-      loadRuns();
-
-    } catch (error) {
-      console.error('Save error:', error);
-      toast({ 
-        title: 'Save Failed', 
-        description: error instanceof Error ? error.message : 'Unknown error',
-        variant: 'destructive' 
-      });
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const getScoreColor = (score: number) => {
-    if (score >= 70) return 'text-green-600';
-    if (score >= 40) return 'text-yellow-600';
-    return 'text-red-600';
-  };
-
-  const getScoreProgressColor = (score: number) => {
-    if (score >= 70) return 'bg-green-500';
-    if (score >= 40) return 'bg-yellow-500';
-    return 'bg-red-500';
-  };
-
-  const selectedCount = leads.filter(l => l.selected).length;
-
-  // Open Riven modal and generate draft
-  const openRivenModal = async (lead: ExtractedLead) => {
-    setSelectedLeadForRiven(lead);
-    setEmailSubject('');
-    setEmailBody('');
-    setRivenModalOpen(true);
-    setGeneratingDraft(true);
-
-    try {
-      const { data, error } = await supabase.functions.invoke('lead-intelligence', {
-        body: {
-          action: 'generate_intro',
-          lead: {
-            email: lead.email,
-            phone: lead.phone,
-            name: lead.name,
-            company: lead.company,
-            role: lead.role,
-            location: lead.location,
-            notes: lead.notes,
-            tags: lead.tags
-          }
-        }
-      });
-
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
-
-      setEmailSubject(data.subject || `Introducing LifeLink Sync${lead.company ? ` - For ${lead.company}` : ''}`);
-      setEmailBody(data.body || '');
-
-    } catch (error) {
-      console.error('Draft generation error:', error);
-      toast({
-        title: 'Draft Generation Failed',
-        description: error instanceof Error ? error.message : 'Failed to generate email draft',
-        variant: 'destructive'
-      });
-      // Set fallback content
-      setEmailSubject(`Introducing LifeLink Sync${lead.company ? ` - For ${lead.company}` : ''}`);
-      setEmailBody(`Dear ${lead.name || 'Team'},\n\nI wanted to reach out regarding LifeLink Sync, our emergency safety solution designed for families, seniors, and care organisations.\n\nWould you be open to a brief conversation to learn more?\n\nBest regards`);
-    } finally {
-      setGeneratingDraft(false);
-    }
-  };
-
-  // Queue email and update lead status
-  const handleApproveAndSend = async () => {
-    if (!selectedLeadForRiven?.email || !emailSubject.trim() || !emailBody.trim()) {
-      toast({
-        title: 'Missing Information',
-        description: 'Email, subject, and body are required',
-        variant: 'destructive'
-      });
-      return;
-    }
-
-    setSendingEmail(true);
-
-    try {
-      // Insert into email_queue
-      const { error: queueError } = await supabase
-        .from('email_queue')
-        .insert({
-          recipient_email: selectedLeadForRiven.email,
-          subject: emailSubject.trim(),
-          body: emailBody.trim(),
-          campaign_id: null, // We use metadata instead
-          status: 'pending',
-          priority: 5,
-          scheduled_at: new Date().toISOString()
-        });
-
-      if (queueError) throw queueError;
-
-      // Find and update the lead in the database if it exists
-      // First check if this lead has been saved to the leads table
-      const { data: existingLead } = await supabase
-        .from('leads')
-        .select('id, metadata')
-        .eq('email', selectedLeadForRiven.email)
-        .maybeSingle();
-
-      if (existingLead) {
-        const currentMetadata = (existingLead.metadata as Record<string, any>) || {};
-        const updatedMetadata = {
-          ...currentMetadata,
-          last_contacted_at: new Date().toISOString(),
-          outreach_channel: 'email',
-          outreach_source: 'riven_intro'
-        };
-
-        await supabase
-          .from('leads')
-          .update({
-            status: 'contacted',
-            metadata: updatedMetadata,
-            last_contacted_at: new Date().toISOString()
-          })
-          .eq('id', existingLead.id);
+      const text = data?.response || data?.reply || '';
+      const jsonMatch = text.match(/\[[\s\S]*\]/);
+      if (jsonMatch) {
+        setClaraInsights(JSON.parse(jsonMatch[0]));
+      } else {
+        throw new Error('No JSON');
       }
-
-      toast({
-        title: 'Email Queued',
-        description: 'Intro email queued successfully'
-      });
-
-      setRivenModalOpen(false);
-      setSelectedLeadForRiven(null);
-
-    } catch (error) {
-      console.error('Queue email error:', error);
-      toast({
-        title: 'Queue Failed',
-        description: error instanceof Error ? error.message : 'Failed to queue email',
-        variant: 'destructive'
-      });
+    } catch {
+      setClaraInsights([
+        { title: 'Focus on hot leads', insight: `You have ${stats.hot} hot leads scoring 70+. These are your best conversion opportunities right now.`, action: 'Contact hot leads', icon: 'fire' },
+        { title: 'Chase stale pipeline', insight: `${stats.stale} leads haven't been contacted in 7+ days. A quick WhatsApp could reactivate them.`, action: 'Send follow-ups', icon: 'clock' },
+        { title: 'Follow-up queue', insight: `${stats.followUpsDue} follow-ups are overdue. Clearing these today could significantly boost conversion.`, action: 'Clear follow-ups', icon: 'alert' },
+      ]);
     } finally {
-      setSendingEmail(false);
+      setAnalyzing(false);
     }
   };
 
-  return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center gap-3">
-        <Target className="h-8 w-8 text-primary" />
+  const getInsightIcon = (icon: string) => {
+    const cls = 'w-5 h-5';
+    switch (icon) {
+      case 'fire': return <Flame className={`${cls} text-red-500`} />;
+      case 'target': return <Target className={`${cls} text-blue-500`} />;
+      case 'clock': return <Clock className={`${cls} text-amber-500`} />;
+      case 'trending-up': return <TrendingUp className={`${cls} text-green-500`} />;
+      case 'alert': return <AlertCircle className={`${cls} text-red-500`} />;
+      case 'zap': return <Zap className={`${cls} text-purple-500`} />;
+      default: return <BarChart3 className={`${cls} text-gray-500`} />;
+    }
+  };
+
+  const timeAgo = (date: string) => {
+    const d = Math.floor((Date.now() - new Date(date).getTime()) / 86400000);
+    if (d === 0) return 'Today';
+    if (d === 1) return 'Yesterday';
+    return `${d}d ago`;
+  };
+
+  const getInitials = (lead: LeadRow) => {
+    const f = lead.first_name?.[0] || lead.full_name?.[0] || '?';
+    const l = lead.last_name?.[0] || '';
+    return (f + l).toUpperCase();
+  };
+
+  const getName = (lead: LeadRow) => lead.full_name || `${lead.first_name || ''} ${lead.last_name || ''}`.trim() || lead.email || 'Unknown';
+
+  const sourceColors: Record<string, string> = {
+    manual_invite: 'bg-blue-400', clara_invite: 'bg-purple-400', whatsapp_chat: 'bg-green-400',
+    contact_form: 'bg-amber-400', referral: 'bg-pink-400', website: 'bg-indigo-400', unknown: 'bg-gray-400',
+  };
+
+  if (loading) {
+    return (
+      <div className="p-6 max-w-7xl mx-auto w-full flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+      </div>
+    );
+  }
+
+  const bucketEntries = [
+    { label: 'Very hot', count: scoreBuckets.veryHot, color: 'bg-red-500' },
+    { label: 'Hot', count: scoreBuckets.hot, color: 'bg-orange-500' },
+    { label: 'Warm', count: scoreBuckets.warm, color: 'bg-amber-400' },
+    { label: 'Cool', count: scoreBuckets.cool, color: 'bg-blue-400' },
+    { label: 'Cold', count: scoreBuckets.cold, color: 'bg-gray-400' },
+  ];
+
+  const renderLeadRow = (lead: LeadRow, rightContent: React.ReactNode) => (
+    <div key={lead.id} className="flex items-center justify-between py-2.5 border-b border-gray-50 last:border-0 cursor-pointer hover:bg-gray-50 rounded-lg px-2 -mx-2" onClick={() => navigate('/admin-dashboard/leads')}>
+      <div className="flex items-center gap-2.5">
+        <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">{getInitials(lead)}</div>
         <div>
-          <h1 className="text-3xl font-bold">Lead Intelligence</h1>
-          <p className="text-muted-foreground">
-            Analyze a URL or pasted text to discover leads and add them to CRM
-          </p>
+          <p className="text-sm font-semibold text-gray-900">{getName(lead)}</p>
+          <p className="text-xs text-gray-400">{lead.lead_source || 'unknown'} · {timeAgo(lead.created_at)}</p>
         </div>
       </div>
+      {rightContent}
+    </div>
+  );
 
-      <Tabs defaultValue="url" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3 max-w-md">
-          <TabsTrigger value="url" className="flex items-center gap-2">
-            <Globe className="h-4 w-4" />
-            URL Analyzer
-          </TabsTrigger>
-          <TabsTrigger value="text" className="flex items-center gap-2">
-            <FileText className="h-4 w-4" />
-            Text Analyzer
-          </TabsTrigger>
-          <TabsTrigger value="runs" className="flex items-center gap-2">
-            <History className="h-4 w-4" />
-            Runs
-          </TabsTrigger>
-        </TabsList>
+  return (
+    <div className="p-6 max-w-7xl mx-auto w-full">
+      {/* Header */}
+      <div className="flex items-start justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Lead Intelligence</h1>
+          <p className="text-sm text-gray-500">AI-powered scoring and pipeline insights</p>
+        </div>
+        <Button onClick={runClaraAnalysis} disabled={analyzing} className="bg-red-500 hover:bg-red-600 text-white">
+          {analyzing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Zap className="w-4 h-4 mr-2" />}
+          Run CLARA Analysis
+        </Button>
+      </div>
 
-        {/* URL Analyzer Tab */}
-        <TabsContent value="url" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Globe className="h-5 w-5" />
-                Analyze Website
-              </CardTitle>
-              <CardDescription>
-                Enter a URL to extract potential leads from the page content
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex gap-2">
-                <Input
-                  placeholder="https://example.com/about-us"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && analyzeUrl()}
-                  disabled={urlLoading}
-                />
-                <Button onClick={analyzeUrl} disabled={urlLoading}>
-                  {urlLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Search className="h-4 w-4" />
-                  )}
-                  <span className="ml-2">Analyze</span>
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Only HTTP/HTTPS URLs supported. PDFs and images are not processed.
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
+      {/* Row 1: 5 stat tiles */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+        <Card><CardContent className="pt-5 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center"><DollarSign className="w-5 h-5 text-green-600" /></div>
+            <div><p className="text-2xl font-bold text-gray-900">{stats.pipelineValue}</p><p className="text-xs text-gray-400">Potential MRR</p></div>
+          </div>
+        </CardContent></Card>
 
-        {/* Text Analyzer Tab */}
-        <TabsContent value="text" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Analyze Text
-              </CardTitle>
-              <CardDescription>
-                Paste text content (e.g., from LinkedIn, directories, forums) to extract leads
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex gap-2 items-center">
-                <span className="text-sm text-muted-foreground">Source:</span>
-                <Select value={sourceLabel} onValueChange={setSourceLabel}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="LinkedIn">LinkedIn</SelectItem>
-                    <SelectItem value="Facebook">Facebook</SelectItem>
-                    <SelectItem value="Directory">Directory</SelectItem>
-                    <SelectItem value="Forum">Forum</SelectItem>
-                    <SelectItem value="Email">Email</SelectItem>
-                    <SelectItem value="Other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Textarea
-                placeholder="Paste text content here..."
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                rows={8}
-                disabled={textLoading}
-              />
-              <div className="flex justify-between items-center">
-                <p className="text-xs text-muted-foreground">
-                  {text.length} / 50,000 characters
-                </p>
-                <Button onClick={analyzeText} disabled={textLoading || text.length < 20}>
-                  {textLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Search className="h-4 w-4" />
-                  )}
-                  <span className="ml-2">Analyze</span>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+        <Card><CardContent className="pt-5 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center"><TrendingUp className="w-5 h-5 text-blue-600" /></div>
+            <div><p className="text-2xl font-bold text-gray-900">{stats.avgScore}/100</p><p className="text-xs text-gray-400">Avg lead score</p></div>
+          </div>
+        </CardContent></Card>
 
-        {/* Audit Runs Tab */}
-        <TabsContent value="runs" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <History className="h-5 w-5" />
-                Recent Analysis Runs
-              </CardTitle>
-              <CardDescription>
-                Last 20 lead intelligence analyses
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {runsLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        <Card><CardContent className="pt-5 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center"><Flame className="w-5 h-5 text-red-600" /></div>
+            <div><p className="text-2xl font-bold text-gray-900">{stats.hot}</p><p className="text-xs text-gray-400">Hot leads (70+)</p></div>
+          </div>
+        </CardContent></Card>
+
+        <Card><CardContent className="pt-5 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center"><Clock className="w-5 h-5 text-amber-600" /></div>
+            <div><p className="text-2xl font-bold text-gray-900">{stats.followUpsDue}</p><p className="text-xs text-gray-400">Follow-ups due</p></div>
+          </div>
+        </CardContent></Card>
+
+        <Card><CardContent className="pt-5 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center"><AlertCircle className="w-5 h-5 text-red-600" /></div>
+            <div><p className="text-2xl font-bold text-gray-900">{stats.stale}</p><p className="text-xs text-gray-400">Needs attention</p></div>
+          </div>
+        </CardContent></Card>
+      </div>
+
+      {/* Row 2: Score distribution + Source breakdown */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <Card className="lg:col-span-2">
+          <CardHeader className="pb-3"><CardTitle className="text-sm font-semibold text-gray-700">Lead score distribution</CardTitle></CardHeader>
+          <CardContent>
+            {bucketEntries.map(b => (
+              <div key={b.label} className="mb-3">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-gray-500 w-20">{b.label}</span>
+                  <span className="text-xs font-bold text-gray-700 w-6 text-right">{b.count}</span>
                 </div>
-              ) : runs.length === 0 ? (
-                <p className="text-center py-8 text-muted-foreground">
-                  No analysis runs yet
-                </p>
-              ) : (
-                <div className="space-y-3">
-                  {runs.map((run) => (
-                    <div key={run.id} className="flex items-start gap-4 p-3 border rounded-lg">
-                      <div className="flex-shrink-0 mt-1">
-                        {run.source_type === 'url' ? (
-                          <Globe className="h-5 w-5 text-blue-500" />
-                        ) : (
-                          <FileText className="h-5 w-5 text-purple-500" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">
-                          {run.source_value.length > 60 
-                            ? run.source_value.substring(0, 60) + '...' 
-                            : run.source_value}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {run.summary?.substring(0, 100) || 'No summary'}
-                        </p>
-                        <div className="flex gap-3 mt-2 text-xs">
-                          <span className="text-muted-foreground">
-                            Extracted: <strong>{run.extracted_count}</strong>
-                          </span>
-                          <span className="text-green-600">
-                            Saved: <strong>{run.saved_count}</strong>
-                          </span>
-                          <span className="text-muted-foreground">
-                            {new Date(run.created_at).toLocaleDateString()} {new Date(run.created_at).toLocaleTimeString()}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div className={`h-full ${b.color} rounded-full transition-all`} style={{ width: `${stats.total > 0 ? (b.count / stats.total) * 100 : 0}%` }} />
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
 
-      {/* Results Section */}
-      {leads.length > 0 && (
         <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-green-500" />
-                  Extracted Leads ({leads.length})
-                </CardTitle>
-                {summary && (
-                  <CardDescription className="mt-1">{summary}</CardDescription>
-                )}
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={selectAll}>
-                  Select All
-                </Button>
-                <Button variant="outline" size="sm" onClick={deselectAll}>
-                  Deselect All
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-3">
-              {leads.map((lead, index) => (
-                <div 
-                  key={index} 
-                  className={`p-4 border rounded-lg transition-colors ${
-                    lead.selected ? 'bg-primary/5 border-primary/30' : 'bg-background'
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    <Checkbox 
-                      checked={lead.selected}
-                      onCheckedChange={() => toggleLeadSelection(index)}
-                      className="mt-1"
-                    />
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-start justify-between">
-                        <div className="space-y-1">
-                          {lead.company && (
-                            <div className="flex items-center gap-2">
-                              <Building2 className="h-4 w-4 text-muted-foreground" />
-                              <span className="font-medium">{lead.company}</span>
-                            </div>
-                          )}
-                          {lead.name && (
-                            <div className="flex items-center gap-2">
-                              <User className="h-4 w-4 text-muted-foreground" />
-                              <span>{lead.name}</span>
-                              {lead.role && (
-                                <span className="text-sm text-muted-foreground">({lead.role})</span>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                        <div className="text-right space-y-1">
-                          <div className={`text-lg font-bold ${getScoreColor(lead.lead_score_0_100)}`}>
-                            {lead.lead_score_0_100}%
-                          </div>
-                          <div className="w-20">
-                            <Progress 
-                              value={lead.lead_score_0_100} 
-                              className="h-2"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex flex-wrap gap-4 text-sm">
-                        {lead.email && (
-                          <div className="flex items-center gap-1 text-blue-600">
-                            <Mail className="h-3 w-3" />
-                            {lead.email}
-                          </div>
-                        )}
-                        {lead.phone && (
-                          <div className="flex items-center gap-1 text-green-600">
-                            <Phone className="h-3 w-3" />
-                            {lead.phone}
-                          </div>
-                        )}
-                        {lead.location && (
-                          <div className="flex items-center gap-1 text-muted-foreground">
-                            <MapPin className="h-3 w-3" />
-                            {lead.location}
-                          </div>
-                        )}
-                      </div>
-
-                      {lead.notes && (
-                        <p className="text-sm text-muted-foreground">{lead.notes}</p>
-                      )}
-
-                      <div className="flex flex-wrap gap-2 items-center justify-between">
-                        <div className="flex flex-wrap gap-2 items-center">
-                          {/* Saved status indicator */}
-                          {lead.savedStatus === 'saved' && (
-                            <Badge className="bg-green-500 text-white text-xs">
-                              <CheckCircle2 className="h-3 w-3 mr-1" />
-                              Saved ✓
-                            </Badge>
-                          )}
-                          {lead.savedStatus === 'duplicate' && (
-                            <Badge variant="secondary" className="text-xs">
-                              Duplicate
-                            </Badge>
-                          )}
-                          
-                          {/* Classification badges (shown after save) */}
-                          {lead.intent && (
-                            <Badge 
-                              className={`text-xs ${
-                                lead.intent === 'hot' ? 'bg-red-500 text-white' :
-                                lead.intent === 'warm' ? 'bg-orange-500 text-white' :
-                                'bg-blue-500 text-white'
-                              }`}
-                            >
-                              {lead.intent.toUpperCase()}
-                            </Badge>
-                          )}
-                          {lead.segment && (
-                            <Badge variant="outline" className="text-xs capitalize">
-                              {lead.segment.replace('_', ' ')}
-                            </Badge>
-                          )}
-                          {lead.priority && (
-                            <Badge 
-                              variant="outline" 
-                              className={`text-xs ${
-                                lead.priority === 'high' ? 'border-red-500 text-red-600' :
-                                lead.priority === 'medium' ? 'border-orange-500 text-orange-600' :
-                                'border-blue-500 text-blue-600'
-                              }`}
-                            >
-                              Priority: {lead.priority}
-                            </Badge>
-                          )}
-                          
-                          {/* Original tags */}
-                          {lead.tags?.filter(tag => 
-                            !tag.startsWith('lead:') && 
-                            !tag.startsWith('segment:') && 
-                            !tag.startsWith('intent:')
-                          ).map((tag, i) => (
-                            <Badge key={i} variant="secondary" className="text-xs">
-                              {tag}
-                            </Badge>
-                          ))}
-                          {lead.recommended_plan && (
-                            <Badge variant="outline" className="text-xs">
-                              Plan: {lead.recommended_plan}
-                            </Badge>
-                          )}
-                          <Badge variant="outline" className="text-xs">
-                            Interest: {lead.interest_level_0_10}/10
-                          </Badge>
-                          {!lead.email && !lead.phone && (
-                            <Badge variant="destructive" className="text-xs">
-                              <AlertCircle className="h-3 w-3 mr-1" />
-                              No contact info
-                            </Badge>
-                          )}
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={!lead.email}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openRivenModal(lead);
-                          }}
-                          className="flex items-center gap-1"
-                        >
-                          <Sparkles className="h-3 w-3" />
-                          Send via Riven
-                        </Button>
-                      </div>
-                    </div>
+          <CardHeader className="pb-3"><CardTitle className="text-sm font-semibold text-gray-700">Leads by source</CardTitle></CardHeader>
+          <CardContent>
+            {sourceBreakdown.length === 0 ? (
+              <p className="text-sm text-gray-400 text-center py-4">No data</p>
+            ) : sourceBreakdown.map(s => (
+              <div key={s.lead_source} className="flex items-center justify-between py-2.5 border-b border-gray-50 last:border-0">
+                <div className="flex items-center gap-2">
+                  <span className={`w-2 h-2 rounded-full ${sourceColors[s.lead_source] || 'bg-gray-400'}`} />
+                  <span className="text-sm text-gray-700">{s.lead_source.replace(/_/g, ' ')}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-16 h-1.5 bg-gray-100 rounded-full">
+                    <div className={`h-full ${sourceColors[s.lead_source] || 'bg-gray-400'} rounded-full`} style={{ width: `${stats.total > 0 ? (s.count / stats.total) * 100 : 0}%` }} />
                   </div>
+                  <span className="text-xs font-bold text-gray-700 w-8 text-right">{s.count}</span>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Row 3: Hot / Follow-ups / Stale */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-semibold text-gray-700">Hot leads — act now</CardTitle>
+            <p className="text-xs text-gray-400">Score 70+, not yet converted</p>
+          </CardHeader>
+          <CardContent>
+            {hotLeadsList.length === 0 ? <p className="text-sm text-gray-400 text-center py-4">None</p> : hotLeadsList.map(lead =>
+              renderLeadRow(lead, (
+                <span className="text-xs font-bold bg-red-100 text-red-700 px-2 py-0.5 rounded-full">{lead.lead_score}</span>
+              ))
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-semibold text-gray-700">Follow-ups due</CardTitle>
+            <p className="text-xs text-gray-400">Scheduled follow-up past due</p>
+          </CardHeader>
+          <CardContent>
+            {followUpList.length === 0 ? <p className="text-sm text-gray-400 text-center py-4">None overdue</p> : followUpList.map(lead => {
+              const daysPast = lead.next_follow_up_at ? Math.floor((Date.now() - new Date(lead.next_follow_up_at).getTime()) / 86400000) : 0;
+              return renderLeadRow(lead, (
+                <span className={`text-xs ${daysPast > 2 ? 'text-red-600 font-bold' : 'text-amber-600'}`}>{daysPast}d overdue</span>
+              ));
+            })}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-semibold text-gray-700">Stale — no contact</CardTitle>
+            <p className="text-xs text-gray-400">No contact in 7+ days</p>
+          </CardHeader>
+          <CardContent>
+            {staleList.length === 0 ? <p className="text-sm text-gray-400 text-center py-4">All contacted recently</p> : staleList.map(lead => {
+              const days = lead.last_contacted_at ? Math.floor((Date.now() - new Date(lead.last_contacted_at).getTime()) / 86400000) : 999;
+              return renderLeadRow(lead, (
+                <span className={`text-xs ${days > 14 ? 'text-red-600 font-bold' : 'text-amber-600'}`}>{days > 900 ? 'Never' : `${days}d`}</span>
+              ));
+            })}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Row 4: CLARA Intelligence Panel */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <Zap className="w-4 h-4 text-red-500" /> CLARA Intelligence
+              </CardTitle>
+              <p className="text-xs text-gray-400 mt-0.5">AI-generated insights about your pipeline</p>
+            </div>
+            {claraInsights.length === 0 && (
+              <Button variant="outline" size="sm" onClick={runClaraAnalysis} disabled={analyzing}>
+                {analyzing ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Zap className="w-3 h-3 mr-1" />}
+                Analyze
+              </Button>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent>
+          {claraInsights.length === 0 && !analyzing ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {['Pipeline health', 'Best leads to contact today', 'Conversion opportunities'].map(title => (
+                <div key={title} className="bg-gray-50 border border-dashed border-gray-200 rounded-2xl p-5 text-center cursor-pointer hover:bg-gray-100 transition-colors" onClick={runClaraAnalysis}>
+                  <BarChart3 className="w-6 h-6 text-gray-300 mx-auto mb-2" />
+                  <p className="text-sm font-medium text-gray-500">{title}</p>
+                  <p className="text-xs text-gray-400 mt-1">Click to analyze</p>
                 </div>
               ))}
             </div>
-
-            <Separator />
-
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">
-                {selectedCount} of {leads.length} leads selected
-              </p>
-              <Button 
-                onClick={saveSelectedLeads} 
-                disabled={saving || selectedCount === 0}
-                size="lg"
-              >
-                {saving ? (
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                ) : (
-                  <CheckCircle2 className="h-4 w-4 mr-2" />
-                )}
-                Save Selected to CRM
-              </Button>
+          ) : analyzing ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-6 h-6 animate-spin text-red-400 mr-3" />
+              <span className="text-sm text-gray-500">CLARA is analyzing your pipeline...</span>
             </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Riven Send Modal */}
-      <Dialog open={rivenModalOpen} onOpenChange={setRivenModalOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-primary" />
-              Send Intro via Riven
-            </DialogTitle>
-            <DialogDescription>
-              AI-generated intro email for review before sending
-            </DialogDescription>
-          </DialogHeader>
-
-          {selectedLeadForRiven && (
-            <div className="space-y-4">
-              {/* Lead Summary */}
-              <div className="p-3 bg-muted rounded-lg space-y-1">
-                <div className="flex items-center gap-2 text-sm">
-                  {selectedLeadForRiven.company && (
-                    <span className="flex items-center gap-1">
-                      <Building2 className="h-3 w-3" />
-                      <strong>{selectedLeadForRiven.company}</strong>
-                    </span>
-                  )}
-                  {selectedLeadForRiven.name && (
-                    <span className="flex items-center gap-1">
-                      <User className="h-3 w-3" />
-                      {selectedLeadForRiven.name}
-                    </span>
-                  )}
-                  {selectedLeadForRiven.role && (
-                    <span className="text-muted-foreground">
-                      ({selectedLeadForRiven.role})
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center gap-1 text-sm text-blue-600">
-                  <Mail className="h-3 w-3" />
-                  {selectedLeadForRiven.email}
-                </div>
-              </div>
-
-              {/* Loading state */}
-              {generatingDraft && (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                  <span className="ml-2 text-muted-foreground">Generating draft with Riven AI...</span>
-                </div>
-              )}
-
-              {/* Email form */}
-              {!generatingDraft && (
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email-subject">Subject</Label>
-                    <Input
-                      id="email-subject"
-                      value={emailSubject}
-                      onChange={(e) => setEmailSubject(e.target.value)}
-                      placeholder="Email subject..."
-                    />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {claraInsights.map((insight, i) => (
+                <div key={i} className="bg-white border border-gray-200 rounded-2xl p-5">
+                  <div className="flex items-center gap-2 mb-3">
+                    {getInsightIcon(insight.icon)}
+                    <h3 className="font-bold text-gray-900 text-sm">{insight.title}</h3>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email-body">Body</Label>
-                    <Textarea
-                      id="email-body"
-                      value={emailBody}
-                      onChange={(e) => setEmailBody(e.target.value)}
-                      rows={10}
-                      placeholder="Email body..."
-                      className="font-mono text-sm"
-                    />
-                  </div>
+                  <p className="text-sm text-gray-600 leading-relaxed mb-4">{insight.insight}</p>
+                  <button className="w-full py-2 bg-red-50 text-red-700 rounded-xl text-xs font-semibold hover:bg-red-100 border border-red-200 transition-colors" onClick={() => navigate('/admin-dashboard/leads')}>
+                    {insight.action} &rarr;
+                  </button>
                 </div>
-              )}
+              ))}
             </div>
           )}
-
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setRivenModalOpen(false)}
-              disabled={sendingEmail}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleApproveAndSend}
-              disabled={generatingDraft || sendingEmail || !emailSubject.trim() || !emailBody.trim()}
-            >
-              {sendingEmail ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              ) : (
-                <Send className="h-4 w-4 mr-2" />
-              )}
-              Approve & Send
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        </CardContent>
+      </Card>
     </div>
   );
 };
