@@ -18,6 +18,7 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import AuthPage from "./pages/AuthPage";
 import SignOutPage from "./pages/SignOutPage";
+import AuthCallback from "./pages/AuthCallback";
 
 // Live Map Pages
 import MapScreen from "./pages/MapScreen";
@@ -121,6 +122,9 @@ function AppWithTracking() {
                 
                 {/* Sign Out */}
                 <Route path="/signout" element={<SignOutPage />} />
+
+                {/* Auth Callback — email confirmation landing */}
+                <Route path="/auth/callback" element={<AuthCallback />} />
 
                 {/* Auth Page */}
                 <Route path="/auth" element={

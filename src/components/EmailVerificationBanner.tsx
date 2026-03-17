@@ -24,7 +24,7 @@ const EmailVerificationBanner = () => {
         type: 'signup',
         email: user.email!,
         options: {
-          emailRedirectTo: `${window.location.origin}/sos-app`
+          emailRedirectTo: `${window.location.origin}/auth/callback`
         }
       });
 

@@ -200,7 +200,7 @@ export default function OnboardingWizard() {
       const { data, error } = await supabase.auth.signUp({
         email, password,
         options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`,
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
           data: { full_name: fullName, phone, who_for: whoFor, protected_person_name: protectedName }
         }
       })
@@ -219,7 +219,7 @@ export default function OnboardingWizard() {
     try {
       const { error } = await supabase.auth.resend({
         type: 'signup', email: emailSentTo || email,
-        options: { emailRedirectTo: `${window.location.origin}/dashboard` }
+        options: { emailRedirectTo: `${window.location.origin}/auth/callback` }
       })
       if (error) throw error
       toast.success('Confirmation email resent!')

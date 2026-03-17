@@ -274,7 +274,7 @@ const AIRegister = () => {
   const handlePaymentSuccess = async () => {
     try {
       // Create Supabase user account
-      const redirectUrl = `${window.location.origin}/dashboard`;
+      const redirectUrl = `${window.location.origin}/auth/callback`;
       
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: personalDetails.email,
