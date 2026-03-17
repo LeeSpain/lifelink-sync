@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { recordInvite } from '../_shared/recordInvite.ts';
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL')!,
@@ -148,20 +149,16 @@ serve(async (req) => {
         next_contact_at: nextContact.toISOString(),
       });
 
-      // Create lead
-      await supabase.from('leads').insert({
-        session_id: crypto.randomUUID(),
-        email: contact_email || null,
-        phone: contact_phone?.replace('whatsapp:', '') || null,
-        interest_level: 5,
-        status: 'new',
-        metadata: {
-          source: 'proactive_invite',
-          who_for,
-          contact_name,
-          invited_by: 'lee',
-        },
-      }).catch(() => {});
+      // Record in all Growth tables (manual_invites + leads + lead_activities)
+      await recordInvite(supabase, {
+        contact_name: contact_name || 'Unknown',
+        whatsapp: contact_phone?.replace('whatsapp:', '') || undefined,
+        email: contact_email || undefined,
+        message: personalised,
+        who_for: who_for || 'unsure',
+        send_via: channel || 'whatsapp',
+        sender_mode: 'clara',
+      });
 
       // Confirm to Lee
       await sendWhatsApp(leeNumber,

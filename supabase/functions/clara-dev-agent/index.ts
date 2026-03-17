@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { readFile, writeFile, createBranch, createPR, listFiles, searchFiles } from './github.ts';
 import { CODEBASE_MAP } from './codebase-map.ts';
+import { recordInvite } from '../_shared/recordInvite.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -683,6 +684,17 @@ serve(async (req) => {
         const twilioResult = await twilioResp.json();
 
         if (twilioResult.sid) {
+          // Record in all Growth tables
+          await recordInvite(supabase, {
+            contact_name: contactDisplayName,
+            whatsapp: contactPhone.replace('whatsapp:', ''),
+            email: invRec?.contact_email || (leadRec?.email as string) || undefined,
+            message: craftedMsg,
+            raw_note: msgContent,
+            send_via: 'whatsapp',
+            sender_mode: 'clara',
+            twilio_sid: twilioResult.sid,
+          });
           await sendWhatsApp(fromNumber, `✅ Sent to *${contactDisplayName}* (${contactPhone}):\n\n"${craftedMsg}"\n\n_Delivered via LifeLink Sync_`);
         } else if (twilioResult.code === 63015) {
           await sendWhatsApp(fromNumber, `⚠️ *${contactDisplayName}* hasn't joined the WhatsApp sandbox yet.\n\nAsk them to send this to *+1 415 523 8886*:\n*join lost-fighting*\n\nThen try again.`);
