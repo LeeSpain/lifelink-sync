@@ -350,6 +350,11 @@ const LeadsPage: React.FC = () => {
                               <p className="font-medium">
                                 {lead.first_name} {lead.last_name}
                               </p>
+                              {lead.language && lead.language !== 'en' && (
+                                <span className="text-sm" title={lead.language === 'es' ? 'Spanish' : lead.language === 'nl' ? 'Dutch' : 'English'}>
+                                  {lead.language === 'es' ? '\u{1F1EA}\u{1F1F8}' : lead.language === 'nl' ? '\u{1F1F3}\u{1F1F1}' : '\u{1F1EC}\u{1F1E7}'}
+                                </span>
+                              )}
                               {lead.lead_score > 0 && (
                                 <Badge variant="outline" className="text-xs">
                                   Score: {lead.lead_score}

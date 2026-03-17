@@ -24,6 +24,7 @@ export interface EnhancedLead {
   website?: string;
   linkedin_url?: string;
   timezone: string;
+  language?: string;
   created_at: string;
   updated_at: string;
   conversation_summary?: string;

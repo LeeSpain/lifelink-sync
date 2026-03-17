@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -95,6 +95,9 @@ export default function ManualInvitePage() {
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [useEnhanced, setUseEnhanced] = useState(false);
   const [isEditingPreview, setIsEditingPreview] = useState(false);
+  const [contactLanguage, setContactLanguage] = useState<'en' | 'es' | 'nl'>('en');
+  const [translatedMessage, setTranslatedMessage] = useState('');
+  const [isTranslating, setIsTranslating] = useState(false);
 
   // ─── CLARA Mode State ───
   const [claraForm, setClaraForm] = useState({
@@ -142,6 +145,34 @@ export default function ManualInvitePage() {
   );
 
   const canSendClara = claraForm.name.trim() && claraForm.whatsapp.trim() && claraForm.protectionFor;
+
+  // ─── Auto-translate when language changes or enhanced message updates ───
+  useEffect(() => {
+    if (contactLanguage === 'en') {
+      setTranslatedMessage('');
+      return;
+    }
+    const msgToTranslate = enhancedMessage || rawNote || form.personalMessage;
+    if (!msgToTranslate) {
+      setTranslatedMessage('');
+      return;
+    }
+    const langName = contactLanguage === 'es' ? 'Spanish' : 'Dutch';
+    setIsTranslating(true);
+    supabase.functions.invoke('ai-chat', {
+      body: {
+        message: `Translate this WhatsApp invite message to ${langName}. Keep the warm personal tone. Return ONLY the translated text, nothing else.\n\n"${msgToTranslate}"`,
+        language: 'en',
+        isOwnerPersonal: true,
+      },
+    }).then(({ data }) => {
+      setTranslatedMessage(data?.response || data?.reply || msgToTranslate);
+    }).catch(() => {
+      setTranslatedMessage(msgToTranslate);
+    }).finally(() => {
+      setIsTranslating(false);
+    });
+  }, [enhancedMessage, contactLanguage]);
 
   // ─── Mode Switch Handler ───
   const handleModeSwitch = (newMode: 'lee' | 'clara') => {
@@ -215,10 +246,13 @@ Return the message text only. No preamble.`,
     if (!canSend) return;
     setSending(true);
     try {
+      const messageToSend = contactLanguage !== 'en' && translatedMessage
+        ? translatedMessage
+        : previewMessage;
       const sendPayload: Record<string, unknown> = {
         type: 'manual_invite',
         contact_name: form.name,
-        message: previewMessage,
+        message: messageToSend,
       };
       if ((form.sendVia === 'whatsapp' || form.sendVia === 'both') && form.whatsapp.trim()) {
         sendPayload.contact_phone = form.whatsapp.trim();
@@ -243,6 +277,7 @@ Return the message text only. No preamble.`,
         message_sent: previewMessage,
         relationship_tone: relationship,
         clara_enhanced: useEnhanced,
+        preferred_language: contactLanguage,
         email_sent: sendResult?.email_sent || false,
         whatsapp_sent: sendResult?.whatsapp_sent || false,
         email_error: sendResult?.email_error || null,
@@ -259,11 +294,13 @@ Return the message text only. No preamble.`,
         email: form.email || `${form.whatsapp.replace(/[^0-9]/g, '')}@invite.lifelink-sync.com`,
         phone: form.whatsapp || null,
         lead_source: 'manual_invite',
+        language: contactLanguage,
         status: 'new',
         interest_level: 5,
         notes: `Invited via ${form.sendVia}. Protection for: ${form.protectionFor}. ${rawNote || ''}`.trim(),
         tags: ['manual-invite', form.protectionFor].filter(Boolean),
-      }).catch(() => {});
+      });
+      // Lead insert is best-effort — don't block on errors
 
       setSentMessage(previewMessage);
       setSent(true);
@@ -382,7 +419,8 @@ Return the message text only. No preamble.`,
         interest_level: 5,
         notes: `CLARA invite via WhatsApp. Protection for: ${claraForm.protectionFor}. ${claraForm.roughNote || ''}`.trim(),
         tags: ['clara-invite', claraForm.protectionFor].filter(Boolean),
-      }).catch(() => {});
+      });
+      // Lead insert is best-effort — don't block on errors
 
       setClaraSentName(claraForm.name);
       setClaraSent(true);
@@ -555,6 +593,24 @@ Return the message text only. No preamble.`,
             </>
           )}
 
+          {contactLanguage !== 'en' && (enhancedMessage || rawNote) && (
+            <div className="mb-4">
+              <div className="bg-white border border-blue-200 rounded-xl p-3">
+                <p className="text-xs font-semibold text-blue-600 mb-1">
+                  {contactLanguage === 'es' ? '\u{1F1EA}\u{1F1F8} Will send in Spanish' : '\u{1F1F3}\u{1F1F1} Will send in Dutch'}
+                </p>
+                {isTranslating ? (
+                  <div className="flex items-center gap-2 text-xs text-gray-400">
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                    Translating...
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">{translatedMessage}</p>
+                )}
+              </div>
+            </div>
+          )}
+
           {hasMessage && (
             <p className="text-xs text-gray-400 mb-3">
               {displayMessage.split(/\s+/).filter(Boolean).length} words · {displayMessage.length} characters
@@ -725,6 +781,43 @@ Return the message text only. No preamble.`,
                       <Label htmlFor="via-both">Both</Label>
                     </div>
                   </RadioGroup>
+                </div>
+                <div>
+                  <Label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
+                    Their preferred language
+                    <span className="text-xs font-normal text-gray-400">(used for translation)</span>
+                  </Label>
+                  <div className="flex gap-2">
+                    {([
+                      { code: 'en' as const, label: 'English', flag: '\u{1F1EC}\u{1F1E7}' },
+                      { code: 'es' as const, label: 'Español', flag: '\u{1F1EA}\u{1F1F8}' },
+                      { code: 'nl' as const, label: 'Nederlands', flag: '\u{1F1F3}\u{1F1F1}' },
+                    ]).map(lang => (
+                      <button
+                        key={lang.code}
+                        type="button"
+                        onClick={() => setContactLanguage(lang.code)}
+                        className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-sm transition-all ${
+                          contactLanguage === lang.code
+                            ? 'bg-red-50 border-red-400 text-red-700 font-medium'
+                            : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+                        }`}
+                      >
+                        <span>{lang.flag}</span>
+                        <span>{lang.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                  {contactLanguage !== 'en' && (
+                    <div className="flex items-start gap-2 bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-700 mt-2">
+                      <p>Write your message in English. CLARA will automatically translate it to {contactLanguage === 'es' ? 'Spanish' : 'Dutch'} before sending. You'll see the translation in the preview.</p>
+                    </div>
+                  )}
+                  {form.whatsapp?.startsWith('+34') && contactLanguage === 'en' && (
+                    <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-700 mt-2">
+                      <p>This is a Spanish number but the message will send in English. If they speak Spanish, switch to Español above.</p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
