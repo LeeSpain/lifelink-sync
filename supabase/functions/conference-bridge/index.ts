@@ -1,9 +1,10 @@
 // Conference Bridge — connects family on a live call during SOS
 // Creates a Twilio conference room and dials all emergency contacts into it
-// Language adapts per participant's phone prefix
+// Uses DB-based language per participant via _shared/language.ts
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { getContactLanguage, getVoiceSettings, getConferenceGreeting } from '../_shared/language.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -14,29 +15,6 @@ function escapeXml(str: string): string {
   return str.replace(/[<>&'"]/g, (c: string) => ({
     '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;',
   }[c] || c));
-}
-
-function getLocale(phone: string) {
-  if (phone.startsWith('+34')) return { voice: 'Polly.Conchita', language: 'es-ES' };
-  if (phone.startsWith('+31')) return { voice: 'Polly.Lotte', language: 'nl-NL' };
-  return { voice: 'Polly.Joanna', language: 'en-GB' };
-}
-
-function getConferenceGreeting(phone: string, isMember: boolean, memberName: string) {
-  const escapedName = escapeXml(memberName);
-  if (phone.startsWith('+34')) {
-    return isMember
-      ? 'Soy CLARA de LifeLink Sync. Sus contactos de emergencia se están uniendo a una llamada con usted ahora.'
-      : `CLARA de LifeLink Sync le está conectando ahora. Puente de emergencia urgente. ${escapedName} le necesita ahora.`;
-  }
-  if (phone.startsWith('+31')) {
-    return isMember
-      ? 'Dit is CLARA van LifeLink Sync. Uw noodcontacten worden nu met u verbonden.'
-      : `CLARA van LifeLink Sync verbindt u nu. Dringende noodbrug. ${escapedName} heeft u nu nodig.`;
-  }
-  return isMember
-    ? 'This is CLARA from LifeLink Sync. Your emergency contacts are joining a call with you now.'
-    : `CLARA from LifeLink Sync is connecting you now. Urgent emergency bridge. ${escapedName} needs you now.`;
 }
 
 serve(async (req) => {
@@ -95,12 +73,18 @@ serve(async (req) => {
     const dialResults = await Promise.allSettled(
       allParticipants.map(async (p) => {
         const isMember = (p as any).isMember === true;
-        const locale = getLocale(p.phone);
-        const greeting = getConferenceGreeting(p.phone, isMember, name);
+
+        // Get language from DB per participant
+        const lang = await getContactLanguage(supabase, {
+          phone: p.phone,
+          ...(isMember ? { userId: user_id } : {}),
+        });
+        const vs = getVoiceSettings(lang);
+        const greeting = getConferenceGreeting(lang, isMember, escapeXml(name));
 
         const twiml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Say voice="${locale.voice}" language="${locale.language}">
+  <Say voice="${vs.voice}" language="${vs.language}">
     ${escapeXml(greeting)}
   </Say>
   <Dial>
@@ -134,7 +118,7 @@ serve(async (req) => {
 
         const result = await resp.json();
         if (!resp.ok) throw new Error(result.message || `Dial failed for ${p.phone}`);
-        return { name: p.name, callSid: result.sid, status: result.status };
+        return { name: p.name, callSid: result.sid, status: result.status, lang };
       })
     );
 
