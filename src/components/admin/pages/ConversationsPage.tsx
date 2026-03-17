@@ -143,6 +143,28 @@ export default function ConversationsPage() {
 
   const selectConv = (c: ConvItem) => { setSelected(c); loadMessages(c); };
 
+  // Real-time subscription for new messages in selected conversation
+  useEffect(() => {
+    if (!selected || selected.source_table !== 'whatsapp_conversations') return;
+    const channel = supabase.channel(`msgs-${selected.id}`)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'whatsapp_messages', filter: `conversation_id=eq.${selected.id}` }, (payload) => {
+        const m = payload.new as any;
+        setMessages(prev => {
+          if (prev.some(p => p.id === m.id)) return prev;
+          return [...prev, { id: m.id, direction: m.direction, content: m.content || '(media)', created_at: m.timestamp, is_ai: m.is_ai_generated || false }];
+        });
+      }).subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [selected?.id]);
+
+  // Also subscribe to conversation list changes
+  useEffect(() => {
+    const channel = supabase.channel('conv-list')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'whatsapp_conversations' }, () => { loadConversations(); })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
   const sendReply = async () => {
     if (!replyText.trim() || !selected?.contact_phone) return;
     setSending(true);
@@ -150,6 +172,12 @@ export default function ConversationsPage() {
       await supabase.functions.invoke('clara-escalation', {
         body: { type: 'manual_invite', contact_name: selected.contact_name || 'Contact', contact_phone: selected.contact_phone, message: replyText },
       });
+      // Save outbound message to DB so it persists
+      if (selected.source_table === 'whatsapp_conversations') {
+        await supabase.from('whatsapp_messages').insert({
+          conversation_id: selected.id, direction: 'outbound', message_type: 'text', content: replyText, status: 'sent', is_ai_generated: false, timestamp: new Date().toISOString(),
+        }).catch(() => {});
+      }
       setMessages(prev => [...prev, { id: crypto.randomUUID(), direction: 'outbound', content: replyText, created_at: new Date().toISOString(), is_ai: false }]);
       setReplyText('');
       toast.success('Sent');
@@ -158,12 +186,27 @@ export default function ConversationsPage() {
 
   const convertToLead = async () => {
     if (!selected) return;
-    await supabase.from('leads').insert({
+    // Check if already a lead
+    if (selected.contact_phone) {
+      const { data: existing } = await supabase.from('leads').select('id').eq('phone', selected.contact_phone).maybeSingle();
+      if (existing) { toast.info('Already in leads'); return; }
+    }
+    const { data: newLead, error } = await supabase.from('leads').insert({
       full_name: selected.contact_name || 'Unknown', phone: selected.contact_phone || null,
       lead_source: selected.channel, status: 'new', interest_level: 5, lead_score: 30,
       notes: `From ${selected.channel} conversation`, session_id: selected.id,
-    }).catch(() => {});
-    toast.success('Added to leads');
+    }).select('id').maybeSingle();
+    if (error) { toast.error('Failed: ' + error.message); return; }
+    // Link conversation to lead
+    if (newLead?.id && selected.source_table === 'whatsapp_conversations') {
+      await supabase.from('lead_activities').insert({ lead_id: newLead.id, activity_type: 'whatsapp', subject: 'Added from conversation', content: `Contact added from ${selected.channel} conversation` }).catch(() => {});
+    }
+    toast.success(`${selected.contact_name || 'Contact'} added to leads`);
+  };
+
+  const handleCall = (phone?: string) => {
+    if (!phone) { toast.error('No phone number'); return; }
+    window.location.href = `tel:${phone.replace(/\s/g, '').replace('whatsapp:', '')}`;
   };
 
   const filtered = convs.filter(c => {
@@ -267,7 +310,7 @@ export default function ConversationsPage() {
                 <div className="flex gap-2">
                   <button onClick={convertToLead} className="px-3 py-1.5 bg-purple-50 text-purple-700 rounded-lg text-xs font-medium border border-purple-200 hover:bg-purple-100">+ Add to leads</button>
                   {selected.contact_phone && (
-                    <button onClick={() => supabase.functions.invoke('clara-speak', { body: { to: selected.contact_phone, message: 'Hello, this is CLARA from LifeLink Sync.' } })} className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-xs font-medium border border-blue-200 hover:bg-blue-100">📞 Call</button>
+                    <button onClick={() => handleCall(selected.contact_phone)} className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-xs font-medium border border-blue-200 hover:bg-blue-100">📞 Call</button>
                   )}
                 </div>
               </div>
