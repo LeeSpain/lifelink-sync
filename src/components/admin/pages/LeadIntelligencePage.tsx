@@ -211,7 +211,7 @@ Icons: fire, target, clock, trending-up, alert, zap`,
       <div className="flex items-start justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Lead Intelligence</h1>
-          <p className="text-sm text-gray-500">AI-powered scoring and pipeline insights</p>
+          <p className="text-sm text-gray-400 mt-0.5">AI-powered scoring and pipeline insights</p>
         </div>
         <Button onClick={runClaraAnalysis} disabled={analyzing} className="bg-red-500 hover:bg-red-600 text-white">
           {analyzing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Zap className="w-4 h-4 mr-2" />}
