@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { Send, Eye, Loader2, CheckCircle, Mail, Phone, Sparkles, RefreshCw, Shield, Pencil } from 'lucide-react';
+import { Send, Eye, Loader2, CheckCircle, Mail, Phone, Sparkles, RefreshCw, Shield, Pencil, User, Check } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -73,6 +73,11 @@ function generateMessage(name: string, protectionFor: string, personalMessage?: 
 export default function ManualInvitePage() {
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // ─── Sender Mode ───
+  const [senderMode, setSenderMode] = useState<'lee' | 'clara' | null>(null);
+
+  // ─── Lee Mode State ───
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -84,7 +89,6 @@ export default function ManualInvitePage() {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [sentMessage, setSentMessage] = useState('');
-
   const [relationship, setRelationship] = useState('friendly');
   const [rawNote, setRawNote] = useState('');
   const [enhancedMessage, setEnhancedMessage] = useState('');
@@ -92,17 +96,33 @@ export default function ManualInvitePage() {
   const [useEnhanced, setUseEnhanced] = useState(false);
   const [isEditingPreview, setIsEditingPreview] = useState(false);
 
+  // ─── CLARA Mode State ───
+  const [claraForm, setClaraForm] = useState({
+    name: '',
+    whatsapp: '',
+    protectionFor: '',
+    roughNote: '',
+  });
+  const [claraRelationship, setClaraRelationship] = useState('friendly');
+  const [claraSending, setClaraSending] = useState(false);
+  const [claraSent, setClaraSent] = useState(false);
+  const [claraSentName, setClaraSentName] = useState('');
+
   const update = (field: string, value: string) => {
     setForm(prev => ({ ...prev, [field]: value }));
     setSent(false);
   };
 
-  // The message that will actually be sent
+  const updateClara = (field: string, value: string) => {
+    setClaraForm(prev => ({ ...prev, [field]: value }));
+    setClaraSent(false);
+  };
+
+  // The message that will actually be sent (Lee mode)
   const previewMessage = useEnhanced && enhancedMessage
     ? enhancedMessage
     : generateMessage(form.name || 'there', form.protectionFor, form.personalMessage);
 
-  // What to display in the preview panel (matches what's sent)
   const displayMessage = useEnhanced && enhancedMessage
     ? enhancedMessage
     : rawNote
@@ -118,6 +138,22 @@ export default function ManualInvitePage() {
     (form.sendVia === 'both' && form.email.trim() && form.whatsapp.trim())
   );
 
+  const canSendClara = claraForm.name.trim() && claraForm.whatsapp.trim() && claraForm.protectionFor;
+
+  // ─── Mode Switch Handler ───
+  const handleModeSwitch = (newMode: 'lee' | 'clara') => {
+    if (senderMode === newMode) return;
+    if (enhancedMessage && senderMode !== null) {
+      if (!confirm('Switch mode? Your current message will be cleared.')) return;
+    }
+    setEnhancedMessage('');
+    setUseEnhanced(false);
+    setSent(false);
+    setClaraSent(false);
+    setSenderMode(newMode);
+  };
+
+  // ─── CLARA Enhance (Lee mode) ───
   const handleClaraEnhance = async () => {
     const noteText = rawNote || form.personalMessage;
     if (!noteText) return;
@@ -171,6 +207,7 @@ Return the message text only. No preamble.`,
     }
   };
 
+  // ─── Send (Lee mode) ───
   const handleSend = async () => {
     if (!canSend) return;
     setSending(true);
@@ -233,6 +270,90 @@ Return the message text only. No preamble.`,
     }
   };
 
+  // ─── Send via CLARA (auto mode) ───
+  const handleClaraSend = async () => {
+    if (!canSendClara) return;
+    setClaraSending(true);
+    try {
+      // Let CLARA generate and send the message
+      const response = await supabase.functions.invoke('ai-chat', {
+        body: {
+          message: `You are CLARA, the AI assistant for LifeLink Sync — a personal emergency protection platform.
+
+Lee Wakeman wants you to write and send a WhatsApp message to invite someone to LifeLink Sync.
+
+Contact name: ${claraForm.name}
+Protection for: ${claraForm.protectionFor}
+Relationship type: ${claraRelationship}
+${claraForm.roughNote ? `Lee's note about them: "${claraForm.roughNote}"` : ''}
+
+Write a warm, personalised WhatsApp message inviting them to try LifeLink Sync.
+
+Rules:
+- Tone must match the relationship: ${getToneGuide(claraRelationship)}
+- Mention their specific situation naturally if note provided
+- Explain what LifeLink Sync is in ONE sentence max
+- Focus on WHY it would help THEM specifically
+- End with a soft call to action — no hard sell
+- Include the trial link: https://lifelink-sync.com
+- Sign off as:
+  — CLARA
+  On behalf of Lee Wakeman
+  LifeLink Sync
+- Maximum 120 words
+- No bullet points — flowing natural text
+- Do NOT mention prices
+
+Return the message text only. No preamble.`,
+          language: 'en',
+          isOwnerPersonal: true,
+        },
+      });
+
+      const claraMessage = response.data?.response || response.data?.reply || '';
+      if (!claraMessage) throw new Error('CLARA could not generate a message');
+
+      // Send it via WhatsApp
+      const { data: sendResult, error: sendError } = await supabase.functions.invoke('clara-escalation', {
+        body: {
+          type: 'manual_invite',
+          contact_name: claraForm.name,
+          contact_phone: claraForm.whatsapp.trim(),
+          message: claraMessage,
+        },
+      });
+      if (sendError) throw new Error(sendError.message || 'Failed to send');
+      if (!sendResult?.success) throw new Error('Delivery failed — check WhatsApp number');
+
+      // Log to DB
+      await (supabase as any).from('manual_invites').insert({
+        contact_name: claraForm.name,
+        contact_whatsapp: claraForm.whatsapp || null,
+        protection_for: claraForm.protectionFor,
+        personal_message: claraForm.roughNote || null,
+        send_via: 'whatsapp',
+        message_sent: claraMessage,
+        relationship_tone: claraRelationship,
+        clara_enhanced: true,
+        whatsapp_sent: true,
+        status: 'sent',
+      }).catch(() => {});
+
+      setClaraSentName(claraForm.name);
+      setClaraSent(true);
+      toast({ title: 'CLARA sent it!', description: `Message sent to ${claraForm.name} via WhatsApp` });
+    } catch (err) {
+      console.error('CLARA send error:', err);
+      toast({
+        title: 'Send Failed',
+        description: (err as Error).message || 'Could not send via CLARA.',
+        variant: 'destructive',
+      });
+    } finally {
+      setClaraSending(false);
+    }
+  };
+
   const reset = () => {
     setForm({ name: '', email: '', whatsapp: '', protectionFor: '', personalMessage: '', sendVia: 'email' });
     setSent(false);
@@ -244,16 +365,21 @@ Return the message text only. No preamble.`,
     setIsEditingPreview(false);
   };
 
-  // ─── Channel badge helper ───
+  const resetClara = () => {
+    setClaraForm({ name: '', whatsapp: '', protectionFor: '', roughNote: '' });
+    setClaraSent(false);
+    setClaraSentName('');
+    setClaraRelationship('friendly');
+  };
+
   const channelBadge = () => {
     if (form.sendVia === 'both') return '📱 WhatsApp + 📧 Email';
     if (form.sendVia === 'whatsapp') return '📱 WhatsApp';
     return '📧 Email';
   };
 
-  // ─── Preview Panel ───
+  // ─── Preview Panel (Lee mode) ───
   const renderPreviewPanel = () => {
-    // Success state
     if (sent) {
       return (
         <div className="bg-white border border-green-200 rounded-2xl p-8 text-center">
@@ -282,7 +408,6 @@ Return the message text only. No preamble.`,
       );
     }
 
-    // Empty state
     if (!hasContact && !hasMessage) {
       return (
         <div className="bg-white border border-dashed border-gray-300 rounded-2xl p-8 text-center">
@@ -295,10 +420,8 @@ Return the message text only. No preamble.`,
       );
     }
 
-    // Partial or full preview
     return (
       <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
-        {/* Header */}
         <div className="bg-gray-50 border-b border-gray-200 px-6 py-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center text-red-600 font-bold text-sm">
@@ -315,9 +438,7 @@ Return the message text only. No preamble.`,
           </div>
         </div>
 
-        {/* Body */}
         <div className="px-6 py-5">
-          {/* Badges */}
           <div className="flex flex-wrap items-center gap-2 mb-4">
             <span className="text-xs bg-blue-50 text-blue-600 border border-blue-200 px-3 py-1 rounded-full font-medium">
               {channelBadge()}
@@ -332,7 +453,6 @@ Return the message text only. No preamble.`,
             )}
           </div>
 
-          {/* Message area */}
           {!hasMessage ? (
             <div className="bg-gray-50 rounded-xl p-4 mb-4 min-h-[120px] flex items-center justify-center">
               <p className="text-gray-400 text-sm text-center italic">
@@ -356,7 +476,6 @@ Return the message text only. No preamble.`,
             />
           ) : (
             <>
-              {/* WhatsApp preview */}
               {(form.sendVia === 'whatsapp' || form.sendVia === 'both') && (
                 <div className="mb-3">
                   {form.sendVia === 'both' && <p className="text-[10px] text-gray-400 font-medium mb-1 uppercase tracking-wider">WhatsApp</p>}
@@ -368,8 +487,6 @@ Return the message text only. No preamble.`,
                   </div>
                 </div>
               )}
-
-              {/* Email preview */}
               {(form.sendVia === 'email' || form.sendVia === 'both') && (
                 <div className="mb-3">
                   {form.sendVia === 'both' && <p className="text-[10px] text-gray-400 font-medium mb-1 uppercase tracking-wider">Email</p>}
@@ -391,14 +508,12 @@ Return the message text only. No preamble.`,
             </>
           )}
 
-          {/* Word/char count */}
           {hasMessage && (
             <p className="text-xs text-gray-400 mb-3">
               {displayMessage.split(/\s+/).filter(Boolean).length} words · {displayMessage.length} characters
             </p>
           )}
 
-          {/* Edit toggle */}
           {hasMessage && enhancedMessage && (
             <button
               type="button"
@@ -410,7 +525,6 @@ Return the message text only. No preamble.`,
             </button>
           )}
 
-          {/* Protection info */}
           {form.protectionFor && (
             <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
               <Shield className="w-3.5 h-3.5 text-red-400" />
@@ -419,7 +533,6 @@ Return the message text only. No preamble.`,
           )}
         </div>
 
-        {/* Footer — Accept & Send */}
         <div className="px-6 pb-6">
           <Button
             onClick={handleSend}
@@ -450,184 +563,325 @@ Return the message text only. No preamble.`,
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Manual Invite</h1>
-        <p className="text-muted-foreground">Send a personalised invite to a specific contact — let CLARA write the perfect message.</p>
+        <p className="text-muted-foreground">Send a personalised invite — write it yourself or let CLARA handle it completely.</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-        {/* ─── LEFT COLUMN — Form ─── */}
-        <div className="space-y-6">
-          {/* Contact Details Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Contact Details</CardTitle>
-              <CardDescription>Who are you inviting?</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label>Contact Name *</Label>
-                <Input value={form.name} onChange={e => update('name', e.target.value)} placeholder="John Smith" />
-              </div>
-              <div>
-                <Label>Email Address</Label>
-                <Input type="email" value={form.email} onChange={e => update('email', e.target.value)} placeholder="john@example.com" />
-              </div>
-              <div>
-                <Label>WhatsApp Number</Label>
-                <Input type="tel" value={form.whatsapp} onChange={e => update('whatsapp', e.target.value)} placeholder="+44 7700 900000" />
-              </div>
-              <div>
-                <Label>Who is protection for? *</Label>
-                <Select value={form.protectionFor} onValueChange={v => update('protectionFor', v)}>
-                  <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
-                  <SelectContent>
-                    {protectionOptions.map(o => (
-                      <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Send Via *</Label>
-                <RadioGroup value={form.sendVia} onValueChange={v => update('sendVia', v)} className="flex gap-4 mt-2">
-                  <div className="flex items-center gap-2">
-                    <RadioGroupItem value="email" id="via-email" />
-                    <Label htmlFor="via-email" className="flex items-center gap-1"><Mail className="h-3.5 w-3.5" /> Email</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <RadioGroupItem value="whatsapp" id="via-whatsapp" />
-                    <Label htmlFor="via-whatsapp" className="flex items-center gap-1"><Phone className="h-3.5 w-3.5" /> WhatsApp</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <RadioGroupItem value="both" id="via-both" />
-                    <Label htmlFor="via-both">Both</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-            </CardContent>
-          </Card>
+      {/* ─── MODE SELECTOR CARDS ─── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Send as Lee */}
+        <button
+          onClick={() => handleModeSwitch('lee')}
+          className={`relative bg-white border-2 rounded-2xl p-6 text-left transition-all ${
+            senderMode === 'lee'
+              ? 'border-red-500 bg-red-50/30 ring-2 ring-red-500 ring-offset-2'
+              : 'border-gray-200 hover:border-gray-300 hover:shadow-sm cursor-pointer'
+          }`}
+        >
+          {senderMode === 'lee' && (
+            <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center absolute top-4 right-4">
+              <Check className="w-4 h-4 text-white" />
+            </div>
+          )}
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <User className="w-6 h-6 text-blue-600" />
+            </div>
+            <div className="flex-1 pr-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-1">Send as Lee</h3>
+              <p className="text-gray-500 text-sm mb-3">
+                CLARA writes the perfect message in your voice. You review it, then send it personally.
+              </p>
+              <span className="text-xs bg-blue-50 text-blue-600 border border-blue-200 px-2 py-0.5 rounded-full">
+                You're in control
+              </span>
+            </div>
+          </div>
+        </button>
 
-          {/* CLARA Message Enhancement Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-red-500" />
-                CLARA Message Writer
-              </CardTitle>
-              <CardDescription>Write a rough note, pick a tone, and let CLARA craft the perfect invite.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-5">
-              {/* Relationship/Tone Selector */}
-              <div>
-                <Label className="mb-2 block">Relationship & tone</Label>
-                <div className="flex flex-wrap gap-2">
-                  {relationships.map(r => (
-                    <button
-                      key={r.value}
-                      type="button"
-                      onClick={() => {
-                        setRelationship(r.value);
-                        setEnhancedMessage('');
-                        setUseEnhanced(false);
-                      }}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm transition-all border ${
-                        relationship === r.value
-                          ? 'bg-red-50 border-red-500 text-red-700 font-medium'
-                          : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
-                      }`}
-                    >
-                      <span>{r.emoji}</span>
-                      <span>{r.label}</span>
-                    </button>
-                  ))}
+        {/* Send via CLARA */}
+        <button
+          onClick={() => handleModeSwitch('clara')}
+          className={`relative bg-white border-2 rounded-2xl p-6 text-left transition-all ${
+            senderMode === 'clara'
+              ? 'border-red-500 bg-red-50/30 ring-2 ring-red-500 ring-offset-2'
+              : 'border-gray-200 hover:border-gray-300 hover:shadow-sm cursor-pointer'
+          }`}
+        >
+          {senderMode === 'clara' && (
+            <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center absolute top-4 right-4">
+              <Check className="w-4 h-4 text-white" />
+            </div>
+          )}
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <Sparkles className="w-6 h-6 text-red-600" />
+            </div>
+            <div className="flex-1 pr-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-1">Send via CLARA</h3>
+              <p className="text-gray-500 text-sm mb-3">
+                Just tell CLARA who they are. She'll write and send the perfect message automatically — no review needed.
+              </p>
+              <span className="text-xs bg-red-50 text-red-600 border border-red-200 px-2 py-0.5 rounded-full">
+                Fully automated
+              </span>
+            </div>
+          </div>
+        </button>
+      </div>
+
+      {/* ─── LEE MODE: Full form + preview ─── */}
+      {senderMode === 'lee' && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Contact Details</CardTitle>
+                <CardDescription>Who are you inviting?</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label>Contact Name *</Label>
+                  <Input value={form.name} onChange={e => update('name', e.target.value)} placeholder="John Smith" />
                 </div>
-                <p className="text-xs text-muted-foreground mt-1.5">
-                  {relationships.find(r => r.value === relationship)?.hint} — signs off as {getSignOff(relationship)}
-                </p>
-              </div>
+                <div>
+                  <Label>Email Address</Label>
+                  <Input type="email" value={form.email} onChange={e => update('email', e.target.value)} placeholder="john@example.com" />
+                </div>
+                <div>
+                  <Label>WhatsApp Number</Label>
+                  <Input type="tel" value={form.whatsapp} onChange={e => update('whatsapp', e.target.value)} placeholder="+44 7700 900000" />
+                </div>
+                <div>
+                  <Label>Who is protection for? *</Label>
+                  <Select value={form.protectionFor} onValueChange={v => update('protectionFor', v)}>
+                    <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                    <SelectContent>
+                      {protectionOptions.map(o => (
+                        <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Send Via *</Label>
+                  <RadioGroup value={form.sendVia} onValueChange={v => update('sendVia', v)} className="flex gap-4 mt-2">
+                    <div className="flex items-center gap-2">
+                      <RadioGroupItem value="email" id="via-email" />
+                      <Label htmlFor="via-email" className="flex items-center gap-1"><Mail className="h-3.5 w-3.5" /> Email</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <RadioGroupItem value="whatsapp" id="via-whatsapp" />
+                      <Label htmlFor="via-whatsapp" className="flex items-center gap-1"><Phone className="h-3.5 w-3.5" /> WhatsApp</Label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <RadioGroupItem value="both" id="via-both" />
+                      <Label htmlFor="via-both">Both</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+              </CardContent>
+            </Card>
 
-              {/* Raw Note Textarea */}
-              <div>
-                <Label className="mb-2 block">Your rough note about them</Label>
-                <Textarea
-                  value={rawNote}
-                  onChange={e => {
-                    setRawNote(e.target.value);
-                    setEnhancedMessage('');
-                    setUseEnhanced(false);
-                  }}
-                  placeholder="e.g. He's a friend, his mum lives alone in Málaga, might be good for her. He has 2 daughters aged 17..."
-                  rows={3}
-                />
-                <div className="flex items-center gap-4 mt-2">
-                  <button
-                    type="button"
-                    onClick={handleClaraEnhance}
-                    disabled={!rawNote.trim() || isEnhancing}
-                    className="flex items-center gap-2 text-sm text-red-600 font-medium hover:text-red-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                  >
-                    {isEnhancing ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        CLARA is writing...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-4 h-4" />
-                        Let CLARA write this
-                      </>
-                    )}
-                  </button>
-                  {enhancedMessage && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-red-500" />
+                  CLARA Message Writer
+                </CardTitle>
+                <CardDescription>Write a rough note, pick a tone, and let CLARA craft the perfect invite.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-5">
+                <div>
+                  <Label className="mb-2 block">Relationship & tone</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {relationships.map(r => (
+                      <button
+                        key={r.value}
+                        type="button"
+                        onClick={() => { setRelationship(r.value); setEnhancedMessage(''); setUseEnhanced(false); }}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm transition-all border ${
+                          relationship === r.value
+                            ? 'bg-red-50 border-red-500 text-red-700 font-medium'
+                            : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+                        }`}
+                      >
+                        <span>{r.emoji}</span>
+                        <span>{r.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1.5">
+                    {relationships.find(r => r.value === relationship)?.hint} — signs off as {getSignOff(relationship)}
+                  </p>
+                </div>
+
+                <div>
+                  <Label className="mb-2 block">Your rough note about them</Label>
+                  <Textarea
+                    value={rawNote}
+                    onChange={e => { setRawNote(e.target.value); setEnhancedMessage(''); setUseEnhanced(false); }}
+                    placeholder="e.g. He's a friend, his mum lives alone in Málaga, might be good for her. He has 2 daughters aged 17..."
+                    rows={3}
+                  />
+                  <div className="flex items-center gap-4 mt-2">
                     <button
                       type="button"
                       onClick={handleClaraEnhance}
-                      disabled={isEnhancing}
-                      className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1 disabled:opacity-40"
+                      disabled={!rawNote.trim() || isEnhancing}
+                      className="flex items-center gap-2 text-sm text-red-600 font-medium hover:text-red-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                     >
-                      <RefreshCw className={`w-3 h-3 ${isEnhancing ? 'animate-spin' : ''}`} />
-                      Regenerate
+                      {isEnhancing ? (
+                        <><Loader2 className="w-4 h-4 animate-spin" />CLARA is writing...</>
+                      ) : (
+                        <><Sparkles className="w-4 h-4" />Let CLARA write this</>
+                      )}
                     </button>
-                  )}
+                    {enhancedMessage && (
+                      <button
+                        type="button"
+                        onClick={handleClaraEnhance}
+                        disabled={isEnhancing}
+                        className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1 disabled:opacity-40"
+                      >
+                        <RefreshCw className={`w-3 h-3 ${isEnhancing ? 'animate-spin' : ''}`} />
+                        Regenerate
+                      </button>
+                    )}
+                  </div>
                 </div>
 
-                <details className="mt-2">
-                  <summary className="text-xs text-muted-foreground cursor-pointer hover:text-gray-600">See an example →</summary>
-                  <div className="mt-2 bg-muted rounded-lg p-3 text-xs text-gray-600 space-y-2">
-                    <div>
-                      <p className="font-medium text-gray-700">Your note:</p>
-                      <p className="italic">"He's a friend, his mum lives alone in Málaga, might be good for her. He has 2 daughters aged 17."</p>
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-700">CLARA writes (Friendly tone):</p>
-                      <p className="italic">"Hey! Hope you're well. I've been using something I think could be really useful for your mum in Málaga — especially since she's living on her own. It's called LifeLink Sync, basically gives her a one-tap emergency button that alerts the family instantly. Given you've got the girls too, might give everyone a bit more peace of mind. Worth a look? Happy to tell you more. — Lee"</p>
-                    </div>
+                {!useEnhanced && (
+                  <div>
+                    <Label className="mb-2 block text-muted-foreground text-xs">
+                      Or add a personal note manually (appended to the template)
+                    </Label>
+                    <Textarea
+                      value={form.personalMessage}
+                      onChange={e => update('personalMessage', e.target.value)}
+                      placeholder="Add a personal note..."
+                      rows={2}
+                    />
                   </div>
-                </details>
-              </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
 
-              {/* Fallback manual note */}
-              {!useEnhanced && (
+          <div className="lg:sticky lg:top-6">
+            {renderPreviewPanel()}
+          </div>
+        </div>
+      )}
+
+      {/* ─── CLARA MODE: Simplified form ─── */}
+      {senderMode === 'clara' && (
+        <div className="max-w-xl">
+          {claraSent ? (
+            <div className="text-center py-8">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Sparkles className="w-8 h-8 text-green-500" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">CLARA sent it!</h3>
+              <p className="text-gray-500 text-sm">Message sent to {claraSentName}</p>
+              <p className="text-gray-400 text-xs mt-1">CLARA will follow up automatically if they don't respond</p>
+              <button
+                onClick={resetClara}
+                className="mt-6 text-red-500 text-sm font-medium hover:text-red-600"
+              >
+                Send another →
+              </button>
+            </div>
+          ) : (
+            <div className="bg-white border border-gray-200 rounded-2xl p-6">
+              <h3 className="font-bold text-gray-900 mb-1">Just tell CLARA who they are</h3>
+              <p className="text-gray-500 text-sm mb-6">She'll write and send the perfect message for you.</p>
+
+              <div className="space-y-4">
                 <div>
-                  <Label className="mb-2 block text-muted-foreground text-xs">
-                    Or add a personal note manually (appended to the template)
-                  </Label>
-                  <Textarea
-                    value={form.personalMessage}
-                    onChange={e => update('personalMessage', e.target.value)}
-                    placeholder="Add a personal note..."
-                    rows={2}
+                  <Label>Contact name *</Label>
+                  <Input
+                    value={claraForm.name}
+                    onChange={e => updateClara('name', e.target.value)}
+                    placeholder="John Smith"
                   />
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+                <div>
+                  <Label>WhatsApp number *</Label>
+                  <Input
+                    type="tel"
+                    value={claraForm.whatsapp}
+                    onChange={e => updateClara('whatsapp', e.target.value)}
+                    placeholder="+44 7700 900000"
+                  />
+                </div>
+                <div>
+                  <Label>Who is protection for? *</Label>
+                  <Select value={claraForm.protectionFor} onValueChange={v => updateClara('protectionFor', v)}>
+                    <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                    <SelectContent>
+                      {protectionOptions.map(o => (
+                        <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-        {/* ─── RIGHT COLUMN — Live Preview ─── */}
-        <div className="lg:sticky lg:top-6">
-          {renderPreviewPanel()}
+                <div>
+                  <Label className="mb-2 block">Relationship</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {relationships.map(r => (
+                      <button
+                        key={r.value}
+                        type="button"
+                        onClick={() => setClaraRelationship(r.value)}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm transition-all border ${
+                          claraRelationship === r.value
+                            ? 'bg-red-50 border-red-500 text-red-700 font-medium'
+                            : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+                        }`}
+                      >
+                        <span>{r.emoji}</span>
+                        <span>{r.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <Label>Rough note about them <span className="text-gray-400 font-normal">(optional)</span></Label>
+                  <Textarea
+                    value={claraForm.roughNote}
+                    onChange={e => updateClara('roughNote', e.target.value)}
+                    placeholder="e.g. He's a mate, his mum lives alone in Málaga. Has 3 kids."
+                    rows={3}
+                  />
+                </div>
+              </div>
+
+              <Button
+                onClick={handleClaraSend}
+                disabled={!canSendClara || claraSending}
+                className="w-full bg-red-500 hover:bg-red-600 text-white py-4 rounded-xl text-base font-semibold mt-6 h-auto"
+              >
+                {claraSending ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    CLARA is writing & sending...
+                  </span>
+                ) : (
+                  <span className="flex items-center justify-center gap-2">
+                    <Sparkles className="w-5 h-5" />
+                    Send via CLARA →
+                  </span>
+                )}
+              </Button>
+              <p className="text-xs text-gray-400 text-center mt-3">
+                CLARA will write and send a personalised message immediately. Signed as: CLARA, LifeLink Sync
+              </p>
+            </div>
+          )}
         </div>
-      </div>
+      )}
     </div>
   );
 }
