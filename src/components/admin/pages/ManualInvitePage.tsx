@@ -286,21 +286,68 @@ Return the message text only. No preamble.`,
       });
       if (dbError) console.warn('Failed to log invite to DB:', dbError);
 
-      // Also add to leads CRM
+      // ── Full CRM tracking ──
       const nameParts = form.name.trim().split(' ');
-      await (supabase as any).from('leads').insert({
-        first_name: nameParts[0] || form.name,
-        last_name: nameParts.slice(1).join(' ') || null,
-        email: form.email || `${form.whatsapp.replace(/[^0-9]/g, '')}@invite.lifelink-sync.com`,
-        phone: form.whatsapp || null,
-        lead_source: 'manual_invite',
-        language: contactLanguage,
-        status: 'new',
-        interest_level: 5,
-        notes: `Invited via ${form.sendVia}. Protection for: ${form.protectionFor}. ${rawNote || ''}`.trim(),
-        tags: ['manual-invite', form.protectionFor].filter(Boolean),
-      });
-      // Lead insert is best-effort — don't block on errors
+      const cleanPhone = form.whatsapp?.replace(/\s/g, '') || null;
+
+      // 1. Create or update lead
+      const { data: existingLead } = await (supabase as any).from('leads').select('id').eq('phone', cleanPhone).maybeSingle();
+      let leadId = existingLead?.id;
+
+      if (!leadId) {
+        const { data: newLead } = await (supabase as any).from('leads').insert({
+          first_name: nameParts[0] || form.name,
+          last_name: nameParts.slice(1).join(' ') || null,
+          full_name: form.name,
+          email: form.email || `${(cleanPhone || '').replace(/[^0-9]/g, '')}@invite.lifelink-sync.com`,
+          phone: cleanPhone,
+          lead_source: 'manual_invite',
+          language: contactLanguage,
+          status: 'contacted',
+          interest_level: 5,
+          lead_score: 30,
+          last_contacted_at: new Date().toISOString(),
+          notes: `Invited via ${form.sendVia}. Protection for: ${form.protectionFor}. ${rawNote || ''}`.trim(),
+          tags: ['manual-invite', form.protectionFor].filter(Boolean),
+        }).select('id').single();
+        leadId = newLead?.id;
+      } else {
+        await (supabase as any).from('leads').update({ status: 'contacted', last_contacted_at: new Date().toISOString(), lead_score: 30 }).eq('id', leadId);
+      }
+
+      // 2. Log lead activity
+      if (leadId) {
+        await (supabase as any).from('lead_activities').insert({
+          lead_id: leadId,
+          activity_type: 'whatsapp_sent',
+          subject: `Manual invite sent${useEnhanced ? ' (CLARA enhanced)' : ''}`,
+          content: messageToSend,
+          metadata: { channel: form.sendVia, phone: cleanPhone, ai_generated: useEnhanced, relationship, language: contactLanguage },
+        }).catch(() => {});
+      }
+
+      // 3. Create WhatsApp conversation + message if sent via WhatsApp
+      if (cleanPhone && (sendResult?.whatsapp_sent)) {
+        const { data: existingConv } = await (supabase as any).from('whatsapp_conversations').select('id').eq('phone_number', cleanPhone).maybeSingle();
+        let convId = existingConv?.id;
+        if (!convId) {
+          const { data: newConv } = await (supabase as any).from('whatsapp_conversations').insert({
+            phone_number: cleanPhone,
+            contact_name: form.name,
+            status: 'active',
+            metadata: { lead_id: leadId, source: 'manual_invite' },
+          }).select('id').single();
+          convId = newConv?.id;
+        } else {
+          await (supabase as any).from('whatsapp_conversations').update({ contact_name: form.name, metadata: { lead_id: leadId, source: 'manual_invite' } }).eq('id', convId);
+        }
+        if (convId) {
+          await (supabase as any).from('whatsapp_messages').insert({
+            conversation_id: convId, direction: 'outbound', message_type: 'text',
+            content: messageToSend, is_ai_generated: useEnhanced, status: 'sent',
+          }).catch(() => {});
+        }
+      }
 
       setSentMessage(previewMessage);
       setSent(true);
@@ -407,20 +454,65 @@ Return the message text only. No preamble.`,
       });
       if (dbError) console.warn('Failed to log invite to DB:', dbError);
 
-      // Also add to leads CRM
+      // ── Full CRM tracking (CLARA mode) ──
       const nameParts = claraForm.name.trim().split(' ');
-      await (supabase as any).from('leads').insert({
-        first_name: nameParts[0] || claraForm.name,
-        last_name: nameParts.slice(1).join(' ') || null,
-        email: `${claraForm.whatsapp.replace(/[^0-9]/g, '')}@invite.lifelink-sync.com`,
-        phone: claraForm.whatsapp || null,
-        lead_source: 'clara_invite',
-        status: 'new',
-        interest_level: 5,
-        notes: `CLARA invite via WhatsApp. Protection for: ${claraForm.protectionFor}. ${claraForm.roughNote || ''}`.trim(),
-        tags: ['clara-invite', claraForm.protectionFor].filter(Boolean),
-      });
-      // Lead insert is best-effort — don't block on errors
+      const cleanPhone = claraForm.whatsapp?.replace(/\s/g, '') || null;
+
+      // 1. Create or update lead
+      const { data: existingLead2 } = await (supabase as any).from('leads').select('id').eq('phone', cleanPhone).maybeSingle();
+      let leadId2 = existingLead2?.id;
+
+      if (!leadId2) {
+        const { data: newLead2 } = await (supabase as any).from('leads').insert({
+          first_name: nameParts[0] || claraForm.name,
+          last_name: nameParts.slice(1).join(' ') || null,
+          full_name: claraForm.name,
+          email: `${(cleanPhone || '').replace(/[^0-9]/g, '')}@invite.lifelink-sync.com`,
+          phone: cleanPhone,
+          lead_source: 'clara_invite',
+          status: 'contacted',
+          interest_level: 5,
+          lead_score: 30,
+          last_contacted_at: new Date().toISOString(),
+          notes: `CLARA invite via WhatsApp. Protection for: ${claraForm.protectionFor}. ${claraForm.roughNote || ''}`.trim(),
+          tags: ['clara-invite', claraForm.protectionFor].filter(Boolean),
+        }).select('id').single();
+        leadId2 = newLead2?.id;
+      } else {
+        await (supabase as any).from('leads').update({ status: 'contacted', last_contacted_at: new Date().toISOString(), lead_score: 30 }).eq('id', leadId2);
+      }
+
+      // 2. Log lead activity
+      if (leadId2) {
+        await (supabase as any).from('lead_activities').insert({
+          lead_id: leadId2,
+          activity_type: 'whatsapp_sent',
+          subject: 'CLARA invite sent via WhatsApp',
+          content: claraGeneratedMessage,
+          metadata: { channel: 'whatsapp', phone: cleanPhone, ai_generated: true, relationship: claraRelationship },
+        }).catch(() => {});
+      }
+
+      // 3. Create WhatsApp conversation + message
+      if (cleanPhone && sendResult?.whatsapp_sent) {
+        const { data: existingConv2 } = await (supabase as any).from('whatsapp_conversations').select('id').eq('phone_number', cleanPhone).maybeSingle();
+        let convId2 = existingConv2?.id;
+        if (!convId2) {
+          const { data: newConv2 } = await (supabase as any).from('whatsapp_conversations').insert({
+            phone_number: cleanPhone, contact_name: claraForm.name, status: 'active',
+            metadata: { lead_id: leadId2, source: 'clara_invite' },
+          }).select('id').single();
+          convId2 = newConv2?.id;
+        } else {
+          await (supabase as any).from('whatsapp_conversations').update({ contact_name: claraForm.name, metadata: { lead_id: leadId2, source: 'clara_invite' } }).eq('id', convId2);
+        }
+        if (convId2) {
+          await (supabase as any).from('whatsapp_messages').insert({
+            conversation_id: convId2, direction: 'outbound', message_type: 'text',
+            content: claraGeneratedMessage, is_ai_generated: true, status: 'sent',
+          }).catch(() => {});
+        }
+      }
 
       setClaraSentName(claraForm.name);
       setClaraSent(true);
