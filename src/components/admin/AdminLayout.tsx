@@ -132,39 +132,39 @@ const useAdminMenuItems = () => {
       items: [
         { title: 'Gift Orders', url: "/admin-dashboard/gift-management", icon: Gift },
         { title: 'Products', url: "/admin-dashboard/products", icon: Package },
-        { title: 'Subscription Plans', url: "/admin-dashboard/protection-plans", icon: CreditCard },
-        { title: 'Pricing', url: "/admin-dashboard/pricing", icon: DollarSign },
-        { title: 'Add-Ons', url: "/admin-dashboard/addon-management", icon: Package },
+        { title: 'Add-Ons & Pricing', url: "/admin-dashboard/addon-management", icon: CreditCard },
       ]
     },
     {
       title: 'Communications',
       items: [
         { title: 'Contact Submissions', url: "/admin-dashboard/contact-submissions", icon: Inbox },
-        { title: 'Communication Center', url: "/admin-dashboard/communication", icon: MessageCircle },
-        { title: 'WhatsApp Settings', url: "/admin-dashboard/whatsapp", icon: Phone },
+        { title: 'Communication Centre', url: "/admin-dashboard/communication", icon: MessageCircle },
         { title: 'Email Management', url: "/admin-dashboard/email-management", icon: Mail },
       ]
     },
     {
-      title: 'Platform',
+      title: 'Operations',
       items: [
         { title: 'Emergencies', url: "/admin-dashboard/emergencies", icon: AlertTriangle },
         { title: 'Safety Monitoring', url: "/admin-dashboard/safety", icon: Shield },
         { title: 'Live Map', url: "/admin-dashboard/live-map-monitor", icon: Map },
         { title: 'Regional Hub', url: "/admin-dashboard/regional-hub", icon: Globe },
-        { title: 'Health Check', url: "/admin-dashboard/health-check", icon: HeartPulse },
-        { title: 'Settings', url: "/admin-dashboard/settings", icon: Settings },
+      ]
+    },
+    {
+      title: 'Settings',
+      items: [
+        { title: 'System Settings', url: "/admin-dashboard/settings", icon: Settings },
+        { title: 'WhatsApp Settings', url: "/admin-dashboard/whatsapp", icon: Phone },
+        { title: 'Health Monitor', url: "/admin-dashboard/health-check", icon: HeartPulse },
       ]
     },
     {
       title: 'System',
       items: [
-        { title: 'User Activity', url: "/admin-dashboard/activity", icon: BarChart3 },
+        { title: 'User Activity', url: "/admin-dashboard/activity", icon: Clock },
         { title: 'Reports', url: "/admin-dashboard/reports", icon: FileText },
-        { title: 'App Testing', url: "/admin-dashboard/app-testing", icon: FlaskConical },
-        { title: 'Production Check', url: "/admin-dashboard/production-check", icon: CheckCircle },
-        { title: 'Stripe Setup', url: "/admin-dashboard/stripe-setup", icon: CreditCard },
       ]
     },
   ];
