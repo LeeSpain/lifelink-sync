@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { TrendingUp, Users, Target, CheckCircle, Zap, Kanban, List, Plus, Filter, Mail } from "lucide-react";
+import { TrendingUp, Users, Target, CheckCircle, Zap, Kanban, List, Plus, Filter, Mail, Trash2 } from "lucide-react";
 import { useEnhancedLeads, EnhancedLead } from '@/hooks/useEnhancedLeads';
 import { LeadDetailModal } from '@/components/admin/leads/LeadDetailModal';
 import { LeadKanbanBoard } from '@/components/admin/leads/LeadKanbanBoard';
@@ -38,7 +38,7 @@ const LeadsPage: React.FC = () => {
   const [engagements, setEngagements] = useState<Map<string, LeadEngagement>>(new Map());
   const { toast } = useToast();
   
-  const { leads, loading, updateLeadStatus } = useEnhancedLeads();
+  const { leads, loading, updateLeadStatus, deleteLead } = useEnhancedLeads();
 
   useEffect(() => {
     filterLeads();
@@ -398,6 +398,19 @@ const LeadsPage: React.FC = () => {
                             <SelectItem value="lost">Lost</SelectItem>
                           </SelectContent>
                           </Select>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-gray-400 hover:text-red-600 hover:bg-red-50 mt-2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (confirm(`Delete lead "${lead.first_name || lead.email}"? This cannot be undone.`)) {
+                                deleteLead(lead.id);
+                              }
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
                     </div>

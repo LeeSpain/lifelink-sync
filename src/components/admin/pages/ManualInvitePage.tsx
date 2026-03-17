@@ -251,6 +251,20 @@ Return the message text only. No preamble.`,
       });
       if (dbError) console.warn('Failed to log invite to DB:', dbError);
 
+      // Also add to leads CRM
+      const nameParts = form.name.trim().split(' ');
+      await (supabase as any).from('leads').insert({
+        first_name: nameParts[0] || form.name,
+        last_name: nameParts.slice(1).join(' ') || null,
+        email: form.email || `${form.whatsapp.replace(/[^0-9]/g, '')}@invite.lifelink-sync.com`,
+        phone: form.whatsapp || null,
+        lead_source: 'manual_invite',
+        status: 'new',
+        interest_level: 5,
+        notes: `Invited via ${form.sendVia}. Protection for: ${form.protectionFor}. ${rawNote || ''}`.trim(),
+        tags: ['manual-invite', form.protectionFor].filter(Boolean),
+      }).catch(() => {});
+
       setSentMessage(previewMessage);
       setSent(true);
       const channels = [
@@ -355,6 +369,20 @@ Return the message text only. No preamble.`,
         status: 'sent',
       });
       if (dbError) console.warn('Failed to log invite to DB:', dbError);
+
+      // Also add to leads CRM
+      const nameParts = claraForm.name.trim().split(' ');
+      await (supabase as any).from('leads').insert({
+        first_name: nameParts[0] || claraForm.name,
+        last_name: nameParts.slice(1).join(' ') || null,
+        email: `${claraForm.whatsapp.replace(/[^0-9]/g, '')}@invite.lifelink-sync.com`,
+        phone: claraForm.whatsapp || null,
+        lead_source: 'clara_invite',
+        status: 'new',
+        interest_level: 5,
+        notes: `CLARA invite via WhatsApp. Protection for: ${claraForm.protectionFor}. ${claraForm.roughNote || ''}`.trim(),
+        tags: ['clara-invite', claraForm.protectionFor].filter(Boolean),
+      }).catch(() => {});
 
       setClaraSentName(claraForm.name);
       setClaraSent(true);
