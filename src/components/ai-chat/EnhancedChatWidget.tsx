@@ -58,8 +58,16 @@ const EnhancedChatWidget: React.FC<ChatWidgetProps> = ({
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [currentLanguage, setCurrentLanguage] = useState(i18n.language || 'en');
+  const [currentLanguage, setCurrentLanguage] = useState(i18n.language?.slice(0, 2) || 'en');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Sync language when user changes it via LanguageCurrencySelector
+  useEffect(() => {
+    const newLang = i18n.language?.slice(0, 2) || 'en';
+    if (newLang !== currentLanguage) {
+      setCurrentLanguage(newLang);
+    }
+  }, [i18n.language]);
   const [sessionId] = useState<string>(() => {
     const stored = localStorage.getItem('clara_session_id');
     if (stored) return stored;
