@@ -195,33 +195,33 @@ export default function ManualInvitePage() {
     try {
       const response = await supabase.functions.invoke('ai-chat', {
         body: {
-          message: `You are CLARA, the AI assistant for LifeLink Sync — a personal emergency protection platform.
+          message: `You are CLARA, Lee Wakeman's AI assistant at LifeLink Sync.
 
-Lee Wakeman has written a rough note about someone he wants to invite to LifeLink Sync.
+Write a warm WhatsApp invite message to ${form.name || 'this person'} (${relationship} of Lee's).
 
-Rough note: "${noteText}"
+About them: ${noteText}
+Protection is for: ${form.protectionFor || 'not specified'}
 
-Contact name: ${form.name || 'this person'}
-Protection for: ${form.protectionFor || 'not specified'}
-Relationship type: ${relationship}
-Sign off name: ${getSignOff(relationship)}
+RULES — these are NON-NEGOTIABLE:
+1. Write in Lee's voice — warm, personal, genuine, never salesy
+2. Tone must match the relationship: ${getToneGuide(relationship)}
+3. Keep it under 180 words
+4. MUST include this exact line (or natural variation): "If you have any questions at all, I'm here 24 hours a day, 7 days a week — just message me."
+5. MUST include this link so they can sign up directly: https://lifelink-sync.com
+6. Mention the 7-day free trial, no card needed
+7. Sign off as: ${getSignOff(relationship)}
+8. No bullet points — flowing natural text
+9. Do NOT mention prices
+10. Do NOT say "I'm an AI" or mention CLARA
 
-Write a warm, personalised WhatsApp/email message inviting them to try LifeLink Sync.
+STRUCTURE (follow this loosely):
+- Open personally (mention their name)
+- One line on what LifeLink Sync does and why Lee thought of them
+- The free trial + website link
+- The 24/7 availability line
+- Sign off
 
-Rules:
-- Tone must match the relationship: ${getToneGuide(relationship)}
-- Mention their specific situation from the note naturally
-- Explain what LifeLink Sync is in ONE sentence max
-- Focus on WHY it would help THEM specifically
-- End with a soft call to action — no hard sell
-- Include the trial link: https://lifelink-sync.com
-- Sign off as: ${getSignOff(relationship)}
-- Maximum 120 words
-- No bullet points — flowing natural text
-- Do NOT mention prices
-- Do NOT say "I'm an AI" or mention CLARA
-
-Return the message text only. No preamble.`,
+Write the message now. Output ONLY the message itself, no explanation or preamble.`,
           language: 'en',
           isOwnerPersonal: true,
         },
@@ -378,36 +378,38 @@ Return the message text only. No preamble.`,
     try {
       const response = await supabase.functions.invoke('ai-chat', {
         body: {
-          message: `You are CLARA — the AI safety assistant at LifeLink Sync, a personal emergency protection platform. You are reaching out on behalf of Lee Wakeman, who is the founder.
+          message: `You are CLARA, Lee Wakeman's AI assistant at LifeLink Sync.
 
-IMPORTANT: You MUST introduce yourself at the start of the message. The recipient has never heard of you. Begin with a greeting using their first name, then immediately explain who you are and why you're reaching out. Example opening: "Hey [Name], I'm CLARA — Lee Wakeman's AI assistant at LifeLink Sync. Lee asked me to reach out because..."
+Write a warm WhatsApp invite message to ${claraForm.name} (${claraRelationship} of Lee's).
 
-Contact name: ${claraForm.name}
-Protection for: ${claraForm.protectionFor}
-Relationship type: ${claraRelationship}
-${claraForm.roughNote ? `Lee's note about them: "${claraForm.roughNote}"` : ''}
+About them: ${claraForm.roughNote || 'No additional context provided'}
+Protection is for: ${claraForm.protectionFor}
 
-Write a warm, personalised WhatsApp message.
-
-Rules:
-- ALWAYS start with "Hey [first name]," then introduce yourself as CLARA
-- Explain you're Lee's AI assistant at LifeLink Sync in the first sentence
-- Say Lee asked you to reach out — mention WHY based on the note/situation
-- Tone must match the relationship: ${getToneGuide(claraRelationship)}
-- Mention their specific situation naturally if note provided
-- Explain what LifeLink Sync does in ONE sentence max
-- Focus on WHY it would help THEM specifically
-- End with a soft call to action — no hard sell
-- Include the trial link: https://lifelink-sync.com
-- Sign off as:
+RULES — these are NON-NEGOTIABLE:
+1. ALWAYS start with "Hey [first name]," then introduce yourself as CLARA
+2. Explain you're Lee's AI assistant at LifeLink Sync in the first sentence
+3. Say Lee asked you to reach out — mention WHY based on the note/situation
+4. Keep it under 180 words
+5. MUST include this exact line (or natural variation): "If you have any questions at all, I'm here 24 hours a day, 7 days a week — just message me."
+6. MUST include this link so they can sign up directly: https://lifelink-sync.com
+7. Mention the 7-day free trial, no card needed
+8. Tone must match the relationship: ${getToneGuide(claraRelationship)}
+9. Sign off as:
   — CLARA
   On behalf of Lee Wakeman
   LifeLink Sync
-- Maximum 150 words
-- No bullet points — flowing natural text
-- Do NOT mention prices
+10. No bullet points — flowing natural text
+11. Do NOT mention prices
 
-Return the message text only. No preamble.`,
+STRUCTURE (follow this loosely):
+- Open personally with their name + introduce yourself as CLARA
+- Why Lee asked you to reach out (based on their situation)
+- One line on what LifeLink Sync does
+- The free trial + website link
+- The 24/7 availability line
+- Sign off
+
+Write the message now. Output ONLY the message itself, no explanation or preamble.`,
           language: 'en',
           isOwnerPersonal: true,
         },
