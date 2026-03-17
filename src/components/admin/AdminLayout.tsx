@@ -426,9 +426,9 @@ export default function AdminLayout() {
               <ProfileDropdown />
             </div>
           </header>
-          <main className="flex-1 p-4 md:p-6 bg-gradient-to-br from-background via-background to-muted/5 overflow-x-hidden">
+          <main className="flex-1 overflow-y-auto min-w-0 bg-gray-50">
             {/* Security reminder for Supabase Auth hardening */}
-            <div className="max-w-5xl mx-auto mb-4">
+            <div className="px-6 pt-4">
               <SupabaseSecurityReminder />
             </div>
             <Outlet />
