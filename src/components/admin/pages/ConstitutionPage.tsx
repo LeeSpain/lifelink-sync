@@ -182,7 +182,7 @@ export default function ConstitutionPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-8">
+      <div className="p-6 max-w-7xl mx-auto w-full space-y-6">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">CLARA's Constitution</h1>
           <p className="text-muted-foreground mt-2">Loading...</p>
@@ -192,7 +192,7 @@ export default function ConstitutionPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="p-6 max-w-7xl mx-auto w-full space-y-6">
       <div>
         <div className="flex items-center gap-3">
           <Shield className="h-8 w-8 text-primary" />

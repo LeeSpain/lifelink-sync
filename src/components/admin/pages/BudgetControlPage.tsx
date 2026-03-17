@@ -130,7 +130,7 @@ export default function BudgetControlPage() {
   const totalBudget = budgets.find(b => b.budget_type === 'total_monthly')?.limit_amount || budgets.reduce((sum, b) => sum + b.limit_amount, 0);
 
   return (
-    <div className="space-y-8">
+    <div className="p-6 max-w-7xl mx-auto w-full space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <DollarSign className="h-8 w-8 text-primary" />

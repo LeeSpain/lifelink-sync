@@ -207,7 +207,7 @@ const AIPerformancePage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="px-8 py-6 w-full space-y-6">
+      <div className="p-6 max-w-7xl mx-auto w-full space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
             <Card key={i}>
@@ -223,7 +223,7 @@ const AIPerformancePage: React.FC = () => {
   }
 
   return (
-    <div className="px-8 py-6 w-full space-y-6">
+    <div className="p-6 max-w-7xl mx-auto w-full space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">AI Performance</h1>

@@ -760,7 +760,7 @@ const AIAgentPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="px-8 py-6 w-full space-y-6">
+      <div className="p-6 max-w-7xl mx-auto w-full space-y-6">
         <div className="flex items-center gap-2">
           <Bot className="h-6 w-6 text-primary animate-pulse" />
           <h1 className="text-2xl font-bold">Loading Clara AI Agent...</h1>
@@ -770,7 +770,7 @@ const AIAgentPage: React.FC = () => {
   }
 
   return (
-    <div className="px-8 py-6 w-full space-y-6">
+    <div className="p-6 max-w-7xl mx-auto w-full space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -918,7 +918,7 @@ const AIAgentPage: React.FC = () => {
               </CardTitle>
               <CardDescription>All settings are saved as flat keys and wired directly to the backend edge function.</CardDescription>
             </CardHeader>
-            <CardContent className="px-8 py-6 w-full space-y-6">
+            <CardContent className="p-6 max-w-7xl mx-auto w-full space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Left Column */}
                 <div className="px-8 py-6 w-full space-y-4">

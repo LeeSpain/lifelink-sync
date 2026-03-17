@@ -238,7 +238,7 @@ export default function AIModelSettingsPage() {
 
   if (loading) {
     return (
-      <div className="px-8 py-6 w-full space-y-6">
+      <div className="p-6 max-w-7xl mx-auto w-full space-y-6">
         <div>
           <h1 className="text-2xl font-bold">AI Model Settings</h1>
           <p className="text-muted-foreground">Loading settings...</p>
@@ -248,7 +248,7 @@ export default function AIModelSettingsPage() {
   }
 
   return (
-    <div className="px-8 py-6 w-full space-y-6">
+    <div className="p-6 max-w-7xl mx-auto w-full space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">⚙️ AI Model Settings</h1>
@@ -278,7 +278,7 @@ export default function AIModelSettingsPage() {
             Model Configuration
           </CardTitle>
         </CardHeader>
-        <CardContent className="px-8 py-6 w-full space-y-6">
+        <CardContent className="p-6 max-w-7xl mx-auto w-full space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="px-8 py-6 w-full space-y-4">
               <div>
