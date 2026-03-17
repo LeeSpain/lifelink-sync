@@ -77,12 +77,12 @@ INSERT INTO public.ai_model_settings (setting_key, setting_value, description)
 VALUES
 (
   'supabase_functions_url',
-  '"https://cprbgquiqbyoyrffznny.supabase.co/functions/v1"',
+  'https://cprbgquiqbyoyrffznny.supabase.co/functions/v1',
   'Base URL for Supabase edge functions — used by DB triggers'
 ),
 (
   'supabase_anon_key',
-  '"sb_publishable_wyjo5Wsjre-vUzLEH02y4A_Rnao0LGD"',
+  'sb_publishable_wyjo5Wsjre-vUzLEH02y4A_Rnao0LGD',
   'Anon key for edge function calls from DB triggers'
 )
 ON CONFLICT (setting_key) DO UPDATE
