@@ -1,5 +1,6 @@
 // Clara Speak — TTS outbound call via Twilio
 // Makes CLARA call a phone number and speak a message using Twilio TTS
+// Detects country from phone prefix for language/voice selection
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
@@ -10,12 +11,14 @@ const corsHeaders = {
 
 function escapeXml(str: string): string {
   return str.replace(/[<>&'"]/g, (c: string) => ({
-    '<': '&lt;',
-    '>': '&gt;',
-    '&': '&amp;',
-    "'": '&apos;',
-    '"': '&quot;',
+    '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;',
   }[c] || c));
+}
+
+function getLocale(phone: string) {
+  if (phone.startsWith('+34')) return { voice: 'Polly.Conchita', language: 'es-ES', greeting: 'Hola. Soy CLARA, tu asistente de seguridad personal de LifeLink Sync.', noResponse: 'No se ha recibido respuesta. Se está alertando a sus contactos de emergencia.', pressPrompt: 'Pulse 1 para confirmar que está bien. Pulse 2 para activar respuesta de emergencia.' };
+  if (phone.startsWith('+31')) return { voice: 'Polly.Lotte', language: 'nl-NL', greeting: 'Hallo. Ik ben CLARA, uw persoonlijke veiligheidsassistent van LifeLink Sync.', noResponse: 'Geen reactie ontvangen. Uw noodcontacten worden nu gewaarschuwd.', pressPrompt: 'Druk 1 om te bevestigen dat u veilig bent. Druk 2 voor noodhulp.' };
+  return { voice: 'Polly.Joanna', language: 'en-GB', greeting: 'Hello. This is CLARA, your personal safety assistant from LifeLink Sync.', noResponse: 'No response received. Alerting your emergency contacts now.', pressPrompt: 'Press 1 to confirm you are safe. Press 2 to trigger emergency response.' };
 }
 
 serve(async (req) => {
@@ -27,8 +30,8 @@ serve(async (req) => {
     const {
       to,
       message,
-      voice = 'Polly.Joanna',
-      language = 'en-GB',
+      voice: voiceOverride,
+      language: langOverride,
       callbackUrl,
     } = await req.json();
 
@@ -47,19 +50,21 @@ serve(async (req) => {
     if (!accountSid || !authToken) {
       throw new Error('Twilio not configured');
     }
-
     if (!fromNumber) {
-      throw new Error('No Twilio phone number configured (TWILIO_PHONE_NUMBER or TWILIO_WHATSAPP_FROM)');
+      throw new Error('No Twilio phone number configured');
     }
+
+    const locale = getLocale(to);
+    const voice = voiceOverride || locale.voice;
+    const language = langOverride || locale.language;
 
     const responseUrl = callbackUrl
       || 'https://cprbgquiqbyoyrffznny.supabase.co/functions/v1/clara-speak-response';
 
-    // Build TwiML — CLARA always identifies herself first
     const twiml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Say voice="${voice}" language="${language}">
-    This is CLARA, your personal safety assistant from LifeLink Sync.
+    ${escapeXml(locale.greeting)}
   </Say>
   <Pause length="0.5"/>
   <Say voice="${voice}" language="${language}">
@@ -67,17 +72,16 @@ serve(async (req) => {
   </Say>
   <Pause length="1"/>
   <Say voice="${voice}" language="${language}">
-    Press 1 to confirm you are safe. Press 2 to trigger emergency response.
+    ${escapeXml(locale.pressPrompt)}
   </Say>
   <Gather numDigits="1" action="${responseUrl}" method="POST" timeout="10">
     <Pause length="5"/>
   </Gather>
   <Say voice="${voice}" language="${language}">
-    No response received. Alerting your emergency contacts now.
+    ${escapeXml(locale.noResponse)}
   </Say>
 </Response>`;
 
-    // Make the call via Twilio API
     const formData = new URLSearchParams();
     formData.append('To', to);
     formData.append('From', fromNumber);
@@ -104,24 +108,17 @@ serve(async (req) => {
       throw new Error(result.message || 'Twilio call failed');
     }
 
-    console.log('clara-speak: call initiated', { to, callSid: result.sid });
+    console.log('clara-speak: call initiated', { to, callSid: result.sid, language });
 
     return new Response(
-      JSON.stringify({
-        success: true,
-        callSid: result.sid,
-        status: result.status,
-      }),
+      JSON.stringify({ success: true, callSid: result.sid, status: result.status }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error: any) {
     console.error('clara-speak error:', error);
     return new Response(
       JSON.stringify({ success: false, error: error.message }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });

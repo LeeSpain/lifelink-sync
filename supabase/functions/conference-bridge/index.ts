@@ -1,5 +1,6 @@
 // Conference Bridge — connects family on a live call during SOS
 // Creates a Twilio conference room and dials all emergency contacts into it
+// Language adapts per participant's phone prefix
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -15,17 +16,36 @@ function escapeXml(str: string): string {
   }[c] || c));
 }
 
+function getLocale(phone: string) {
+  if (phone.startsWith('+34')) return { voice: 'Polly.Conchita', language: 'es-ES' };
+  if (phone.startsWith('+31')) return { voice: 'Polly.Lotte', language: 'nl-NL' };
+  return { voice: 'Polly.Joanna', language: 'en-GB' };
+}
+
+function getConferenceGreeting(phone: string, isMember: boolean, memberName: string) {
+  const escapedName = escapeXml(memberName);
+  if (phone.startsWith('+34')) {
+    return isMember
+      ? 'Soy CLARA de LifeLink Sync. Sus contactos de emergencia se están uniendo a una llamada con usted ahora.'
+      : `CLARA de LifeLink Sync le está conectando ahora. Puente de emergencia urgente. ${escapedName} le necesita ahora.`;
+  }
+  if (phone.startsWith('+31')) {
+    return isMember
+      ? 'Dit is CLARA van LifeLink Sync. Uw noodcontacten worden nu met u verbonden.'
+      : `CLARA van LifeLink Sync verbindt u nu. Dringende noodbrug. ${escapedName} heeft u nu nodig.`;
+  }
+  return isMember
+    ? 'This is CLARA from LifeLink Sync. Your emergency contacts are joining a call with you now.'
+    : `CLARA from LifeLink Sync is connecting you now. Urgent emergency bridge. ${escapedName} needs you now.`;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
 
   try {
-    const {
-      user_id,
-      member_name,
-      conference_name,
-    } = await req.json();
+    const { user_id, member_name, conference_name } = await req.json();
 
     if (!user_id) {
       return new Response(
@@ -47,10 +67,8 @@ serve(async (req) => {
       throw new Error('Twilio credentials not configured');
     }
 
-    const roomName = conference_name
-      || `SOS-${user_id.slice(0, 8)}-${Date.now()}`;
+    const roomName = conference_name || `SOS-${user_id.slice(0, 8)}-${Date.now()}`;
 
-    // Get emergency contacts with phones from profiles
     const { data: profile } = await supabase
       .from('profiles')
       .select('first_name, last_name, phone, emergency_contacts')
@@ -60,12 +78,10 @@ serve(async (req) => {
     const contacts: Array<{ name?: string; phone?: string }> =
       (Array.isArray(profile?.emergency_contacts) ? profile.emergency_contacts : [])
         .filter((c: any) => c && c.phone)
-        .slice(0, 5); // Max 5 on conference
+        .slice(0, 5);
 
     const name = member_name || profile?.first_name || 'your family member';
-    const escapedName = escapeXml(name);
 
-    // Build participant list: contacts + member
     const allParticipants: Array<{ name: string; phone: string; isMember?: boolean }> = [
       ...contacts.map((c) => ({ name: c.name || 'Emergency Contact', phone: c.phone! })),
     ];
@@ -76,19 +92,16 @@ serve(async (req) => {
 
     const statusCallbackUrl = `${supabaseUrl}/functions/v1/conference-status`;
 
-    // Dial everyone into the conference
     const dialResults = await Promise.allSettled(
       allParticipants.map(async (p) => {
         const isMember = (p as any).isMember === true;
-        const escapedParticipantName = escapeXml(p.name);
+        const locale = getLocale(p.phone);
+        const greeting = getConferenceGreeting(p.phone, isMember, name);
 
         const twiml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Say voice="Polly.Joanna" language="en-GB">
-    ${isMember
-      ? `This is CLARA from LifeLink Sync. Your emergency contacts are joining a call with you now.`
-      : `CLARA from LifeLink Sync is connecting you now. Urgent emergency bridge. ${escapedName} needs you now.`
-    }
+  <Say voice="${locale.voice}" language="${locale.language}">
+    ${escapeXml(greeting)}
   </Say>
   <Dial>
     <Conference
@@ -120,18 +133,11 @@ serve(async (req) => {
         );
 
         const result = await resp.json();
-        if (!resp.ok) {
-          throw new Error(result.message || `Dial failed for ${p.phone}`);
-        }
-        return {
-          name: p.name,
-          callSid: result.sid,
-          status: result.status,
-        };
+        if (!resp.ok) throw new Error(result.message || `Dial failed for ${p.phone}`);
+        return { name: p.name, callSid: result.sid, status: result.status };
       })
     );
 
-    // Log conference
     await supabase.from('conference_logs')
       .insert({
         user_id,
@@ -144,26 +150,16 @@ serve(async (req) => {
       })
       .catch((e: any) => console.error('Conference log insert failed:', e));
 
-    console.log('conference-bridge: started', {
-      room_name: roomName,
-      participants_dialed: allParticipants.length,
-    });
+    console.log('conference-bridge: started', { room_name: roomName, participants_dialed: allParticipants.length });
 
     return new Response(
       JSON.stringify({
         success: true,
         room_name: roomName,
         participants_dialed: allParticipants.length,
-        dial_results: dialResults
-          .filter((r) => r.status === 'fulfilled')
-          .map((r) => (r as PromiseFulfilledResult<any>).value),
+        dial_results: dialResults.filter((r) => r.status === 'fulfilled').map((r) => (r as PromiseFulfilledResult<any>).value),
       }),
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-      }
+      { headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } }
     );
   } catch (error: any) {
     console.error('conference-bridge error:', error);
