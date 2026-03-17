@@ -101,8 +101,8 @@ PRODUCT KNOWLEDGE:
 - LifeLink Sync is an emergency protection platform for families
 - Individual Plan: 9.99 EUR/month
 - 7-day free trial, no credit card needed
-- Features: one-touch SOS button, GPS tracking, emergency contacts, CLARA AI 24/7
-- Bluetooth SOS pendant available (waterproof, 6-month battery)
+- Features: one-touch SOS button, GPS tracking, unlimited emergency contacts, CLARA AI 24/7, voice activation, conference bridge, medical profile, tablet dashboard
+- Bluetooth SOS pendant available separately as optional one-time purchase (~€49.99, waterproof, 6-month battery)
 - Annual billing: 99.90 EUR/year (saves 19.98 EUR — 2 months free)
 - First Family Link included free, extras 2.99 EUR/month each
 - Available in Spain, UK, and Netherlands

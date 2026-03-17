@@ -18,8 +18,8 @@ const About: React.FC = () => {
 
   const features = [
     { icon: Bot, title: 'CLARA AI', desc: '24/7 AI safety assistant that coordinates every emergency response, conducts wellbeing check-ins, and sends medication reminders.' },
-    { icon: Phone, title: 'One-Touch SOS', desc: 'Trigger a full emergency response instantly from the app, a Bluetooth pendant, or voice activation.' },
-    { icon: Users, title: 'Family Circle', desc: 'Up to 10 emergency contacts receive instant alerts, live GPS, medical profile data, and join a conference bridge call.' },
+    { icon: Phone, title: 'One-Touch SOS', desc: 'Trigger a full emergency response instantly from the app or voice activation. Optional SOS pendant also available.' },
+    { icon: Users, title: 'Family Circle', desc: 'Unlimited emergency contacts receive instant alerts, live GPS, medical profile data, and join a conference bridge call.' },
     { icon: MapPin, title: 'Live GPS Tracking', desc: 'Real-time location sharing during emergencies so family can see your position and coordinate response.' },
     { icon: Heart, title: 'Daily Wellbeing', desc: 'Optional daily check-ins tracking mood, sleep, pain, and general wellbeing — with digests sent to your family circle.' },
     { icon: Pill, title: 'Medication Reminders', desc: 'AI-driven medication schedules with adherence tracking and family notifications when doses are missed.' },

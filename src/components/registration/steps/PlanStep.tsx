@@ -44,7 +44,7 @@ const PlanStep: React.FC<PlanStepProps> = ({ data, onChange }) => {
     t('pricingWizard.features.claraAi', 'CLARA AI — 24/7 AI safety assistant'),
     t('pricingWizard.features.appSos', 'App SOS button (one tap)'),
     t('pricingWizard.features.voice', 'Voice activation ("CLARA, help me")'),
-    t('pricingWizard.features.pendant', 'Bluetooth pendant support'),
+    t('pricingWizard.features.contacts', 'Unlimited emergency contacts'),
     t('pricingWizard.features.gps', 'Live GPS location sharing'),
     t('pricingWizard.features.family', 'Family circle notifications'),
     t('pricingWizard.features.medical', 'Medical profile for first responders'),

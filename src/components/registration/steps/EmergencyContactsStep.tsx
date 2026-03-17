@@ -231,7 +231,7 @@ const EmergencyContactsStep: React.FC<EmergencyContactsStepProps> = ({ contacts,
                 {t('emergencyContacts.freeLimit', 'Free plan includes 1 emergency contact')}
               </p>
               <p className="text-xs text-slate-600 mt-1">
-                {t('emergencyContacts.upgradeTo5', 'Upgrade to the Individual Plan (€9.99/mo) to add up to 5 contacts')}
+                {t('emergencyContacts.upgradeUnlimited', 'Upgrade to the Individual Plan (€9.99/mo) to add unlimited contacts')}
               </p>
             </div>
           </div>
