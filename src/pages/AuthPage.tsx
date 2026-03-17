@@ -123,7 +123,7 @@ const AuthPage = () => {
         const planParam = searchParams.get('plan');
 
         const isTabletPWA = localStorage.getItem('pwa_intent') === 'tablet';
-        let redirectTo = isTabletPWA ? '/tablet-dashboard' : '/member-dashboard';
+        let redirectTo = isTabletPWA ? '/tablet-dashboard' : '/dashboard';
         if (nextUrl) {
           redirectTo = nextUrl;
           if (planParam) {
@@ -197,7 +197,7 @@ const AuthPage = () => {
       if (error) throw error;
       setSuccess(t('auth.passwordUpdated'));
       setTimeout(() => {
-        navigate('/member-dashboard');
+        navigate('/dashboard');
       }, 1500);
     } catch (error: any) {
       console.error('Password update error:', error);
