@@ -60,7 +60,11 @@ import {
   HeartPulse,
   CheckCircle,
   CreditCard,
-  Monitor
+  Monitor,
+  Globe,
+  Inbox,
+  MessageCircle,
+  FlaskConical
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -93,6 +97,11 @@ const useAdminMenuItems = () => {
       title: 'CLARA AI',
       items: [
         { title: 'Command Centre', url: "/admin-dashboard/command-centre", icon: Monitor },
+        { title: 'Clara Activity', url: "/admin-dashboard/clara-activity", icon: Activity },
+        { title: 'PA Dashboard', url: "/admin-dashboard/pa-dashboard", icon: Bot },
+        { title: 'AI Agent Config', url: "/admin-dashboard/ai-agent-config", icon: Settings2 },
+        { title: 'AI Settings', url: "/admin-dashboard/ai-settings", icon: Sliders },
+        { title: 'AI Model Settings', url: "/admin-dashboard/ai-model-settings", icon: Cpu },
         { title: 'Constitution', url: "/admin-dashboard/constitution", icon: Shield },
         { title: 'Budget Control', url: "/admin-dashboard/budget-control", icon: DollarSign },
         { title: 'Training Data', url: "/admin-dashboard/ai-training", icon: BookOpen },
@@ -103,6 +112,7 @@ const useAdminMenuItems = () => {
       title: 'Growth',
       items: [
         { title: 'Leads', url: "/admin-dashboard/leads", icon: Target },
+        { title: 'Lead Intelligence', url: "/admin-dashboard/lead-intelligence", icon: Brain },
         { title: 'Manual Invite', url: "/admin-dashboard/manual-invite", icon: Send },
         { title: 'Conversations', url: "/admin-dashboard/conversations", icon: MessageSquare },
         { title: 'Referrals', url: "/admin-dashboard/referrals", icon: Gift },
@@ -122,17 +132,39 @@ const useAdminMenuItems = () => {
       items: [
         { title: 'Gift Orders', url: "/admin-dashboard/gift-management", icon: Gift },
         { title: 'Products', url: "/admin-dashboard/products", icon: Package },
+        { title: 'Subscription Plans', url: "/admin-dashboard/protection-plans", icon: CreditCard },
         { title: 'Pricing', url: "/admin-dashboard/pricing", icon: DollarSign },
         { title: 'Add-Ons', url: "/admin-dashboard/addon-management", icon: Package },
+      ]
+    },
+    {
+      title: 'Communications',
+      items: [
+        { title: 'Contact Submissions', url: "/admin-dashboard/contact-submissions", icon: Inbox },
+        { title: 'Communication Center', url: "/admin-dashboard/communication", icon: MessageCircle },
+        { title: 'WhatsApp Settings', url: "/admin-dashboard/whatsapp", icon: Phone },
+        { title: 'Email Management', url: "/admin-dashboard/email-management", icon: Mail },
       ]
     },
     {
       title: 'Platform',
       items: [
         { title: 'Emergencies', url: "/admin-dashboard/emergencies", icon: AlertTriangle },
+        { title: 'Safety Monitoring', url: "/admin-dashboard/safety", icon: Shield },
         { title: 'Live Map', url: "/admin-dashboard/live-map-monitor", icon: Map },
+        { title: 'Regional Hub', url: "/admin-dashboard/regional-hub", icon: Globe },
         { title: 'Health Check', url: "/admin-dashboard/health-check", icon: HeartPulse },
         { title: 'Settings', url: "/admin-dashboard/settings", icon: Settings },
+      ]
+    },
+    {
+      title: 'System',
+      items: [
+        { title: 'User Activity', url: "/admin-dashboard/activity", icon: BarChart3 },
+        { title: 'Reports', url: "/admin-dashboard/reports", icon: FileText },
+        { title: 'App Testing', url: "/admin-dashboard/app-testing", icon: FlaskConical },
+        { title: 'Production Check', url: "/admin-dashboard/production-check", icon: CheckCircle },
+        { title: 'Stripe Setup', url: "/admin-dashboard/stripe-setup", icon: CreditCard },
       ]
     },
   ];
