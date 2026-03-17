@@ -20,23 +20,33 @@ const DashboardRedirect = () => {
       }
 
       try {
-        // Check profiles table for onboarding_completed flag
+        // Check profiles table for onboarding_completed flag + first_name as fallback
         const { data, error } = await supabase
           .from('profiles')
-          .select('onboarding_completed')
+          .select('onboarding_completed, first_name')
           .eq('user_id', user.id)
           .maybeSingle();
 
-        if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned"
+        if (error && error.code !== 'PGRST116') {
           throw error;
         }
 
-        // If no record exists or not completed, needs onboarding
-        if (!data || !data.onboarding_completed) {
-          console.debug('DashboardRedirect: DashboardRedirect: User needs onboarding (not completed or no profile)');
+        // Check 1: explicit flag
+        if (data?.onboarding_completed) {
+          console.debug('DashboardRedirect: onboarding_completed=true, proceeding');
+        }
+        // Check 2: has first_name means they filled the wizard — mark as complete
+        else if (data?.first_name && data.first_name.length > 0) {
+          console.debug('DashboardRedirect: has first_name, marking onboarding complete');
+          await supabase.from('profiles')
+            .update({ onboarding_completed: true })
+            .eq('user_id', user.id)
+            .catch(() => {});
+        }
+        // No profile or neither flag — needs onboarding
+        else if (!data || !data.onboarding_completed) {
+          console.debug('DashboardRedirect: User needs onboarding');
           setNeedsOnboarding(true);
-        } else {
-          console.debug('DashboardRedirect: DashboardRedirect: User completed onboarding, proceeding to dashboard');
         }
       } catch (err) {
         console.error('Error checking onboarding:', err);

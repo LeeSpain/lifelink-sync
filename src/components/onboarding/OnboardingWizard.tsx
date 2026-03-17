@@ -105,6 +105,25 @@ export default function OnboardingWizard() {
   // Progress percentage
   const progressPct = step === 0 ? 0 : Math.round((getStepNumber(step) / totalSteps) * 100)
 
+  // If user already completed onboarding, redirect to dashboard immediately
+  useEffect(() => {
+    const checkAlreadyDone = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user?.id) return
+        const { data } = await supabase.from('profiles').select('onboarding_completed, first_name').eq('user_id', user.id).maybeSingle()
+        if (data?.onboarding_completed || (data?.first_name && data.first_name.length > 0)) {
+          // Already done — skip wizard entirely
+          if (!data.onboarding_completed) {
+            await supabase.from('profiles').update({ onboarding_completed: true }).eq('user_id', user.id).catch(() => {})
+          }
+          navigate('/dashboard', { replace: true })
+        }
+      } catch { /* proceed with wizard */ }
+    }
+    checkAlreadyDone()
+  }, [])
+
   // Restore state after email confirmation redirect
   useEffect(() => {
     const confirmed = searchParams.get('confirmed')
@@ -181,7 +200,7 @@ export default function OnboardingWizard() {
       const { data, error } = await supabase.auth.signUp({
         email, password,
         options: {
-          emailRedirectTo: `${window.location.origin}/onboarding?confirmed=true`,
+          emailRedirectTo: `${window.location.origin}/dashboard`,
           data: { full_name: fullName, phone, who_for: whoFor, protected_person_name: protectedName }
         }
       })
@@ -200,7 +219,7 @@ export default function OnboardingWizard() {
     try {
       const { error } = await supabase.auth.resend({
         type: 'signup', email: emailSentTo || email,
-        options: { emailRedirectTo: `${window.location.origin}/onboarding?confirmed=true` }
+        options: { emailRedirectTo: `${window.location.origin}/dashboard` }
       })
       if (error) throw error
       toast.success('Confirmation email resent!')
