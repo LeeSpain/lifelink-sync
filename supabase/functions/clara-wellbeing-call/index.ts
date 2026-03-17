@@ -47,7 +47,7 @@ serve(async (req) => {
     const escapedName = escapeXml(member_name || 'there');
     const isWellbeing = check_type === 'wellbeing';
 
-    const responseUrl = `${supabaseUrl}/functions/v1/clara-wellbeing-response?user_id=${encodeURIComponent(user_id || '')}`;
+    const responseUrl = `https://cprbgquiqbyoyrffznny.supabase.co/functions/v1/clara-speak-response?user_id=${encodeURIComponent(user_id || '')}`;
 
     const twiml = isWellbeing
       ? `<?xml version="1.0" encoding="UTF-8"?>

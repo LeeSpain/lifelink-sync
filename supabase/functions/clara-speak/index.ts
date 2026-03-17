@@ -53,7 +53,7 @@ serve(async (req) => {
     }
 
     const responseUrl = callbackUrl
-      || `${Deno.env.get('SUPABASE_URL')}/functions/v1/clara-speak-response`;
+      || 'https://cprbgquiqbyoyrffznny.supabase.co/functions/v1/clara-speak-response';
 
     // Build TwiML — CLARA always identifies herself first
     const twiml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -69,7 +69,7 @@ serve(async (req) => {
   <Say voice="${voice}" language="${language}">
     Press 1 to confirm you are safe. Press 2 to trigger emergency response.
   </Say>
-  <Gather numDigits="1" action="${responseUrl}" method="POST">
+  <Gather numDigits="1" action="${responseUrl}" method="POST" timeout="10">
     <Pause length="5"/>
   </Gather>
   <Say voice="${voice}" language="${language}">

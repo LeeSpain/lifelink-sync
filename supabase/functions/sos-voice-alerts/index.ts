@@ -73,7 +73,7 @@ serve(async (req) => {
 
     const spokenMessage = `Urgent message from CLARA at LifeLink Sync. ${escapeXml(name)} has triggered an emergency SOS alert. ${locationText} Please check on them immediately or call 1 1 2 if you believe this is a life threatening emergency. This message is from CLARA, the LifeLink Sync emergency protection system.`;
 
-    const responseUrl = `${supabaseUrl}/functions/v1/clara-speak-response`;
+    const responseUrl = 'https://cprbgquiqbyoyrffznny.supabase.co/functions/v1/clara-speak-response';
 
     // 3. Call each contact in parallel
     const callResults = await Promise.allSettled(
