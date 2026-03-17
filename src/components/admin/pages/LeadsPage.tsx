@@ -30,6 +30,7 @@ const LeadsPage: React.FC = () => {
   const [filteredLeads, setFilteredLeads] = useState<EnhancedLead[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [sourceFilter, setSourceFilter] = useState('all');
   const [interestFilter, setInterestFilter] = useState('all');
   const [selectedLead, setSelectedLead] = useState<EnhancedLead | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -42,7 +43,7 @@ const LeadsPage: React.FC = () => {
 
   useEffect(() => {
     filterLeads();
-  }, [leads, searchTerm, statusFilter, interestFilter]);
+  }, [leads, searchTerm, statusFilter, sourceFilter, interestFilter]);
 
   // Load sequence enrollments and engagements for displayed leads
   useEffect(() => {
@@ -100,6 +101,10 @@ const LeadsPage: React.FC = () => {
       filtered = filtered.filter(lead => lead.status === statusFilter);
     }
 
+    if (sourceFilter !== 'all') {
+      filtered = filtered.filter(lead => lead.lead_source === sourceFilter);
+    }
+
     if (interestFilter !== 'all') {
       const level = parseInt(interestFilter);
       filtered = filtered.filter(lead => lead.interest_level >= level);
@@ -120,6 +125,23 @@ const LeadsPage: React.FC = () => {
     if (level >= 6) return 'Medium';
     if (level >= 4) return 'Low';
     return 'Very Low';
+  };
+
+  const getSourceBadge = (source: string) => {
+    const map: Record<string, { label: string; color: string }> = {
+      'whatsapp_chat': { label: 'WhatsApp Chat', color: 'bg-green-100 text-green-700' },
+      'whatsapp_signup': { label: 'WhatsApp Signup', color: 'bg-green-100 text-green-700' },
+      'contact_form': { label: 'Contact Form', color: 'bg-blue-100 text-blue-700' },
+      'manual_invite': { label: 'Manual Invite', color: 'bg-red-100 text-red-700' },
+      'clara_invite': { label: 'CLARA Invite', color: 'bg-red-100 text-red-700' },
+      'proactive_invite': { label: 'Proactive', color: 'bg-purple-100 text-purple-700' },
+      'chat_widget': { label: 'Chat Widget', color: 'bg-amber-100 text-amber-700' },
+      'gift_purchase': { label: 'Gift', color: 'bg-pink-100 text-pink-700' },
+      'referral': { label: 'Referral', color: 'bg-indigo-100 text-indigo-700' },
+      'lead_intelligence': { label: 'Intelligence', color: 'bg-cyan-100 text-cyan-700' },
+    };
+    const match = map[source] || { label: source || 'Unknown', color: 'bg-gray-100 text-gray-600' };
+    return match;
   };
 
   const getStatusColor = (status: string) => {
@@ -261,6 +283,25 @@ const LeadsPage: React.FC = () => {
               </Select>
             </div>
             <div className="space-y-2">
+              <Label htmlFor="source">Source</Label>
+              <Select value={sourceFilter} onValueChange={setSourceFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All sources" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Sources</SelectItem>
+                  <SelectItem value="whatsapp_chat">WhatsApp Chat</SelectItem>
+                  <SelectItem value="whatsapp_signup">WhatsApp Signup</SelectItem>
+                  <SelectItem value="contact_form">Contact Form</SelectItem>
+                  <SelectItem value="manual_invite">Manual Invite</SelectItem>
+                  <SelectItem value="clara_invite">CLARA Invite</SelectItem>
+                  <SelectItem value="proactive_invite">Proactive</SelectItem>
+                  <SelectItem value="chat_widget">Chat Widget</SelectItem>
+                  <SelectItem value="lead_intelligence">Intelligence</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="interest">Interest Level</Label>
               <Select value={interestFilter} onValueChange={setInterestFilter}>
                 <SelectTrigger>
@@ -351,6 +392,10 @@ const LeadsPage: React.FC = () => {
                                 Replied ({engagements.get(lead.id)?.total_replies || 1})
                               </Badge>
                             )}
+                            {lead.lead_source && (() => {
+                              const src = getSourceBadge(lead.lead_source);
+                              return <Badge className={`text-xs ${src.color}`}>{src.label}</Badge>;
+                            })()}
                             <Badge className={getInterestColor(lead.interest_level)}>
                               {getInterestLabel(lead.interest_level)} ({lead.interest_level})
                             </Badge>
