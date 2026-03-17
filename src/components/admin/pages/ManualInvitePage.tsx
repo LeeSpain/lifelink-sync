@@ -221,6 +221,12 @@ STRUCTURE (follow this loosely):
 - The 24/7 availability line
 - Sign off
 
+FORMATTING — CRITICAL:
+- Put a blank line between each paragraph
+- Each section (greeting, body, trial link, availability, sign off) should be its own paragraph separated by a blank line
+- Use real line breaks, NOT HTML tags
+- The message must look clean and readable on a phone screen
+
 Write the message now. Output ONLY the message itself, no explanation or preamble.`,
           language: 'en',
           isOwnerPersonal: true,
@@ -410,6 +416,12 @@ STRUCTURE (follow this loosely):
 - The free trial + website link
 - The 24/7 availability line
 - Sign off
+
+FORMATTING — CRITICAL:
+- Put a blank line between each paragraph
+- Each section (greeting, body, trial link, availability, sign off) should be its own paragraph separated by a blank line
+- Use real line breaks, NOT HTML tags
+- The message must look clean and readable on a phone screen
 
 Write the message now. Output ONLY the message itself, no explanation or preamble.`,
           language: 'en',
