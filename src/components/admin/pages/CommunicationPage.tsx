@@ -131,6 +131,7 @@ export default function CommunicationPage() {
   const loadConversations = async () => {
     setLoading(true);
     try {
+      // Try edge function first
       const { data, error } = await supabase.functions.invoke('unified-inbox', {
         body: {
           action: 'get_conversations',
@@ -141,14 +142,29 @@ export default function CommunicationPage() {
       });
 
       if (error) throw error;
-      setConversations(data.conversations || []);
-    } catch (error) {
-      console.error('Error loading conversations:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load conversations",
-        variant: "destructive",
-      });
+      setConversations(data?.conversations || []);
+    } catch (fnError) {
+      console.warn('unified-inbox function unavailable, falling back to direct query:', fnError);
+      // Fallback: query unified_conversations table directly
+      try {
+        let query = supabase
+          .from('unified_conversations')
+          .select('*')
+          .order('last_activity_at', { ascending: false })
+          .limit(100);
+
+        if (filters.channel) query = query.eq('channel', filters.channel);
+        if (filters.status) query = query.eq('status', filters.status);
+        if (filters.priority) query = query.eq('priority', filters.priority);
+
+        const { data: rows, error: dbError } = await query;
+        if (dbError) throw dbError;
+        setConversations(rows || []);
+      } catch (dbErr) {
+        console.error('Error loading conversations:', dbErr);
+        // Show empty state instead of error toast on initial load
+        setConversations([]);
+      }
     } finally {
       setLoading(false);
     }
@@ -164,14 +180,22 @@ export default function CommunicationPage() {
       });
 
       if (error) throw error;
-      setMessages(data.messages || []);
-    } catch (error) {
-      console.error('Error loading messages:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load messages",
-        variant: "destructive",
-      });
+      setMessages(data?.messages || []);
+    } catch (fnError) {
+      console.warn('unified-inbox messages unavailable, falling back:', fnError);
+      try {
+        const { data: rows, error: dbError } = await supabase
+          .from('unified_messages')
+          .select('*')
+          .eq('conversation_id', conversationId)
+          .order('created_at', { ascending: true });
+
+        if (dbError) throw dbError;
+        setMessages(rows || []);
+      } catch (dbErr) {
+        console.error('Error loading messages:', dbErr);
+        setMessages([]);
+      }
     }
   };
 
@@ -205,6 +229,14 @@ export default function CommunicationPage() {
       });
     } catch (error) {
       console.error('Error loading metrics:', error);
+      // Metrics view may not exist — set defaults
+      setMetrics({
+        total_conversations: 0,
+        total_messages: 0,
+        avg_response_time: 0,
+        avg_resolution_time: 0,
+        channel_breakdown: {}
+      });
     }
   };
 
@@ -215,9 +247,10 @@ export default function CommunicationPage() {
       });
 
       if (error) throw error;
-      setCampaigns(data.campaigns || []);
+      setCampaigns(data?.campaigns || []);
     } catch (error) {
       console.error('Error loading campaigns:', error);
+      setCampaigns([]);
     }
   };
 
