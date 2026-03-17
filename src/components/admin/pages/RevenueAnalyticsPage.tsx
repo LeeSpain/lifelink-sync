@@ -1,419 +1,342 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
-import { TrendingUp, DollarSign, Users, ShoppingCart, Calendar, Euro } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-
-interface SubscriptionPlan {
-  id: string;
-  name: string;
-  price: number;
-  currency: string;
-  billing_interval: string;
-  is_active: boolean;
-}
-
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  currency: string;
-}
-
-interface Order {
-  id: string;
-  product_id: string;
-  quantity: number;
-  unit_price: number;
-  total_price: number;
-  currency: string;
-  status: string;
-  created_at: string;
-}
-
-interface Subscriber {
-  id: string;
-  user_id: string;
-  subscription_tier: string;
-  subscribed: boolean;
-  created_at: string;
-}
+import { useToast } from '@/hooks/use-toast';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import {
+  LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid,
+  Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
+} from 'recharts';
+import {
+  DollarSign, TrendingUp, TrendingDown, Users, CreditCard,
+  RefreshCw, ArrowUpRight, ArrowDownRight, Package,
+  Zap, Target, AlertCircle, CheckCircle, BarChart2, ExternalLink, Loader2,
+} from 'lucide-react';
 
 interface RevenueData {
-  subscriptionRevenue: number;
-  productRevenue: number;
-  totalRevenue: number;
-  subscriberCount: number;
-  averageRevenuePerUser: number;
-  pendantSales: number;
-  planBreakdown: { [key: string]: { count: number; revenue: number; price: number } };
+  mrr: number; arr: number; arpu: number;
+  base_mrr: number; addon_mrr: number;
+  paid_subscribers: number; trialing: number; active_addons: number;
+  churn_rate: number; churn_count_30d: number;
+  trial_conversion_rate: number; total_trials: number;
+  monthly_trend: Array<{ key: string; month: string; new_subs: number; new_trials: number; mrr: number }>;
+  stripe_balance: number;
+  recent_payments: Array<{ id: string; amount: number; currency: string; description: string; created: number; status: string }>;
+  addon_breakdown: Array<{ name: string; count: number; revenue: number }>;
+  generated_at: string;
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
+const fmt = (n: number) => new Intl.NumberFormat('en', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(n);
+const fmtShort = (n: number) => n >= 1000 ? `\u20AC${(n / 1000).toFixed(1)}k` : `\u20AC${n.toFixed(2)}`;
+const timeAgo = (unix: number) => { const s = Math.floor(Date.now() / 1000 - unix); if (s < 3600) return `${Math.floor(s / 60)}m ago`; if (s < 86400) return `${Math.floor(s / 3600)}h ago`; return `${Math.floor(s / 86400)}d ago`; };
 
-const RevenueAnalyticsPage = () => {
+const ChartTooltip = ({ active, payload, label }: any) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="bg-white border border-gray-200 rounded-xl px-3 py-2 shadow-lg text-xs">
+      <p className="font-bold text-gray-700 mb-1">{label}</p>
+      {payload.map((p: any) => (
+        <p key={p.name} style={{ color: p.color }}>{p.name}: {p.name.includes('MRR') ? fmt(p.value) : p.value}</p>
+      ))}
+    </div>
+  );
+};
+
+const ADDON_COLORS = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'];
+
+const RevenueAnalyticsPage: React.FC = () => {
   const { toast } = useToast();
-  const [monthlyData, setMonthlyData] = useState<any[]>([]);
+  const [data, setData] = useState<RevenueData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [chartType, setChartType] = useState<'mrr' | 'subs' | 'trials'>('mrr');
 
-  // Fetch admin revenue via secure edge function
-  const { data: adminData, isLoading: adminLoading, error: adminError } = useQuery({
-    queryKey: ['admin-revenue'],
-    queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke('get-admin-revenue');
-      if (error) throw error;
-      if (!data?.success) throw new Error('Failed to load admin revenue');
-      return data;
-    },
-    staleTime: 60 * 1000,
-    retry: 1,
-  });
-
-  const loading = adminLoading;
-  const hasError = !!adminError;
-  const products: Product[] = [];
-  // Calculate revenue data from admin function
-  const revenueData = useMemo(() => {
-    if (loading || !adminData?.metrics) return null;
-
-    const orders = adminData.orders || [];
-    const subscribers = adminData.subscribers || [];
-
-    const productRevenue = orders.reduce((total: number, order: any) => total + (Number(order.total_price) || 0), 0);
-    const activeCount = subscribers.filter((s: any) => s.subscribed).length;
-    const subscriptionRevenue = activeCount * 0.99; // Align with edge function assumption
-    const totalRevenue = typeof adminData.metrics.totalRevenue === 'number'
-      ? adminData.metrics.totalRevenue
-      : subscriptionRevenue + productRevenue;
-    const subscriberCount = activeCount;
-    const averageRevenuePerUser = subscriberCount > 0 ? totalRevenue / subscriberCount : 0;
-
-    const planBreakdown: { [key: string]: { count: number; revenue: number; price: number } } = {};
-    subscribers.forEach((subscriber: any) => {
-      if (subscriber.subscribed) {
-        const tier = (subscriber.subscription_tier || 'Premium').toString();
-        if (!planBreakdown[tier]) {
-          planBreakdown[tier] = { count: 0, revenue: 0, price: 0.99 };
-        }
-        planBreakdown[tier].count += 1;
-        planBreakdown[tier].revenue += 0.99;
-      }
-    });
-
-    const pendantSales = 0; // Not available from admin function
-
-    return {
-      subscriptionRevenue,
-      productRevenue,
-      totalRevenue,
-      subscriberCount,
-      averageRevenuePerUser,
-      pendantSales,
-      planBreakdown
-    };
-  }, [adminData, loading]);
-
-  // Generate monthly trend data
-  useEffect(() => {
-    if (revenueData) {
-      const monthlyTrend = [
-        { month: 'Jan', subscription: revenueData.subscriptionRevenue * 0.6, product: revenueData.productRevenue * 0.4 },
-        { month: 'Feb', subscription: revenueData.subscriptionRevenue * 0.7, product: revenueData.productRevenue * 0.5 },
-        { month: 'Mar', subscription: revenueData.subscriptionRevenue * 0.8, product: revenueData.productRevenue * 0.7 },
-        { month: 'Apr', subscription: revenueData.subscriptionRevenue * 0.9, product: revenueData.productRevenue * 0.8 },
-        { month: 'May', subscription: revenueData.subscriptionRevenue, product: revenueData.productRevenue }
-      ];
-      setMonthlyData(monthlyTrend);
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data: result, error: err } = await supabase.functions.invoke('get-revenue-data');
+      if (err) throw err;
+      if (result?.error) throw new Error(result.error);
+      setData(result);
+    } catch (e: any) {
+      console.error('Revenue load:', e);
+      setError(e.message);
+      toast({ title: 'Failed to load revenue data', variant: 'destructive' });
+    } finally {
+      setLoading(false);
     }
-  }, [revenueData]);
+  }, []);
 
-  // Show error if any
-  useEffect(() => {
-    if (hasError) {
-      toast({
-        title: "Error",
-        description: "Failed to fetch revenue data",
-        variant: "destructive",
-      });
-    }
-  }, [hasError, toast]);
+  useEffect(() => { load(); }, [load]);
 
-  if (loading) {
-    return (
-      <div className="p-6">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold">💰 Revenue Analytics</h1>
-          <p className="text-muted-foreground">Loading revenue data...</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[...Array(4)].map((_, i) => (
-            <Card key={i} className="animate-pulse">
-              <CardContent className="p-6">
-                <div className="h-16 bg-gray-200 rounded"></div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (!revenueData) {
-    return (
-      <div className="p-6">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold mb-4">💰 Revenue Analytics</h1>
-          <p className="text-muted-foreground">No revenue data available</p>
-        </div>
-      </div>
-    );
-  }
+  const mrrSplit = data ? [
+    { name: 'Base plan', value: data.base_mrr, color: '#ef4444' },
+    { name: 'Add-ons', value: data.addon_mrr, color: '#3b82f6' },
+  ] : [];
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-6 max-w-7xl mx-auto w-full">
+      {/* Header */}
+      <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold">💰 Revenue Analytics</h1>
-          <p className="text-muted-foreground">Track your subscription and product revenue performance</p>
+          <h1 className="text-2xl font-bold text-gray-900">Revenue Analytics</h1>
+          <p className="text-gray-400 text-sm mt-0.5">
+            Real subscription data
+            {data?.generated_at && <span className="ml-2">· Updated {new Date(data.generated_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</span>}
+          </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={async () => {
-              try {
-                const { data, error } = await supabase.functions.invoke('reconcile-stripe-data');
-                if (error) throw error;
-                toast({ title: 'Stripe sync complete', description: `Updated: ${data?.upserts ?? 0}` });
-                // Refetch admin revenue
-                // Note: react-query invalidation is not necessary as we rely on a simple query; just reload it
-                window.location.reload();
-              } catch (e: any) {
-                toast({ title: 'Stripe sync failed', description: e?.message ?? 'Unknown error', variant: 'destructive' });
-              }
-            }}
-          >
-            Sync Stripe Data
-          </Button>
-          <Button variant="outline">
-            <Calendar className="h-4 w-4 mr-2" />
-            Export Report
+        <div className="flex gap-2">
+          <a href="https://dashboard.stripe.com" target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50">
+            <ExternalLink className="w-4 h-4" /> Stripe
+          </a>
+          <Button onClick={load} variant="outline" className="flex items-center gap-2 text-sm">
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} /> Refresh
           </Button>
         </div>
       </div>
 
-      {/* Key Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-green-600">Total Revenue</p>
-                <p className="text-3xl font-bold text-green-900">€{revenueData.totalRevenue.toFixed(2)}</p>
-                <p className="text-xs text-green-600 mt-1">Subscription + Product Sales</p>
-              </div>
-              <DollarSign className="h-12 w-12 text-green-600 opacity-20" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-600">Subscription Revenue</p>
-                <p className="text-3xl font-bold text-blue-900">€{revenueData.subscriptionRevenue.toFixed(2)}</p>
-                <p className="text-xs text-blue-600 mt-1">Monthly recurring</p>
-              </div>
-              <TrendingUp className="h-12 w-12 text-blue-600 opacity-20" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-purple-600">Product Revenue</p>
-                <p className="text-3xl font-bold text-purple-900">€{revenueData.productRevenue.toFixed(2)}</p>
-                <p className="text-xs text-purple-600 mt-1">{revenueData.pendantSales} pendant sales</p>
-              </div>
-              <ShoppingCart className="h-12 w-12 text-purple-600 opacity-20" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-orange-600">Active Subscribers</p>
-                <p className="text-3xl font-bold text-orange-900">{revenueData.subscriberCount}</p>
-                <p className="text-xs text-orange-600 mt-1">ARPU: €{revenueData.averageRevenuePerUser.toFixed(2)}</p>
-              </div>
-              <Users className="h-12 w-12 text-orange-600 opacity-20" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Charts and Analytics */}
-      <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="plans">Subscription Plans</TabsTrigger>
-          <TabsTrigger value="trends">Trends</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Revenue Breakdown</CardTitle>
-                <CardDescription>Split between subscriptions and product sales</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={[
-                        { name: 'Subscriptions', value: revenueData.subscriptionRevenue, color: '#0088FE' },
-                        { name: 'Product Sales', value: revenueData.productRevenue, color: '#00C49F' }
-                      ]}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, value }) => `${name}: €${Number(value).toFixed(2)}`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {[{ color: '#0088FE' }, { color: '#00C49F' }].map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value) => [`€${Number(value).toFixed(2)}`, 'Revenue']} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Subscription Plan Performance</CardTitle>
-                <CardDescription>Revenue by subscription plan</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={Object.entries(revenueData.planBreakdown).map(([name, data]: [string, any]) => ({
-                    name,
-                    revenue: data.revenue,
-                    subscribers: data.count
-                  }))}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip formatter={(value, name) => [`€${Number(value).toFixed(2)}`, name === 'revenue' ? 'Revenue' : 'Subscribers']} />
-                    <Bar dataKey="revenue" fill="#8884d8" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
+      {/* Error */}
+      {error && (
+        <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-2xl px-5 py-4 mb-6">
+          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+          <div>
+            <p className="text-sm font-medium text-red-800">Failed to load revenue data</p>
+            <p className="text-xs text-red-600 mt-0.5">{error}</p>
           </div>
-        </TabsContent>
+          <Button onClick={load} variant="outline" className="ml-auto text-xs border-red-200 text-red-700 hover:bg-red-50">Try again</Button>
+        </div>
+      )}
 
-        <TabsContent value="plans" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Euro className="h-5 w-5" />
-                Revenue by Plan
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {Object.entries(revenueData.planBreakdown).map(([planName, data]: [string, any], index) => {
-                  const colors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500', 'bg-red-500', 'bg-yellow-500'];
-                  const color = colors[index % colors.length];
-                  
-                  return (
-                    <div key={planName} className="flex items-center justify-between p-4 rounded-lg bg-muted/30">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-3 h-3 rounded-full ${color}`}></div>
-                        <div>
-                          <p className="font-medium">{planName}</p>
-                          <p className="text-sm text-muted-foreground">€{data.price.toFixed(2)}/month</p>
-                          <p className="text-xs text-muted-foreground">{data.count} subscribers</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <Badge variant="secondary">€{data.revenue.toFixed(2)}/month</Badge>
-                        <p className="text-xs text-muted-foreground mt-1">Total revenue</p>
-                      </div>
-                    </div>
-                  );
-                })}
-                
-                {Object.keys(revenueData.planBreakdown).length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <p>No subscription data available</p>
-                  </div>
-                )}
+      {/* Row 1: 6 metrics */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+        {[
+          { label: 'MRR', value: data ? fmtShort(data.mrr) : '—', sub: 'Monthly recurring', Icon: DollarSign, color: 'green' },
+          { label: 'ARR', value: data ? fmtShort(data.arr) : '—', sub: 'Annual run rate', Icon: TrendingUp, color: 'blue' },
+          { label: 'ARPU', value: data ? fmt(data.arpu) : '—', sub: 'Avg revenue/user', Icon: Target, color: 'purple' },
+          { label: 'Paid subs', value: data?.paid_subscribers ?? '—', sub: `${data?.trialing || 0} on trial`, Icon: Users, color: 'red' },
+          { label: 'Churn rate', value: data ? `${data.churn_rate}%` : '—', sub: `${data?.churn_count_30d || 0} cancelled`, Icon: data && data.churn_rate > 5 ? TrendingDown : TrendingUp, color: data && data.churn_rate > 5 ? 'red' : 'green' },
+          { label: 'Trial conv.', value: data ? `${data.trial_conversion_rate}%` : '—', sub: `${data?.total_trials || 0} trials`, Icon: Zap, color: 'amber' },
+        ].map(m => (
+          <Card key={m.label}>
+            <CardContent className="pt-5 pb-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold uppercase tracking-widest text-gray-400">{m.label}</span>
+                <div className={`w-9 h-9 rounded-xl bg-${m.color}-50 flex items-center justify-center`}>
+                  <m.Icon className={`w-4 h-4 text-${m.color}-500`} />
+                </div>
               </div>
+              {loading ? <div className="h-8 bg-gray-100 rounded-lg animate-pulse w-24 mb-1" />
+                : <p className="text-2xl font-bold text-gray-900 mb-1">{m.value}</p>}
+              <p className="text-xs text-gray-400">{m.sub}</p>
             </CardContent>
           </Card>
-        </TabsContent>
+        ))}
+      </div>
 
-        <TabsContent value="trends" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Revenue Trends</CardTitle>
-              <CardDescription>Monthly revenue progression</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={400}>
-                <LineChart data={monthlyData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip formatter={(value) => [`€${Number(value).toFixed(2)}`, 'Revenue']} />
-                  <Line type="monotone" dataKey="subscription" stroke="#8884d8" strokeWidth={2} name="Subscription" />
-                  <Line type="monotone" dataKey="product" stroke="#82ca9d" strokeWidth={2} name="Product Sales" />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      {/* Stripe balance banner */}
+      {data && data.stripe_balance > 0 && (
+        <div className="flex items-center gap-4 bg-green-50 border border-green-200 rounded-2xl px-5 py-4 mb-6">
+          <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+          <div>
+            <p className="text-sm font-bold text-green-800">Stripe balance: {fmt(data.stripe_balance)}</p>
+            <p className="text-xs text-green-600 mt-0.5">Available for payout</p>
+          </div>
+          <a href="https://dashboard.stripe.com/balance" target="_blank" rel="noopener noreferrer"
+            className="ml-auto text-xs font-medium text-green-700 hover:text-green-900 flex items-center gap-1">
+            View <ExternalLink className="w-3 h-3" />
+          </a>
+        </div>
+      )}
 
-      {/* Product Details */}
-      {products.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Product Sales Details</CardTitle>
-            <CardDescription>Individual product performance</CardDescription>
+      {/* Row 2: Chart + MRR split */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <Card className="lg:col-span-2">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-sm font-semibold text-gray-700">Growth trend</CardTitle>
+                <p className="text-xs text-gray-400 mt-0.5">Last 6 months</p>
+              </div>
+              <div className="flex gap-1">
+                {([{ key: 'mrr', label: 'MRR' }, { key: 'subs', label: 'Subscribers' }, { key: 'trials', label: 'Trials' }] as const).map(t => (
+                  <button key={t.key} onClick={() => setChartType(t.key)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${chartType === t.key ? 'bg-red-500 text-white' : 'text-gray-500 hover:bg-gray-100'}`}>
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {products.map((product, index) => (
-                <div key={product.id} className="flex items-center justify-between p-4 rounded-lg bg-muted/30">
-                  <div>
-                    <p className="font-medium">{product.name}</p>
-                    <p className="text-sm text-muted-foreground">€{product.price.toFixed(2)} each</p>
-                  </div>
-                  <div className="text-right">
-                    <Badge variant="outline">{revenueData.pendantSales} sold</Badge>
-                    <p className="text-xs text-muted-foreground mt-1">€{(revenueData.pendantSales * product.price).toFixed(2)} revenue</p>
-                  </div>
+            {loading || !data ? (
+              <div className="h-52 bg-gray-50 rounded-xl animate-pulse" />
+            ) : data.monthly_trend.length === 0 ? (
+              <div className="h-52 flex items-center justify-center bg-gray-50 rounded-xl">
+                <div className="text-center">
+                  <BarChart2 className="w-8 h-8 text-gray-200 mx-auto mb-2" />
+                  <p className="text-xs text-gray-400">Chart appears after 30+ days of data</p>
                 </div>
-              ))}
-            </div>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height={220}>
+                {chartType === 'mrr' ? (
+                  <LineChart data={data.monthly_trend}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                    <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `\u20AC${v}`} />
+                    <Tooltip content={<ChartTooltip />} />
+                    <Line type="monotone" dataKey="mrr" name="MRR \u20AC" stroke="#ef4444" strokeWidth={2.5} dot={{ fill: '#ef4444', r: 4 }} activeDot={{ r: 6 }} />
+                  </LineChart>
+                ) : (
+                  <BarChart data={data.monthly_trend}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                    <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <Tooltip content={<ChartTooltip />} />
+                    <Bar dataKey={chartType === 'subs' ? 'new_subs' : 'new_trials'} name={chartType === 'subs' ? 'New subscribers' : 'New trials'} fill={chartType === 'subs' ? '#ef4444' : '#f59e0b'} radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                )}
+              </ResponsiveContainer>
+            )}
           </CardContent>
         </Card>
-      )}
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold text-gray-700">MRR breakdown</CardTitle>
+            <p className="text-xs text-gray-400">Base vs add-ons</p>
+          </CardHeader>
+          <CardContent>
+            {loading || !data ? (
+              <div className="h-40 bg-gray-50 rounded-xl animate-pulse" />
+            ) : (
+              <>
+                <div className="flex justify-center mb-4">
+                  <PieChart width={160} height={160}>
+                    <Pie data={mrrSplit} cx={75} cy={75} innerRadius={45} outerRadius={70} paddingAngle={3} dataKey="value">
+                      {mrrSplit.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                    </Pie>
+                  </PieChart>
+                </div>
+                <div className="space-y-2">
+                  {mrrSplit.map(item => (
+                    <div key={item.name} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2.5 h-2.5 rounded-full" style={{ background: item.color }} />
+                        <span className="text-xs text-gray-600">{item.name}</span>
+                      </div>
+                      <span className="text-xs font-bold text-gray-900">{fmt(item.value)}</span>
+                    </div>
+                  ))}
+                  <div className="pt-2 border-t border-gray-100 flex items-center justify-between">
+                    <span className="text-xs font-bold text-gray-700">Total MRR</span>
+                    <span className="text-sm font-bold text-gray-900">{fmt(data.mrr)}</span>
+                  </div>
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Row 3: Addons + Payments */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-sm font-semibold text-gray-700">Add-on revenue</CardTitle>
+                <p className="text-xs text-gray-400">Active add-ons by type</p>
+              </div>
+              <span className="text-lg font-bold text-blue-600">{data ? fmt(data.addon_mrr) : '—'}/mo</span>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {loading || !data ? (
+              <div className="space-y-2">{[...Array(3)].map((_, i) => <div key={i} className="h-10 bg-gray-50 rounded-xl animate-pulse" />)}</div>
+            ) : data.addon_breakdown.length === 0 ? (
+              <p className="text-xs text-gray-400 text-center py-6">No add-ons active yet</p>
+            ) : (
+              <div className="space-y-3">
+                {data.addon_breakdown.map((addon, i) => (
+                  <div key={i} className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-2.5 h-2.5 rounded-full" style={{ background: ADDON_COLORS[i % ADDON_COLORS.length] }} />
+                      <span className="text-sm text-gray-700">{addon.name}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-gray-400">{addon.count} active</span>
+                      <span className="text-sm font-bold text-gray-900">{fmt(addon.revenue)}/mo</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-sm font-semibold text-gray-700">Recent payments</CardTitle>
+                <p className="text-xs text-gray-400">Live from Stripe</p>
+              </div>
+              <a href="https://dashboard.stripe.com/payments" target="_blank" rel="noopener noreferrer"
+                className="text-xs text-red-600 font-medium hover:text-red-800 flex items-center gap-1">
+                View all <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {loading || !data ? (
+              <div className="space-y-2">{[...Array(5)].map((_, i) => <div key={i} className="h-10 bg-gray-50 rounded-xl animate-pulse" />)}</div>
+            ) : data.recent_payments.length === 0 ? (
+              <p className="text-xs text-gray-400 text-center py-6">No Stripe payments found. Check STRIPE_SECRET_KEY is configured.</p>
+            ) : (
+              <div className="space-y-2">
+                {data.recent_payments.map(payment => (
+                  <div key={payment.id} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-green-50 flex items-center justify-center flex-shrink-0">
+                        <CreditCard className="w-3.5 h-3.5 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium text-gray-800">{(payment.description || 'Subscription').slice(0, 35)}</p>
+                        <p className="text-xs text-gray-400">{timeAgo(payment.created)}</p>
+                      </div>
+                    </div>
+                    <span className="text-sm font-bold text-green-600">+{fmt(payment.amount)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Row 4: Health indicators */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: 'Revenue health', check: data && data.churn_rate < 5, good: 'Churn below 5%', bad: `Churn at ${data?.churn_rate}% — investigate` },
+          { label: 'Trial pipeline', check: data && data.trialing > 0, good: `${data?.trialing} active trials`, bad: 'No active trials' },
+          { label: 'Add-on adoption', check: data && data.active_addons > 0, good: `${data?.active_addons} active add-ons`, bad: 'No add-ons active' },
+          { label: 'Stripe connected', check: data && data.recent_payments.length > 0, good: 'Payments flowing', bad: 'Check Stripe config' },
+        ].map(ind => (
+          <div key={ind.label} className={`border rounded-2xl p-4 ${loading ? 'border-gray-200' : ind.check ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+            <div className="flex items-center gap-2 mb-2">
+              {loading ? <div className="w-4 h-4 bg-gray-200 rounded-full animate-pulse" />
+                : ind.check ? <CheckCircle className="w-4 h-4 text-green-600" /> : <AlertCircle className="w-4 h-4 text-red-500" />}
+              <span className="text-xs font-semibold text-gray-700">{ind.label}</span>
+            </div>
+            <p className={`text-xs ${loading ? 'text-gray-400' : ind.check ? 'text-green-700' : 'text-red-700'}`}>
+              {loading ? 'Checking...' : ind.check ? ind.good : ind.bad}
+            </p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
