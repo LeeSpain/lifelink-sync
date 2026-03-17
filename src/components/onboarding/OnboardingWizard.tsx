@@ -167,9 +167,19 @@ export default function OnboardingWizard() {
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (user?.id) {
+        // Mark profiles as complete
         await supabase.from('profiles')
           .update({ onboarding_completed: true, updated_at: new Date().toISOString() })
           .eq('user_id', user.id)
+        // Also mark onboarding_progress as complete
+        await supabase.from('onboarding_progress')
+          .upsert({
+            user_id: user.id,
+            completed: true,
+            steps: { complete_profile: true, add_emergency_contacts: false, configure_sos_settings: false, invite_family: false, enable_notifications: false, run_sos_test: false },
+            updated_at: new Date().toISOString(),
+          }, { onConflict: 'user_id' })
+          .catch(() => {}) // best effort
       }
     } catch { /* best effort */ }
   }
