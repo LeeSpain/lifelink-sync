@@ -474,7 +474,7 @@ serve(async (req) => {
       .eq('admin_phone', adminPhone)
       .maybeSingle();
 
-    const currentMode = adminMode?.current_mode || 'dev'; // default to dev for admin
+    const currentMode = adminMode?.current_mode || 'business'; // default to business for Lee's day-to-day use
 
     // ── PLAN COMMANDS — intercept from any mode ──────────
     const lowerBody = messageBody.toLowerCase().trim();
@@ -610,6 +610,87 @@ serve(async (req) => {
         }
       } catch (e) { console.warn('Plan command forward failed:', e); }
       return new Response('', { status: 200 });
+    }
+
+    // ── SEND WHATSAPP INTENT — intercepts in ANY mode ──────
+    const sendWAPatterns = [
+      /(?:send|whatsapp|message|text|wa)\s+(.+?)\s+(?:a\s+)?(?:whatsapp|message|wa|msg)\s*(?:and\s+(?:say|ask|tell)\s+(.+))?$/i,
+      /(?:send|whatsapp|message)\s+(.+?)\s+and\s+(?:say|ask|tell)\s+(.+)/i,
+      /(?:ask|tell)\s+(.+?)\s+(?:on\s+whatsapp\s+)?(?:to\s+)?(.+)/i,
+      /(?:send|wa|whatsapp)\s+(.+?)\s+saying\s+(.+)/i,
+    ];
+    let sendWAMatch: RegExpMatchArray | null = null;
+    for (const p of sendWAPatterns) {
+      sendWAMatch = messageBody.match(p);
+      if (sendWAMatch) break;
+    }
+
+    if (sendWAMatch) {
+      const targetName = sendWAMatch[1]?.trim().replace(/\s*(a|the)\s*$/i, '').trim();
+      const msgContent = sendWAMatch[2]?.trim() || messageBody;
+
+      if (targetName && !['me', 'myself', 'lee', 'clara', 'status', 'leads'].includes(targetName.toLowerCase())) {
+        // Look up contact phone from invites then leads
+        const { data: invRec } = await supabase.from('manual_invites')
+          .select('contact_name, contact_whatsapp, contact_email')
+          .ilike('contact_name', `%${targetName}%`)
+          .order('created_at', { ascending: false }).limit(1).maybeSingle();
+
+        const { data: leadRec } = await supabase.from('leads')
+          .select('full_name, first_name, phone, email')
+          .or(`first_name.ilike.%${targetName}%,full_name.ilike.%${targetName}%`)
+          .order('updated_at', { ascending: false }).limit(1).maybeSingle();
+
+        const contactPhone = invRec?.contact_whatsapp || (leadRec?.phone as string) || null;
+        const contactDisplayName = invRec?.contact_name || leadRec?.full_name || leadRec?.first_name || targetName;
+
+        if (!contactPhone) {
+          await sendWhatsApp(fromNumber, `❌ No WhatsApp number found for *${contactDisplayName}*.\n\nAdd their number via Manual Invite in the admin dashboard and try again.`);
+          return new Response('', { status: 200 });
+        }
+
+        // Craft message in Lee's voice using Claude
+        const anthropicKey = Deno.env.get('ANTHROPIC_API_KEY')!;
+        let craftedMsg = msgContent;
+        try {
+          const craftResp = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: { 'x-api-key': anthropicKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+            body: JSON.stringify({
+              model: 'claude-haiku-4-5-20251001',
+              max_tokens: 150,
+              messages: [{ role: 'user', content: `Write a short casual WhatsApp message from Lee Wakeman to ${contactDisplayName}. What Lee wants to say: "${msgContent}". Rules: max 2 sentences, friendly, sign off as "Lee", return ONLY the message text.` }],
+            }),
+          });
+          const craftData = await craftResp.json();
+          craftedMsg = craftData.content?.[0]?.text || msgContent;
+        } catch { /* use raw message */ }
+
+        // Send via Twilio
+        const twilioSid = Deno.env.get('TWILIO_ACCOUNT_SID')!;
+        const twilioToken = Deno.env.get('TWILIO_AUTH_TOKEN')!;
+        const twilioFrom = Deno.env.get('TWILIO_WHATSAPP_FROM')!;
+        const toNumber = contactPhone.startsWith('whatsapp:') ? contactPhone : `whatsapp:${contactPhone}`;
+
+        const twilioResp = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`, {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Basic ' + btoa(`${twilioSid}:${twilioToken}`),
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams({ From: twilioFrom, To: toNumber, Body: craftedMsg }).toString(),
+        });
+        const twilioResult = await twilioResp.json();
+
+        if (twilioResult.sid) {
+          await sendWhatsApp(fromNumber, `✅ Sent to *${contactDisplayName}* (${contactPhone}):\n\n"${craftedMsg}"\n\n_Delivered via LifeLink Sync_`);
+        } else if (twilioResult.code === 63015) {
+          await sendWhatsApp(fromNumber, `⚠️ *${contactDisplayName}* hasn't joined the WhatsApp sandbox yet.\n\nAsk them to send this to *+1 415 523 8886*:\n*join lost-fighting*\n\nThen try again.`);
+        } else {
+          await sendWhatsApp(fromNumber, `❌ Could not send to ${contactDisplayName}: ${twilioResult.message || 'Unknown error'}`);
+        }
+        return new Response('', { status: 200 });
+      }
     }
 
     // ── DIRECT DB LOOKUP — intercepts in ANY mode ──────────

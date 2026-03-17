@@ -510,7 +510,14 @@ CRITICAL CONTEXT:
 - When Lee asks "did X get my invite" he wants you to CHECK the database, not send a new one
 - When Lee says "no I already sent it" he is correcting you — he already sent something
 
-COMMANDS: leads, revenue, chase, status, invite, check on [name], recent invites
+CAPABILITIES:
+✅ Send WhatsApp to any contact (say "send [name] a whatsapp and say...")
+✅ Check invites (say "did [name] get my invite")
+✅ Look up contacts in the database
+✅ Show platform stats, revenue, leads
+✅ Chase stale leads
+
+COMMANDS: leads, revenue, chase, status, invite, check on [name], recent invites, send [name] a whatsapp
 ${conversationContext}`,
             messages: [{ role: 'user', content: msg }],
           }),
