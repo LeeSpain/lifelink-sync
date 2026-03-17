@@ -7,7 +7,8 @@ import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 import {
   Shield, Check, ChevronRight, Plus, Minus,
-  Loader2, Lock, Star, Mail, RefreshCw, RotateCcw
+  Loader2, Lock, Star, Mail, RefreshCw, RotateCcw,
+  User, Heart, Gift
 } from 'lucide-react'
 import Navigation from '../Navigation'
 
@@ -22,8 +23,6 @@ interface Addons {
 }
 
 const WIZARD_STATE_KEY = 'lifelink_onboarding_state'
-
-const stepNames = ['Who is this for', 'Choose your plan', 'Add-ons', 'Your details', 'Confirm email', 'Payment', 'All set']
 
 const features = ['Full CLARA AI', 'SOS — app, pendant & voice', 'Up to 5 emergency contacts', 'Live GPS sharing', 'Medical profile', 'Conference bridge', 'Tablet dashboard', '1 Family Link FREE']
 const trialFeatures = ['All features included', 'No credit card needed', 'Cancel anytime', 'Upgrade anytime']
@@ -59,6 +58,35 @@ export default function OnboardingWizard() {
   const [userId, setUserId] = useState<string | null>(null)
   const [emailSentTo, setEmailSentTo] = useState('')
   const [resendCooldown, setResendCooldown] = useState(0)
+
+  // Navigation helpers — trial skips add-ons (step 2)
+  const getPrevStep = (current: number) => {
+    if (current === 3 && plan === 'trial') return 1
+    return current - 1
+  }
+
+  const getStepLabel = (current: number) => {
+    if (plan === 'trial') {
+      const labels: Record<number, string> = { 0: 'Who is this for', 1: 'Choose your plan', 3: 'Your details', 4: 'Confirm email', 6: 'All set' }
+      return labels[current] || ''
+    }
+    const labels: Record<number, string> = { 0: 'Who is this for', 1: 'Choose your plan', 2: 'Add-ons', 3: 'Your details', 4: 'Confirm email', 5: 'Payment', 6: 'All set' }
+    return labels[current] || ''
+  }
+
+  const getStepNumber = (current: number) => {
+    if (plan === 'trial') {
+      const map: Record<number, number> = { 1: 2, 3: 3, 4: 4, 6: 5 }
+      return map[current] || 1
+    }
+    const map: Record<number, number> = { 1: 2, 2: 3, 3: 4, 4: 5, 5: 6, 6: 7 }
+    return map[current] || 1
+  }
+
+  const totalSteps = plan === 'trial' ? 5 : 7
+
+  // Progress percentage
+  const progressPct = step === 0 ? 0 : Math.round((getStepNumber(step) / totalSteps) * 100)
 
   // Restore state after email confirmation redirect
   useEffect(() => {
@@ -166,9 +194,6 @@ export default function OnboardingWizard() {
     } catch (error: any) { toast.error(error.message || 'Could not resend email') }
   }
 
-  // Progress percentage (steps 0-6, but 0 has no bar)
-  const progressPct = step === 0 ? 0 : Math.round((step / 6) * 100)
-
   return (
     <div
       className="min-h-screen"
@@ -183,7 +208,10 @@ export default function OnboardingWizard() {
       <div className="max-w-xl mx-auto px-4 pt-24 pb-16">
 
         {/* ── Wizard Card ── */}
-        <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/80 border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-3xl shadow-2xl shadow-gray-300/40 border border-gray-100/80 ring-1 ring-black/5 overflow-hidden">
+
+          {/* Red accent line at top */}
+          <div className="h-1 bg-gradient-to-r from-red-500 via-red-400 to-red-500" />
 
           {/* Progress bar */}
           {step > 0 && step < 6 && (
@@ -192,8 +220,8 @@ export default function OnboardingWizard() {
                 <div className="h-1 bg-red-500 transition-all duration-500" style={{ width: `${progressPct}%` }} />
               </div>
               <div className="px-8 pt-4 flex items-center justify-between">
-                <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Step {step + 1} of 7</span>
-                <span className="text-xs font-medium text-gray-400">{stepNames[step]}</span>
+                <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Step {getStepNumber(step)} of {totalSteps}</span>
+                <span className="text-xs font-medium text-gray-400">{getStepLabel(step)}</span>
               </div>
             </>
           )}
@@ -202,43 +230,58 @@ export default function OnboardingWizard() {
           {step === 0 && (
             <div key={0} className="wizard-step">
               <div className="px-8 pt-8 pb-6 text-center border-b border-gray-50">
-                <span className="inline-flex items-center gap-2 bg-red-50 text-red-600 text-xs font-semibold px-3 py-1.5 rounded-full border border-red-100 mb-4">
-                  🛡️ Get Protected
-                </span>
-                <h1 className="text-2xl font-bold text-gray-900 tracking-tight mb-2">Who are you setting this up for?</h1>
-                <p className="text-sm text-gray-500">We'll personalise everything based on your answer</p>
+                <div className="inline-flex items-center gap-2 mb-6">
+                  <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
+                    <Shield className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-sm font-bold text-gray-900">LifeLink Sync</span>
+                </div>
+                <h1 className="text-2xl font-black text-gray-900 tracking-tight mb-2">Who are you setting this up for?</h1>
+                <p className="text-sm text-gray-500 mb-2">Your answer helps us personalise your experience. Takes 2 minutes.</p>
               </div>
               <div className="px-8 py-8 space-y-3">
-                <button onClick={() => { setWhoFor('myself'); setStep(1) }} className="w-full group flex items-center gap-4 p-4 rounded-2xl border-2 border-gray-100 hover:border-red-400 hover:bg-red-50/40 transition-all duration-200 text-left">
-                  <div className="w-1 h-12 bg-blue-400 rounded-full flex-shrink-0 group-hover:bg-red-400 transition-colors" />
-                  <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center flex-shrink-0 text-xl group-hover:bg-red-50 transition-colors">🙋</div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900 text-sm group-hover:text-red-700">For myself</p>
-                    <p className="text-xs text-gray-400 mt-0.5">I want CLARA to protect me</p>
+                {/* For myself */}
+                <button onClick={() => { setWhoFor('myself'); setStep(1) }} className="w-full group flex items-center gap-4 p-5 rounded-2xl border border-gray-200 bg-white hover:border-red-400 hover:shadow-md hover:shadow-red-500/10 transition-all duration-200 text-left relative">
+                  <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center flex-shrink-0">
+                    <User className="w-6 h-6 text-white" />
                   </div>
-                  <ChevronRight className="w-4 h-4 text-gray-300 flex-shrink-0 group-hover:text-red-400 group-hover:translate-x-1 transition-all" />
+                  <div className="flex-1 min-w-0 pr-10">
+                    <p className="font-semibold text-gray-900 text-sm group-hover:text-red-700">Protect myself</p>
+                    <p className="text-xs text-gray-400 mt-0.5">Set up CLARA for your own safety and peace of mind</p>
+                  </div>
+                  <div className="absolute right-5 w-8 h-8 rounded-full bg-gray-50 group-hover:bg-red-50 flex items-center justify-center transition-colors">
+                    <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-red-500 transition-colors" />
+                  </div>
                 </button>
 
-                <button onClick={() => { setWhoFor('family'); setStep(1) }} className="w-full group flex items-center gap-4 p-4 rounded-2xl border-2 border-gray-100 hover:border-red-400 hover:bg-red-50/40 transition-all duration-200 text-left">
-                  <div className="w-1 h-12 bg-rose-400 rounded-full flex-shrink-0 group-hover:bg-red-400 transition-colors" />
-                  <div className="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center flex-shrink-0 text-xl group-hover:bg-red-50 transition-colors">❤️</div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900 text-sm group-hover:text-red-700">For someone I love</p>
-                    <p className="text-xs text-gray-400 mt-0.5">I'll set up and manage CLARA for a family member</p>
-                    <span className="text-xs bg-rose-50 text-rose-600 border border-rose-200 px-2 py-0.5 rounded-full mt-1 inline-block">Guardian account</span>
+                {/* For someone I love */}
+                <button onClick={() => { setWhoFor('family'); setStep(1) }} className="w-full group flex items-center gap-4 p-5 rounded-2xl border border-gray-200 bg-white hover:border-red-400 hover:shadow-md hover:shadow-red-500/10 transition-all duration-200 text-left relative">
+                  <div className="w-12 h-12 bg-red-500 rounded-2xl flex items-center justify-center flex-shrink-0">
+                    <Heart className="w-6 h-6 text-white" />
                   </div>
-                  <ChevronRight className="w-4 h-4 text-gray-300 flex-shrink-0 group-hover:text-red-400 group-hover:translate-x-1 transition-all" />
+                  <div className="flex-1 min-w-0 pr-10">
+                    <p className="font-semibold text-gray-900 text-sm group-hover:text-red-700">Protect a loved one</p>
+                    <p className="text-xs text-gray-400 mt-0.5">Set up and manage CLARA for a parent, partner or family member</p>
+                    <span className="inline-flex items-center gap-1 mt-2 text-xs font-medium px-2.5 py-1 rounded-full border bg-rose-50 text-rose-700 border-rose-200">Guardian account</span>
+                  </div>
+                  <div className="absolute right-5 w-8 h-8 rounded-full bg-gray-50 group-hover:bg-red-50 flex items-center justify-center transition-colors">
+                    <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-red-500 transition-colors" />
+                  </div>
                 </button>
 
-                <button onClick={() => navigate('/gift')} className="w-full group flex items-center gap-4 p-4 rounded-2xl border-2 border-gray-100 hover:border-amber-400 hover:bg-amber-50/40 transition-all duration-200 text-left">
-                  <div className="w-1 h-12 bg-amber-400 rounded-full flex-shrink-0 group-hover:bg-amber-500 transition-colors" />
-                  <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center flex-shrink-0 text-xl group-hover:bg-amber-100 transition-colors">🎁</div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900 text-sm group-hover:text-amber-700">As a gift</p>
-                    <p className="text-xs text-gray-400 mt-0.5">Buy a gift subscription — no account needed</p>
-                    <span className="text-xs bg-amber-50 text-amber-600 border border-amber-200 px-2 py-0.5 rounded-full mt-1 inline-block">No account needed</span>
+                {/* As a gift */}
+                <button onClick={() => navigate('/gift')} className="w-full group flex items-center gap-4 p-5 rounded-2xl border border-gray-200 bg-white hover:border-amber-400 hover:shadow-md hover:shadow-amber-500/10 transition-all duration-200 text-left relative">
+                  <div className="w-12 h-12 bg-amber-500 rounded-2xl flex items-center justify-center flex-shrink-0">
+                    <Gift className="w-6 h-6 text-white" />
                   </div>
-                  <ChevronRight className="w-4 h-4 text-gray-300 flex-shrink-0 group-hover:text-amber-400 group-hover:translate-x-1 transition-all" />
+                  <div className="flex-1 min-w-0 pr-10">
+                    <p className="font-semibold text-gray-900 text-sm group-hover:text-amber-700">Give as a gift</p>
+                    <p className="text-xs text-gray-400 mt-0.5">Buy a gift subscription — they set it up themselves</p>
+                    <span className="inline-flex items-center gap-1 mt-2 text-xs font-medium px-2.5 py-1 rounded-full border bg-amber-50 text-amber-700 border-amber-200">No account needed</span>
+                  </div>
+                  <div className="absolute right-5 w-8 h-8 rounded-full bg-gray-50 group-hover:bg-amber-50 flex items-center justify-center transition-colors">
+                    <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-amber-500 transition-colors" />
+                  </div>
                 </button>
               </div>
             </div>
@@ -290,8 +333,8 @@ export default function OnboardingWizard() {
                   </div>
                 </div>
 
-                {/* Free Trial */}
-                <div onClick={() => { setPlan('trial'); setStep(2) }} className="cursor-pointer rounded-2xl border-2 border-dashed border-gray-200 p-5 hover:border-gray-300 transition-all group bg-gray-50/50">
+                {/* Free Trial — skips add-ons, goes straight to details */}
+                <div onClick={() => { setPlan('trial'); setStep(3) }} className="cursor-pointer rounded-2xl border-2 border-dashed border-gray-200 p-5 hover:border-gray-300 transition-all group bg-gray-50/50">
                   <div className="flex items-center justify-between mb-3">
                     <div>
                       <p className="font-bold text-gray-900">Free Trial</p>
@@ -312,7 +355,7 @@ export default function OnboardingWizard() {
             </div>
           )}
 
-          {/* ── STEP 2: ADD-ONS ── */}
+          {/* ── STEP 2: ADD-ONS (individual plan only) ── */}
           {step === 2 && (
             <div key={2} className="wizard-step">
               <div className="px-8 pt-6">
@@ -320,16 +363,6 @@ export default function OnboardingWizard() {
                 <h2 className="text-2xl font-bold text-gray-900 tracking-tight mb-1">Enhance your protection</h2>
                 <p className="text-sm text-gray-500 mb-6">Powerful extras. Cancel anytime.</p>
               </div>
-
-              {plan === 'trial' && (
-                <div className="mx-8 mb-5 bg-blue-50 border border-blue-200 rounded-2xl p-4 flex items-start gap-3">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0"><Star className="w-4 h-4 text-blue-500" /></div>
-                  <div>
-                    <p className="text-sm font-semibold text-blue-900">You're on a free trial</p>
-                    <p className="text-xs text-blue-600 mt-0.5">Add-ons below are free during your 7-day trial. Select what you want — you'll only be charged when you convert to a paid plan.</p>
-                  </div>
-                </div>
-              )}
 
               <div className="px-8 space-y-3">
                 {/* Family Links */}
@@ -339,9 +372,7 @@ export default function OnboardingWizard() {
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
                         <p className="font-semibold text-sm text-gray-900">Family Links</p>
-                        {plan === 'trial'
-                          ? <span className="text-xs bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full">Free during trial</span>
-                          : <span className="text-xs font-semibold text-gray-400">€2.99/link</span>}
+                        <span className="text-xs font-semibold text-gray-400">€2.99/link</span>
                       </div>
                       <p className="text-xs text-gray-500 mt-0.5">Extra family members who receive your SOS alerts</p>
                       <p className="text-xs text-green-600 mt-1">1st link already FREE with your plan</p>
@@ -367,11 +398,7 @@ export default function OnboardingWizard() {
                         </button>
                       </div>
                       <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">CLARA checks in daily. Tracks mood, sleep & pain. Sends digest to family.</p>
-                      <div className="mt-2">
-                        {plan === 'trial'
-                          ? <span className="text-xs bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full">Free during trial</span>
-                          : <span className={`text-xs font-semibold ${addons.dailyWellbeing ? 'text-red-600' : 'text-gray-400'}`}>€2.99/month</span>}
-                      </div>
+                      <span className={`text-xs font-semibold ${addons.dailyWellbeing ? 'text-red-600' : 'text-gray-400'}`}>€2.99/month</span>
                     </div>
                   </div>
                 </div>
@@ -388,11 +415,7 @@ export default function OnboardingWizard() {
                         </button>
                       </div>
                       <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">CLARA reminds you to take medication. Logs it. Alerts family if missed.</p>
-                      <div className="mt-2">
-                        {plan === 'trial'
-                          ? <span className="text-xs bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full">Free during trial</span>
-                          : <span className={`text-xs font-semibold ${addons.medicationReminder ? 'text-red-600' : 'text-gray-400'}`}>€2.99/month</span>}
-                      </div>
+                      <span className={`text-xs font-semibold ${addons.medicationReminder ? 'text-red-600' : 'text-gray-400'}`}>€2.99/month</span>
                     </div>
                   </div>
                 </div>
@@ -408,21 +431,19 @@ export default function OnboardingWizard() {
                 </div>
               )}
 
-              {plan === 'individual' && (
-                <div className="mx-8 mt-4 bg-gray-50 rounded-2xl p-4">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Order summary</p>
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between text-xs text-gray-600"><span>Individual Plan ({billing === 'year' ? 'annual' : 'monthly'})</span><span>€{billing === 'year' ? '99.90' : '9.99'}</span></div>
-                    {addons.dailyWellbeing && <div className="flex justify-between text-xs text-gray-600"><span>Daily Wellbeing</span><span>€2.99</span></div>}
-                    {addons.medicationReminder && <div className="flex justify-between text-xs text-gray-600"><span>Medication Reminder</span><span>€2.99</span></div>}
-                    {addons.familyLinks > 0 && <div className="flex justify-between text-xs text-gray-600"><span>Family Links ×{addons.familyLinks}</span><span>€{(addons.familyLinks * 2.99).toFixed(2)}</span></div>}
-                    <div className="border-t border-gray-200 pt-2 mt-2 flex justify-between">
-                      <span className="text-sm font-bold text-gray-900">Total</span>
-                      <span className="text-sm font-bold text-red-600">€{total.toFixed(2)}/{billing === 'year' ? 'yr' : 'mo'}</span>
-                    </div>
+              <div className="mx-8 mt-4 bg-gray-50 rounded-2xl p-4">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Order summary</p>
+                <div className="space-y-1.5">
+                  <div className="flex justify-between text-xs text-gray-600"><span>Individual Plan ({billing === 'year' ? 'annual' : 'monthly'})</span><span>€{billing === 'year' ? '99.90' : '9.99'}</span></div>
+                  {addons.dailyWellbeing && <div className="flex justify-between text-xs text-gray-600"><span>Daily Wellbeing</span><span>€2.99</span></div>}
+                  {addons.medicationReminder && <div className="flex justify-between text-xs text-gray-600"><span>Medication Reminder</span><span>€2.99</span></div>}
+                  {addons.familyLinks > 0 && <div className="flex justify-between text-xs text-gray-600"><span>Family Links ×{addons.familyLinks}</span><span>€{(addons.familyLinks * 2.99).toFixed(2)}</span></div>}
+                  <div className="border-t border-gray-200 pt-2 mt-2 flex justify-between">
+                    <span className="text-sm font-bold text-gray-900">Total</span>
+                    <span className="text-sm font-bold text-red-600">€{total.toFixed(2)}/{billing === 'year' ? 'yr' : 'mo'}</span>
                   </div>
                 </div>
-              )}
+              </div>
 
               <div className="px-8 py-6">
                 <Button onClick={() => setStep(3)} className="w-full bg-red-500 hover:bg-red-600 text-white py-3.5 rounded-2xl font-semibold text-sm shadow-lg shadow-red-500/25 transition-all hover:shadow-red-500/40">
@@ -435,7 +456,7 @@ export default function OnboardingWizard() {
           {/* ── STEP 3: YOUR DETAILS ── */}
           {step === 3 && (
             <div key={3} className="wizard-step px-8 py-6">
-              <button onClick={() => setStep(2)} className="text-xs text-gray-400 hover:text-gray-600 mb-6 flex items-center gap-1">← Back</button>
+              <button onClick={() => setStep(getPrevStep(3))} className="text-xs text-gray-400 hover:text-gray-600 mb-6 flex items-center gap-1">← Back</button>
               <h2 className="text-2xl font-bold text-gray-900 tracking-tight mb-1">Your details</h2>
               <p className="text-sm text-gray-500 mb-6">Create your account to get started</p>
 
@@ -484,9 +505,9 @@ export default function OnboardingWizard() {
 
                 <div className="pt-2 space-y-3 border-t border-gray-100">
                   {[
-                    { checked: gdpr1, set: setGdpr1, label: <>I agree to the <a href="/privacy" className="text-red-500 underline" target="_blank" rel="noreferrer">Privacy Policy</a> and <a href="/terms" className="text-red-500 underline" target="_blank" rel="noreferrer">Terms</a> *</>, required: true },
-                    { checked: gdpr2, set: setGdpr2, label: 'I consent to receive safety-related emails *', required: true },
-                    { checked: gdpr3, set: setGdpr3, label: 'I\'d like to receive news and offers (optional)', required: false },
+                    { checked: gdpr1, set: setGdpr1, label: <>I agree to the <a href="/privacy" className="text-red-500 underline" target="_blank" rel="noreferrer">Privacy Policy</a> and <a href="/terms" className="text-red-500 underline" target="_blank" rel="noreferrer">Terms</a> *</> },
+                    { checked: gdpr2, set: setGdpr2, label: 'I consent to receive safety-related emails *' },
+                    { checked: gdpr3, set: setGdpr3, label: 'I\'d like to receive news and offers (optional)' },
                   ].map((item, i) => (
                     <label key={i} className="flex items-start gap-3 cursor-pointer group">
                       <div
