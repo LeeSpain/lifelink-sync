@@ -111,6 +111,15 @@ serve(async (req) => {
 
     logStep("Trial activated successfully", { userId: user.id, trialEnd });
 
+    // Instant alert to Lee
+    try {
+      const { alertLee } = await import('../_shared/alertLee.ts');
+      const { count: totalTrials } = await supabase.from('trial_tracking').select('id', { count: 'exact', head: true });
+      await alertLee(
+        `\u{1F195} NEW FREE TRIAL!\n\n\u{1F464} ${user.email}\n\u{1F4C5} 7 days \u2014 ends ${new Date(trialEnd).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}\n\u{1F3AF} Trial #${totalTrials || '?'} overall\n\u{23F0} ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' })} CET\n\nConvert them! \u{1F6E1}\u{FE0F}`
+      );
+    } catch (e) { logStep("Trial alert to Lee failed (non-critical)", { error: String(e) }); }
+
     // Send welcome email via Resend (optional, non-blocking)
     try {
       const resendApiKey = Deno.env.get('RESEND_API_KEY');

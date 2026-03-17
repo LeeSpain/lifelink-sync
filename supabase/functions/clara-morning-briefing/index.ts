@@ -18,9 +18,34 @@ serve(async (req) => {
   console.log('clara-morning-briefing invoked');
 
   try {
+    // Run health check first
+    let healthOk = true;
+    let healthReport = '';
+    try {
+      const healthResp = await fetch(
+        Deno.env.get('SUPABASE_URL') + '/functions/v1/clara-health-check',
+        { method: 'POST', headers: { 'Authorization': 'Bearer ' + Deno.env.get('SUPABASE_ANON_KEY'), 'Content-Type': 'application/json' } }
+      );
+      if (healthResp.ok) {
+        const hd = await healthResp.json();
+        healthOk = hd.allOk;
+        healthReport = hd.allOk ? '\u{2705} All systems operational' : hd.report;
+      }
+    } catch { healthReport = '\u{2753} Health check unavailable'; }
+
     const now = new Date();
     const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
     const yesterdayISO = yesterday.toISOString();
+
+    // Overnight paid subscribers (last 12h)
+    const twelveHoursAgo = new Date(now.getTime() - 12 * 60 * 60 * 1000).toISOString();
+    const { count: overnightPaid } = await supabase
+      .from('subscribers').select('id', { count: 'exact', head: true })
+      .eq('subscribed', true).eq('is_trialing', false).gte('updated_at', twelveHoursAgo);
+
+    const { count: overnightTrials } = await supabase
+      .from('trial_tracking').select('id', { count: 'exact', head: true })
+      .gte('created_at', twelveHoursAgo);
 
     // ── New leads in last 24h ──────────────────────────────────
     const { data: newLeads, count: leadCount } = await supabase
@@ -152,6 +177,14 @@ serve(async (req) => {
       `Chat messages: ${recentConversations ?? 0}`,
       `WhatsApp messages: ${waMessages ?? 0}`,
       `Amber escalations: ${amberCount ?? 0}`,
+      '',
+      '',
+      'OVERNIGHT REVENUE',
+      `New trials: ${overnightTrials ?? 0}`,
+      `New paid: ${overnightPaid ?? 0}`,
+      '',
+      'SYSTEM HEALTH',
+      healthReport,
       '',
       'CLARA is online and handling all enquiries.',
       '',

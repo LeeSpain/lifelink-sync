@@ -187,6 +187,19 @@ serve(async (req) => {
           } else {
             console.log("✅ Subscriber updated");
           }
+
+          // Instant payment alert to Lee
+          try {
+            const { alertLee } = await import('../_shared/alertLee.ts');
+            const obj2 = event?.data?.object;
+            const alertAmount = ((obj2?.amount_total || obj2?.amount_due || 999) / 100).toFixed(2);
+            const alertEmail = customerEmail || obj2?.customer_details?.email || 'unknown';
+            const { count: tPaid } = await supabase.from('subscribers').select('id', { count: 'exact', head: true }).eq('subscribed', true).eq('is_trialing', false);
+            await alertLee(
+              `\u{1F4B3} NEW PAYMENT!\n\n\u{1F464} ${alertEmail}\n\u{1F4B0} \u20AC${alertAmount}\n\u{1F4CA} Total subscribers: ${tPaid || 1}\n\u{1F4B5} MRR: \u20AC${((tPaid || 1) * 9.99).toFixed(2)}/month\n\u{23F0} ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' })} CET\n\n\u{1F6E1}\u{FE0F} LifeLink Sync is growing!`
+            );
+          } catch (alertErr) { console.error("Payment alert to Lee failed (non-critical):", alertErr); }
+
         } else {
           console.log("ℹ️ No subscriber identifiers (user_id/email) present in event to upsert");
         }
