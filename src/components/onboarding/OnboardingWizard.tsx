@@ -538,30 +538,77 @@ export default function OnboardingWizard() {
           {/* ── STEP 4: CHECK YOUR EMAIL ── */}
           {step === 4 && (
             <div key={4} className="wizard-step px-8 py-10 text-center">
-              <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Mail className="w-10 h-10 text-blue-500" />
+              {/* Animated email icon with notification badge */}
+              <div className="relative inline-flex mb-6">
+                <div className="w-24 h-24 bg-red-50 rounded-full flex items-center justify-center">
+                  <Mail className="w-12 h-12 text-red-500" />
+                </div>
+                <div className="absolute top-1 right-1 w-7 h-7 bg-red-500 rounded-full flex items-center justify-center border-2 border-white animate-bounce">
+                  <span className="text-white text-xs font-bold">1</span>
+                </div>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 tracking-tight mb-2">Check your email</h2>
-              <p className="text-sm text-gray-500 mb-1">We've sent a confirmation link to:</p>
-              <p className="text-base font-semibold text-gray-900 mb-6">{emailSentTo || email}</p>
 
-              <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 mb-6 text-left max-w-sm mx-auto">
-                {[
-                  'Open your email inbox',
-                  'Click the confirmation link from LifeLink Sync',
-                  "You'll be brought back here to finish setup",
-                ].map((s, i) => (
-                  <div key={i} className="flex items-start gap-3 mb-2 last:mb-0">
-                    <span className="text-blue-500 font-bold text-sm mt-0.5 flex-shrink-0">{i + 1}</span>
-                    <p className="text-gray-700 text-xs">{s}</p>
+              <h2 className="text-2xl font-bold text-gray-900 tracking-tight mb-2">
+                Check your inbox
+              </h2>
+
+              <p className="text-gray-500 text-sm mb-1">We sent a confirmation link to:</p>
+
+              <div className="inline-block bg-gray-50 border border-gray-200 rounded-xl px-5 py-2.5 mb-6">
+                <p className="font-bold text-gray-900">{emailSentTo || email}</p>
+              </div>
+
+              <p className="text-gray-500 text-sm mb-8 max-w-xs mx-auto leading-relaxed">
+                Click the link in the email to activate your account and meet CLARA.
+              </p>
+
+              {/* Progress checklist */}
+              <div className="bg-gray-50 rounded-2xl p-5 mb-6 text-left max-w-xs mx-auto">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-7 h-7 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Check className="w-4 h-4 text-white" />
                   </div>
-                ))}
+                  <span className="text-sm text-gray-700">Account created</span>
+                </div>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-7 h-7 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0 animate-pulse">
+                    <Mail className="w-3.5 h-3.5 text-white" />
+                  </div>
+                  <span className="text-sm font-semibold text-gray-900">Confirm your email ← now</span>
+                </div>
+                <div className="flex items-center gap-3 opacity-40">
+                  <div className="w-7 h-7 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Shield className="w-3.5 h-3.5 text-white" />
+                  </div>
+                  <span className="text-sm text-gray-500">CLARA activates</span>
+                </div>
               </div>
 
-              <p className="text-gray-400 text-xs mb-4">Don't see it? Check your spam folder.</p>
-              <button onClick={handleResendEmail} disabled={resendCooldown > 0} className="inline-flex items-center gap-2 text-xs text-red-600 font-medium hover:text-red-700 disabled:opacity-40 disabled:cursor-not-allowed">
-                <RefreshCw className="w-3.5 h-3.5" />
-                {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend confirmation email'}
+              {/* Spam tip */}
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-6 flex items-start gap-2 text-left max-w-xs mx-auto">
+                <span className="text-lg flex-shrink-0">💡</span>
+                <p className="text-amber-800 text-xs leading-relaxed">
+                  <strong>Can't find it?</strong> Check your spam or junk folder. Sometimes emails land there first.
+                </p>
+              </div>
+
+              {/* Resend */}
+              <button
+                onClick={handleResendEmail}
+                disabled={resendCooldown > 0}
+                className="text-sm text-red-500 hover:text-red-600 font-medium disabled:opacity-40 disabled:cursor-not-allowed block mx-auto mb-3"
+              >
+                {resendCooldown > 0
+                  ? `Resend available in ${resendCooldown}s`
+                  : "Didn't get it? Resend email →"}
+              </button>
+
+              {/* Wrong email */}
+              <button
+                onClick={() => setStep(3)}
+                className="text-xs text-gray-400 hover:text-gray-600 block mx-auto"
+              >
+                Wrong email address? Go back
               </button>
             </div>
           )}
