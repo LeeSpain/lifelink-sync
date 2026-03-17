@@ -135,6 +135,47 @@ function detectAmberTrigger(text: string): string | null {
 // ── TwiML empty response ───────────────────────────────────────
 const TWIML_OK = '<Response/>';
 
+// ── Voice message transcription via OpenAI Whisper ──────────
+async function transcribeVoice(mediaUrl: string): Promise<{ text: string; language: string }> {
+  try {
+    // Download audio from Twilio (requires auth)
+    const audioResp = await fetch(mediaUrl, {
+      headers: {
+        'Authorization': 'Basic ' + btoa(`${twilioSid}:${twilioToken}`),
+      },
+    });
+    if (!audioResp.ok) throw new Error(`Audio download ${audioResp.status}`);
+    const audioBuffer = await audioResp.arrayBuffer();
+
+    const openaiKey = Deno.env.get('OPENAI_API_KEY');
+    if (!openaiKey) {
+      console.warn('No OPENAI_API_KEY — cannot transcribe voice');
+      return { text: '', language: 'en' };
+    }
+
+    const formData = new FormData();
+    formData.append('file', new Blob([audioBuffer], { type: 'audio/ogg' }), 'voice.ogg');
+    formData.append('model', 'whisper-1');
+    // No language param = auto-detect
+
+    const whisperResp = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${openaiKey}` },
+      body: formData,
+    });
+    if (!whisperResp.ok) throw new Error(`Whisper ${whisperResp.status}`);
+
+    const result = await whisperResp.json();
+    return {
+      text: result.text?.trim() || '',
+      language: result.language || 'en',
+    };
+  } catch (err) {
+    console.error('Voice transcription error:', err);
+    return { text: '', language: 'en' };
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -142,16 +183,44 @@ serve(async (req) => {
 
   try {
     // ── Parse Twilio webhook ───────────────────────────────────
-    const text = await req.text();
-    const params = new URLSearchParams(text);
+    const rawText = await req.text();
+    const params = new URLSearchParams(rawText);
 
     const messageSid  = params.get('MessageSid') ?? '';
     const fromRaw     = params.get('From') ?? '';
-    const body        = params.get('Body') ?? '';
+    let body          = params.get('Body') ?? '';
     const profileName = params.get('ProfileName') ?? '';
     const phone       = fromRaw.replace('whatsapp:', '');
 
-    console.log('WhatsApp inbound:', { phone, bodyLength: body.length });
+    // ── Voice message detection + transcription ────────────────
+    const mediaUrl  = params.get('MediaUrl0') ?? '';
+    const mediaType = params.get('MediaContentType0') ?? '';
+    const isVoice = !!(mediaUrl && (
+      mediaType.includes('audio') ||
+      mediaType.includes('ogg') ||
+      mediaType.includes('mpeg') ||
+      mediaType.includes('mp4')
+    ));
+    let voiceTranscript = '';
+
+    if (isVoice) {
+      console.log('Voice message detected from:', phone, 'type:', mediaType);
+      const { text: transcribed } = await transcribeVoice(mediaUrl);
+      if (transcribed) {
+        voiceTranscript = transcribed;
+        body = transcribed; // Use transcription as the message body
+        console.log('Transcribed voice:', transcribed.substring(0, 100));
+      } else {
+        // Could not transcribe — send helpful fallback
+        await sendWhatsApp(phone,
+          '🎤 I received your voice message but couldn\'t transcribe it. Please type your message or try again.\n\n' +
+          'Quick commands: leads, revenue, status, chase, budget, campaign, list plans'
+        );
+        return new Response(TWIML_OK, { status: 200, headers: { ...corsHeaders, 'Content-Type': 'text/xml' } });
+      }
+    }
+
+    console.log('WhatsApp inbound:', { phone, bodyLength: body.length, isVoice });
 
     // ── Route admin messages to dev agent ───────────────────────
     const ADMIN_NUMBER = Deno.env.get('ADMIN_WHATSAPP_NUMBER') ?? '';
@@ -162,16 +231,32 @@ serve(async (req) => {
     if (normalizedAdmin && normalizedFrom === normalizedAdmin && !bypassAdminRoute) {
       const devAgentUrl = Deno.env.get('SUPABASE_URL') + '/functions/v1/clara-dev-agent';
 
+      // If voice, replace Body in the forwarded payload so dev-agent gets the text
+      let forwardBody = rawText;
+      if (isVoice && voiceTranscript) {
+        const forwardParams = new URLSearchParams(rawText);
+        forwardParams.set('Body', voiceTranscript);
+        forwardParams.set('_voice_transcript', 'true');
+        forwardBody = forwardParams.toString();
+      }
+
       const forwardResponse = await fetch(devAgentUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
         },
-        body: text,
+        body: forwardBody,
       });
 
       console.log('Forwarded to dev agent:', forwardResponse.status);
+
+      // Send voice confirmation to Lee
+      if (isVoice && voiceTranscript) {
+        // Dev agent will respond with its own reply, so we just confirm transcription
+        // The response will come from dev-agent — no need to double-send
+      }
+
       return new Response('', { status: 200 });
     }
 
@@ -328,7 +413,10 @@ Keep responses to 2-3 short paragraphs. No bullet points.`;
 
         if (!response.ok) throw new Error(`Claude ${response.status}`);
         const data = await response.json();
-        const reply = stripMarkdown(data.content?.[0]?.text ?? 'Sorry, I had an issue processing that.');
+        let reply = stripMarkdown(data.content?.[0]?.text ?? 'Sorry, I had an issue processing that.');
+        if (isVoice && voiceTranscript) {
+          reply = `🎤 *Heard:* "${voiceTranscript.substring(0, 120)}"\n\n${reply}`;
+        }
         await sendWhatsApp(phone, reply);
       } catch (e) {
         console.error('Owner mode Claude error:', e);
@@ -471,7 +559,10 @@ Laat me je bericht lezen en je nu goed antwoorden...`,
       return new Response(TWIML_OK, { status: 200, headers: { ...corsHeaders, 'Content-Type': 'text/xml' } });
     }
 
-    // ── Send reply ─────────────────────────────────────────────
+    // ── Send reply (prepend voice confirmation if applicable) ──
+    if (isVoice && voiceTranscript) {
+      aiResponse = `🎤 *Heard:* "${voiceTranscript.substring(0, 120)}"\n\n${aiResponse}`;
+    }
     const sent = await sendWhatsApp(phone, aiResponse);
     console.log('Reply sent:', { phone, sent, escalation: isEscalation, lang: detectedLang });
 
@@ -504,7 +595,7 @@ Laat me je bericht lezen en je nu goed antwoorden...`,
 
         if (convId) {
           await Promise.allSettled([
-            supabase.from('whatsapp_messages').insert({ conversation_id: convId, whatsapp_message_id: messageSid, direction: 'inbound', message_type: 'text', content: body, status: 'delivered' }),
+            supabase.from('whatsapp_messages').insert({ conversation_id: convId, whatsapp_message_id: messageSid, direction: 'inbound', message_type: isVoice ? 'voice' : 'text', content: body, status: 'delivered', ...(isVoice ? { metadata: { voice_transcript: voiceTranscript, media_url: mediaUrl } } : {}) }),
             supabase.from('whatsapp_messages').insert({ conversation_id: convId, direction: 'outbound', message_type: 'text', content: aiResponse, status: sent ? 'sent' : 'failed', is_ai_generated: true, ai_session_id: currentSessionId }),
           ]);
         }
