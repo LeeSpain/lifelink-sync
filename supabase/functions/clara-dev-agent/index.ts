@@ -612,6 +612,84 @@ serve(async (req) => {
       return new Response('', { status: 200 });
     }
 
+    // ── DIRECT DB LOOKUP — intercepts in ANY mode ──────────
+    // Detects questions about contacts, invites, leads
+    const isDbLookup = /did\s+.+\s+(get|receive|got)|check\s+(on|if)|has\s+.+\s+(received|subscribed|signed|converted)|recent\s+invite|who\s+did\s+(i|we)\s+invite|already\s+sent/i.test(lowerBody);
+
+    if (isDbLookup) {
+      // Extract contact name (case insensitive, multi-word)
+      let contactName: string | null = null;
+      const namePatterns = [
+        /did\s+(.+?)\s+(get|receive|got)/i,
+        /has\s+(.+?)\s+(received|subscribed|signed|converted)/i,
+        /check\s+(?:on\s+)?(.+?)(?:\s+ok|\s*$)/i,
+        /(?:about|for|on)\s+(.+?)(?:\s+ok|\s*$)/i,
+      ];
+      for (const p of namePatterns) {
+        const m = messageBody.match(p);
+        if (m?.[1]) {
+          contactName = m[1].trim().replace(/\s*(his|her|the|their|my)\s*(invite|message|email).*$/i, '').trim();
+          if (contactName && !['i', 'we', 'you', 'lee', 'clara'].includes(contactName.toLowerCase())) break;
+          contactName = null;
+        }
+      }
+
+      // Check for "recent invites" / "who did I invite" (no name needed)
+      const isRecentInvites = /recent\s+invite|who\s+did\s+(i|we)\s+invite|last\s+invite|show\s+invite/i.test(lowerBody);
+
+      if (isRecentInvites) {
+        const { data: invites } = await supabase.from('manual_invites')
+          .select('contact_name, send_via, created_at, clara_enhanced')
+          .order('created_at', { ascending: false }).limit(10);
+
+        const list = invites?.length
+          ? invites.map((inv: any, i: number) => {
+              const ago = Math.floor((Date.now() - new Date(inv.created_at).getTime()) / 3600000);
+              return `${i + 1}. ${inv.contact_name} — ${ago < 24 ? `${ago}h ago` : `${Math.floor(ago / 24)}d ago`} — ${inv.send_via || 'WhatsApp'}${inv.clara_enhanced ? ' ✨' : ''}`;
+            }).join('\n')
+          : 'No invites sent yet.';
+
+        await sendWhatsApp(fromNumber, `📨 Last ${invites?.length || 0} invites:\n\n${list}\n\nAsk about any by name.`);
+        return new Response('', { status: 200 });
+      }
+
+      if (contactName) {
+        // Query manual_invites
+        const { data: invites } = await supabase.from('manual_invites')
+          .select('*').ilike('contact_name', `%${contactName}%`)
+          .order('created_at', { ascending: false }).limit(3);
+
+        // Query leads
+        const { data: leads } = await supabase.from('leads')
+          .select('*').or(`first_name.ilike.%${contactName}%,full_name.ilike.%${contactName}%,email.ilike.%${contactName}%`)
+          .order('created_at', { ascending: false }).limit(3);
+
+        let reply = '';
+
+        if (invites?.length) {
+          const inv = invites[0] as any;
+          const ago = Math.floor((Date.now() - new Date(inv.created_at).getTime()) / 3600000);
+          const agoText = ago < 1 ? 'just now' : ago < 24 ? `${ago} hours ago` : `${Math.floor(ago / 24)} days ago`;
+          reply = `✅ Found invite for ${inv.contact_name}:\n\n📅 Sent: ${agoText} (${new Date(inv.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })})\n📱 Via: ${inv.send_via || 'WhatsApp'}\n💬 Tone: ${inv.relationship_tone || 'friendly'}`;
+          if (inv.contact_whatsapp) reply += `\n📞 To: ${inv.contact_whatsapp}`;
+          if (inv.contact_email) reply += `\n📧 To: ${inv.contact_email}`;
+          reply += `\n${inv.clara_enhanced ? '✨ Enhanced by CLARA' : '✍️ Written by you'}\n\nWhether they opened it depends on their device. Want me to send a follow-up?`;
+        } else if (leads?.length) {
+          const lead = leads[0] as any;
+          const ago = Math.floor((Date.now() - new Date(lead.created_at).getTime()) / 3600000);
+          reply = `📊 Found ${contactName} in leads:\n\nStatus: ${lead.status || 'new'}\nScore: ${lead.interest_level || '?'}/10\nSource: ${lead.lead_source || 'unknown'}\nAdded: ${ago < 24 ? `${ago}h ago` : `${Math.floor(ago / 24)}d ago`}`;
+          if (lead.email) reply += `\nEmail: ${lead.email}`;
+          if (lead.phone) reply += `\nPhone: ${lead.phone}`;
+          reply += `\n\nNo specific invite record found. Want me to send one?`;
+        } else {
+          reply = `❌ No record of "${contactName}" found in invites or leads.\n\nThe name might be spelled differently, or they haven't been contacted yet.\n\nWant me to send them an invite?`;
+        }
+
+        await sendWhatsApp(fromNumber, reply);
+        return new Response('', { status: 200 });
+      }
+    }
+
     // Business mode — route to business ops
     if (currentMode === 'business') {
       try {
