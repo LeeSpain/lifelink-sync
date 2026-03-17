@@ -342,7 +342,7 @@ Return the message text only. No preamble.`,
       if (sendError) throw new Error(sendError.message || 'Failed to send');
       if (!sendResult?.success) throw new Error('Delivery failed — check WhatsApp number');
 
-      await (supabase as any).from('manual_invites').insert({
+      const { error: dbError } = await (supabase as any).from('manual_invites').insert({
         contact_name: claraForm.name,
         contact_whatsapp: claraForm.whatsapp || null,
         protection_for: claraForm.protectionFor,
@@ -353,7 +353,8 @@ Return the message text only. No preamble.`,
         clara_enhanced: true,
         whatsapp_sent: true,
         status: 'sent',
-      }).catch(() => {});
+      });
+      if (dbError) console.warn('Failed to log invite to DB:', dbError);
 
       setClaraSentName(claraForm.name);
       setClaraSent(true);
