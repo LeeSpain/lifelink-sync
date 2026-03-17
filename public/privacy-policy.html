@@ -22,7 +22,7 @@
     <h1>Privacy Policy &mdash; LifeLink Sync</h1>
 
     <p><strong>Effective Date:</strong> March 2026</p>
-    <p><strong>Last Updated:</strong> March 2026</p>
+    <p><strong>Last Updated:</strong> 17 March 2026</p>
     <p><strong>Next Review:</strong> September 2026</p>
     <p>This policy is also available in <a href="/es/privacy-policy">Spanish (Espa&ntilde;ol)</a> and <a href="/nl/privacy-policy">Dutch (Nederlands)</a>.</p>
 
@@ -117,6 +117,20 @@
         <tr><td>Submissions</td><td>Contact form submissions</td></tr>
     </table>
 
+    <h3>WhatsApp Communication Data</h3>
+    <ul>
+        <li>If you interact with LifeLink Sync via WhatsApp, we collect: your WhatsApp phone number, message content, voice message transcriptions, and conversation timestamps.</li>
+        <li>Voice messages sent to our WhatsApp number are transcribed using OpenAI Whisper API to process your commands. Audio is processed in real-time and <strong>not stored</strong> beyond the transcription session.</li>
+        <li>WhatsApp sign-ups: if you create an account via WhatsApp, we collect your name, email address, and protection preferences through the conversational sign-up flow.</li>
+        <li><strong>Retention:</strong> WhatsApp conversation history is retained for 90 days then auto-deleted. Voice transcriptions are session-only and not stored.</li>
+    </ul>
+
+    <h3>Referral Data</h3>
+    <ul>
+        <li>If you use a referral link or refer others, we record: the referring user ID, the referred user ID, referral date, and conversion status.</li>
+        <li><strong>Retention:</strong> Referral data is retained for the duration of both accounts' active status plus 12 months.</li>
+    </ul>
+
     <h3>CLARA AI Data</h3>
     <table>
         <tr><th>Field</th><th>Details</th></tr>
@@ -127,6 +141,12 @@
         <tr><td>Voice activation events</td><td>Voice command trigger events, background audio analysis for emergency detection (tablet dashboard mode)</td></tr>
         <tr><td>Voice data</td><td>Voice data is processed in real-time and NOT stored. Only event metadata (timestamp, trigger type) is retained.</td></tr>
     </table>
+
+    <ul>
+        <li>CLARA remembers returning visitors using a contact memory system that stores: name, contact method, conversation summary, and interest level. <strong>Retention:</strong> 2 years from last interaction.</li>
+        <li>CLARA interactions are processed using <strong>Anthropic Claude AI</strong> (primary) with <strong>OpenAI</strong> as a fallback provider. Both providers process data under their respective data processing agreements with us and do not retain conversation data beyond the processing session.</li>
+        <li>You can request deletion of your CLARA interaction history at any time by contacting <a href="mailto:privacy@lifelink-sync.com">privacy@lifelink-sync.com</a>.</li>
+    </ul>
 
     <h3>Device &amp; Technical Data</h3>
     <table>
@@ -202,6 +222,8 @@
         <tr><td>Sentry (Functional Software)</td><td>Error tracking</td><td>Error data, session traces (10% sample)</td><td>US (SCCs in place)</td></tr>
         <tr><td>BigDataCloud</td><td>Reverse geocoding</td><td>Coordinates only (no personal data)</td><td>EU</td></tr>
         <tr><td>Vercel Inc</td><td>Application hosting</td><td>Served content, access logs</td><td>Global CDN</td></tr>
+        <tr><td>Anthropic (Claude AI)</td><td>AI response generation (CLARA)</td><td>Conversation content (processed in real-time, not stored by provider)</td><td>US (SCCs in place)</td></tr>
+        <tr><td>OpenAI (Whisper/GPT)</td><td>Voice transcription, AI fallback</td><td>Audio data (real-time processing only, not stored), conversation content</td><td>US (SCCs in place)</td></tr>
     </table>
 
     <div class="warning-box">
@@ -358,7 +380,7 @@
     <ul>
         <li><strong>Primary processing:</strong> All primary data processing takes place within the EU/EEA (Supabase, Frankfurt, Germany).</li>
         <li><strong>UK transfers:</strong> Permitted under the UK adequacy decision.</li>
-        <li><strong>US transfers:</strong> Transfers to Stripe, Resend, Twilio, Google, and Sentry are covered by Standard Contractual Clauses (SCCs).</li>
+        <li><strong>US transfers:</strong> Transfers to Stripe, Resend, Twilio, Google, Sentry, Anthropic, and OpenAI are covered by Standard Contractual Clauses (SCCs).</li>
         <li><strong>Emergency transfers:</strong> In an active emergency, data transfers may occur under the vital interests basis regardless of the recipient's location.</li>
         <li>We do not transfer data to countries without adequate protection except under SCCs or other approved safeguards (e.g., binding corporate rules, adequacy decisions).</li>
     </ul>
