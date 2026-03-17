@@ -84,115 +84,57 @@ const useAdminMenuItems = () => {
   
   return [
     {
-      title: t('admin.sidebarOverview', 'Overview'),
+      title: 'Overview',
       items: [
-        { title: t('admin.dashboard'), url: "/admin-dashboard", icon: BarChart3 },
-        { title: t('admin.analytics'), url: "/admin-dashboard/analytics", icon: BarChart3 },
-        { title: t('admin.videoAnalytics'), url: "/admin-dashboard/video-analytics", icon: Video },
-        { title: t('admin.revenueAnalytics'), url: "/admin-dashboard/revenue", icon: DollarSign },
-        { title: t('admin.userGrowth'), url: "/admin-dashboard/growth", icon: TrendingUp },
+        { title: 'Dashboard', url: "/admin-dashboard", icon: BarChart3 },
       ]
     },
     {
-      title: t('admin.sidebarAI', 'AI'),
+      title: 'CLARA AI',
       items: [
         { title: 'Command Centre', url: "/admin-dashboard/command-centre", icon: Monitor },
-        { title: 'AI Overview', url: "/admin-dashboard/ai-overview", icon: LayoutDashboard },
-        { title: 'Clara', url: "/admin-dashboard/clara-activity", icon: Bot },
-        { title: 'Training Data', url: "/admin-dashboard/ai-training", icon: BookOpen },
-        { title: 'AI Agent Config', url: "/admin-dashboard/ai-agent-config", icon: Cpu },
-        { title: 'Dev Agent', url: "/admin-dashboard/dev-agent", icon: Rocket },
-        { title: 'PA Dashboard', url: "/admin-dashboard/pa-dashboard", icon: CheckCircle },
-        { title: t('admin.rivenMarketingAi'), url: "/admin-dashboard/riven-marketing", icon: Brain },
-        { title: 'AI Settings', url: "/admin-dashboard/ai-settings", icon: Settings2 },
-        { title: 'AI Analytics', url: "/admin-dashboard/ai-analytics", icon: BarChart3 },
-        { title: 'AI Performance', url: "/admin-dashboard/ai-performance", icon: Gauge },
-        { title: 'AI Model Settings', url: "/admin-dashboard/ai-model-settings", icon: Sliders },
         { title: 'Constitution', url: "/admin-dashboard/constitution", icon: Shield },
         { title: 'Budget Control', url: "/admin-dashboard/budget-control", icon: DollarSign },
+        { title: 'Training Data', url: "/admin-dashboard/ai-training", icon: BookOpen },
+        { title: 'Riven Marketing', url: "/admin-dashboard/riven-marketing", icon: Brain },
       ]
     },
     {
-      title: t('admin.sidebarCustomers', 'Customers'),
+      title: 'Growth',
       items: [
-        { title: t('admin.allCustomers'), url: "/admin-dashboard/customers", icon: Users },
-        { title: t('admin.subscriptions'), url: "/admin-dashboard/subscriptions", icon: Database },
-        { title: t('admin.familyAccounts'), url: "/admin-dashboard/families", icon: Heart },
-      ]
-    },
-    {
-      title: t('admin.sidebarLeads', 'Leads'),
-      items: [
-        { title: t('admin.leadManagement'), url: "/admin-dashboard/leads", icon: MessageSquare },
-        { title: t('admin.leadIntelligence'), url: "/admin-dashboard/lead-intelligence", icon: Target },
-        { title: t('admin.conversations'), url: "/admin-dashboard/conversations", icon: MessageSquare },
+        { title: 'Leads', url: "/admin-dashboard/leads", icon: Target },
         { title: 'Manual Invite', url: "/admin-dashboard/manual-invite", icon: Send },
-      ]
-    },
-    {
-      title: t('admin.sidebarComms', 'Communications'),
-      items: [
-        { title: t('admin.contactSubmissions'), url: "/admin-dashboard/contact-submissions", icon: Mail },
-        { title: t('admin.communicationCenter'), url: "/admin-dashboard/communication", icon: MessageSquare },
-        { title: 'WhatsApp Settings', url: "/admin-dashboard/whatsapp", icon: Phone },
-        { title: 'Email Management', url: "/admin-dashboard/email-management", icon: Mail },
-      ]
-    },
-    {
-      title: t('admin.sidebarMap', 'Map'),
-      items: [
-        { title: t('admin.liveMapMonitor'), url: "/admin-dashboard/live-map-monitor", icon: Map },
-        { title: t('admin.circleAnalytics'), url: "/admin-dashboard/circle-analytics", icon: Users },
-        { title: t('admin.geofenceManagement'), url: "/admin-dashboard/geofence-admin", icon: Navigation },
-        { title: t('admin.locationData'), url: "/admin-dashboard/location-admin", icon: History },
-      ]
-    },
-    {
-      title: t('admin.sidebarEmergency', 'Emergency'),
-      items: [
-        { title: t('admin.emergencyIncidents'), url: "/admin-dashboard/emergencies", icon: AlertTriangle },
-        { title: t('admin.safetyMonitoring'), url: "/admin-dashboard/safety", icon: Shield },
-      ]
-    },
-    {
-      title: t('admin.sidebarRegional', 'Regional'),
-      items: [
-        { title: t('admin.regionalHub'), url: "/admin-dashboard/regional-hub", icon: MapPin },
-        { title: t('admin.regionalOrganizations'), url: "/admin-dashboard/regional-organizations", icon: Building },
-        { title: t('admin.regionalUsers'), url: "/admin-dashboard/regional-users", icon: Users },
-        { title: t('admin.regionalAudit'), url: "/admin-dashboard/regional-audit", icon: FileText },
-        { title: 'Transfer to Care Conneqt', url: "/admin-dashboard/transfer-to-care", icon: Send },
-      ]
-    },
-    {
-      title: t('admin.sidebarProducts', 'Products'),
-      items: [
-        { title: t('admin.products'), url: "/admin-dashboard/products", icon: Package },
-        { title: t('admin.regionalServices'), url: "/admin-dashboard/regional-services", icon: MapPin },
-        { title: t('admin.subscriptionPlans'), url: "/admin-dashboard/protection-plans", icon: Shield },
-        { title: 'Pricing Editor', url: "/admin-dashboard/pricing", icon: DollarSign },
-        { title: 'Add-On Management', url: "/admin-dashboard/addon-management", icon: Package },
-        { title: 'Trial Management', url: "/admin-dashboard/trial-management", icon: Clock },
-        { title: 'Gift Management', url: "/admin-dashboard/gift-management", icon: Gift },
+        { title: 'Conversations', url: "/admin-dashboard/conversations", icon: MessageSquare },
         { title: 'Referrals', url: "/admin-dashboard/referrals", icon: Gift },
-        { title: t('admin.flickControl'), url: "/admin-dashboard/flic-control", icon: Bluetooth },
       ]
     },
     {
-      title: t('admin.sidebarSystem', 'System'),
+      title: 'Customers',
       items: [
-        { title: 'Dashboards & Apps', url: "/admin-dashboard/dashboards-apps", icon: LayoutGrid },
-        { title: t('admin.userActivity'), url: "/admin-dashboard/activity", icon: Activity },
-        { title: t('admin.systemSettings'), url: "/admin-dashboard/settings", icon: Settings },
-        { title: t('admin.reports'), url: "/admin-dashboard/reports", icon: FileText },
-        { title: t('admin.appTesting'), url: "/admin-dashboard/app-testing", icon: Smartphone },
-        { title: 'Health Check', url: "/admin-dashboard/health-check", icon: HeartPulse },
-        { title: 'Production Check', url: "/admin-dashboard/production-check", icon: CheckCircle },
-        { title: 'Go Live', url: "/admin-dashboard/go-live", icon: Rocket },
-        { title: 'Stripe Setup', url: "/admin-dashboard/stripe-setup", icon: CreditCard },
-        { title: 'Mobile Launch', url: "/admin-dashboard/mobile-launch", icon: Smartphone },
+        { title: 'All Customers', url: "/admin-dashboard/customers", icon: Users },
+        { title: 'Subscriptions', url: "/admin-dashboard/subscriptions", icon: Database },
+        { title: 'Trials', url: "/admin-dashboard/trial-management", icon: Clock },
+        { title: 'Family Accounts', url: "/admin-dashboard/families", icon: Heart },
       ]
-    }
+    },
+    {
+      title: 'Commerce',
+      items: [
+        { title: 'Gift Orders', url: "/admin-dashboard/gift-management", icon: Gift },
+        { title: 'Products', url: "/admin-dashboard/products", icon: Package },
+        { title: 'Pricing', url: "/admin-dashboard/pricing", icon: DollarSign },
+        { title: 'Add-Ons', url: "/admin-dashboard/addon-management", icon: Package },
+      ]
+    },
+    {
+      title: 'Platform',
+      items: [
+        { title: 'Emergencies', url: "/admin-dashboard/emergencies", icon: AlertTriangle },
+        { title: 'Live Map', url: "/admin-dashboard/live-map-monitor", icon: Map },
+        { title: 'Health Check', url: "/admin-dashboard/health-check", icon: HeartPulse },
+        { title: 'Settings', url: "/admin-dashboard/settings", icon: Settings },
+      ]
+    },
   ];
 };
 
