@@ -1,396 +1,235 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { useState, useEffect, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { Gift, RefreshCw, Search, Send, Copy, CheckCircle, XCircle, Clock, Mail, Plus, CreditCard, TrendingUp, Star, Trash2, MoreVertical, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { supabase } from '@/integrations/supabase/client';
-import { Gift, Euro, Search, RefreshCw, Loader2, Copy, Mail, DollarSign, CheckCircle, Clock, Package } from 'lucide-react';
 import { toast } from 'sonner';
 
-interface GiftRecord {
-  id: string;
-  purchaser_email: string;
-  purchaser_name: string | null;
-  recipient_email: string;
-  recipient_name: string | null;
-  gift_type: string;
-  amount_paid: number;
-  currency: string;
-  status: string;
-  redeem_code: string;
-  personal_message: string | null;
-  delivery_date: string | null;
-  delivered_at: string | null;
-  redeemed_at: string | null;
-  expires_at: string;
-  created_at: string;
+interface GiftSub {
+  id: string; buyer_name: string; buyer_email: string; recipient_name: string; recipient_email?: string;
+  recipient_phone?: string; persona: string; months: number; amount: number; personal_message?: string;
+  delivery_method: string; preferred_language: string; redemption_code: string;
+  status: string; payment_status: string; sent_at?: string; redeemed_at?: string; created_at: string;
 }
 
-type StatusFilter = 'all' | 'pending_payment' | 'paid' | 'delivered' | 'redeemed' | 'expired' | 'refunded';
-
-const GIFT_TYPE_LABELS: Record<string, string> = {
-  monthly: '1 Month',
-  annual: '12 Months',
-  bundle: 'Bundle + Pendant',
-  voucher: 'Voucher',
+const fmt = (n: number) => `€${n.toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const timeAgo = (d: string) => { if (!d) return '—'; const s = Math.floor((Date.now() - new Date(d).getTime()) / 1000); if (s < 3600) return `${Math.floor(s / 60)}m ago`; if (s < 86400) return `${Math.floor(s / 3600)}h ago`; return `${Math.floor(s / 86400)}d ago`; };
+const EMOJI: Record<string, string> = { mum: '👩', dad: '👨', partner: '❤️', grandparent: '👴', colleague: '💼', general: '🎁', anyone: '🎁' };
+const FLAGS: Record<string, string> = { en: '🇬🇧', es: '🇪🇸', nl: '🇳🇱' };
+const STATUS_CFG: Record<string, { label: string; color: string }> = {
+  pending: { label: 'Pending', color: 'bg-amber-100 text-amber-700' },
+  sent: { label: 'Sent', color: 'bg-blue-100 text-blue-700' },
+  delivered: { label: 'Delivered', color: 'bg-purple-100 text-purple-700' },
+  redeemed: { label: 'Redeemed ✓', color: 'bg-green-100 text-green-700' },
+  expired: { label: 'Expired', color: 'bg-gray-100 text-gray-500' },
+  refunded: { label: 'Refunded', color: 'bg-red-100 text-red-600' },
 };
 
-export default function GiftManagementPage() {
-  const [gifts, setGifts] = useState<GiftRecord[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [refundGiftId, setRefundGiftId] = useState<string | null>(null);
-  const [resendingId, setResendingId] = useState<string | null>(null);
+// Create Gift Modal
+function CreateModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
+  const [form, setForm] = useState({ buyer_name: '', buyer_email: '', recipient_name: '', recipient_email: '', recipient_phone: '', persona: 'general', months: 1, amount: 9.99, personal_message: '', delivery_method: 'email', preferred_language: 'en', payment_status: 'paid' });
+  const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    loadGifts();
-  }, []);
-
-  const loadGifts = async () => {
+  const save = async () => {
+    if (!form.recipient_name.trim() || !form.buyer_name.trim()) { toast.error('Buyer and recipient names required'); return; }
+    setSaving(true);
     try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('gift_subscriptions')
-        .select('*')
-        .order('created_at', { ascending: false });
-
+      const expires = new Date(); expires.setFullYear(expires.getFullYear() + 1);
+      const { data, error } = await supabase.from('gift_subscriptions').insert({ ...form, status: 'pending', expires_at: expires.toISOString() }).select('id, redemption_code').single();
       if (error) throw error;
-      setGifts((data || []) as unknown as GiftRecord[]);
-    } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : String(error);
-      toast.error('Failed to load gifts: ' + msg);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const filteredGifts = useMemo(() => {
-    let result = gifts;
-
-    if (statusFilter !== 'all') {
-      result = result.filter(g => g.status === statusFilter);
-    }
-
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(g =>
-        g.purchaser_email.toLowerCase().includes(q) ||
-        g.recipient_email.toLowerCase().includes(q) ||
-        (g.purchaser_name?.toLowerCase().includes(q)) ||
-        (g.recipient_name?.toLowerCase().includes(q)) ||
-        g.redeem_code.toLowerCase().includes(q)
-      );
-    }
-
-    return result;
-  }, [gifts, statusFilter, searchQuery]);
-
-  // Stats
-  const totalGifts = gifts.length;
-  const totalRevenue = gifts
-    .filter(g => g.status !== 'pending_payment' && g.status !== 'refunded')
-    .reduce((sum, g) => sum + Number(g.amount_paid), 0);
-  const redeemedCount = gifts.filter(g => g.status === 'redeemed').length;
-  const pendingCount = gifts.filter(g => g.status === 'paid' || g.status === 'delivered').length;
-
-  const handleCopyCode = (code: string) => {
-    navigator.clipboard.writeText(code);
-    toast.success('Redeem code copied');
-  };
-
-  const handleResendEmail = async (giftId: string) => {
-    setResendingId(giftId);
-    try {
-      const { error } = await supabase.functions.invoke('gift-send-email', {
-        body: { gift_id: giftId, type: 'recipient' },
-      });
-      if (error) throw error;
-      toast.success('Gift email resent');
-    } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : String(error);
-      toast.error('Failed to resend: ' + msg);
-    } finally {
-      setResendingId(null);
-    }
-  };
-
-  const handleMarkRefunded = async () => {
-    if (!refundGiftId) return;
-    try {
-      const { error } = await supabase
-        .from('gift_subscriptions')
-        .update({ status: 'refunded', updated_at: new Date().toISOString() })
-        .eq('id', refundGiftId)
-        .in('status', ['paid', 'delivered']);
-
-      if (error) throw error;
-      toast.success('Gift marked as refunded');
-      setRefundGiftId(null);
-      loadGifts();
-    } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : String(error);
-      toast.error('Failed to refund: ' + msg);
-    }
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'pending_payment':
-        return <Badge variant="outline" className="text-yellow-700 border-yellow-300 bg-yellow-50">Pending</Badge>;
-      case 'paid':
-        return <Badge className="bg-blue-100 text-blue-800">Paid</Badge>;
-      case 'delivered':
-        return <Badge className="bg-indigo-100 text-indigo-800">Delivered</Badge>;
-      case 'redeemed':
-        return <Badge className="bg-green-100 text-green-800">Redeemed</Badge>;
-      case 'expired':
-        return <Badge className="bg-gray-100 text-gray-800">Expired</Badge>;
-      case 'refunded':
-        return <Badge className="bg-red-100 text-red-800">Refunded</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
+      toast.success(`Gift created! Code: ${data?.redemption_code}`);
+      onCreated(); onClose();
+    } catch (err: any) { toast.error(err.message); } finally { setSaving(false); }
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6 p-3 sm:p-6 md:p-0">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
-            <Gift className="h-7 w-7 text-primary" />
-            Gift Subscriptions
-          </h1>
-          <p className="text-sm sm:text-base text-muted-foreground">Manage gift purchases, track redemptions, and handle refunds</p>
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="bg-white rounded-2xl w-full max-w-xl shadow-xl max-h-[90vh] overflow-y-auto">
+        <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+          <div><h2 className="text-lg font-bold text-gray-900">Create Gift Subscription</h2><p className="text-xs text-gray-400">Manually create for any buyer</p></div>
+          <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center">✕</button>
         </div>
-        <Button onClick={loadGifts} variant="outline">
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh
-        </Button>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-              <Package className="h-3 w-3" /> Total Gifts Sold
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{totalGifts}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-              <Euro className="h-3 w-3" /> Gift Revenue
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-green-600">€{totalRevenue.toFixed(2)}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-              <CheckCircle className="h-3 w-3" /> Redeemed
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-blue-600">{redeemedCount}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-              <Clock className="h-3 w-3" /> Pending
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-amber-600">{pendingCount}</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filters */}
-      <Card>
-        <CardContent className="pt-4">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search by email, name, or code..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
-              <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="pending_payment">Pending Payment</SelectItem>
-                <SelectItem value="paid">Paid</SelectItem>
-                <SelectItem value="delivered">Delivered</SelectItem>
-                <SelectItem value="redeemed">Redeemed</SelectItem>
-                <SelectItem value="expired">Expired</SelectItem>
-                <SelectItem value="refunded">Refunded</SelectItem>
-              </SelectContent>
-            </Select>
+        <div className="p-6 space-y-4">
+          <div><label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Who is this for?</label>
+            <div className="grid grid-cols-3 gap-2">
+              {[{ k: 'mum', l: '👩 Mum' }, { k: 'dad', l: '👨 Dad' }, { k: 'partner', l: '❤️ Partner' }, { k: 'grandparent', l: '👴 Grandparent' }, { k: 'colleague', l: '💼 Colleague' }, { k: 'general', l: '🎁 General' }].map(p => (
+                <button key={p.k} onClick={() => setForm(f => ({ ...f, persona: p.k }))} className={`py-2 rounded-xl text-xs font-medium border ${form.persona === p.k ? 'bg-red-50 border-red-400 text-red-700' : 'bg-white border-gray-200 text-gray-600'}`}>{p.l}</button>
+              ))}
+            </div></div>
+          <div><label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Duration</label>
+            <div className="grid grid-cols-4 gap-2">
+              {[{ m: 1, p: 9.99 }, { m: 3, p: 28.99 }, { m: 6, p: 54.99 }, { m: 12, p: 99.90 }].map(o => (
+                <button key={o.m} onClick={() => setForm(f => ({ ...f, months: o.m, amount: o.p }))} className={`py-3 rounded-xl border ${form.months === o.m ? 'bg-red-50 border-red-400' : 'bg-white border-gray-200'}`}>
+                  <p className={`text-sm font-bold ${form.months === o.m ? 'text-red-700' : 'text-gray-900'}`}>{o.m}mo</p><p className="text-xs text-gray-400">€{o.p}</p>
+                </button>
+              ))}
+            </div></div>
+          <div><p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Buyer</p>
+            <div className="grid grid-cols-2 gap-3"><Input value={form.buyer_name} onChange={e => setForm(f => ({ ...f, buyer_name: e.target.value }))} placeholder="Buyer name *" /><Input type="email" value={form.buyer_email} onChange={e => setForm(f => ({ ...f, buyer_email: e.target.value }))} placeholder="buyer@email.com" /></div></div>
+          <div><p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Recipient</p>
+            <div className="grid grid-cols-2 gap-3"><Input value={form.recipient_name} onChange={e => setForm(f => ({ ...f, recipient_name: e.target.value }))} placeholder="Recipient name *" /><Input type="email" value={form.recipient_email} onChange={e => setForm(f => ({ ...f, recipient_email: e.target.value }))} placeholder="Recipient email" /><Input value={form.recipient_phone} onChange={e => setForm(f => ({ ...f, recipient_phone: e.target.value }))} placeholder="WhatsApp (optional)" className="col-span-2" /></div></div>
+          <div className="grid grid-cols-2 gap-3">
+            <div><label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">Language</label><div className="flex gap-1.5">{[{ c: 'en', f: '🇬🇧' }, { c: 'es', f: '🇪🇸' }, { c: 'nl', f: '🇳🇱' }].map(l => (<button key={l.c} onClick={() => setForm(f => ({ ...f, preferred_language: l.c }))} className={`flex-1 py-2 rounded-xl text-sm border ${form.preferred_language === l.c ? 'bg-red-50 border-red-400' : 'bg-white border-gray-200'}`}>{l.f}</button>))}</div></div>
+            <div><label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">Delivery</label><select value={form.delivery_method} onChange={e => setForm(f => ({ ...f, delivery_method: e.target.value }))} className="w-full h-9 px-3 rounded-lg border border-gray-200 text-sm bg-white"><option value="email">Email</option><option value="whatsapp">WhatsApp</option><option value="both">Both</option></select></div>
           </div>
-        </CardContent>
-      </Card>
+          <div><label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">Personal message</label><textarea value={form.personal_message} onChange={e => setForm(f => ({ ...f, personal_message: e.target.value }))} placeholder="Optional message from buyer..." rows={2} className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-red-500/20" /></div>
+          <label className="flex items-center gap-2 bg-gray-50 rounded-xl px-4 py-3 text-sm text-gray-700 font-medium"><input type="checkbox" checked={form.payment_status === 'paid'} onChange={e => setForm(f => ({ ...f, payment_status: e.target.checked ? 'paid' : 'unpaid' }))} className="w-4 h-4 accent-red-500" />Payment received <span className="text-xs text-gray-400">(€{form.amount})</span></label>
+        </div>
+        <div className="p-6 border-t border-gray-100 flex gap-3">
+          <Button variant="outline" onClick={onClose} className="flex-1">Cancel</Button>
+          <Button onClick={save} disabled={saving} className="flex-1 bg-red-500 hover:bg-red-600 text-white">{saving ? 'Creating...' : '🎁 Create gift'}</Button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
-      {/* Gifts Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Gift Purchases ({filteredGifts.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="flex justify-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin" />
-            </div>
-          ) : filteredGifts.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">
-              {searchQuery || statusFilter !== 'all' ? 'No gifts match your filters' : 'No gift purchases yet'}
-            </p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[800px] text-sm">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-3 px-2 font-medium">Date</th>
-                    <th className="text-left py-3 px-2 font-medium">Purchaser</th>
-                    <th className="text-left py-3 px-2 font-medium">Recipient</th>
-                    <th className="text-left py-3 px-2 font-medium">Package</th>
-                    <th className="text-right py-3 px-2 font-medium">Amount</th>
-                    <th className="text-left py-3 px-2 font-medium">Status</th>
-                    <th className="text-left py-3 px-2 font-medium">Code</th>
-                    <th className="text-right py-3 px-2 font-medium">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredGifts.map(gift => (
-                    <tr key={gift.id} className="border-b hover:bg-muted/50">
-                      <td className="py-3 px-2 whitespace-nowrap">
-                        {new Date(gift.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
-                      </td>
-                      <td className="py-3 px-2">
-                        <div className="max-w-[140px] truncate" title={gift.purchaser_email}>
-                          {gift.purchaser_name || gift.purchaser_email}
-                        </div>
-                      </td>
-                      <td className="py-3 px-2">
-                        <div className="max-w-[140px] truncate" title={gift.recipient_email}>
-                          {gift.recipient_name || gift.recipient_email}
-                        </div>
-                      </td>
-                      <td className="py-3 px-2">
-                        <Badge variant="secondary" className="text-xs">
-                          {GIFT_TYPE_LABELS[gift.gift_type] || gift.gift_type}
-                        </Badge>
-                      </td>
-                      <td className="py-3 px-2 text-right font-medium">
-                        €{Number(gift.amount_paid).toFixed(2)}
-                      </td>
-                      <td className="py-3 px-2">{getStatusBadge(gift.status)}</td>
-                      <td className="py-3 px-2">
-                        <code className="text-xs bg-muted px-1.5 py-0.5 rounded font-mono">
-                          {gift.redeem_code}
-                        </code>
-                      </td>
-                      <td className="py-3 px-2">
-                        <div className="flex items-center justify-end gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 w-7 p-0"
-                            title="Copy redeem code"
-                            onClick={() => handleCopyCode(gift.redeem_code)}
-                          >
-                            <Copy className="h-3.5 w-3.5" />
-                          </Button>
-                          {(gift.status === 'paid' || gift.status === 'delivered') && (
-                            <>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-7 w-7 p-0"
-                                title="Resend gift email"
-                                disabled={resendingId === gift.id}
-                                onClick={() => handleResendEmail(gift.id)}
-                              >
-                                {resendingId === gift.id ? (
-                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                ) : (
-                                  <Mail className="h-3.5 w-3.5" />
-                                )}
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-7 w-7 p-0 text-destructive hover:text-destructive"
-                                title="Mark as refunded"
-                                onClick={() => setRefundGiftId(gift.id)}
-                              >
-                                <DollarSign className="h-3.5 w-3.5" />
-                              </Button>
-                            </>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+// Main Page
+export default function GiftManagementPage() {
+  const [gifts, setGifts] = useState<GiftSub[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [showCreate, setShowCreate] = useState(false);
+  const [stats, setStats] = useState({ total: 0, pending: 0, sent: 0, redeemed: 0, revenue: 0, redemptionRate: 0 });
 
-      {/* Refund Confirmation Dialog */}
-      <AlertDialog open={!!refundGiftId} onOpenChange={() => setRefundGiftId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Mark gift as refunded?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will mark the gift as refunded. The recipient will no longer be able to redeem the code.
-              Make sure you have processed the actual Stripe refund separately.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={handleMarkRefunded}
-            >
-              Mark Refunded
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+  useEffect(() => { loadGifts(); }, []);
+
+  const loadGifts = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data } = await supabase.from('gift_subscriptions').select('*').order('created_at', { ascending: false });
+      const all = data || [];
+      setGifts(all);
+      const redeemable = all.filter(g => ['sent', 'redeemed', 'delivered'].includes(g.status)).length;
+      const redeemed = all.filter(g => g.status === 'redeemed').length;
+      setStats({
+        total: all.length,
+        pending: all.filter(g => g.status === 'pending').length,
+        sent: all.filter(g => g.status === 'sent').length,
+        redeemed,
+        revenue: all.filter(g => g.payment_status === 'paid').reduce((s, g) => s + (g.amount || 0), 0),
+        redemptionRate: redeemable > 0 ? Math.round((redeemed / redeemable) * 100) : 0,
+      });
+    } catch { toast.error('Failed to load'); } finally { setLoading(false); }
+  }, []);
+
+  const sendGift = async (g: GiftSub) => {
+    if (g.recipient_email) {
+      await supabase.functions.invoke('gift-send-email', { body: { gift_id: g.id, recipient_email: g.recipient_email, recipient_name: g.recipient_name, buyer_name: g.buyer_name, redemption_code: g.redemption_code, months: g.months, personal_message: g.personal_message } }).catch(() => {});
+    }
+    if (g.recipient_phone) {
+      await supabase.functions.invoke('clara-escalation', { body: { type: 'manual_invite', contact_name: g.recipient_name, contact_phone: g.recipient_phone, message: `🎁 ${g.recipient_name}, you've received a ${g.months}-month LifeLink Sync gift from ${g.buyer_name}! Redeem code: ${g.redemption_code} at lifelink-sync.com/gift/redeem` } }).catch(() => {});
+    }
+    await supabase.from('gift_subscriptions').update({ status: 'sent', sent_at: new Date().toISOString() }).eq('id', g.id);
+    toast.success(`Gift sent to ${g.recipient_name}`); loadGifts();
+  };
+
+  const markRedeemed = async (g: GiftSub) => {
+    await supabase.from('gift_subscriptions').update({ status: 'redeemed', redeemed_at: new Date().toISOString() }).eq('id', g.id);
+    toast.success('Marked redeemed'); loadGifts();
+  };
+
+  const markRefunded = async (g: GiftSub) => { if (!confirm('Refund?')) return; await supabase.from('gift_subscriptions').update({ status: 'refunded', payment_status: 'refunded' }).eq('id', g.id); toast.success('Refunded'); loadGifts(); };
+  const deleteGift = async (id: string) => { if (!confirm('Delete?')) return; await supabase.from('gift_subscriptions').delete().eq('id', id); toast.success('Deleted'); loadGifts(); };
+  const copyCode = (code: string) => { navigator.clipboard.writeText(code); toast.success('Code copied'); };
+
+  const filtered = gifts.filter(g => {
+    if (statusFilter !== 'all' && g.status !== statusFilter) return false;
+    if (search) { const s = search.toLowerCase(); return g.buyer_name?.toLowerCase().includes(s) || g.recipient_name?.toLowerCase().includes(s) || g.redemption_code?.toLowerCase().includes(s) || g.recipient_email?.toLowerCase().includes(s); }
+    return true;
+  });
+
+  return (
+    <div className="p-6 max-w-7xl mx-auto w-full">
+      <div className="flex items-start justify-between mb-6">
+        <div><h1 className="text-2xl font-bold text-gray-900">Gift Subscriptions</h1><p className="text-gray-400 text-sm mt-0.5">Manage gifts, track redemptions, send delivery messages</p></div>
+        <div className="flex gap-2">
+          <Button onClick={() => setShowCreate(true)} className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white text-sm"><Plus className="w-4 h-4" />Create gift</Button>
+          <Button onClick={loadGifts} variant="outline" className="flex items-center gap-2 text-sm"><RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />Refresh</Button>
+        </div>
+      </div>
+
+      {stats.pending > 0 && (
+        <div className="flex items-center gap-3 bg-amber-50 border border-amber-300 rounded-2xl px-5 py-3.5 mb-6">
+          <Clock className="w-5 h-5 text-amber-600" /><p className="text-sm text-amber-800"><strong>{stats.pending} gift{stats.pending !== 1 ? 's' : ''}</strong> waiting to be sent</p>
+          <button onClick={() => setStatusFilter('pending')} className="ml-auto text-xs font-bold text-amber-700">View pending →</button>
+        </div>
+      )}
+
+      <div className="grid grid-cols-6 gap-4 mb-6">
+        {[
+          { label: 'Total', value: stats.total, icon: Gift, color: 'purple' },
+          { label: 'Pending', value: stats.pending, icon: Clock, color: 'amber' },
+          { label: 'Sent', value: stats.sent, icon: Send, color: 'blue' },
+          { label: 'Redeemed', value: stats.redeemed, icon: CheckCircle, color: 'green' },
+          { label: 'Revenue', value: fmt(stats.revenue), icon: CreditCard, color: 'green' },
+          { label: 'Redemption', value: `${stats.redemptionRate}%`, icon: TrendingUp, color: 'blue' },
+        ].map(s => (
+          <div key={s.label} className="bg-white border border-gray-200 rounded-2xl p-4">
+            <div className="flex items-center justify-between mb-2"><span className="text-xs font-semibold uppercase tracking-widest text-gray-400">{s.label}</span><s.icon className={`w-4 h-4 text-${s.color}-500`} /></div>
+            <p className="text-xl font-bold text-gray-900">{loading ? '—' : s.value}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex items-center gap-3 mb-5 flex-wrap">
+        <div className="relative flex-1 min-w-48"><Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" /><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name, email or code..." className="w-full h-9 pl-8 pr-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20" /></div>
+        {['all', 'pending', 'sent', 'redeemed', 'expired', 'refunded'].map(s => (
+          <button key={s} onClick={() => setStatusFilter(s)} className={`px-3 py-2 rounded-xl text-xs font-medium border capitalize ${statusFilter === s ? 'bg-red-500 text-white border-red-500' : 'bg-white text-gray-600 border-gray-200'}`}>{s}</button>
+        ))}
+        <span className="text-xs text-gray-400 ml-auto">{filtered.length} gift{filtered.length !== 1 ? 's' : ''}</span>
+      </div>
+
+      {loading ? <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">{[...Array(8)].map((_, i) => <div key={i} className="h-56 bg-gray-50 rounded-2xl animate-pulse" />)}</div> :
+        filtered.length === 0 ? <div className="text-center py-20"><Gift className="w-10 h-10 text-gray-200 mx-auto mb-3" /><p className="text-gray-400 font-medium">No gifts found</p><button onClick={() => setShowCreate(true)} className="mt-4 px-4 py-2 bg-red-500 text-white rounded-xl text-sm font-medium hover:bg-red-600">Create first gift</button></div> :
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {filtered.map(g => {
+            const cfg = STATUS_CFG[g.status] || STATUS_CFG.pending;
+            return (
+              <div key={g.id} className={`bg-white border rounded-2xl p-5 hover:shadow-md transition-all ${g.status === 'pending' ? 'border-amber-300' : g.status === 'redeemed' ? 'border-green-200' : 'border-gray-200'}`}>
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center text-xl">{EMOJI[g.persona] || '🎁'}</div>
+                    <div><p className="font-bold text-gray-900 text-sm">For {g.recipient_name}</p><p className="text-xs text-gray-400">from {g.buyer_name}</p></div>
+                  </div>
+                  <div className="flex gap-1">
+                    {g.status !== 'redeemed' && <button onClick={() => markRedeemed(g)} className="w-6 h-6 rounded hover:bg-green-50 flex items-center justify-center" title="Mark redeemed"><Check className="w-3 h-3 text-green-500" /></button>}
+                    <button onClick={() => deleteGift(g.id)} className="w-6 h-6 rounded hover:bg-red-50 flex items-center justify-center" title="Delete"><Trash2 className="w-3 h-3 text-red-400" /></button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between bg-gray-50 rounded-xl px-3 py-2 mb-3">
+                  <div><p className="text-xs text-gray-400 mb-0.5">Code</p><p className="font-mono font-bold text-gray-900 text-sm tracking-wider">{g.redemption_code || '—'}</p></div>
+                  <button onClick={() => copyCode(g.redemption_code)} className="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-100"><Copy className="w-3.5 h-3.5 text-gray-400" /></button>
+                </div>
+
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-sm font-bold text-gray-900">{fmt(g.amount)} · {g.months}mo</span>
+                  <span className="text-sm">{FLAGS[g.preferred_language] || '🇬🇧'}</span>
+                </div>
+
+                <div className="flex items-center gap-2 mb-3">
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cfg.color}`}>{cfg.label}</span>
+                  {g.personal_message && <span className="text-xs text-gray-400 italic truncate">"{g.personal_message.slice(0, 25)}..."</span>}
+                </div>
+
+                {g.status === 'redeemed' && g.redeemed_at && <div className="flex items-center gap-1.5 text-xs text-green-600 bg-green-50 rounded-lg px-2.5 py-1.5 mb-3"><CheckCircle className="w-3.5 h-3.5" />Redeemed {timeAgo(g.redeemed_at)}</div>}
+                <p className="text-xs text-gray-400 mb-3">Created {timeAgo(g.created_at)}{g.sent_at ? ` · Sent ${timeAgo(g.sent_at)}` : ''}</p>
+
+                {g.status === 'pending' && <button onClick={() => sendGift(g)} className="w-full flex items-center justify-center gap-1.5 py-2 text-xs font-medium bg-red-500 text-white rounded-xl hover:bg-red-600"><Send className="w-3.5 h-3.5" />Send gift now</button>}
+                {g.status === 'sent' && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <button onClick={() => sendGift(g)} className="flex items-center justify-center gap-1.5 py-2 text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 rounded-xl hover:bg-blue-100"><Send className="w-3.5 h-3.5" />Resend</button>
+                    <button onClick={() => markRedeemed(g)} className="flex items-center justify-center gap-1.5 py-2 text-xs font-medium bg-green-50 text-green-700 border border-green-200 rounded-xl hover:bg-green-100"><Check className="w-3.5 h-3.5" />Redeemed</button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>}
+
+      {showCreate && <CreateModal onClose={() => setShowCreate(false)} onCreated={loadGifts} />}
     </div>
   );
 }
