@@ -160,7 +160,7 @@ export default function FamilyAccountsPage() {
   const filteredInvites = invites.filter(i => !search || i.invitee_name.toLowerCase().includes(search.toLowerCase()) || i.invitee_email?.toLowerCase().includes(search.toLowerCase()) || i.inviter_email.toLowerCase().includes(search.toLowerCase()));
 
   return (
-    <div className="p-6 max-w-7xl mx-auto w-full">
+    <div className="px-8 py-6 w-full">
       <div className="flex items-start justify-between mb-6">
         <div><h1 className="text-2xl font-bold text-gray-900">Family Accounts</h1><p className="text-gray-400 text-sm mt-0.5">Manage family circles and invitations</p></div>
         <div className="flex gap-2">

@@ -178,7 +178,7 @@ export default function SystemSettingsPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">System Settings</h1>
+          <h1 className="text-2xl font-bold">System Settings</h1>
           <p className="text-muted-foreground">Loading system configuration...</p>
         </div>
       </div>
@@ -189,7 +189,7 @@ export default function SystemSettingsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">System Settings</h1>
+          <h1 className="text-2xl font-bold">System Settings</h1>
           <p className="text-muted-foreground">Configure system-wide settings and monitor health</p>
         </div>
       </div>

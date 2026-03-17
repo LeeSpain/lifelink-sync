@@ -178,7 +178,7 @@ Icons: fire, target, clock, trending-up, alert, zap`,
 
   if (loading) {
     return (
-      <div className="p-6 max-w-7xl mx-auto w-full flex items-center justify-center min-h-[60vh]">
+      <div className="px-8 py-6 w-full flex items-center justify-center min-h-[60vh]">
         <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
       </div>
     );
@@ -206,7 +206,7 @@ Icons: fire, target, clock, trending-up, alert, zap`,
   );
 
   return (
-    <div className="p-6 max-w-7xl mx-auto w-full">
+    <div className="px-8 py-6 w-full">
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>

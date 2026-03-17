@@ -509,7 +509,7 @@ export default function CommunicationPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Unified Communication Center</h1>
+        <h1 className="text-2xl font-bold">Unified Communication Center</h1>
         <p className="text-muted-foreground">Manage all customer communications in one place</p>
       </div>
 

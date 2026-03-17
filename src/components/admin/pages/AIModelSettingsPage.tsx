@@ -240,7 +240,7 @@ export default function AIModelSettingsPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">AI Model Settings</h1>
+          <h1 className="text-2xl font-bold">AI Model Settings</h1>
           <p className="text-muted-foreground">Loading settings...</p>
         </div>
       </div>
@@ -251,7 +251,7 @@ export default function AIModelSettingsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">⚙️ AI Model Settings</h1>
+          <h1 className="text-2xl font-bold">⚙️ AI Model Settings</h1>
           <p className="text-muted-foreground">Configure advanced AI model parameters and behavior</p>
         </div>
         <div className="flex gap-2">

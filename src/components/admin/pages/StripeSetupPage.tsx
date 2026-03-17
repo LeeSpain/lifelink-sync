@@ -40,7 +40,7 @@ export default function StripeSetupPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Stripe Account Setup</h1>
+        <h1 className="text-2xl font-bold">Stripe Account Setup</h1>
         <p className="text-muted-foreground">
           Set up your new Stripe account with all products and services
         </p>

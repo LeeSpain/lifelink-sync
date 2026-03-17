@@ -80,7 +80,7 @@ const RegionalHubPage = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">{t('admin.regionalManagement')}</h1>
+          <h1 className="text-2xl font-bold">{t('admin.regionalManagement')}</h1>
           <p className="text-muted-foreground">
             {t('admin.regionalManagementDescription')}
           </p>

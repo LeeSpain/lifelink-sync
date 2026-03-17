@@ -144,7 +144,7 @@ export default function QualityAssuranceDashboard({ isOpen, onClose }: QualityAs
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold">Quality Assurance Dashboard</h1>
+              <h1 className="text-2xl font-bold">Quality Assurance Dashboard</h1>
               <p className="text-muted-foreground">Monitor content quality and publishing performance</p>
             </div>
             <div className="flex gap-2">

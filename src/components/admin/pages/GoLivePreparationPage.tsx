@@ -144,7 +144,7 @@ export default function GoLivePreparationPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Go-Live Preparation</h1>
+          <h1 className="text-2xl font-bold">Go-Live Preparation</h1>
           <p className="text-muted-foreground">Final checks and launch preparation for production</p>
         </div>
         <Badge variant="outline" className="gap-2">

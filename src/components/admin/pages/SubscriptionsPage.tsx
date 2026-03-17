@@ -247,7 +247,7 @@ export default function SubscriptionsPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Revenue Analytics</h1>
+          <h1 className="text-2xl font-bold">Revenue Analytics</h1>
           <p className="text-muted-foreground">Loading revenue data...</p>
         </div>
         <div className="flex items-center justify-center h-64">
@@ -261,7 +261,7 @@ export default function SubscriptionsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Revenue Analytics</h1>
+          <h1 className="text-2xl font-bold">Revenue Analytics</h1>
           <p className="text-muted-foreground">Real Stripe payment data and subscription metrics</p>
         </div>
         <Button 

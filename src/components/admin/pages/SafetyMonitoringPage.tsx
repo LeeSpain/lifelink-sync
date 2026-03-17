@@ -279,7 +279,7 @@ const SafetyMonitoringPage = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Safety Monitoring</h1>
+          <h1 className="text-2xl font-bold text-foreground">Safety Monitoring</h1>
           <p className="text-muted-foreground">Family safety dashboard and real-time monitoring</p>
         </div>
         <Button onClick={loadFamilyGroups} variant="outline">

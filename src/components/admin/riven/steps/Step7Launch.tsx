@@ -43,7 +43,7 @@ export function Step7Launch({
           </div>
         </div>
         <div>
-          <h2 className="text-xl font-bold">
+          <h2 className="text-base font-semibold">
             {duration === 1 ? "Post Created!" : "Campaign Launched!"}
           </h2>
           <p className="text-muted-foreground mt-1">

@@ -121,7 +121,7 @@ export default function MobileAppLaunchPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Mobile App Launch</h1>
+          <h1 className="text-2xl font-bold">Mobile App Launch</h1>
           <p className="text-muted-foreground">Deploy your mobile app to iOS App Store and Google Play</p>
         </div>
         <Badge variant="outline" className="gap-2">

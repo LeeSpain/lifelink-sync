@@ -184,7 +184,7 @@ export default function ConstitutionPage() {
     return (
       <div className="space-y-8">
         <div>
-          <h1 className="text-4xl font-bold tracking-tight">CLARA's Constitution</h1>
+          <h1 className="text-2xl font-bold tracking-tight">CLARA's Constitution</h1>
           <p className="text-muted-foreground mt-2">Loading...</p>
         </div>
       </div>
@@ -197,7 +197,7 @@ export default function ConstitutionPage() {
         <div className="flex items-center gap-3">
           <Shield className="h-8 w-8 text-primary" />
           <div>
-            <h1 className="text-4xl font-bold tracking-tight">CLARA's Constitution</h1>
+            <h1 className="text-2xl font-bold tracking-tight">CLARA's Constitution</h1>
             <p className="text-muted-foreground mt-1">
               CLARA's unbreakable laws governing all behaviour across every channel. Changes take effect within 5 minutes.
             </p>

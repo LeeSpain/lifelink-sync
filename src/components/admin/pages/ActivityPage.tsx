@@ -132,7 +132,7 @@ export default function ActivityPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">User Activity</h1>
+          <h1 className="text-2xl font-bold">User Activity</h1>
           <p className="text-muted-foreground">Loading activity data...</p>
         </div>
       </div>
@@ -143,7 +143,7 @@ export default function ActivityPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">User Activity</h1>
+          <h1 className="text-2xl font-bold">User Activity</h1>
           <p className="text-muted-foreground">Monitor user actions and engagement</p>
         </div>
       </div>

@@ -267,7 +267,7 @@ export const ContactTimelineViewer: React.FC<ContactTimelineViewerProps> = ({
               <div className="p-5">
                 <div className="flex items-start gap-4">
                   {/* Icon */}
-                  <div className="text-3xl flex-shrink-0">
+                  <div className="text-2xl flex-shrink-0">
                     {eventIcons[event.eventType] || '📌'}
                   </div>
 
@@ -360,7 +360,7 @@ export const ContactTimelineViewer: React.FC<ContactTimelineViewerProps> = ({
             <div className="p-6 border-b sticky top-0 bg-white">
               <div className="flex items-start justify-between">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">
+                  <h2 className="text-base font-semibold text-gray-900">
                     {selectedEvent.eventTitle}
                   </h2>
                   <p className="text-sm text-gray-500 mt-1">

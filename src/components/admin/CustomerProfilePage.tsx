@@ -227,7 +227,7 @@ const CustomerProfilePage: React.FC = () => {
             Back
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">{fullName}</h1>
+            <h1 className="text-2xl font-bold tracking-tight">{fullName}</h1>
             <p className="text-muted-foreground">Customer ID: {customer.user_id.slice(0, 8)}...</p>
           </div>
         </div>

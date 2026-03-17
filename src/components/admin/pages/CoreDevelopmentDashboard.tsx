@@ -198,7 +198,7 @@ export const CoreDevelopmentDashboard: React.FC = () => {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Core Development Dashboard</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Core Development Dashboard</h1>
           <p className="text-muted-foreground">
             Monitor production systems, emergency workflows, and mobile app readiness
           </p>
@@ -460,15 +460,15 @@ export const CoreDevelopmentDashboard: React.FC = () => {
               <CardContent>
                 <div className="space-y-4">
                   <div className="text-center">
-                    <div className="text-3xl font-bold">99.9%</div>
+                    <div className="text-2xl font-bold">99.9%</div>
                     <p className="text-sm text-muted-foreground">Uptime</p>
                   </div>
                   <div className="text-center">
-                    <div className="text-3xl font-bold">&lt;200ms</div>
+                    <div className="text-2xl font-bold">&lt;200ms</div>
                     <p className="text-sm text-muted-foreground">Avg Response Time</p>
                   </div>
                   <div className="text-center">
-                    <div className="text-3xl font-bold">1,247</div>
+                    <div className="text-2xl font-bold">1,247</div>
                     <p className="text-sm text-muted-foreground">Active Users</p>
                   </div>
                 </div>

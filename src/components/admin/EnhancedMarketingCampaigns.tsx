@@ -364,7 +364,7 @@ export const EnhancedMarketingCampaigns: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+          <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             Marketing Campaigns
           </h1>
           <p className="text-muted-foreground">
@@ -427,7 +427,7 @@ export const EnhancedMarketingCampaigns: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="space-y-2">
                 <p className="text-sm font-medium text-blue-700">Total Campaigns</p>
-                <p className="text-3xl font-bold text-blue-900">{campaigns.length}</p>
+                <p className="text-2xl font-bold text-blue-900">{campaigns.length}</p>
                 <p className="text-xs text-blue-600">All time</p>
               </div>
               <div className="h-12 w-12 bg-blue-500/20 rounded-full flex items-center justify-center">
@@ -442,7 +442,7 @@ export const EnhancedMarketingCampaigns: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="space-y-2">
                 <p className="text-sm font-medium text-green-700">Active Now</p>
-                <p className="text-3xl font-bold text-green-900">
+                <p className="text-2xl font-bold text-green-900">
                   {campaigns.filter(c => c.status === 'running' || c.status === 'active').length}
                 </p>
                 <p className="text-xs text-green-600">Currently running</p>
@@ -459,7 +459,7 @@ export const EnhancedMarketingCampaigns: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="space-y-2">
                 <p className="text-sm font-medium text-purple-700">Total Content</p>
-                <p className="text-3xl font-bold text-purple-900">
+                <p className="text-2xl font-bold text-purple-900">
                   {campaigns.reduce((sum, c) => sum + (c.content_count || 0), 0)}
                 </p>
                 <p className="text-xs text-purple-600">Pieces generated</p>
@@ -476,7 +476,7 @@ export const EnhancedMarketingCampaigns: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="space-y-2">
                 <p className="text-sm font-medium text-orange-700">Blog Articles</p>
-                <p className="text-3xl font-bold text-orange-900">
+                <p className="text-2xl font-bold text-orange-900">
                   {campaigns.reduce((sum, c) => sum + (c.blog_count || 0), 0)}
                 </p>
                 <p className="text-xs text-orange-600">Published content</p>
@@ -493,7 +493,7 @@ export const EnhancedMarketingCampaigns: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="space-y-2">
                 <p className="text-sm font-medium text-teal-700">Social Posts</p>
-                <p className="text-3xl font-bold text-teal-900">
+                <p className="text-2xl font-bold text-teal-900">
                   {campaigns.reduce((sum, c) => sum + (c.social_count || 0), 0)}
                 </p>
                 <p className="text-xs text-teal-600">Cross-platform</p>
@@ -651,7 +651,7 @@ export const EnhancedMarketingCampaigns: React.FC = () => {
                 <Target className="h-12 w-12 text-primary/40" />
               </div>
               <div className="space-y-2">
-                <h3 className="text-xl font-semibold">No campaigns found</h3>
+                <h3 className="text-base font-semibold">No campaigns found</h3>
                 <p className="text-muted-foreground">
                   {searchTerm || statusFilter !== 'all' 
                     ? 'Try adjusting your search criteria or filters to find what you\'re looking for.'

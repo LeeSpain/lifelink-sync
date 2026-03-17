@@ -226,7 +226,7 @@ const AIPerformancePage: React.FC = () => {
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">AI Performance</h1>
+          <h1 className="text-2xl font-bold tracking-tight">AI Performance</h1>
           <p className="text-muted-foreground">Monitor and optimize AI model performance and effectiveness</p>
         </div>
         <div className="flex gap-2">
@@ -493,7 +493,7 @@ const AIPerformancePage: React.FC = () => {
                     <CardTitle className="text-lg">Total Training Samples</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold">{trainingData.length}</div>
+                    <div className="text-2xl font-bold">{trainingData.length}</div>
                   </CardContent>
                 </Card>
                 <Card>
@@ -501,7 +501,7 @@ const AIPerformancePage: React.FC = () => {
                     <CardTitle className="text-lg">Accuracy Rate</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold">
+                    <div className="text-2xl font-bold">
                       {((trainingData.filter(d => d.is_correct).length / trainingData.length) * 100).toFixed(1)}%
                     </div>
                   </CardContent>
@@ -511,7 +511,7 @@ const AIPerformancePage: React.FC = () => {
                     <CardTitle className="text-lg">Avg Confidence</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold">
+                    <div className="text-2xl font-bold">
                       {(trainingData.reduce((acc, d) => acc + (d.confidence_score || 0), 0) / trainingData.length).toFixed(1)}%
                     </div>
                   </CardContent>

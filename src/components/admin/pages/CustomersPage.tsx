@@ -186,7 +186,7 @@ export default function CustomersPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Customer Management</h1>
+          <h1 className="text-2xl font-bold">Customer Management</h1>
           <p className="text-muted-foreground">Loading customers...</p>
         </div>
       </div>
@@ -197,7 +197,7 @@ export default function CustomersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
+          <h1 className="text-2xl font-bold tracking-tight flex items-center gap-3">
             <Users className="h-8 w-8 text-primary" />
             Customer Management
           </h1>

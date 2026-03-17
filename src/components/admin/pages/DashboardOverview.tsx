@@ -189,7 +189,7 @@ export default function DashboardOverview() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold tracking-tight">Dashboard Overview</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Dashboard Overview</h1>
           <p className="text-muted-foreground mt-2">
             Comprehensive analytics and insights for LifeLink Sync Platform
           </p>

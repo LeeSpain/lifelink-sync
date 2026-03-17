@@ -206,7 +206,7 @@ const LeadsPage: React.FC = () => {
   const totalDealValue = leads.reduce((sum, lead) => sum + (lead.deal_value || 0), 0);
 
   return (
-    <div className="p-6 max-w-7xl mx-auto w-full space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Lead Management</h1>

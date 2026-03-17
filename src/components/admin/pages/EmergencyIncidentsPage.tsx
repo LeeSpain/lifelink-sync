@@ -287,7 +287,7 @@ const EmergencyIncidentsPage = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Emergency Incidents</h1>
+          <h1 className="text-2xl font-bold text-foreground">Emergency Incidents</h1>
           <p className="text-muted-foreground">Real-time emergency event monitoring and management</p>
         </div>
         <Button 

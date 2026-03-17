@@ -318,7 +318,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
       {/* Enhanced Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             Advanced Analytics Dashboard
           </h2>
           <p className="text-muted-foreground">
@@ -416,7 +416,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="space-y-2">
                 <p className="text-sm font-medium text-blue-700">Total Views</p>
-                <p className="text-3xl font-bold text-blue-900">
+                <p className="text-2xl font-bold text-blue-900">
                   {formatNumber(analyticsData.totalViews)}
                 </p>
                 <div className="flex items-center space-x-1">
@@ -437,7 +437,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="space-y-2">
                 <p className="text-sm font-medium text-green-700">Engagement</p>
-                <p className="text-3xl font-bold text-green-900">
+                <p className="text-2xl font-bold text-green-900">
                   {formatNumber(analyticsData.totalEngagement)}
                 </p>
                 <div className="flex items-center space-x-1">
@@ -458,7 +458,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="space-y-2">
                 <p className="text-sm font-medium text-purple-700">Clicks</p>
-                <p className="text-3xl font-bold text-purple-900">
+                <p className="text-2xl font-bold text-purple-900">
                   {formatNumber(analyticsData.totalClicks)}
                 </p>
                 <div className="flex items-center space-x-1">
@@ -479,7 +479,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="space-y-2">
                 <p className="text-sm font-medium text-orange-700">Conversion Rate</p>
-                <p className="text-3xl font-bold text-orange-900">
+                <p className="text-2xl font-bold text-orange-900">
                   {analyticsData.conversionRate.toFixed(1)}%
                 </p>
                 <div className="flex items-center space-x-1">

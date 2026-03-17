@@ -118,7 +118,7 @@ export default function UserGrowthPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">User Growth Analytics</h1>
+          <h1 className="text-2xl font-bold">User Growth Analytics</h1>
           <p className="text-muted-foreground">Loading growth data...</p>
         </div>
       </div>
@@ -129,7 +129,7 @@ export default function UserGrowthPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">📈 User Growth Analytics</h1>
+          <h1 className="text-2xl font-bold">📈 User Growth Analytics</h1>
           <p className="text-muted-foreground">Track user acquisition and growth trends</p>
         </div>
         <Button variant="outline">
@@ -145,7 +145,7 @@ export default function UserGrowthPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-blue-600">Total Users</p>
-                <p className="text-3xl font-bold text-blue-900">{growthData.totalUsers}</p>
+                <p className="text-2xl font-bold text-blue-900">{growthData.totalUsers}</p>
                 <div className="flex items-center mt-2">
                   <Users className="h-4 w-4 text-blue-600 mr-1" />
                   <span className="text-sm text-blue-600">All time</span>
@@ -161,7 +161,7 @@ export default function UserGrowthPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-green-600">New This Month</p>
-                <p className="text-3xl font-bold text-green-900">{growthData.newUsersThisMonth}</p>
+                <p className="text-2xl font-bold text-green-900">{growthData.newUsersThisMonth}</p>
                 <div className="flex items-center mt-2">
                   <UserPlus className="h-4 w-4 text-green-600 mr-1" />
                   <span className="text-sm text-green-600">
@@ -179,7 +179,7 @@ export default function UserGrowthPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-purple-600">Active Subscribers</p>
-                <p className="text-3xl font-bold text-purple-900">{growthData.activeUsers}</p>
+                <p className="text-2xl font-bold text-purple-900">{growthData.activeUsers}</p>
                 <div className="flex items-center mt-2">
                   <TrendingUp className="h-4 w-4 text-purple-600 mr-1" />
                   <span className="text-sm text-purple-600">
@@ -197,7 +197,7 @@ export default function UserGrowthPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-orange-600">Growth Rate</p>
-                <p className="text-3xl font-bold text-orange-900">
+                <p className="text-2xl font-bold text-orange-900">
                   {growthData.growthRate > 0 ? '+' : ''}{growthData.growthRate.toFixed(1)}%
                 </p>
                 <div className="flex items-center mt-2">

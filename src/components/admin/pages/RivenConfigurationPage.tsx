@@ -274,7 +274,7 @@ export default function RivenConfigurationPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Riven Configuration</h1>
+          <h1 className="text-2xl font-bold">Riven Configuration</h1>
           <p className="text-muted-foreground">Loading configuration...</p>
         </div>
       </div>
@@ -285,7 +285,7 @@ export default function RivenConfigurationPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">🤖 Riven Configuration</h1>
+          <h1 className="text-2xl font-bold">🤖 Riven Configuration</h1>
           <p className="text-muted-foreground">Configure Riven's AI behavior, brand voice, and content generation preferences</p>
         </div>
         <div className="flex gap-2">

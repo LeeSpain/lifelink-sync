@@ -43,7 +43,7 @@ export function CampaignDashboard({
       {/* Campaign header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold">{campaign.title}</h2>
+          <h2 className="text-base font-semibold">{campaign.title}</h2>
           <div className="flex items-center gap-2 mt-1">
             <Badge variant={isPaused ? "secondary" : "default"}>
               {campaign.status}
@@ -175,7 +175,7 @@ function StatCard({
 
   return (
     <Card className="p-3 text-center">
-      <p className={`text-xl font-bold ${textColor}`}>{value}</p>
+      <p className={`text-base font-semibold ${textColor}`}>{value}</p>
       <p className="text-xs text-muted-foreground">{label}</p>
     </Card>
   );

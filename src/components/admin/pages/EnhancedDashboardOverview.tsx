@@ -167,7 +167,7 @@ export default function EnhancedDashboardOverview() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
 
       {/* ── HEADER BAR ── */}
       <div className="bg-gray-900 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -223,7 +223,7 @@ export default function EnhancedDashboardOverview() {
                     <span className="text-xs font-semibold uppercase tracking-widest text-gray-400">{t.label}</span>
                     <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${iconBg}`}><Icon className={`w-4 h-4 ${iconColor}`} /></div>
                   </div>
-                  <p className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 tracking-tight">{t.value}</p>
+                  <p className="text-2xl sm:text-2xl font-bold text-gray-900 mb-1 tracking-tight">{t.value}</p>
                   <p className="text-xs text-gray-400">{t.sub}</p>
                 </div>
               );

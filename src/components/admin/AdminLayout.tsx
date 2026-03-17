@@ -428,7 +428,7 @@ export default function AdminLayout() {
           </header>
           <main className="flex-1 overflow-y-auto min-w-0 bg-gray-50">
             {/* Security reminder for Supabase Auth hardening */}
-            <div className="px-6 pt-4">
+            <div className="px-8 pt-4">
               <SupabaseSecurityReminder />
             </div>
             <Outlet />

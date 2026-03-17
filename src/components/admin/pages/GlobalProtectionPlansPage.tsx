@@ -409,7 +409,7 @@ const GlobalProtectionPlansPage = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Global Protection Plans</h1>
+          <h1 className="text-2xl font-bold">Global Protection Plans</h1>
           <p className="text-muted-foreground">Manage subscription pricing and plan features</p>
         </div>
         <Dialog open={showCreateDialog} onOpenChange={(open) => {

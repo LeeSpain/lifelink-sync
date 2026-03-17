@@ -235,7 +235,7 @@ export default function SubscriptionPlansPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Subscription Plans</h1>
+          <h1 className="text-2xl font-bold">Subscription Plans</h1>
           <p className="text-muted-foreground">Loading subscription plans...</p>
         </div>
       </div>
@@ -246,7 +246,7 @@ export default function SubscriptionPlansPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Subscription Plans</h1>
+          <h1 className="text-2xl font-bold">Subscription Plans</h1>
           <p className="text-muted-foreground">Manage subscription plans and pricing</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

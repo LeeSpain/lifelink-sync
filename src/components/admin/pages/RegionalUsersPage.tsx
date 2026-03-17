@@ -169,7 +169,7 @@ const RegionalUsersPage = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Regional Users</h1>
+          <h1 className="text-2xl font-bold">Regional Users</h1>
           <p className="text-muted-foreground">
             Manage operators and supervisors for regional organizations
           </p>

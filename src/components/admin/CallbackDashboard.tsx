@@ -233,19 +233,19 @@ export const CallbackDashboard: React.FC = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
           <div className="bg-blue-50 rounded-lg p-4">
             <p className="text-blue-700 text-xs uppercase font-semibold">Pending Now</p>
-            <p className="text-3xl font-bold text-blue-900 mt-1">{stats.pending}</p>
+            <p className="text-2xl font-bold text-blue-900 mt-1">{stats.pending}</p>
           </div>
           <div className="bg-green-50 rounded-lg p-4">
             <p className="text-green-700 text-xs uppercase font-semibold">Completed Today</p>
-            <p className="text-3xl font-bold text-green-900 mt-1">{stats.completedToday}</p>
+            <p className="text-2xl font-bold text-green-900 mt-1">{stats.completedToday}</p>
           </div>
           <div className="bg-purple-50 rounded-lg p-4">
             <p className="text-purple-700 text-xs uppercase font-semibold">Total Today</p>
-            <p className="text-3xl font-bold text-purple-900 mt-1">{stats.totalToday}</p>
+            <p className="text-2xl font-bold text-purple-900 mt-1">{stats.totalToday}</p>
           </div>
           <div className="bg-orange-50 rounded-lg p-4">
             <p className="text-orange-700 text-xs uppercase font-semibold">Avg Response</p>
-            <p className="text-3xl font-bold text-orange-900 mt-1">
+            <p className="text-2xl font-bold text-orange-900 mt-1">
               {formatTime(stats.avgResponseTime)}
             </p>
           </div>
@@ -355,7 +355,7 @@ export const CallbackDashboard: React.FC = () => {
             <div className="p-6 border-b sticky top-0 bg-white">
               <div className="flex items-start justify-between">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">
+                  <h2 className="text-base font-semibold text-gray-900">
                     {selectedCallback.contactName}
                   </h2>
                   <p className="text-sm text-gray-500 mt-1">

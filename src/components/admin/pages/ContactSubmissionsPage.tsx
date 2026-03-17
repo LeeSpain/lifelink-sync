@@ -175,7 +175,7 @@ export default function ContactSubmissionsPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Contact Submissions</h1>
+          <h1 className="text-2xl font-bold">Contact Submissions</h1>
           <p className="text-muted-foreground">Loading contact submissions...</p>
         </div>
       </div>
@@ -186,7 +186,7 @@ export default function ContactSubmissionsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Contact Submissions</h1>
+          <h1 className="text-2xl font-bold">Contact Submissions</h1>
           <p className="text-muted-foreground">Manage and respond to customer inquiries</p>
         </div>
       </div>

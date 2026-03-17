@@ -300,7 +300,7 @@ const BlogManagementPage = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-3">
+          <h1 className="text-2xl font-bold flex items-center gap-3">
             <BookOpen className="h-8 w-8 text-primary" />
             Blog Management
           </h1>
@@ -366,7 +366,7 @@ const BlogManagementPage = () => {
                       </Badge>
                     )}
                   </div>
-                  <CardTitle className="text-xl">
+                  <CardTitle className="text-base">
                     {post.seo_title || post.title || 'Untitled Post'}
                   </CardTitle>
                   <p className="text-muted-foreground mt-2">
@@ -403,7 +403,7 @@ const BlogManagementPage = () => {
                       </DialogHeader>
                       <div className="space-y-4">
                         <div className="border-b pb-4">
-                          <h1 className="text-3xl font-bold mb-2">
+                          <h1 className="text-2xl font-bold mb-2">
                             {selectedPost?.seo_title || selectedPost?.title}
                           </h1>
                           <p className="text-muted-foreground">
@@ -471,7 +471,7 @@ const BlogManagementPage = () => {
         <Card className="text-center py-12">
           <CardContent>
             <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2">No blog posts found</h3>
+            <h3 className="text-base font-semibold mb-2">No blog posts found</h3>
             <p className="text-muted-foreground">
               {searchTerm || statusFilter !== 'all' 
                 ? 'Try adjusting your search or filters'

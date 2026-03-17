@@ -346,7 +346,7 @@ const ProfessionalSocialHub: React.FC<{ onAccountsUpdate?: () => void }> = ({
       {/* Enhanced Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             Professional Social Hub
           </h2>
           <p className="text-muted-foreground">

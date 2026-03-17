@@ -351,7 +351,7 @@ export default function ReferralAdminPage() {
   });
 
   return (
-    <div className="p-6 max-w-7xl mx-auto w-full">
+    <div className="px-8 py-6 w-full">
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>

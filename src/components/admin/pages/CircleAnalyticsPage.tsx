@@ -94,7 +94,7 @@ export default function CircleAnalyticsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Circle Analytics</h1>
+          <h1 className="text-2xl font-bold text-foreground">Circle Analytics</h1>
           <p className="text-muted-foreground">Family group insights and member activity</p>
         </div>
         <Button onClick={loadAnalytics} disabled={loading} variant="outline">

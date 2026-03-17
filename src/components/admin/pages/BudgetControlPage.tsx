@@ -135,7 +135,7 @@ export default function BudgetControlPage() {
         <div className="flex items-center gap-3">
           <DollarSign className="h-8 w-8 text-primary" />
           <div>
-            <h1 className="text-4xl font-bold tracking-tight">Budget Control</h1>
+            <h1 className="text-2xl font-bold tracking-tight">Budget Control</h1>
             <p className="text-muted-foreground mt-1">
               CLARA's spending limits. She checks these before any campaign or outreach.
             </p>

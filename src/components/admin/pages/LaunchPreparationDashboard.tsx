@@ -352,7 +352,7 @@ export default function LaunchPreparationDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Launch Preparation</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Launch Preparation</h1>
           <p className="text-muted-foreground">
             Final preparation for LifeLink Sync production launch
           </p>

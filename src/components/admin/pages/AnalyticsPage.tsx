@@ -176,7 +176,7 @@ const AnalyticsPage = () => {
       <div className="space-y-4 md:space-y-6 p-4 md:p-0 overflow-x-hidden">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Analytics Dashboard</h1>
+          <h1 className="text-2xl md:text-2xl font-bold tracking-tight">Analytics Dashboard</h1>
           <p className="text-sm md:text-base text-muted-foreground">
             Monitor your LifeLink Sync platform performance and user engagement
           </p>
@@ -541,11 +541,11 @@ const AnalyticsPage = () => {
                   <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
                     <div className="space-y-2">
                       <p className="text-sm text-muted-foreground">Active Users</p>
-                      <p className="text-3xl font-bold text-emerald-600">{activeUsers?.activeUsers || 0}</p>
+                      <p className="text-2xl font-bold text-emerald-600">{activeUsers?.activeUsers || 0}</p>
                     </div>
                     <div className="space-y-2">
                       <p className="text-sm text-muted-foreground">Page Views (last hour)</p>
-                      <p className="text-3xl font-bold">{activeUsers?.pageViewsLastHour || 0}</p>
+                      <p className="text-2xl font-bold">{activeUsers?.pageViewsLastHour || 0}</p>
                     </div>
                   </div>
                   

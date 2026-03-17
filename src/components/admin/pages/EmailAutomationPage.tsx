@@ -215,7 +215,7 @@ export default function EmailAutomationPage() {
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Email Automation</h1>
+          <h1 className="text-2xl font-bold">Email Automation</h1>
           <p className="text-muted-foreground">Manage automated email sequences and campaigns</p>
         </div>
         <Button 

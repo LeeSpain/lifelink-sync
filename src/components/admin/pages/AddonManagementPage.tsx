@@ -75,7 +75,7 @@ export default function AddonManagementPage() {
   const updatePlanPrice = async (id: string, p: number) => { await supabase.from('subscription_plans').update({ price: p }).eq('id', id); toast.success('Price live'); loadData(); };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto w-full">
+    <div className="px-8 py-6 w-full">
       <div className="flex items-start justify-between mb-6">
         <div><h1 className="text-2xl font-bold text-gray-900">{tab === 'addons' ? 'Add-On Management' : 'Pricing Configuration'}</h1><p className="text-gray-400 text-sm mt-0.5">{tab === 'addons' ? 'Click price to edit inline' : 'Changes apply immediately'}</p></div>
         <div className="flex gap-2">{tab === 'addons' && <Button onClick={() => { setEditAddon(null); setShowModal(true); }} className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white text-sm"><Plus className="w-4 h-4" />New</Button>}<Button onClick={loadData} variant="outline" className="text-sm"><RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} /></Button></div>
