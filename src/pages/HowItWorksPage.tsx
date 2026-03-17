@@ -410,7 +410,7 @@ function CTASection() {
               {t('howItWorksPage.ctaStart', 'Start Free Trial')}
             </Link>
           </Button>
-          <Button asChild size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/10 font-semibold text-lg px-8 py-6 rounded-xl">
+          <Button asChild size="lg" className="border-2 border-white text-white bg-transparent hover:bg-white hover:text-gray-900 font-semibold text-lg px-8 py-6 rounded-xl transition-all">
             <Link to="/gift">
               <Gift className="h-5 w-5 mr-2" />
               {t('howItWorksPage.ctaGift', 'Give as a Gift')}
