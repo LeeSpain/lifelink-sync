@@ -19,6 +19,7 @@ import BlogPost from "./pages/BlogPost";
 import AuthPage from "./pages/AuthPage";
 import SignOutPage from "./pages/SignOutPage";
 import AuthCallback from "./pages/AuthCallback";
+import InvitePage from "./pages/InvitePage";
 
 // Live Map Pages
 import MapScreen from "./pages/MapScreen";
@@ -164,6 +165,11 @@ function AppWithTracking() {
                     </OptimizedSuspense>
                   } />
                 )}
+
+                {/* Invite Landing Page */}
+                <Route path="/invite" element={<InvitePage />} />
+                <Route path="/join" element={<Navigate to="/invite" replace />} />
+                <Route path="/i" element={<Navigate to="/invite" replace />} />
 
                 {/* Blog Pages */}
                 <Route path="/blog" element={
