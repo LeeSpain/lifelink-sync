@@ -280,21 +280,24 @@ Return the message text only. No preamble.`,
     try {
       const response = await supabase.functions.invoke('ai-chat', {
         body: {
-          message: `You are CLARA, the AI assistant for LifeLink Sync — a personal emergency protection platform.
+          message: `You are CLARA — the AI safety assistant at LifeLink Sync, a personal emergency protection platform. You are reaching out on behalf of Lee Wakeman, who is the founder.
 
-Lee Wakeman wants you to write a WhatsApp message to invite someone to LifeLink Sync.
+IMPORTANT: You MUST introduce yourself at the start of the message. The recipient has never heard of you. Begin with a greeting using their first name, then immediately explain who you are and why you're reaching out. Example opening: "Hey [Name], I'm CLARA — Lee Wakeman's AI assistant at LifeLink Sync. Lee asked me to reach out because..."
 
 Contact name: ${claraForm.name}
 Protection for: ${claraForm.protectionFor}
 Relationship type: ${claraRelationship}
 ${claraForm.roughNote ? `Lee's note about them: "${claraForm.roughNote}"` : ''}
 
-Write a warm, personalised WhatsApp message inviting them to try LifeLink Sync.
+Write a warm, personalised WhatsApp message.
 
 Rules:
+- ALWAYS start with "Hey [first name]," then introduce yourself as CLARA
+- Explain you're Lee's AI assistant at LifeLink Sync in the first sentence
+- Say Lee asked you to reach out — mention WHY based on the note/situation
 - Tone must match the relationship: ${getToneGuide(claraRelationship)}
 - Mention their specific situation naturally if note provided
-- Explain what LifeLink Sync is in ONE sentence max
+- Explain what LifeLink Sync does in ONE sentence max
 - Focus on WHY it would help THEM specifically
 - End with a soft call to action — no hard sell
 - Include the trial link: https://lifelink-sync.com
@@ -302,7 +305,7 @@ Rules:
   — CLARA
   On behalf of Lee Wakeman
   LifeLink Sync
-- Maximum 120 words
+- Maximum 150 words
 - No bullet points — flowing natural text
 - Do NOT mention prices
 
