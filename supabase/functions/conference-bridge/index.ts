@@ -86,8 +86,8 @@ serve(async (req) => {
 <Response>
   <Say voice="Polly.Joanna" language="en-GB">
     ${isMember
-      ? `This is CLARA. Your emergency contacts are joining a call with you now.`
-      : `This is an urgent LifeLink Sync emergency bridge. ${escapedName} needs you now. Connecting you now.`
+      ? `This is CLARA from LifeLink Sync. Your emergency contacts are joining a call with you now.`
+      : `CLARA from LifeLink Sync is connecting you now. Urgent emergency bridge. ${escapedName} needs you now.`
     }
   </Say>
   <Dial>

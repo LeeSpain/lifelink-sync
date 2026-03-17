@@ -71,7 +71,7 @@ serve(async (req) => {
         ? `Their GPS coordinates have been shared with you.`
         : `Location is being determined.`;
 
-    const spokenMessage = `This is an urgent alert from LifeLink Sync. ${escapeXml(name)} has triggered an emergency SOS alert. ${locationText} Please check on them immediately or call 1 1 2 if you believe this is a life threatening emergency. This message is from LifeLink Sync, their personal emergency protection service.`;
+    const spokenMessage = `Urgent message from CLARA at LifeLink Sync. ${escapeXml(name)} has triggered an emergency SOS alert. ${locationText} Please check on them immediately or call 1 1 2 if you believe this is a life threatening emergency. This message is from CLARA, the LifeLink Sync emergency protection system.`;
 
     const responseUrl = `${supabaseUrl}/functions/v1/clara-speak-response`;
 

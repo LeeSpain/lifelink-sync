@@ -55,9 +55,13 @@ serve(async (req) => {
     const responseUrl = callbackUrl
       || `${Deno.env.get('SUPABASE_URL')}/functions/v1/clara-speak-response`;
 
-    // Build TwiML
+    // Build TwiML — CLARA always identifies herself first
     const twiml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
+  <Say voice="${voice}" language="${language}">
+    This is CLARA, your personal safety assistant from LifeLink Sync.
+  </Say>
+  <Pause length="0.5"/>
   <Say voice="${voice}" language="${language}">
     ${escapeXml(message)}
   </Say>

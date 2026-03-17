@@ -53,7 +53,7 @@ serve(async (req) => {
       ? `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Say voice="Polly.Joanna" language="en-GB">
-    Hello ${escapedName}, this is CLARA from LifeLink Sync with your daily wellbeing check-in.
+    Hello ${escapedName}, this is CLARA, your LifeLink Sync assistant, with your daily wellbeing check-in.
   </Say>
   <Pause length="1"/>
   <Say voice="Polly.Joanna" language="en-GB">
@@ -69,7 +69,7 @@ serve(async (req) => {
       : `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Say voice="Polly.Joanna" language="en-GB">
-    Hello ${escapedName}, this is CLARA with your medication reminder. Have you taken your medication today? Press 1 for yes, or 2 for not yet.
+    Hello ${escapedName}, this is CLARA, your LifeLink Sync assistant, with your medication reminder. Have you taken your medication today? Press 1 for yes, or 2 for not yet.
   </Say>
   <Gather numDigits="1" action="${responseUrl}&amp;question=medication" method="POST">
     <Pause length="8"/>
