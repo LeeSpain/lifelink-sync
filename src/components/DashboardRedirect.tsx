@@ -82,10 +82,10 @@ const DashboardRedirect = () => {
     return <Navigate to="/auth" replace />;
   }
 
-  // Check onboarding for non-admin users
+  // Check onboarding for non-admin users — send to wizard
   if (needsOnboarding && !isAdmin && role !== 'admin') {
-    console.debug('DashboardRedirect: DashboardRedirect: User needs onboarding, redirecting');
-    return <Navigate to="/dashboard/onboarding" replace />;
+    console.debug('DashboardRedirect: User needs onboarding, redirecting to wizard');
+    return <Navigate to="/onboarding" replace />;
   }
 
   // Enhanced role-based routing with explicit admin check

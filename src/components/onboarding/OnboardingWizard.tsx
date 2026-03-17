@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 import {
   Shield, Check,
-  ChevronRight, Plus, Minus, Sparkles,
+  ChevronRight, Plus, Minus,
   Loader2, Lock, Star, Mail, RefreshCw
 } from 'lucide-react'
 import Navigation from '../Navigation'
