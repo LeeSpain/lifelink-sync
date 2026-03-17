@@ -507,7 +507,7 @@ export default function CommunicationPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Unified Communication Center</h1>
         <p className="text-muted-foreground">Manage all customer communications in one place</p>
@@ -533,7 +533,7 @@ export default function CommunicationPage() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="inbox" className="space-y-4">
+        <TabsContent value="inbox" className="px-8 py-6 w-full space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Conversation List */}
             <Card className="lg:col-span-1">
@@ -694,7 +694,7 @@ export default function CommunicationPage() {
                           <DialogHeader>
                             <DialogTitle>Handover Conversation</DialogTitle>
                           </DialogHeader>
-                          <div className="space-y-4">
+                          <div className="px-8 py-6 w-full space-y-4">
                             <div>
                               <label className="text-sm font-medium">Handover to</label>
                               <Select value={handoverData.to_user_id} onValueChange={(value) => setHandoverData(prev => ({ ...prev, to_user_id: value }))}>
@@ -735,10 +735,10 @@ export default function CommunicationPage() {
               </CardHeader>
               <CardContent>
                 {selectedConversation ? (
-                  <div className="space-y-4">
+                  <div className="px-8 py-6 w-full space-y-4">
                     {/* Messages */}
                     <ScrollArea className="h-48 border rounded-lg p-4">
-                      <div className="space-y-4">
+                      <div className="px-8 py-6 w-full space-y-4">
                         {messages.map((message, index) => (
                           <div key={index} className={`flex ${message.direction === 'outbound' ? 'justify-end' : 'justify-start'}`}>
                             <div className={`max-w-[70%] rounded-lg p-3 ${
@@ -814,7 +814,7 @@ export default function CommunicationPage() {
           </div>
         </TabsContent>
 
-        <TabsContent value="analytics" className="space-y-4">
+        <TabsContent value="analytics" className="px-8 py-6 w-full space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -867,7 +867,7 @@ export default function CommunicationPage() {
               <CardTitle>Conversations by Channel</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="px-8 py-6 w-full space-y-4">
                 {Object.entries(metrics?.channel_breakdown || {}).map(([channel, count]) => (
                   <div key={channel} className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -892,7 +892,7 @@ export default function CommunicationPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="campaigns" className="space-y-4">
+        <TabsContent value="campaigns" className="px-8 py-6 w-full space-y-4">
           <div className="flex justify-between items-center">
             <div>
               <h3 className="text-lg font-medium">Bulk Messaging Campaigns</h3>
@@ -910,7 +910,7 @@ export default function CommunicationPage() {
                 <DialogHeader>
                   <DialogTitle>Create Bulk Campaign</DialogTitle>
                 </DialogHeader>
-                <div className="space-y-4">
+                <div className="px-8 py-6 w-full space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm font-medium">Campaign Name</label>
@@ -1081,7 +1081,7 @@ export default function CommunicationPage() {
           </div>
         </TabsContent>
 
-        <TabsContent value="settings" className="space-y-4">
+        <TabsContent value="settings" className="px-8 py-6 w-full space-y-4">
           <SLASettingsPanel />
         </TabsContent>
       </Tabs>

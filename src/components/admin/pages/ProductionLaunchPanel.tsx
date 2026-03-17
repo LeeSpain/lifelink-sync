@@ -69,7 +69,7 @@ export default function ProductionLaunchPanel() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       {/* Launch Status Header */}
       <Card className="border-2 border-dashed border-green-300 bg-green-50">
         <CardHeader>

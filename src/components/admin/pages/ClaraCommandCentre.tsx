@@ -328,7 +328,7 @@ export default function ClaraCommandCentre() {
   // ─── Render ──────────────────────────────────────────────────────
 
   return (
-    <div className="space-y-4">
+    <div className="px-8 py-6 w-full space-y-4">
       {/* ═══ Header ═══ */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
@@ -395,7 +395,7 @@ export default function ClaraCommandCentre() {
 
         {/* ═══ TAB 2 — CAMPAIGNS ═══ */}
         <TabsContent value="campaigns">
-          <div className="space-y-4">
+          <div className="px-8 py-6 w-full space-y-4">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               <Stat label="Total Campaigns" value={campaigns.length} icon={<Megaphone className="h-5 w-5 text-purple-400" />} />
               <Stat label="Running Now" value={campaigns.filter(c => c.status === 'running').length} icon={<Play className="h-5 w-5 text-green-400" />} />
@@ -445,7 +445,7 @@ export default function ClaraCommandCentre() {
 
         {/* ═══ TAB 3 — SALES ═══ */}
         <TabsContent value="sales">
-          <div className="space-y-4">
+          <div className="px-8 py-6 w-full space-y-4">
             <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
               <Stat label="Hot Leads (7+)" value={hotLeads} icon={<Flame className="h-5 w-5 text-red-400" />} />
               <Stat label="Warm (4-6)" value={warmLeads} icon={<Thermometer className="h-5 w-5 text-amber-400" />} />
@@ -506,7 +506,7 @@ export default function ClaraCommandCentre() {
 
         {/* ═══ TAB 4 — PLANS ═══ */}
         <TabsContent value="plans">
-          <div className="space-y-4">
+          <div className="px-8 py-6 w-full space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <Stat label="Active Plans" value={plans.filter(p => p.status === 'running' || p.status === 'active').length} icon={<Play className="h-5 w-5 text-blue-400" />} />
               <Stat label="Pending Approvals" value={pendingApprovalCount} icon={<Clock className="h-5 w-5 text-amber-400" />} />
@@ -517,7 +517,7 @@ export default function ClaraCommandCentre() {
             {plans.filter(p => p.status === 'running' || p.status === 'active').length > 0 && (
               <Card>
                 <CardHeader><CardTitle className="text-base">Active Executions</CardTitle></CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="px-8 py-6 w-full space-y-4">
                   {plans.filter(p => p.status === 'running' || p.status === 'active').map(p => {
                     const pct = p.steps_total > 0 ? Math.round((p.steps_done / p.steps_total) * 100) : 0;
                     return (
@@ -625,7 +625,7 @@ export default function ClaraCommandCentre() {
 
         {/* ═══ TAB 5 — WHATSAPP ═══ */}
         <TabsContent value="whatsapp">
-          <div className="space-y-4">
+          <div className="px-8 py-6 w-full space-y-4">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               <Stat label="Signups Today" value={whatsappSignups.filter(w => w.created_at >= new Date().toISOString().split('T')[0]).length} icon={<MessageSquare className="h-5 w-5 text-emerald-400" />} />
               <Stat label="Active Flows" value={whatsappSignups.filter(w => w.status === 'in_progress').length} icon={<Play className="h-5 w-5 text-blue-400" />} />
@@ -704,7 +704,7 @@ export default function ClaraCommandCentre() {
 
         {/* ═══ TAB 6 — OPS ═══ */}
         <TabsContent value="ops">
-          <div className="space-y-4">
+          <div className="px-8 py-6 w-full space-y-4">
             {/* Platform health cards */}
             <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
               {keyFunctions.map(fn => {
@@ -786,7 +786,7 @@ export default function ClaraCommandCentre() {
 
         {/* ═══ TAB 7 — BUDGET ═══ */}
         <TabsContent value="budget">
-          <div className="space-y-4">
+          <div className="px-8 py-6 w-full space-y-4">
             {/* Lock/Unlock All */}
             <div className="flex gap-2 justify-end">
               <AlertDialog>
@@ -860,7 +860,7 @@ export default function ClaraCommandCentre() {
 
         {/* ═══ TAB 8 — RIVEN ═══ */}
         <TabsContent value="riven">
-          <div className="space-y-4">
+          <div className="px-8 py-6 w-full space-y-4">
             {/* Filters */}
             <div className="flex gap-1 flex-wrap">
               {['all', 'pending', 'executing', 'complete', 'failed'].map(f => (

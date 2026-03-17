@@ -176,7 +176,7 @@ export default function SystemSettingsPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="px-8 py-6 w-full space-y-6">
         <div>
           <h1 className="text-2xl font-bold">System Settings</h1>
           <p className="text-muted-foreground">Loading system configuration...</p>
@@ -186,7 +186,7 @@ export default function SystemSettingsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">System Settings</h1>
@@ -242,7 +242,7 @@ export default function SystemSettingsPage() {
           </CardTitle>
           <CardDescription>Configure authentication and access control settings</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="px-8 py-6 w-full space-y-6">
           {/* Email Verification Toggle */}
           <div className="flex items-center justify-between p-4 border rounded-lg">
             <div className="space-y-1">
@@ -310,7 +310,7 @@ export default function SystemSettingsPage() {
             Enable providers, pick default models, and assign which provider powers each stage. You can add keys later.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="px-8 py-6 w-full space-y-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <p className="font-medium">API Key Status</p>

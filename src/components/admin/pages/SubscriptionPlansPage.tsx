@@ -233,7 +233,7 @@ export default function SubscriptionPlansPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="px-8 py-6 w-full space-y-6">
         <div>
           <h1 className="text-2xl font-bold">Subscription Plans</h1>
           <p className="text-muted-foreground">Loading subscription plans...</p>
@@ -243,7 +243,7 @@ export default function SubscriptionPlansPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Subscription Plans</h1>
@@ -266,7 +266,7 @@ export default function SubscriptionPlansPage() {
               </DialogDescription>
             </DialogHeader>
             
-            <div className="space-y-4">
+            <div className="px-8 py-6 w-full space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="plan-name">Plan Name</Label>
@@ -434,7 +434,7 @@ export default function SubscriptionPlansPage() {
               <CardDescription>{plan.description}</CardDescription>
             </CardHeader>
             
-            <CardContent className="space-y-4">
+            <CardContent className="px-8 py-6 w-full space-y-4">
               <div className="flex items-center gap-2">
                 {getCurrencyIcon(plan.currency)}
                 <span className="text-2xl font-bold">{plan.price}</span>

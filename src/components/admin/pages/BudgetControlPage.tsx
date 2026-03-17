@@ -67,7 +67,7 @@ function BudgetCard({ budget, onUpdate }: { budget: Budget; onUpdate: () => void
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="px-8 py-6 w-full space-y-4">
         <div>
           <div className="flex justify-between text-sm mb-1">
             <span>€{budget.spent_amount.toFixed(2)} spent</span>

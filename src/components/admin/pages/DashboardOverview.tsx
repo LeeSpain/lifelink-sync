@@ -338,7 +338,7 @@ export default function DashboardOverview() {
               <span>Real-Time Activity</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="px-8 py-6 w-full space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Active Users</span>
               <span className="text-2xl font-bold text-green-500">
@@ -371,7 +371,7 @@ export default function DashboardOverview() {
               <span>Session Insights</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="px-8 py-6 w-full space-y-4">
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span className="text-sm">Bounce Rate</span>
@@ -404,7 +404,7 @@ export default function DashboardOverview() {
               <span>Video Performance</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="px-8 py-6 w-full space-y-4">
             {videoAnalytics && videoAnalytics.length > 0 ? (
               <>
                 <div className="flex items-center justify-between">
@@ -482,7 +482,7 @@ export default function DashboardOverview() {
               <span>Device Breakdown</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="px-8 py-6 w-full space-y-4">
             {deviceData?.map((device, index) => {
               const icons = {
                 Mobile: <Smartphone className="h-4 w-4" />,
@@ -518,7 +518,7 @@ export default function DashboardOverview() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="px-8 py-6 w-full space-y-4">
               {topPages?.map((page, index) => (
                 <div key={index} className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
@@ -546,7 +546,7 @@ export default function DashboardOverview() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="px-8 py-6 w-full space-y-4">
               {customEvents?.map((event, index) => (
                 <div key={index} className="flex items-center justify-between">
                   <span className="text-sm font-medium">{event.event}</span>

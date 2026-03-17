@@ -244,7 +244,7 @@ export function SocialMediaOAuth({ accounts, onAccountsUpdate }: SocialMediaOAut
               </div>
             </CardHeader>
 
-            <CardContent className="space-y-4">
+            <CardContent className="px-8 py-6 w-full space-y-4">
               <p className="text-sm text-muted-foreground">{config.description}</p>
 
               {isConnected && account && (

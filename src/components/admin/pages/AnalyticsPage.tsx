@@ -233,7 +233,7 @@ const AnalyticsPage = () => {
         />
       </div>
 
-      <Tabs defaultValue="overview" className="space-y-4">
+      <Tabs defaultValue="overview" className="px-8 py-6 w-full space-y-4">
         <div className="overflow-x-auto pb-2">
           <TabsList className="inline-flex min-w-max">
             <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
@@ -251,11 +251,11 @@ const AnalyticsPage = () => {
           </TabsList>
         </div>
 
-        <TabsContent value="health" className="space-y-4">
+        <TabsContent value="health" className="px-8 py-6 w-full space-y-4">
           <AnalyticsHealthCheck />
         </TabsContent>
 
-        <TabsContent value="overview" className="space-y-4">
+        <TabsContent value="overview" className="px-8 py-6 w-full space-y-4">
           <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             <MetricCard
               title="Bounce Rate"
@@ -305,7 +305,7 @@ const AnalyticsPage = () => {
               {isTopPagesLoading ? (
                 <p className="text-sm text-muted-foreground">Loading page data...</p>
               ) : topPages && topPages.length > 0 ? (
-                <div className="space-y-4">
+                <div className="px-8 py-6 w-full space-y-4">
                   {topPages.map((item, index) => (
                     <div key={index} className="flex items-center justify-between">
                       <div className="space-y-1">
@@ -325,7 +325,7 @@ const AnalyticsPage = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="pages" className="space-y-4">
+        <TabsContent value="pages" className="px-8 py-6 w-full space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Page Performance</CardTitle>
@@ -335,7 +335,7 @@ const AnalyticsPage = () => {
               {isTopPagesLoading ? (
                 <p className="text-sm text-muted-foreground">Loading page analytics...</p>
               ) : topPages && topPages.length > 0 ? (
-                <div className="space-y-4">
+                <div className="px-8 py-6 w-full space-y-4">
                   {topPages.map((page, index) => (
                     <div key={index} className="border rounded-lg p-4">
                       <div className="flex items-center justify-between mb-3">
@@ -362,18 +362,18 @@ const AnalyticsPage = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="contacts" className="space-y-4">
+        <TabsContent value="contacts" className="px-8 py-6 w-full space-y-4">
           <ContactAnalyticsCard />
         </TabsContent>
 
-        <TabsContent value="geographic" className="space-y-4">
+        <TabsContent value="geographic" className="px-8 py-6 w-full space-y-4">
           <GeographicAnalyticsCard 
             timeRange={timeRange} 
             onTimeRangeChange={setTimeRange} 
           />
         </TabsContent>
 
-        <TabsContent value="traffic" className="space-y-4">
+        <TabsContent value="traffic" className="px-8 py-6 w-full space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Traffic Sources</CardTitle>
@@ -381,7 +381,7 @@ const AnalyticsPage = () => {
             </CardHeader>
             <CardContent>
               {isTrafficLoading ? (
-                <div className="space-y-4">
+                <div className="px-8 py-6 w-full space-y-4">
                   {[1, 2, 3, 4].map((i) => (
                     <div key={i} className="flex items-center justify-between">
                       <div className="space-y-1">
@@ -396,7 +396,7 @@ const AnalyticsPage = () => {
                   ))}
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="px-8 py-6 w-full space-y-4">
                   {trafficSources?.map((source, index) => (
                     <div key={index} className="flex items-center justify-between">
                       <div className="space-y-1">
@@ -420,7 +420,7 @@ const AnalyticsPage = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="devices" className="space-y-4">
+        <TabsContent value="devices" className="px-8 py-6 w-full space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Device Breakdown</CardTitle>
@@ -428,7 +428,7 @@ const AnalyticsPage = () => {
             </CardHeader>
             <CardContent>
               {isDeviceLoading ? (
-                <div className="space-y-4">
+                <div className="px-8 py-6 w-full space-y-4">
                   {[1, 2, 3].map((i) => (
                     <div key={i} className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
@@ -443,7 +443,7 @@ const AnalyticsPage = () => {
                   ))}
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="px-8 py-6 w-full space-y-4">
                   {deviceData?.map((device, index) => {
                     const Icon = device.device === 'Mobile' ? Smartphone : 
                                 device.device === 'Desktop' ? Monitor : 
@@ -470,15 +470,15 @@ const AnalyticsPage = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="popups" className="space-y-4">
+        <TabsContent value="popups" className="px-8 py-6 w-full space-y-4">
           <PopupAnalyticsCard timeRange={timeRange} />
         </TabsContent>
 
-        <TabsContent value="hourly" className="space-y-4">
+        <TabsContent value="hourly" className="px-8 py-6 w-full space-y-4">
           <HourlyAnalyticsChart timeRange={timeRange} />
         </TabsContent>
 
-        <TabsContent value="events" className="space-y-4">
+        <TabsContent value="events" className="px-8 py-6 w-full space-y-4">
           <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
             <InteractionAnalyticsCard timeRange={timeRange} />
             <Card>
@@ -490,7 +490,7 @@ const AnalyticsPage = () => {
                 {isCustomEventsLoading ? (
                   <p className="text-sm text-muted-foreground">Loading event data...</p>
                 ) : customEvents && customEvents.length > 0 ? (
-                  <div className="space-y-4">
+                  <div className="px-8 py-6 w-full space-y-4">
                     {customEvents.map((event, index) => (
                       <div key={index} className="flex items-center justify-between">
                         <div className="space-y-1">
@@ -513,21 +513,21 @@ const AnalyticsPage = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="journeys" className="space-y-4">
+        <TabsContent value="journeys" className="px-8 py-6 w-full space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>User Journey Analysis</CardTitle>
               <CardDescription>Common paths users take through your site</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="px-8 py-6 w-full space-y-4">
                 <p className="text-sm text-muted-foreground">User journey analytics will be available in the next update.</p>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="real-time" className="space-y-4">
+        <TabsContent value="real-time" className="px-8 py-6 w-full space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Real-time Overview</CardTitle>

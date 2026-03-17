@@ -55,7 +55,7 @@ export default function QualityAssurancePage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Quality Assurance & Monitoring</h1>
@@ -133,7 +133,7 @@ export default function QualityAssurancePage() {
           <TabsTrigger value="monitoring">System Monitoring</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="testing" className="space-y-6">
+        <TabsContent value="testing" className="px-8 py-6 w-full space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Automated Test Suite</CardTitle>
@@ -141,7 +141,7 @@ export default function QualityAssurancePage() {
                 Run comprehensive tests to validate system functionality and performance
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="px-8 py-6 w-full space-y-4">
               <div className="flex items-center gap-4">
                 <Button 
                   onClick={runFullTestSuite}
@@ -164,7 +164,7 @@ export default function QualityAssurancePage() {
               </div>
 
               {testResults.length > 0 && (
-                <div className="space-y-4">
+                <div className="px-8 py-6 w-full space-y-4">
                   {testResults.map((suite) => (
                     <Card key={suite.name} className="border-l-4" style={{
                       borderLeftColor: suite.status === 'passed' ? 'hsl(var(--success))' :
@@ -226,7 +226,7 @@ export default function QualityAssurancePage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="quality" className="space-y-6">
+        <TabsContent value="quality" className="px-8 py-6 w-full space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Content Quality Analysis</CardTitle>
@@ -234,7 +234,7 @@ export default function QualityAssurancePage() {
                 Test your content quality with our advanced analysis engine
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="px-8 py-6 w-full space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium">Content Title</label>
@@ -325,14 +325,14 @@ export default function QualityAssurancePage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="monitoring" className="space-y-6">
+        <TabsContent value="monitoring" className="px-8 py-6 w-full space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
                 <CardTitle>Publishing Performance</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="px-8 py-6 w-full space-y-4">
                   <div className="flex justify-between">
                     <span>Success Rate</span>
                     <span className="font-semibold text-success">94.2%</span>

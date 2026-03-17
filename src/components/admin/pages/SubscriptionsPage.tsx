@@ -245,7 +245,7 @@ export default function SubscriptionsPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="px-8 py-6 w-full space-y-6">
         <div>
           <h1 className="text-2xl font-bold">Revenue Analytics</h1>
           <p className="text-muted-foreground">Loading revenue data...</p>
@@ -258,7 +258,7 @@ export default function SubscriptionsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Revenue Analytics</h1>

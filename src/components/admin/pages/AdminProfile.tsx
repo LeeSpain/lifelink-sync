@@ -262,7 +262,7 @@ const AdminProfile = () => {
             <User className="h-4 w-4" /> {t('profile.personalDetails')}
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="px-8 py-6 w-full space-y-4">
           {/* Avatar */}
           <div className="flex items-center gap-4">
             <div className="relative">
@@ -371,7 +371,7 @@ const AdminProfile = () => {
             <Shield className="h-4 w-4" /> {t('profile.security')}
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="px-8 py-6 w-full space-y-6">
           {/* Change Password */}
           <div className="space-y-3">
             <h3 className="text-sm font-medium">{t('profile.changePassword')}</h3>
@@ -459,7 +459,7 @@ const AdminProfile = () => {
             <Settings className="h-4 w-4" /> {t('profile.preferences')}
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="px-8 py-6 w-full space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label className="text-xs">{t('profile.language')}</Label>
@@ -547,7 +547,7 @@ const AdminProfile = () => {
             <AlertTriangle className="h-4 w-4" /> {t('profile.dangerZone')}
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="px-8 py-6 w-full space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium">{t('profile.deleteAccount')}</p>

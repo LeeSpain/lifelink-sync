@@ -283,7 +283,7 @@ const GlobalProtectionPlansPage = () => {
   };
 
   const PlanForm = ({ isEdit }: { isEdit: boolean }) => (
-    <div className="space-y-4">
+    <div className="px-8 py-6 w-full space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label htmlFor="name">Plan Name</Label>
@@ -405,7 +405,7 @@ const GlobalProtectionPlansPage = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

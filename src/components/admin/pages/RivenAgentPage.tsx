@@ -471,7 +471,7 @@ const RivenAgentPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="px-8 py-6 w-full space-y-6">
         <div className="flex items-center gap-2">
           <Brain className="h-6 w-6 text-purple-500 animate-pulse" />
           <h1 className="text-2xl font-bold">Loading Riven AI Agent...</h1>
@@ -481,7 +481,7 @@ const RivenAgentPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -516,7 +516,7 @@ const RivenAgentPage: React.FC = () => {
         <Badge variant="outline">Platforms: {platforms.filter(p => p.enabled).length}</Badge>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="px-8 py-6 w-full space-y-4">
         <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="model">Model</TabsTrigger>
@@ -529,7 +529,7 @@ const RivenAgentPage: React.FC = () => {
         </TabsList>
 
         {/* ============================== TAB 1: OVERVIEW ============================== */}
-        <TabsContent value="overview" className="space-y-4">
+        <TabsContent value="overview" className="px-8 py-6 w-full space-y-4">
           {/* Metric Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <Card>
@@ -660,7 +660,7 @@ const RivenAgentPage: React.FC = () => {
         </TabsContent>
 
         {/* ============================== TAB 2: MODEL SETTINGS ============================== */}
-        <TabsContent value="model" className="space-y-4">
+        <TabsContent value="model" className="px-8 py-6 w-full space-y-4">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -669,10 +669,10 @@ const RivenAgentPage: React.FC = () => {
               </CardTitle>
               <CardDescription>All settings are saved and wired directly to the Riven edge functions.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="px-8 py-6 w-full space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Left Column */}
-                <div className="space-y-4">
+                <div className="px-8 py-6 w-full space-y-4">
                   <div>
                     <Label>AI Model</Label>
                     <Select value={settings.aiModel} onValueChange={(v) => setSettings(s => ({ ...s, aiModel: v }))}>
@@ -713,7 +713,7 @@ const RivenAgentPage: React.FC = () => {
                 </div>
 
                 {/* Right Column */}
-                <div className="space-y-4">
+                <div className="px-8 py-6 w-full space-y-4">
                   <div>
                     <Label>Default Campaign Budget ($)</Label>
                     <Input
@@ -770,13 +770,13 @@ const RivenAgentPage: React.FC = () => {
         </TabsContent>
 
         {/* ============================== TAB 3: BRAND VOICE ============================== */}
-        <TabsContent value="brand" className="space-y-4">
+        <TabsContent value="brand" className="px-8 py-6 w-full space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Brand Voice & Tone</CardTitle>
               <CardDescription>Define how Riven speaks as your brand across all platforms</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="px-8 py-6 w-full space-y-4">
               <div className="space-y-2">
                 <Label>Brand Voice Description</Label>
                 <Textarea
@@ -797,7 +797,7 @@ const RivenAgentPage: React.FC = () => {
               <CardTitle>Content Guidelines</CardTitle>
               <CardDescription>Rules and constraints Riven must follow when generating content</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="px-8 py-6 w-full space-y-4">
               <div className="space-y-2">
                 <Label>Content Rules & Guidelines</Label>
                 <Textarea
@@ -834,7 +834,7 @@ const RivenAgentPage: React.FC = () => {
         </TabsContent>
 
         {/* ============================== TAB 4: CONTENT ENGINE ============================== */}
-        <TabsContent value="angles" className="space-y-4">
+        <TabsContent value="angles" className="px-8 py-6 w-full space-y-4">
           {/* Content Angles */}
           <Card>
             <CardHeader>
@@ -922,14 +922,14 @@ const RivenAgentPage: React.FC = () => {
         </TabsContent>
 
         {/* ============================== TAB 5: PLATFORMS ============================== */}
-        <TabsContent value="platforms" className="space-y-4">
+        <TabsContent value="platforms" className="px-8 py-6 w-full space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Platform Configuration</CardTitle>
               <CardDescription>Enable/disable platforms and set content limits per platform</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="px-8 py-6 w-full space-y-4">
                 {platforms.map((plat, i) => (
                   <div key={plat.platform} className="border rounded-lg p-4">
                     <div className="flex items-center justify-between mb-3">
@@ -1039,14 +1039,14 @@ const RivenAgentPage: React.FC = () => {
         </TabsContent>
 
         {/* ============================== TAB 6: SCHEDULING ============================== */}
-        <TabsContent value="scheduling" className="space-y-4">
+        <TabsContent value="scheduling" className="px-8 py-6 w-full space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Default Posting Schedule</CardTitle>
               <CardDescription>Default posting times used when creating new campaigns</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="px-8 py-6 w-full space-y-4">
                 {platforms.filter(p => p.enabled && p.postsPerDay > 0).map((plat, i) => (
                   <div key={plat.platform} className="border rounded-lg p-4">
                     <div className="flex items-center justify-between mb-3">
@@ -1105,7 +1105,7 @@ const RivenAgentPage: React.FC = () => {
               <CardTitle>Auto-Publishing</CardTitle>
               <CardDescription>Configure automatic content publishing behavior</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="px-8 py-6 w-full space-y-4">
               <div className="flex items-center justify-between py-2">
                 <div>
                   <p className="text-sm font-medium">Auto-Approve Content</p>
@@ -1140,7 +1140,7 @@ const RivenAgentPage: React.FC = () => {
         </TabsContent>
 
         {/* ============================== TAB 7: PERFORMANCE ============================== */}
-        <TabsContent value="performance" className="space-y-4">
+        <TabsContent value="performance" className="px-8 py-6 w-full space-y-4">
           {/* Daily Content Chart */}
           <Card>
             <CardHeader>
@@ -1291,7 +1291,7 @@ const RivenAgentPage: React.FC = () => {
         </TabsContent>
 
         {/* ============================== TAB 8: ADVANCED ============================== */}
-        <TabsContent value="advanced" className="space-y-4">
+        <TabsContent value="advanced" className="px-8 py-6 w-full space-y-4">
           {/* Edge Function Status */}
           <Card>
             <CardHeader>
@@ -1327,7 +1327,7 @@ const RivenAgentPage: React.FC = () => {
               <CardTitle>Content Engine Settings</CardTitle>
               <CardDescription>Advanced content generation parameters</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="px-8 py-6 w-full space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Default Word Count</Label>
@@ -1359,7 +1359,7 @@ const RivenAgentPage: React.FC = () => {
               <CardTitle>SEO Configuration</CardTitle>
               <CardDescription>Search engine optimization for blog and long-form content</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="px-8 py-6 w-full space-y-4">
               <div className="flex items-center justify-between py-2">
                 <div>
                   <p className="text-sm font-medium">SEO Optimization</p>

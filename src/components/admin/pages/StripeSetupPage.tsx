@@ -38,7 +38,7 @@ export default function StripeSetupPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Stripe Account Setup</h1>
         <p className="text-muted-foreground">
@@ -57,7 +57,7 @@ export default function StripeSetupPage() {
             </ul>
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="px-8 py-6 w-full space-y-4">
           {error && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
@@ -82,7 +82,7 @@ export default function StripeSetupPage() {
           </Button>
 
           {setupResults && (
-            <div className="space-y-4">
+            <div className="px-8 py-6 w-full space-y-4">
               <Alert>
                 <CheckCircle className="h-4 w-4" />
                 <AlertDescription>
@@ -90,7 +90,7 @@ export default function StripeSetupPage() {
                 </AlertDescription>
               </Alert>
 
-              <div className="space-y-4">
+              <div className="px-8 py-6 w-full space-y-4">
                 {setupResults.subscriptionPlans.length > 0 && (
                   <Card>
                     <CardHeader>

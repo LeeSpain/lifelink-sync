@@ -194,7 +194,7 @@ export const CoreDevelopmentDashboard: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -246,7 +246,7 @@ export const CoreDevelopmentDashboard: React.FC = () => {
         </Card>
       )}
 
-      <Tabs defaultValue="monitoring" className="space-y-4">
+      <Tabs defaultValue="monitoring" className="px-8 py-6 w-full space-y-4">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="monitoring">Production Monitoring</TabsTrigger>
           <TabsTrigger value="emergency">Emergency Testing</TabsTrigger>
@@ -255,7 +255,7 @@ export const CoreDevelopmentDashboard: React.FC = () => {
         </TabsList>
 
         {/* Production Monitoring Tab */}
-        <TabsContent value="monitoring" className="space-y-4">
+        <TabsContent value="monitoring" className="px-8 py-6 w-full space-y-4">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -311,7 +311,7 @@ export const CoreDevelopmentDashboard: React.FC = () => {
         </TabsContent>
 
         {/* Emergency Testing Tab */}
-        <TabsContent value="emergency" className="space-y-4">
+        <TabsContent value="emergency" className="px-8 py-6 w-full space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <Card>
               <CardHeader>
@@ -394,12 +394,12 @@ export const CoreDevelopmentDashboard: React.FC = () => {
         </TabsContent>
 
         {/* Mobile App Tab */}
-        <TabsContent value="mobile" className="space-y-4">
+        <TabsContent value="mobile" className="px-8 py-6 w-full space-y-4">
           <MobileProductionCheck />
         </TabsContent>
 
         {/* Performance Tab */}
-        <TabsContent value="performance" className="space-y-4">
+        <TabsContent value="performance" className="px-8 py-6 w-full space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             {performanceMetrics && (
               <Card>
@@ -413,7 +413,7 @@ export const CoreDevelopmentDashboard: React.FC = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
+                  <div className="px-8 py-6 w-full space-y-4">
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Simple Query Time</span>
                       <Badge variant="outline">
@@ -458,7 +458,7 @@ export const CoreDevelopmentDashboard: React.FC = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="px-8 py-6 w-full space-y-4">
                   <div className="text-center">
                     <div className="text-2xl font-bold">99.9%</div>
                     <p className="text-sm text-muted-foreground">Uptime</p>

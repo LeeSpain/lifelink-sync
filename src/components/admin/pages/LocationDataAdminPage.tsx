@@ -237,7 +237,7 @@ export default function LocationDataAdminPage() {
   const uniqueUserIds = [...new Set(locationPings.map(p => p.user_id))];
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Location Data Management</h1>
@@ -425,7 +425,7 @@ export default function LocationDataAdminPage() {
           </DialogHeader>
           
           {selectedPing && (
-            <div className="space-y-4">
+            <div className="px-8 py-6 w-full space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium">User ID</label>

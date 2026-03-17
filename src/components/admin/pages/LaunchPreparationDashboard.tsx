@@ -348,7 +348,7 @@ export default function LaunchPreparationDashboard() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -423,14 +423,14 @@ export default function LaunchPreparationDashboard() {
       )}
 
       {/* Launch Checklist */}
-      <Tabs defaultValue="checklist" className="space-y-4">
+      <Tabs defaultValue="checklist" className="px-8 py-6 w-full space-y-4">
         <TabsList>
           <TabsTrigger value="checklist">Launch Checklist</TabsTrigger>
           <TabsTrigger value="timeline">Launch Timeline</TabsTrigger>
           <TabsTrigger value="contacts">Emergency Contacts</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="checklist" className="space-y-4">
+        <TabsContent value="checklist" className="px-8 py-6 w-full space-y-4">
           {checklist.map((category, index) => (
             <Card key={index}>
               <CardHeader>
@@ -471,7 +471,7 @@ export default function LaunchPreparationDashboard() {
           ))}
         </TabsContent>
 
-        <TabsContent value="timeline" className="space-y-4">
+        <TabsContent value="timeline" className="px-8 py-6 w-full space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Launch Timeline</CardTitle>
@@ -480,7 +480,7 @@ export default function LaunchPreparationDashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="px-8 py-6 w-full space-y-4">
                 <div className="flex items-center gap-3 p-3 rounded-lg bg-green-50 border-green-200">
                   <CheckCircle className="h-5 w-5 text-green-600" />
                   <div>
@@ -507,7 +507,7 @@ export default function LaunchPreparationDashboard() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="contacts" className="space-y-4">
+        <TabsContent value="contacts" className="px-8 py-6 w-full space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Emergency Service Contacts</CardTitle>
@@ -516,7 +516,7 @@ export default function LaunchPreparationDashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="px-8 py-6 w-full space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-4 rounded-lg border">
                     <div className="flex items-center gap-2 mb-2">

@@ -177,7 +177,7 @@ const WhatsAppIntegrationPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="p-6 space-y-6">
+      <div className="px-8 py-6 w-full space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
             <Card key={i}>
@@ -193,7 +193,7 @@ const WhatsAppIntegrationPage: React.FC = () => {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">WhatsApp Integration</h1>
@@ -285,7 +285,7 @@ const WhatsAppIntegrationPage: React.FC = () => {
         </Card>
       </div>
 
-      <Tabs defaultValue="conversations" className="space-y-4">
+      <Tabs defaultValue="conversations" className="px-8 py-6 w-full space-y-4">
         <TabsList>
           <TabsTrigger value="conversations">Conversations</TabsTrigger>
           <TabsTrigger value="accounts">Accounts</TabsTrigger>
@@ -293,7 +293,7 @@ const WhatsAppIntegrationPage: React.FC = () => {
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="conversations" className="space-y-4">
+        <TabsContent value="conversations" className="px-8 py-6 w-full space-y-4">
           <div className="flex gap-4">
             <div className="w-1/3">
               <Card>
@@ -346,7 +346,7 @@ const WhatsAppIntegrationPage: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   {selectedConversation ? (
-                    <div className="space-y-4">
+                    <div className="px-8 py-6 w-full space-y-4">
                       <div className="h-64 overflow-y-auto border rounded p-4 space-y-2">
                         {conversationMessages.map((message) => (
                           <div
@@ -390,7 +390,7 @@ const WhatsAppIntegrationPage: React.FC = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="accounts" className="space-y-4">
+        <TabsContent value="accounts" className="px-8 py-6 w-full space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>WhatsApp Business Accounts</CardTitle>
@@ -432,7 +432,7 @@ const WhatsAppIntegrationPage: React.FC = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="analytics" className="space-y-4">
+        <TabsContent value="analytics" className="px-8 py-6 w-full space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
@@ -472,13 +472,13 @@ const WhatsAppIntegrationPage: React.FC = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="settings" className="space-y-4">
+        <TabsContent value="settings" className="px-8 py-6 w-full space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>WhatsApp Settings</CardTitle>
               <CardDescription>Configure your WhatsApp integration settings</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="px-8 py-6 w-full space-y-4">
               <div>
                 <Label htmlFor="webhook-url">Webhook URL</Label>
                 <Input id="webhook-url" placeholder="https://your-domain.com/webhook" />

@@ -760,7 +760,7 @@ const AIAgentPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="px-8 py-6 w-full space-y-6">
         <div className="flex items-center gap-2">
           <Bot className="h-6 w-6 text-primary animate-pulse" />
           <h1 className="text-2xl font-bold">Loading Clara AI Agent...</h1>
@@ -770,7 +770,7 @@ const AIAgentPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -805,7 +805,7 @@ const AIAgentPage: React.FC = () => {
         <Badge variant="outline">Prompt Mode: {aiSettings.systemPromptMode}</Badge>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="px-8 py-6 w-full space-y-4">
         <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="settings">Model</TabsTrigger>
@@ -820,7 +820,7 @@ const AIAgentPage: React.FC = () => {
         {/* ============================================================ */}
         {/* TAB 1: Overview - Real Metrics */}
         {/* ============================================================ */}
-        <TabsContent value="overview" className="space-y-4">
+        <TabsContent value="overview" className="px-8 py-6 w-full space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <Card>
               <CardContent className="pt-6">
@@ -909,7 +909,7 @@ const AIAgentPage: React.FC = () => {
         {/* ============================================================ */}
         {/* TAB 2: Model Settings - All Parameters */}
         {/* ============================================================ */}
-        <TabsContent value="settings" className="space-y-4">
+        <TabsContent value="settings" className="px-8 py-6 w-full space-y-4">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -918,10 +918,10 @@ const AIAgentPage: React.FC = () => {
               </CardTitle>
               <CardDescription>All settings are saved as flat keys and wired directly to the backend edge function.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="px-8 py-6 w-full space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Left Column */}
-                <div className="space-y-4">
+                <div className="px-8 py-6 w-full space-y-4">
                   <div>
                     <Label>AI Model</Label>
                     <Select value={aiSettings.model} onValueChange={(value) => setAiSettings(s => ({...s, model: value}))}>
@@ -975,7 +975,7 @@ const AIAgentPage: React.FC = () => {
                 </div>
 
                 {/* Right Column */}
-                <div className="space-y-4">
+                <div className="px-8 py-6 w-full space-y-4">
                   <div>
                     <Label>Frequency Penalty: {aiSettings.frequencyPenalty}</Label>
                     <Slider
@@ -1121,14 +1121,14 @@ const AIAgentPage: React.FC = () => {
         {/* ============================================================ */}
         {/* TAB 3: Training Data */}
         {/* ============================================================ */}
-        <TabsContent value="training" className="space-y-4">
+        <TabsContent value="training" className="px-8 py-6 w-full space-y-4">
           <TrainingManager compact />
         </TabsContent>
 
         {/* ============================================================ */}
         {/* TAB 4: Knowledge Base (NEW) */}
         {/* ============================================================ */}
-        <TabsContent value="knowledge" className="space-y-4">
+        <TabsContent value="knowledge" className="px-8 py-6 w-full space-y-4">
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -1159,7 +1159,7 @@ const AIAgentPage: React.FC = () => {
             </CardHeader>
             <CardContent>
               <ScrollArea className="max-h-[600px]">
-                <div className="space-y-4">
+                <div className="px-8 py-6 w-full space-y-4">
                   {filteredKB.map((section) => (
                     <div key={section.id} className="border rounded-lg p-4 space-y-2">
                       <div className="flex items-center justify-between">
@@ -1216,7 +1216,7 @@ const AIAgentPage: React.FC = () => {
         {/* ============================================================ */}
         {/* TAB 5: Visibility & Restrictions (NEW) */}
         {/* ============================================================ */}
-        <TabsContent value="visibility" className="space-y-4">
+        <TabsContent value="visibility" className="px-8 py-6 w-full space-y-4">
           {/* Visibility Rules */}
           <Card>
             <CardHeader>
@@ -1290,7 +1290,7 @@ const AIAgentPage: React.FC = () => {
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="px-8 py-6 w-full space-y-4">
               <div className="space-y-2">
                 {restrictedPatterns.map(pattern => (
                   <div key={pattern.id} className="flex items-center gap-3 p-3 border rounded-lg">
@@ -1349,7 +1349,7 @@ const AIAgentPage: React.FC = () => {
         {/* ============================================================ */}
         {/* TAB 6: Languages & Currency (NEW) */}
         {/* ============================================================ */}
-        <TabsContent value="currency" className="space-y-4">
+        <TabsContent value="currency" className="px-8 py-6 w-full space-y-4">
           {/* Supported Languages */}
           <Card>
             <CardHeader>
@@ -1432,7 +1432,7 @@ const AIAgentPage: React.FC = () => {
         {/* ============================================================ */}
         {/* TAB 7: Performance (Upgraded from placeholder) */}
         {/* ============================================================ */}
-        <TabsContent value="performance" className="space-y-4">
+        <TabsContent value="performance" className="px-8 py-6 w-full space-y-4">
           {/* Daily Conversations Chart */}
           <Card>
             <CardHeader>
@@ -1520,7 +1520,7 @@ const AIAgentPage: React.FC = () => {
         {/* ============================================================ */}
         {/* TAB 8: RAG & Memory */}
         {/* ============================================================ */}
-        <TabsContent value="rag" className="space-y-4">
+        <TabsContent value="rag" className="px-8 py-6 w-full space-y-4">
           {/* Embedding Status */}
           <Card>
             <CardHeader>
@@ -1702,7 +1702,7 @@ const AIAgentPage: React.FC = () => {
                 RAG Configuration
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="px-8 py-6 w-full space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <Label>Semantic Match Threshold: {ragSettings.semanticMatchThreshold}</Label>

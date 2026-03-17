@@ -182,7 +182,7 @@ const AIOverview = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       <div className="flex items-center gap-3">
         <div className="p-2 bg-primary/10 rounded-lg">
           <Activity className="h-6 w-6 text-primary" />

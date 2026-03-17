@@ -156,7 +156,7 @@ export default function ReportsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Reports</h1>
@@ -170,7 +170,7 @@ export default function ReportsPage() {
           <CardTitle>Generate Report</CardTitle>
           <CardDescription>Select a report type and date range to generate new reports</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="px-8 py-6 w-full space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="text-sm font-medium mb-2 block">Report Type</label>
@@ -250,7 +250,7 @@ export default function ReportsPage() {
               </div>
               <CardDescription>{report.description}</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="px-8 py-6 w-full space-y-4">
               {report.lastGenerated && (
                 <div className="text-sm text-muted-foreground">
                   Last generated: {format(new Date(report.lastGenerated), 'MMM dd, yyyy HH:mm')}

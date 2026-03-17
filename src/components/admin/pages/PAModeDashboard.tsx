@@ -118,7 +118,7 @@ export default function PAModeDashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">PA Dashboard</h1>
         <p className="text-muted-foreground">Tasks, planning journal, and PA actions log</p>
@@ -134,7 +134,7 @@ export default function PAModeDashboard() {
             </CardTitle>
             <CardDescription>{pendingTasks.length} pending, {completedTasks.length} completed recently</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="px-8 py-6 w-full space-y-4">
             {/* Add task */}
             <div className="flex gap-2">
               <Input

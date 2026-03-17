@@ -254,7 +254,7 @@ export default function AITrainingPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="px-8 py-6 w-full space-y-6">
         <div>
           <h1 className="text-2xl font-bold">AI Training Data</h1>
           <p className="text-muted-foreground">Loading training data...</p>
@@ -264,7 +264,7 @@ export default function AITrainingPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">🎓 AI Training Data</h1>
@@ -341,9 +341,9 @@ export default function AITrainingPage() {
             Add New Training Example
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="px-8 py-6 w-full space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="space-y-4">
+            <div className="px-8 py-6 w-full space-y-4">
               <div>
                 <label className="text-sm font-medium">Question</label>
                 <Input 
@@ -369,7 +369,7 @@ export default function AITrainingPage() {
               </div>
             </div>
             
-            <div className="space-y-4">
+            <div className="px-8 py-6 w-full space-y-4">
               <div>
                 <label className="text-sm font-medium">Answer</label>
                 <Textarea 
@@ -560,7 +560,7 @@ export default function AITrainingPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="px-8 py-6 w-full space-y-4">
             <p className="text-sm text-muted-foreground">
               Test if Clara can use the training data you've added. Try asking a question that should be covered by your training examples.
             </p>

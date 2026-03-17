@@ -202,7 +202,7 @@ export default function EmailAutomationPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto p-6">
+      <div className="px-8 py-6 w-full">
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-gray-200 rounded"></div>
           <div className="h-32 bg-gray-200 rounded"></div>
@@ -302,14 +302,14 @@ export default function EmailAutomationPage() {
         </Card>
       </div>
 
-      <Tabs defaultValue="automations" className="space-y-4">
+      <Tabs defaultValue="automations" className="px-8 py-6 w-full space-y-4">
         <TabsList>
           <TabsTrigger value="automations">Automations</TabsTrigger>
           <TabsTrigger value="queue">Email Queue</TabsTrigger>
           <TabsTrigger value="logs">Email Logs</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="automations" className="space-y-4">
+        <TabsContent value="automations" className="px-8 py-6 w-full space-y-4">
           <div className="grid gap-4">
             {automations.map((automation) => (
               <Card key={automation.id}>
@@ -352,7 +352,7 @@ export default function EmailAutomationPage() {
           </div>
         </TabsContent>
 
-        <TabsContent value="queue" className="space-y-4">
+        <TabsContent value="queue" className="px-8 py-6 w-full space-y-4">
           <ScrollArea className="h-96">
             <div className="space-y-2">
               {queueItems.map((item) => (
@@ -380,7 +380,7 @@ export default function EmailAutomationPage() {
           </ScrollArea>
         </TabsContent>
 
-        <TabsContent value="logs" className="space-y-4">
+        <TabsContent value="logs" className="px-8 py-6 w-full space-y-4">
           <ScrollArea className="h-96">
             <div className="space-y-2">
               {emailLogs.map((log) => (

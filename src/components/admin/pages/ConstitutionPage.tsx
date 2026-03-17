@@ -69,7 +69,7 @@ function LawCard({
           <p className="text-sm text-muted-foreground mt-1">{law.law_description}</p>
         )}
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="px-8 py-6 w-full space-y-4">
         <Textarea
           value={editedText}
           onChange={(e) => setEditedText(e.target.value)}
@@ -214,7 +214,7 @@ export default function ConstitutionPage() {
         </CardContent>
       </Card>
 
-      <div className="space-y-4">
+      <div className="px-8 py-6 w-full space-y-4">
         {laws.map((law) => (
           <LawCard key={law.id} law={law} onSave={handleSave} />
         ))}

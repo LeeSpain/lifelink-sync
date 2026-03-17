@@ -116,7 +116,7 @@ export default function UserGrowthPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="px-8 py-6 w-full space-y-6">
         <div>
           <h1 className="text-2xl font-bold">User Growth Analytics</h1>
           <p className="text-muted-foreground">Loading growth data...</p>
@@ -126,7 +126,7 @@ export default function UserGrowthPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">📈 User Growth Analytics</h1>
@@ -221,7 +221,7 @@ export default function UserGrowthPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-6">
+            <div className="px-8 py-6 w-full space-y-6">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">This Month</span>
                 <div className="flex items-center gap-2">
@@ -272,7 +272,7 @@ export default function UserGrowthPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="px-8 py-6 w-full space-y-4">
               {topCountries.map(([country, count], index) => (
                 <div key={country} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">

@@ -283,7 +283,7 @@ const EmergencyIncidentsPage = () => {
   ).length;
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -400,7 +400,7 @@ const EmergencyIncidentsPage = () => {
               No emergency events found
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="px-8 py-6 w-full space-y-4">
               {filteredEvents.map((event) => (
                 <div key={event.id} className="border rounded-lg p-4 space-y-3">
                   <div className="flex items-start justify-between">
@@ -463,7 +463,7 @@ const EmergencyIncidentsPage = () => {
                           </DialogHeader>
                           
                           {selectedEvent && (
-                            <div className="space-y-6">
+                            <div className="px-8 py-6 w-full space-y-6">
                               <Tabs defaultValue="overview">
                                 <TabsList>
                                   <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -472,7 +472,7 @@ const EmergencyIncidentsPage = () => {
                                   <TabsTrigger value="notes">Admin Notes</TabsTrigger>
                                 </TabsList>
                                 
-                                <TabsContent value="overview" className="space-y-4">
+                                <TabsContent value="overview" className="px-8 py-6 w-full space-y-4">
                                   <div className="grid grid-cols-2 gap-4">
                                     <div>
                                       <label className="text-sm font-medium">User</label>
@@ -515,7 +515,7 @@ const EmergencyIncidentsPage = () => {
                                 </TabsContent>
                                 
                                 <TabsContent value="location">
-                                  <div className="space-y-4">
+                                  <div className="px-8 py-6 w-full space-y-4">
                                     <div>
                                       <label className="text-sm font-medium">Address</label>
                                       <p>{selectedEvent.address || 'No address available'}</p>
@@ -539,7 +539,7 @@ const EmergencyIncidentsPage = () => {
                                 </TabsContent>
                                 
                                 <TabsContent value="responses">
-                                  <div className="space-y-4">
+                                  <div className="px-8 py-6 w-full space-y-4">
                                     <div>
                                       <label className="text-sm font-medium">Family Acknowledgements</label>
                                       {selectedEvent.sos_acknowledgements && selectedEvent.sos_acknowledgements.length > 0 ? (
@@ -564,7 +564,7 @@ const EmergencyIncidentsPage = () => {
                                 </TabsContent>
                                 
                                 <TabsContent value="notes">
-                                  <div className="space-y-4">
+                                  <div className="px-8 py-6 w-full space-y-4">
                                     <div>
                                       <label className="text-sm font-medium">Add Admin Note</label>
                                       <div className="flex gap-2 mt-2">

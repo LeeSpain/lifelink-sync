@@ -55,7 +55,7 @@ const AISettings = () => {
 
   if (selected === 'clara') {
     return (
-      <div className="space-y-4">
+      <div className="px-8 py-6 w-full space-y-4">
         <Button
           variant="ghost"
           size="sm"
@@ -72,7 +72,7 @@ const AISettings = () => {
 
   if (selected === 'riven') {
     return (
-      <div className="space-y-4">
+      <div className="px-8 py-6 w-full space-y-4">
         <Button
           variant="ghost"
           size="sm"
@@ -89,7 +89,7 @@ const AISettings = () => {
 
   // Default: Agent cards view
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <Settings2 className="h-6 w-6" />

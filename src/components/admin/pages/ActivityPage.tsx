@@ -130,7 +130,7 @@ export default function ActivityPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="px-8 py-6 w-full space-y-6">
         <div>
           <h1 className="text-2xl font-bold">User Activity</h1>
           <p className="text-muted-foreground">Loading activity data...</p>
@@ -140,7 +140,7 @@ export default function ActivityPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">User Activity</h1>

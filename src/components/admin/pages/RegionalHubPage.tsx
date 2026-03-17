@@ -77,7 +77,7 @@ const RegionalHubPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold">{t('admin.regionalManagement')}</h1>
@@ -187,7 +187,7 @@ const RegionalHubPage = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="px-8 py-6 w-full space-y-4">
             {recentSosEvents?.map((event) => (
               <div key={event.id} className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex items-center gap-4">

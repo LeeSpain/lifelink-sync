@@ -157,7 +157,7 @@ const RegionalServicesPage = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="px-8 py-6 w-full space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="name">Service Name</Label>
@@ -272,7 +272,7 @@ const RegionalServicesPage = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Regional Services Management</h1>
@@ -351,7 +351,7 @@ const RegionalServicesPage = () => {
               <CardDescription>{plan.description}</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="px-8 py-6 w-full space-y-4">
                 <div className="flex items-center gap-4">
                   <div className="text-2xl font-bold text-primary">
                     {plan.price} {plan.currency}

@@ -663,7 +663,7 @@ Return the message text only. No preamble.`,
   };
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Manual Invite</h1>
         <p className="text-muted-foreground">Send a personalised invite — write it yourself or let CLARA handle it completely.</p>
@@ -735,13 +735,13 @@ Return the message text only. No preamble.`,
       {/* ─── LEE MODE: Full form + preview ─── */}
       {senderMode === 'lee' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-          <div className="space-y-6">
+          <div className="px-8 py-6 w-full space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>Contact Details</CardTitle>
                 <CardDescription>Who are you inviting?</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="px-8 py-6 w-full space-y-4">
                 <div>
                   <Label>Contact Name *</Label>
                   <Input value={form.name} onChange={e => update('name', e.target.value)} placeholder="John Smith" />
@@ -938,7 +938,7 @@ Return the message text only. No preamble.`,
                 <h3 className="font-bold text-gray-900 mb-1">Just tell CLARA who they are</h3>
                 <p className="text-gray-500 text-sm mb-6">She'll write the perfect message. You review it, then send.</p>
 
-                <div className="space-y-4">
+                <div className="px-8 py-6 w-full space-y-4">
                   <div>
                     <Label>Contact name *</Label>
                     <Input

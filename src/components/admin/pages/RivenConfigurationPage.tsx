@@ -272,7 +272,7 @@ export default function RivenConfigurationPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="px-8 py-6 w-full space-y-6">
         <div>
           <h1 className="text-2xl font-bold">Riven Configuration</h1>
           <p className="text-muted-foreground">Loading configuration...</p>
@@ -282,7 +282,7 @@ export default function RivenConfigurationPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">🤖 Riven Configuration</h1>
@@ -314,7 +314,7 @@ export default function RivenConfigurationPage() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-4">
+            <div className="px-8 py-6 w-full space-y-4">
               <div>
                 <Label className="text-sm font-medium">Primary Content Generation</Label>
                 <div className="flex items-center gap-2 mt-1">
@@ -354,7 +354,7 @@ export default function RivenConfigurationPage() {
                 </div>
               </div>
             </div>
-            <div className="space-y-4">
+            <div className="px-8 py-6 w-full space-y-4">
               <div>
                 <Label className="text-sm font-medium">Image Generation</Label>
                 <div className="flex items-center gap-2 mt-1">
@@ -404,9 +404,9 @@ export default function RivenConfigurationPage() {
             )}
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="px-8 py-6 w-full space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-4">
+            <div className="px-8 py-6 w-full space-y-4">
               <div>
                 <Label>Primary AI Model</Label>
                 {aiConfig?.stages?.text?.provider === 'xai' ? (
@@ -462,7 +462,7 @@ export default function RivenConfigurationPage() {
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="px-8 py-6 w-full space-y-4">
               <div>
                 <Label>Response Tone</Label>
                 <Select value={settings.response_tone} onValueChange={(value) => setSettings({...settings, response_tone: value})}>
@@ -529,7 +529,7 @@ export default function RivenConfigurationPage() {
             Brand Voice & Content Guidelines
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="px-8 py-6 w-full space-y-6">
           <div>
             <Label>Brand Voice Description</Label>
             <Input 
@@ -570,7 +570,7 @@ export default function RivenConfigurationPage() {
             Content Strategy & Style
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="px-8 py-6 w-full space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div>
               <Label>Hashtag Strategy</Label>
@@ -627,7 +627,7 @@ export default function RivenConfigurationPage() {
             Platform Priorities & Scheduling
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="px-8 py-6 w-full space-y-6">
           <div>
             <Label>Platform Priorities (drag to reorder)</Label>
             <div className="flex flex-wrap gap-2 mt-2">
@@ -677,9 +677,9 @@ export default function RivenConfigurationPage() {
             Automation & Approval Settings
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="px-8 py-6 w-full space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-4">
+            <div className="px-8 py-6 w-full space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <Label>Auto-approve Content</Label>
@@ -714,7 +714,7 @@ export default function RivenConfigurationPage() {
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="px-8 py-6 w-full space-y-4">
               <div>
                 <Label>Default Campaign Budget</Label>
                 <Input 

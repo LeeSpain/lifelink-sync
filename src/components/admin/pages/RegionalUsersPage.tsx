@@ -166,7 +166,7 @@ const RegionalUsersPage = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold">Regional Users</h1>
@@ -189,7 +189,7 @@ const RegionalUsersPage = () => {
                 Invite a new operator or supervisor to a regional organization.
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4">
+            <div className="px-8 py-6 w-full space-y-4">
               <div>
                 <Label htmlFor="email">Email Address *</Label>
                 <Input

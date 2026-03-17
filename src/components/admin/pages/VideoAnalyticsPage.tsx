@@ -110,7 +110,7 @@ const VideoAnalyticsPage = () => {
 
   return (
     <AdminErrorBoundary>
-      <div className="space-y-6">
+      <div className="px-8 py-6 w-full space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Video Analytics</h1>
@@ -162,7 +162,7 @@ const VideoAnalyticsPage = () => {
           />
         </div>
 
-        <Tabs defaultValue="overview" className="space-y-4">
+        <Tabs defaultValue="overview" className="px-8 py-6 w-full space-y-4">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="videos">Individual Videos</TabsTrigger>
@@ -170,7 +170,7 @@ const VideoAnalyticsPage = () => {
             <TabsTrigger value="events">Recent Events</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="space-y-4">
+          <TabsContent value="overview" className="px-8 py-6 w-full space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               {/* Device Breakdown */}
               <Card>
@@ -179,7 +179,7 @@ const VideoAnalyticsPage = () => {
                   <CardDescription>Video views by device type</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
+                  <div className="px-8 py-6 w-full space-y-4">
                     {Object.entries(deviceBreakdown).map(([device, count]) => {
                       const Icon = device === 'mobile' ? Smartphone : 
                                   device === 'tablet' ? Tablet : Monitor;
@@ -211,7 +211,7 @@ const VideoAnalyticsPage = () => {
                   <CardDescription>Video views by location</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
+                  <div className="px-8 py-6 w-full space-y-4">
                     {topCountries.length > 0 ? (
                       topCountries.map(([country, count]) => {
                         const percentage = totalViews > 0 ? (count / totalViews * 100).toFixed(1) : '0';
@@ -240,7 +240,7 @@ const VideoAnalyticsPage = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="videos" className="space-y-4">
+          <TabsContent value="videos" className="px-8 py-6 w-full space-y-4">
             <div className="grid gap-4">
               {videoAnalytics && videoAnalytics.length > 0 ? (
                 videoAnalytics.map((video) => (
@@ -306,7 +306,7 @@ const VideoAnalyticsPage = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="audience" className="space-y-4">
+          <TabsContent value="audience" className="px-8 py-6 w-full space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <Card>
                 <CardHeader>
@@ -314,7 +314,7 @@ const VideoAnalyticsPage = () => {
                   <CardDescription>Key audience metrics</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
+                  <div className="px-8 py-6 w-full space-y-4">
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Total Unique Viewers</span>
                       <span className="font-medium">{totalUniqueViewers}</span>
@@ -361,7 +361,7 @@ const VideoAnalyticsPage = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="events" className="space-y-4">
+          <TabsContent value="events" className="px-8 py-6 w-full space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle>Recent Video Events</CardTitle>

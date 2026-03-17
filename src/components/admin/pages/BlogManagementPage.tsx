@@ -296,7 +296,7 @@ const BlogManagementPage = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -401,7 +401,7 @@ const BlogManagementPage = () => {
                       <DialogHeader>
                         <DialogTitle>Blog Post Preview</DialogTitle>
                       </DialogHeader>
-                      <div className="space-y-4">
+                      <div className="px-8 py-6 w-full space-y-4">
                         <div className="border-b pb-4">
                           <h1 className="text-2xl font-bold mb-2">
                             {selectedPost?.seo_title || selectedPost?.title}
@@ -489,7 +489,7 @@ const BlogManagementPage = () => {
             <DialogTitle>Edit Blog Post</DialogTitle>
           </DialogHeader>
           {editingPost && (
-            <div className="space-y-4">
+            <div className="px-8 py-6 w-full space-y-4">
               <div>
                 <label className="text-sm font-medium">Title</label>
                 <Input

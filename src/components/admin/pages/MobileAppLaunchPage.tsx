@@ -118,7 +118,7 @@ export default function MobileAppLaunchPage() {
   const progressPercentage = (completedSteps / deploymentSteps.length) * 100;
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Mobile App Launch</h1>
@@ -141,7 +141,7 @@ export default function MobileAppLaunchPage() {
             Track your mobile app deployment across both platforms
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="px-8 py-6 w-full space-y-4">
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span>Overall Progress</span>
@@ -176,7 +176,7 @@ export default function MobileAppLaunchPage() {
           <TabsTrigger value="assets">Store Assets</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="config" className="space-y-4">
+        <TabsContent value="config" className="px-8 py-6 w-full space-y-4">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -187,7 +187,7 @@ export default function MobileAppLaunchPage() {
                 Current production configuration for your mobile app
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="px-8 py-6 w-full space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">App ID</label>
@@ -222,7 +222,7 @@ export default function MobileAppLaunchPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="build" className="space-y-4">
+        <TabsContent value="build" className="px-8 py-6 w-full space-y-4">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -233,7 +233,7 @@ export default function MobileAppLaunchPage() {
                 Tools to prepare your mobile app for deployment
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="px-8 py-6 w-full space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Button 
                   onClick={prepareBuildAssets}
@@ -267,7 +267,7 @@ export default function MobileAppLaunchPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="stores" className="space-y-4">
+        <TabsContent value="stores" className="px-8 py-6 w-full space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
@@ -321,7 +321,7 @@ export default function MobileAppLaunchPage() {
           </div>
         </TabsContent>
 
-        <TabsContent value="assets" className="space-y-4">
+        <TabsContent value="assets" className="px-8 py-6 w-full space-y-4">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -332,7 +332,7 @@ export default function MobileAppLaunchPage() {
                 Generate and manage store listing assets
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="px-8 py-6 w-full space-y-4">
               <Button 
                 onClick={generateAppStoreAssets}
                 disabled={isLoading}

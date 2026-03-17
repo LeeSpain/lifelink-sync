@@ -173,7 +173,7 @@ export default function ContactSubmissionsPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="px-8 py-6 w-full space-y-6">
         <div>
           <h1 className="text-2xl font-bold">Contact Submissions</h1>
           <p className="text-muted-foreground">Loading contact submissions...</p>
@@ -183,7 +183,7 @@ export default function ContactSubmissionsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Contact Submissions</h1>
@@ -361,7 +361,7 @@ export default function ContactSubmissionsPage() {
                                 <DialogTitle>Contact Submission Details</DialogTitle>
                               </DialogHeader>
                               {selectedSubmission && (
-                                <div className="space-y-4">
+                                <div className="px-8 py-6 w-full space-y-4">
                                   <div className="grid grid-cols-2 gap-4">
                                     <div>
                                       <label className="text-sm font-medium">Name</label>

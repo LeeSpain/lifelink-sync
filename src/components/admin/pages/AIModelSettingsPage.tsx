@@ -238,7 +238,7 @@ export default function AIModelSettingsPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="px-8 py-6 w-full space-y-6">
         <div>
           <h1 className="text-2xl font-bold">AI Model Settings</h1>
           <p className="text-muted-foreground">Loading settings...</p>
@@ -248,7 +248,7 @@ export default function AIModelSettingsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">⚙️ AI Model Settings</h1>
@@ -278,9 +278,9 @@ export default function AIModelSettingsPage() {
             Model Configuration
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="px-8 py-6 w-full space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-4">
+            <div className="px-8 py-6 w-full space-y-4">
               <div>
                 <Label>AI Model</Label>
                 <Select value={modelConfig.model} onValueChange={(value) => setModelConfig(prev => ({...prev, model: value}))}>
@@ -324,7 +324,7 @@ export default function AIModelSettingsPage() {
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="px-8 py-6 w-full space-y-4">
               <div>
                 <Label>Frequency Penalty: {modelConfig.frequency_penalty}</Label>
                 <Slider
@@ -461,7 +461,7 @@ export default function AIModelSettingsPage() {
             System Prompt Templates
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="px-8 py-6 w-full space-y-4">
           <div className="flex gap-2">
             <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
               <SelectTrigger className="w-48">

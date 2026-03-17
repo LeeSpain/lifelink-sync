@@ -207,7 +207,7 @@ const AIPerformancePage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="p-6 space-y-6">
+      <div className="px-8 py-6 w-full space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
             <Card key={i}>
@@ -223,7 +223,7 @@ const AIPerformancePage: React.FC = () => {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">AI Performance</h1>
@@ -317,7 +317,7 @@ const AIPerformancePage: React.FC = () => {
         </Card>
       </div>
 
-      <Tabs defaultValue="performance" className="space-y-4">
+      <Tabs defaultValue="performance" className="px-8 py-6 w-full space-y-4">
         <TabsList>
           <TabsTrigger value="performance">Performance</TabsTrigger>
           <TabsTrigger value="conversations">Conversations</TabsTrigger>
@@ -325,7 +325,7 @@ const AIPerformancePage: React.FC = () => {
           <TabsTrigger value="models">Model Comparison</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="performance" className="space-y-4">
+        <TabsContent value="performance" className="px-8 py-6 w-full space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
@@ -397,7 +397,7 @@ const AIPerformancePage: React.FC = () => {
                 <CardDescription>Model improvement over time</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="px-8 py-6 w-full space-y-4">
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-medium">Training Accuracy</span>
                     <span className="text-sm text-muted-foreground">94.2%</span>
@@ -425,7 +425,7 @@ const AIPerformancePage: React.FC = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="conversations" className="space-y-4">
+        <TabsContent value="conversations" className="px-8 py-6 w-full space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>AI Conversations</CardTitle>
@@ -480,7 +480,7 @@ const AIPerformancePage: React.FC = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="training" className="space-y-4">
+        <TabsContent value="training" className="px-8 py-6 w-full space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Training Data Quality</CardTitle>
@@ -550,7 +550,7 @@ const AIPerformancePage: React.FC = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="models" className="space-y-4">
+        <TabsContent value="models" className="px-8 py-6 w-full space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Model Performance Comparison</CardTitle>

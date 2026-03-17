@@ -198,7 +198,7 @@ const AIAnalytics = () => {
     new Date(d).toLocaleDateString([], { month: 'short', day: 'numeric' });
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">

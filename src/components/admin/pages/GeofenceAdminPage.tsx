@@ -141,7 +141,7 @@ export default function GeofenceAdminPage() {
     : { lat: 37.3881024, lng: -2.1417503 };
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Geofence Management</h1>
@@ -220,7 +220,7 @@ export default function GeofenceAdminPage() {
             <DialogTitle>{editingPlace ? 'Edit Place' : 'Create New Place'}</DialogTitle>
             <DialogDescription>{editingPlace ? 'Update the place details below.' : 'Add a new geofenced location for family monitoring.'}</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="px-8 py-6 w-full space-y-4">
             <div><Label htmlFor="name">Place Name</Label><Input id="name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} placeholder="e.g., Home, School, Office" /></div>
             <div className="grid grid-cols-2 gap-4">
               <div><Label htmlFor="lat">Latitude</Label><Input id="lat" type="number" step="any" value={formData.lat} onChange={(e) => setFormData({...formData, lat: e.target.value})} placeholder="37.3881024" /></div>

@@ -141,7 +141,7 @@ export default function GoLivePreparationPage() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Go-Live Preparation</h1>
@@ -164,7 +164,7 @@ export default function GoLivePreparationPage() {
             Complete all checklist items before going live
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="px-8 py-6 w-full space-y-4">
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span>Production Readiness</span>
@@ -211,7 +211,7 @@ export default function GoLivePreparationPage() {
           <TabsTrigger value="launch">Launch Actions</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="checklist" className="space-y-4">
+        <TabsContent value="checklist" className="px-8 py-6 w-full space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Production Readiness Checklist</CardTitle>
@@ -245,7 +245,7 @@ export default function GoLivePreparationPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="status" className="space-y-4">
+        <TabsContent value="status" className="px-8 py-6 w-full space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
@@ -309,7 +309,7 @@ export default function GoLivePreparationPage() {
           </div>
         </TabsContent>
 
-        <TabsContent value="launch" className="space-y-4">
+        <TabsContent value="launch" className="px-8 py-6 w-full space-y-4">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -320,8 +320,8 @@ export default function GoLivePreparationPage() {
                 Final steps to go live with your platform
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
+            <CardContent className="px-8 py-6 w-full space-y-6">
+              <div className="px-8 py-6 w-full space-y-4">
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div>
                     <h4 className="font-medium">Switch to Production Domain</h4>

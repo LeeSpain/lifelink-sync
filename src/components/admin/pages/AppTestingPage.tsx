@@ -85,7 +85,7 @@ const AppTestingPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       <div className="flex flex-col gap-6 lg:flex-row">
         {/* Left: Live preview */}
         <div className="w-full lg:w-5/12">
@@ -112,7 +112,7 @@ const AppTestingPage: React.FC = () => {
             <CardHeader>
               <CardTitle>Customize Preview</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="px-8 py-6 w-full space-y-4">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
                   <Label htmlFor="appName">App Name</Label>

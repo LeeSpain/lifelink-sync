@@ -96,7 +96,7 @@ const RegionalOrganizationsPage = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold">Regional Organizations</h1>
@@ -119,7 +119,7 @@ const RegionalOrganizationsPage = () => {
                 Set up a new regional emergency response organization.
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4">
+            <div className="px-8 py-6 w-full space-y-4">
               <div>
                 <Label htmlFor="name">Organization Name *</Label>
                 <Input

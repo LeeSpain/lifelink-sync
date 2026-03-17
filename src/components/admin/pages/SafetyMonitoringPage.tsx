@@ -275,7 +275,7 @@ const SafetyMonitoringPage = () => {
   const onlineMembers = Math.floor(totalMembers * 0.85); // Mock calculation
 
   return (
-    <div className="space-y-6">
+    <div className="px-8 py-6 w-full space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -357,7 +357,7 @@ const SafetyMonitoringPage = () => {
           <TabsTrigger value="settings">Monitoring Settings</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-4">
+        <TabsContent value="overview" className="px-8 py-6 w-full space-y-4">
           {/* Search */}
           <div className="flex items-center gap-2">
             <Search className="h-4 w-4 text-muted-foreground" />
@@ -384,7 +384,7 @@ const SafetyMonitoringPage = () => {
                   No family groups found
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="px-8 py-6 w-full space-y-4">
                   {filteredGroups.map((group) => (
                     <div key={group.id} className="border rounded-lg p-4">
                       <div className="flex items-start justify-between">
@@ -428,7 +428,7 @@ const SafetyMonitoringPage = () => {
                             </DialogHeader>
                             
                             {selectedGroup && (
-                              <div className="space-y-6">
+                              <div className="px-8 py-6 w-full space-y-6">
                                 <div className="grid grid-cols-2 gap-4">
                                   <div>
                                     <label className="text-sm font-medium">Family Owner</label>
@@ -491,7 +491,7 @@ const SafetyMonitoringPage = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="alerts" className="space-y-4">
+        <TabsContent value="alerts" className="px-8 py-6 w-full space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Active Safety Alerts</CardTitle>
@@ -531,12 +531,12 @@ const SafetyMonitoringPage = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="communication" className="space-y-4">
+        <TabsContent value="communication" className="px-8 py-6 w-full space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Broadcast Safety Messages</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="px-8 py-6 w-full space-y-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">Message</label>
                 <div className="flex gap-2">
@@ -571,13 +571,13 @@ const SafetyMonitoringPage = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="settings" className="space-y-4">
+        <TabsContent value="settings" className="px-8 py-6 w-full space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Monitoring Configuration</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
+            <CardContent className="px-8 py-6 w-full space-y-6">
+              <div className="px-8 py-6 w-full space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <label className="text-sm font-medium">Automatic Check-ins</label>
