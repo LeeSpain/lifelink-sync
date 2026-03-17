@@ -318,6 +318,31 @@ Deno.serve(async (req: Request) => {
       if (anyAnswered) break;
     }
 
+    // Trigger sos-voice-alerts for additional voice notification layer
+    try {
+      await fetch(
+        `${Deno.env.get("SUPABASE_URL")}/functions/v1/sos-voice-alerts`,
+        {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${Deno.env.get("SUPABASE_ANON_KEY")}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            user_id: body.user_id,
+            member_name: userName,
+            location_lat: body.lat,
+            location_lng: body.lng,
+            location_address: location,
+            trigger_type: body.source,
+          }),
+        }
+      );
+    } catch (e) {
+      console.error("Voice alerts failed:", e);
+      // Non-fatal — existing calls/emails already sent
+    }
+
     // Finalize
     await supabase
       .from("sos_incidents")
