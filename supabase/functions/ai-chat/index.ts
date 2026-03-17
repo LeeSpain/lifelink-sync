@@ -273,7 +273,7 @@ const callClaude = async (
       'content-type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-5',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: maxTokens,
       system: systemPrompt,
       messages,
@@ -318,8 +318,11 @@ const callAI = async (
     try {
       const text = await callClaude(systemPrompt, messages, maxTokens, temperature);
       return { text, provider: 'claude' };
-    } catch (err) {
-      console.warn('Claude failed, falling back to OpenAI:', err);
+    } catch (err: any) {
+      console.error('Claude failed:', err?.message || err);
+      // If no OpenAI key, throw the Claude error directly
+      if (!openAIApiKey) throw err;
+      console.warn('Falling back to OpenAI...');
     }
   }
   if (openAIApiKey) {
