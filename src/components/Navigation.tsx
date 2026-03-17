@@ -1,12 +1,13 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Shield, Menu, X } from "lucide-react";
+import { Shield, Menu, X, LogOut } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 import LanguageCurrencySelector from '@/components/LanguageCurrencySelector';
 import { usePreferences } from '@/contexts/PreferencesContext';
 import { useInteractionTracking } from '@/hooks/useInteractionTracking';
 import { useClaraChat } from '@/contexts/ClaraChatContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface NavigationProps {
   onJoinNowClick?: () => void;
@@ -14,6 +15,7 @@ interface NavigationProps {
 
 const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSignedIn, setIsSignedIn] = useState(false);
   const { t } = useTranslation();
   const { language } = usePreferences();
   const { trackButtonClick, trackLinkClick } = useInteractionTracking();
@@ -21,6 +23,23 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
   const location = useLocation();
   const navigate = useNavigate();
   const isHomepage = location.pathname === '/';
+
+  // Track auth state
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setIsSignedIn(!!data.session);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsSignedIn(!!session);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setIsSignedIn(false);
+    navigate('/');
+  };
 
   const handleSignInClick = () => {
     trackButtonClick('navigation', 'Sign In', { location: 'header' });
@@ -127,16 +146,25 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
                 </div>
               </button>
 
-              <Button asChild variant="outline" size="sm" className="font-medium hover:bg-primary/5 hover:border-primary/30 transition-all duration-200" onClick={handleSignInClick}>
-                <Link to="/auth">{t('nav.signIn', 'Sign In')}</Link>
-              </Button>
-              <Button asChild
-                size="sm"
-                className="bg-primary text-white hover:bg-primary/90 font-medium transition-all duration-200 hover:scale-105 shadow-lg"
-                onClick={handleGetProtectedClick}
-              >
-                <Link to="/onboarding">{t('nav.getProtected', 'Get Protected')}</Link>
-              </Button>
+              {isSignedIn ? (
+                <>
+                  <Button asChild variant="outline" size="sm" className="font-medium hover:bg-primary/5 hover:border-primary/30 transition-all duration-200">
+                    <Link to="/dashboard">Dashboard</Link>
+                  </Button>
+                  <Button variant="ghost" size="sm" className="font-medium text-muted-foreground hover:text-red-600" onClick={handleSignOut}>
+                    <LogOut className="w-4 h-4 mr-1" /> Sign Out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button asChild variant="outline" size="sm" className="font-medium hover:bg-primary/5 hover:border-primary/30 transition-all duration-200" onClick={handleSignInClick}>
+                    <Link to="/auth">{t('nav.signIn', 'Sign In')}</Link>
+                  </Button>
+                  <Button asChild size="sm" className="bg-primary text-white hover:bg-primary/90 font-medium transition-all duration-200 hover:scale-105 shadow-lg" onClick={handleGetProtectedClick}>
+                    <Link to="/onboarding">{t('nav.getProtected', 'Get Protected')}</Link>
+                  </Button>
+                </>
+              )}
             </div>
           </div>
 
@@ -221,17 +249,25 @@ const Navigation = ({ onJoinNowClick }: NavigationProps = {}) => {
                   </div>
                 </button>
 
-                <Button asChild variant="outline" size="sm" className="font-medium hover:bg-primary/5 hover:border-primary/30 transition-all duration-200">
-                  <Link to="/auth" onClick={() => setIsMenuOpen(false)}>{t('nav.signIn', 'Sign In')}</Link>
-                </Button>
-                <Button asChild
-                  size="sm"
-                  className="bg-primary text-white hover:bg-primary/90 font-medium transition-all duration-200 shadow-lg"
-                >
-                  <Link to="/onboarding" onClick={() => setIsMenuOpen(false)}>
-                    {t('nav.getProtected', 'Get Protected')}
-                  </Link>
-                </Button>
+                {isSignedIn ? (
+                  <>
+                    <Button asChild variant="outline" size="sm" className="font-medium hover:bg-primary/5 hover:border-primary/30 transition-all duration-200">
+                      <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>Dashboard</Link>
+                    </Button>
+                    <Button variant="ghost" size="sm" className="font-medium text-muted-foreground hover:text-red-600" onClick={() => { setIsMenuOpen(false); handleSignOut(); }}>
+                      <LogOut className="w-4 h-4 mr-1" /> Sign Out
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button asChild variant="outline" size="sm" className="font-medium hover:bg-primary/5 hover:border-primary/30 transition-all duration-200">
+                      <Link to="/auth" onClick={() => setIsMenuOpen(false)}>{t('nav.signIn', 'Sign In')}</Link>
+                    </Button>
+                    <Button asChild size="sm" className="bg-primary text-white hover:bg-primary/90 font-medium transition-all duration-200 shadow-lg">
+                      <Link to="/onboarding" onClick={() => setIsMenuOpen(false)}>{t('nav.getProtected', 'Get Protected')}</Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </div>

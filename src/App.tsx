@@ -17,6 +17,7 @@ import Index from "./pages/Index";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import AuthPage from "./pages/AuthPage";
+import SignOutPage from "./pages/SignOutPage";
 
 // Live Map Pages
 import MapScreen from "./pages/MapScreen";
@@ -118,6 +119,9 @@ function AppWithTracking() {
             return <OptimizedSuspense skeletonType="card"><Index /></OptimizedSuspense>;
           })()} />
                 
+                {/* Sign Out */}
+                <Route path="/signout" element={<SignOutPage />} />
+
                 {/* Auth Page */}
                 <Route path="/auth" element={
                   <OptimizedSuspense skeletonType="card">
