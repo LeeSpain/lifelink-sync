@@ -26,15 +26,46 @@ const sendWhatsApp = async (to: string, body: string) => {
   if (!res.ok) console.error('Twilio send failed:', res.status, await res.text());
 };
 
+// ── Name extraction helper ──────────────────────────────────────
+function extractName(msg: string): string | null {
+  const patterns = [
+    /did\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s+(?:get|receive|got)/i,
+    /check\s+(?:on\s+)?([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i,
+    /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)'s?\s+(?:invite|status|lead)/i,
+    /(?:status|update)\s+(?:of|on)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i,
+    /(?:has|did)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s+(?:signed|subscribed|converted|responded|replied)/i,
+    /(?:about|for|on)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s*$/i,
+  ];
+  for (const p of patterns) {
+    const m = msg.match(p);
+    if (m && m[1] && !['I', 'Yes', 'No', 'The', 'My', 'Lee'].includes(m[1])) return m[1].trim();
+  }
+  return null;
+}
+
+// ── Time ago helper ──────────────────────────────────────────────
+function timeAgo(date: string): string {
+  const s = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
+  if (s < 60) return 'just now';
+  if (s < 3600) return `${Math.floor(s / 60)} minutes ago`;
+  if (s < 86400) return `${Math.floor(s / 3600)} hours ago`;
+  return `${Math.floor(s / 86400)} days ago`;
+}
+
 // ── Detect command type ────────────────────────────────────────
-type ActionType = 'leads' | 'revenue' | 'chase' | 'status' | 'invite' | 'unknown';
+type ActionType = 'leads' | 'revenue' | 'chase' | 'status' | 'invite' | 'check_invite' | 'check_contact' | 'recent_invites' | 'unknown';
 
 function detectAction(msg: string): ActionType {
   const m = msg.toLowerCase();
+  // Check/query intents — BEFORE action intents
+  if (/did\s+\w+\s+(get|receive|got)|check.*invite|confirm.*invite|was.*sent/i.test(m)) return 'check_invite';
+  if (/what.*happening.*with|status\s+of\s+\w|update\s+on\s+\w|has\s+\w+\s+(signed|subscribed|converted)/i.test(m)) return 'check_contact';
+  if (/recent\s+invite|who\s+(did\s+)?(i|we)\s+invite|last\s+invite|invite\s+history|show\s+invite/i.test(m)) return 'recent_invites';
+  // Action intents
   if (/\b(hot lead|leads|pipeline|lead score)\b/.test(m)) return 'leads';
   if (/\b(mrr|revenue|money|subscriber|conversion|income|arpu)\b/.test(m)) return 'revenue';
   if (/\b(chase|follow.?up|nudge|re.?contact)\b/.test(m)) return 'chase';
-  if (/\b(invite|send invite|onboard|enrol)\b/.test(m)) return 'invite';
+  if (/\b(send\s+invite|invite\s+\w+|onboard|enrol)\b/.test(m)) return 'invite';
   if (/\b(status|report|how are we|platform|morning|briefing|overview)\b/.test(m)) return 'status';
   return 'unknown';
 }
@@ -192,6 +223,125 @@ async function handleInvite(msg: string): Promise<{ proposal: string; data: unkn
   };
 }
 
+// ── Check invite handler ─────────────────────────────────────────
+async function handleCheckInvite(msg: string): Promise<{ proposal: string; data: unknown }> {
+  const name = extractName(msg);
+  if (!name) {
+    return { proposal: "Who are you asking about? Give me a name and I'll check.", data: null };
+  }
+
+  // Check manual_invites
+  const { data: invites } = await supabase
+    .from('manual_invites')
+    .select('*')
+    .ilike('contact_name', `%${name}%`)
+    .order('created_at', { ascending: false })
+    .limit(3);
+
+  // Also check leads
+  const { data: leads } = await supabase
+    .from('leads')
+    .select('*')
+    .or(`first_name.ilike.%${name}%,full_name.ilike.%${name}%,email.ilike.%${name}%`)
+    .order('created_at', { ascending: false })
+    .limit(3);
+
+  if (invites?.length) {
+    const inv = invites[0];
+    const via = inv.send_via || (inv.whatsapp_sent ? 'WhatsApp' : 'Email');
+    const to = inv.contact_whatsapp || inv.contact_email || 'unknown';
+    return {
+      proposal: `✅ Yes — ${inv.contact_name} was sent an invite ${timeAgo(inv.created_at)}.\n\n📱 Via: ${via}\n📞 To: ${to}\n🎨 Tone: ${inv.relationship_tone || 'friendly'}\n${inv.clara_enhanced ? '✨ Enhanced by CLARA' : '✍️ Written by Lee'}\n📅 Sent: ${new Date(inv.created_at).toLocaleString('en-GB')}\n\nWant me to send a follow-up?`,
+      data: null,
+    };
+  }
+
+  if (leads?.length) {
+    const lead = leads[0];
+    return {
+      proposal: `📊 I found ${lead.first_name || lead.full_name || name} in the leads pipeline:\n\nStatus: ${lead.status}\nScore: ${lead.interest_level || lead.lead_score || '?'}/10\nSource: ${lead.lead_source || 'unknown'}\nAdded: ${timeAgo(lead.created_at)}\n\nBut no invite record found. Want me to send one?`,
+      data: null,
+    };
+  }
+
+  return {
+    proposal: `❌ I can't find any record of "${name}" in invites or leads.\n\nWant me to send them an invite now?`,
+    data: null,
+  };
+}
+
+// ── Check contact status handler ─────────────────────────────────
+async function handleCheckContact(msg: string): Promise<{ proposal: string; data: unknown }> {
+  const name = extractName(msg);
+  if (!name) {
+    return { proposal: "Who are you asking about? Give me a name.", data: null };
+  }
+
+  // Check subscribers
+  const { data: subs } = await supabase
+    .from('subscribers')
+    .select('user_id, subscribed, is_trialing, created_at')
+    .limit(100);
+
+  // Check leads
+  const { data: lead } = await supabase
+    .from('leads')
+    .select('*')
+    .or(`first_name.ilike.%${name}%,full_name.ilike.%${name}%,email.ilike.%${name}%`)
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  // Check profiles
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('user_id, full_name, role, created_at')
+    .ilike('full_name', `%${name}%`)
+    .maybeSingle();
+
+  if (profile) {
+    const sub = subs?.find(s => s.user_id === profile.user_id);
+    if (sub?.subscribed && !sub?.is_trialing) {
+      return { proposal: `✅ ${profile.full_name} is a paying subscriber!\n\nSubscribed since: ${timeAgo(sub.created_at)}\nAccount role: ${profile.role}`, data: null };
+    }
+    if (sub?.is_trialing) {
+      return { proposal: `⏰ ${profile.full_name} is on a free trial.\n\nStarted: ${timeAgo(sub.created_at)}\nNot yet converted to paid.`, data: null };
+    }
+    return { proposal: `👤 ${profile.full_name} has an account but no active subscription.`, data: null };
+  }
+
+  if (lead) {
+    return {
+      proposal: `📊 ${lead.first_name || lead.full_name || name} is in the pipeline:\n\nStatus: ${lead.status}\nInterest: ${lead.interest_level || '?'}/10\nSource: ${lead.lead_source || 'unknown'}\nLast updated: ${timeAgo(lead.updated_at)}\n${lead.notes ? `Notes: ${lead.notes.substring(0, 100)}` : ''}\n\nWant me to chase them?`,
+      data: null,
+    };
+  }
+
+  return { proposal: `🔍 No record of "${name}" found in subscribers, leads, or profiles.`, data: null };
+}
+
+// ── Recent invites handler ───────────────────────────────────────
+async function handleRecentInvites(): Promise<{ proposal: string; data: unknown }> {
+  const { data: invites } = await supabase
+    .from('manual_invites')
+    .select('contact_name, send_via, created_at, clara_enhanced, relationship_tone')
+    .order('created_at', { ascending: false })
+    .limit(10);
+
+  if (!invites?.length) {
+    return { proposal: "📨 No invites sent yet. Use Manual Invite in the admin dashboard or say 'invite [name]'.", data: null };
+  }
+
+  const list = invites.map((inv, i) =>
+    `${i + 1}. ${inv.contact_name} — ${timeAgo(inv.created_at)} — ${inv.send_via || 'WhatsApp'}${inv.clara_enhanced ? ' ✨' : ''}`
+  ).join('\n');
+
+  return {
+    proposal: `📨 Last ${invites.length} invites:\n\n${list}\n\nAsk about any of them by name.`,
+    data: null,
+  };
+}
+
 // ── Execute approved actions ───────────────────────────────────
 
 async function executeAction(action: { action_type: string; action_data: Record<string, unknown> }) {
@@ -299,6 +449,15 @@ serve(async (req) => {
     let result: { proposal: string; data: unknown };
 
     switch (actionType) {
+      case 'check_invite':
+        result = await handleCheckInvite(msg);
+        break;
+      case 'check_contact':
+        result = await handleCheckContact(msg);
+        break;
+      case 'recent_invites':
+        result = await handleRecentInvites();
+        break;
       case 'leads':
         result = await handleLeads(msg);
         break;
@@ -314,8 +473,22 @@ serve(async (req) => {
       case 'invite':
         result = await handleInvite(msg);
         break;
-      default:
-        // Unknown — use Claude to interpret
+      default: {
+        // Fetch recent conversation history for context
+        let conversationContext = '';
+        try {
+          const { data: history } = await supabase
+            .from('whatsapp_messages')
+            .select('direction, content, created_at')
+            .order('created_at', { ascending: false })
+            .limit(6);
+          if (history?.length) {
+            conversationContext = '\n\nRecent conversation:\n' + history.reverse().map(m =>
+              `${m.direction === 'inbound' ? 'Lee' : 'CLARA'}: ${m.content?.substring(0, 150)}`
+            ).join('\n');
+          }
+        } catch { /* non-fatal */ }
+
         const anthropicKey = Deno.env.get('ANTHROPIC_API_KEY')!;
         const aiRes = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
@@ -325,15 +498,27 @@ serve(async (req) => {
             'content-type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'claude-3-haiku-20240307',
-            max_tokens: 300,
-            system: `You are CLARA, Lee Wakeman's business AI for LifeLink Sync. He sent a command via WhatsApp. Respond concisely. If you can't help, suggest: leads, revenue, chase, status, or invite.`,
+            model: 'claude-haiku-4-5-20251001',
+            max_tokens: 400,
+            system: `You are CLARA, the AI business assistant for Lee Wakeman, the founder of LifeLink Sync.
+
+CRITICAL CONTEXT:
+- You are speaking TO Lee Wakeman — he is the ADMIN and FOUNDER
+- When Lee says "I sent", "I invited" — HE is the sender
+- When Lee asks about a name like "David" or "John" — those are his CONTACTS, not Lee
+- NEVER confuse Lee with his contacts
+- When Lee asks "did X get my invite" he wants you to CHECK the database, not send a new one
+- When Lee says "no I already sent it" he is correcting you — he already sent something
+
+COMMANDS: leads, revenue, chase, status, invite, check on [name], recent invites
+${conversationContext}`,
             messages: [{ role: 'user', content: msg }],
           }),
         });
         const aiData = await aiRes.json();
-        await sendWhatsApp(from, aiData.content?.[0]?.text || 'I can help with: leads, revenue, chase, status, invite. What do you need?');
+        await sendWhatsApp(from, aiData.content?.[0]?.text || 'I can help with: leads, revenue, chase, status, invite, check on [name]. What do you need?');
         return new Response('', { status: 200 });
+      }
     }
 
     // Send proposal
