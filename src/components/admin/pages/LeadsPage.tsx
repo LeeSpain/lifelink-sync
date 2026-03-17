@@ -206,11 +206,11 @@ const LeadsPage: React.FC = () => {
   const totalDealValue = leads.reduce((sum, lead) => sum + (lead.deal_value || 0), 0);
 
   return (
-    <div className="p-4 md:p-6 space-y-4 md:space-y-6 overflow-x-hidden">
+    <div className="p-6 max-w-7xl mx-auto w-full space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Lead Management</h1>
-          <p className="text-sm md:text-base text-muted-foreground">
+          <h1 className="text-2xl font-bold text-gray-900">Lead Management</h1>
+          <p className="text-gray-400 text-sm mt-0.5">
             Professional CRM with AI-powered insights and automation
           </p>
         </div>
