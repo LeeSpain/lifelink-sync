@@ -77,7 +77,7 @@ async function generateReport(from: string) {
     method: 'POST',
     headers: { 'x-api-key': anthropicKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
     body: JSON.stringify({
-      model: 'claude-3-haiku-20240307',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 150,
       messages: [{ role: 'user', content: `You are CLARA, CMO of LifeLink Sync. Based on this week's data:\nNew leads: ${thisW} (${leadChange}% vs last week)\nHot leads: ${hotLeads}\nActive trials: ${activeTrials}\nMRR: €${mrr}\nCampaigns: ${campaignCount}\nOutreach: ${outreachContacted} cold leads contacted\n\nGive a 2-sentence recommendation for what to focus on this week. Be specific and actionable.` }],
     }),

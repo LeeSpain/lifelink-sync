@@ -47,7 +47,7 @@ async function handleCampaign(msg: string): Promise<{ proposal: string; data: un
     method: 'POST',
     headers: { 'x-api-key': anthropicKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
     body: JSON.stringify({
-      model: 'claude-3-haiku-20240307',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 500,
       messages: [{ role: 'user', content: `You are CLARA, marketing AI for LifeLink Sync (emergency protection platform, €9.99/mo, 7-day free trial). Lee wants to create a WhatsApp campaign. Extract details and draft the message.\n\nLee's instruction: "${msg}"\n\nRespond with JSON only:\n{"campaign_name":"short name","target_segment":"all_leads|hot_leads|trialing|lapsed|custom","message_template":"the WhatsApp message to send (max 160 chars, warm and personal)","estimated_recipients":"number or unknown"}` }],
     }),
@@ -82,7 +82,7 @@ async function handleContent(msg: string): Promise<{ proposal: string; data: unk
     method: 'POST',
     headers: { 'x-api-key': anthropicKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
     body: JSON.stringify({
-      model: 'claude-3-haiku-20240307',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 600,
       messages: [{ role: 'user', content: `You are CLARA, the marketing AI for LifeLink Sync — an emergency protection platform for families (€9.99/mo, 7-day free trial, Spain/UK/Netherlands). Write marketing content based on Lee's request. Be warm, empathetic, and focus on protecting loved ones.\n\nRequest: "${msg}"\n\nProvide 3 variations, each in a different tone (emotional, practical, urgent). Keep each under 200 words. Format as plain text, no markdown.` }],
     }),
@@ -120,7 +120,7 @@ async function handleNewsletter(msg: string): Promise<{ proposal: string; data: 
     method: 'POST',
     headers: { 'x-api-key': anthropicKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
     body: JSON.stringify({
-      model: 'claude-3-haiku-20240307',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 600,
       messages: [{ role: 'user', content: `You are CLARA, marketing AI for LifeLink Sync (emergency protection for families). Draft a newsletter email based on Lee's instruction. Be warm, professional.\n\nInstruction: "${msg}"\n\nRespond with JSON only:\n{"subject":"email subject line","preview_text":"preview text (max 90 chars)","body":"email body in plain text, 3-4 short paragraphs","cta_text":"call to action button text","cta_url":"https://lifelink-sync.vercel.app/ai-register"}` }],
     }),
@@ -386,7 +386,7 @@ serve(async (req) => {
             'content-type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'claude-3-haiku-20240307',
+            model: 'claude-haiku-4-5-20251001',
             max_tokens: 300,
             system: `You are CLARA in marketing mode for Lee Wakeman, owner of LifeLink Sync. Respond concisely. If you can't help, suggest: campaign, content, segment, newsletter, stats.`,
             messages: [{ role: 'user', content: msg }],

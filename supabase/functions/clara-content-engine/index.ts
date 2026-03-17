@@ -42,7 +42,7 @@ async function generateWeeklyContent(from: string) {
     method: 'POST',
     headers: { 'x-api-key': anthropicKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
     body: JSON.stringify({
-      model: 'claude-3-haiku-20240307',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 2000,
       messages: [{ role: 'user', content: `You are CLARA, LifeLink Sync's content strategist. Generate a 7-day content calendar for the week of ${weekStart.toISOString().split('T')[0]}.\n\nBrand voice: warm, trustworthy, safety-focused, human.\nMarkets: Spain (ES), UK (EN), Netherlands (NL)\nPlatforms: Instagram, Facebook, LinkedIn\n\nPerformance insights: ${insights}\n\nFor each day produce:\n{"day":1,"theme":"...","instagram":{"caption_en":"...","caption_es":"...","hashtags":["..."],"content_type":"carousel|reel|post"},"facebook":{"post_en":"...","post_es":"..."},"linkedin":{"post_en":"..."}}\n\nThemes: Family peace of mind, Independence for elderly, Lone worker safety, Customer story, Product feature, Local news hook, Trial offer\n\nRespond with JSON array of 7 days.` }],
     }),

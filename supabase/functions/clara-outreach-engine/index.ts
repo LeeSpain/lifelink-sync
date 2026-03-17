@@ -25,7 +25,7 @@ async function generateOutreachMessage(lead: Record<string, unknown>): Promise<s
     method: 'POST',
     headers: { 'x-api-key': anthropicKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
     body: JSON.stringify({
-      model: 'claude-3-haiku-20240307',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 200,
       messages: [{ role: 'user', content: `Write a re-engagement WhatsApp for LifeLink Sync.\n\nLead context:\nEmail: ${lead.email || 'unknown'}\nInterest: ${lead.interest_level}/10\nDays since contact: ${daysSinceContact}\nStatus: ${lead.status}\nLanguage: ${(lead.metadata as Record<string, unknown>)?.language || 'en'}\n\nIMPORTANT: Write the message in the language specified above (en=English, es=Spanish, nl=Dutch).\n\nMake it personal, warm, like Lee himself is checking in. Not salesy. Genuinely caring. Under 80 words. End with an easy question they can reply to.\n\nRespond with message text only.` }],
     }),

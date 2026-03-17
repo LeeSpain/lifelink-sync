@@ -47,7 +47,7 @@ async function parsePlanIntoSteps(planContent: string): Promise<PlanStep[]> {
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
-      model: 'claude-3-haiku-20240307',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 2000,
       messages: [{
         role: 'user',
@@ -128,7 +128,7 @@ async function executeStep(
         method: 'POST',
         headers: { 'x-api-key': anthropicKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
         body: JSON.stringify({
-          model: 'claude-3-haiku-20240307',
+          model: 'claude-haiku-4-5-20251001',
           max_tokens: 400,
           messages: [{ role: 'user', content: `Draft a professional email for LifeLink Sync based on these instructions: "${step.details}"\n\nRespond with JSON only:\n{"to":"email address or placeholder","subject":"subject line","body":"email body text"}` }],
         }),
@@ -164,7 +164,7 @@ async function executeStep(
         method: 'POST',
         headers: { 'x-api-key': anthropicKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
         body: JSON.stringify({
-          model: 'claude-3-haiku-20240307',
+          model: 'claude-haiku-4-5-20251001',
           max_tokens: 300,
           messages: [{ role: 'user', content: `Draft a WhatsApp message for LifeLink Sync based on these instructions: "${step.details}"\n\nKeep it under 160 chars, warm and personal. Just the message text, no JSON.` }],
         }),
@@ -180,7 +180,7 @@ async function executeStep(
         method: 'POST',
         headers: { 'x-api-key': anthropicKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
         body: JSON.stringify({
-          model: 'claude-3-haiku-20240307',
+          model: 'claude-haiku-4-5-20251001',
           max_tokens: 600,
           messages: [{ role: 'user', content: `Create marketing content for LifeLink Sync (emergency protection platform, €9.99/mo) based on: "${step.details}"\n\nBe warm, empathetic. Focus on protecting loved ones. Max 200 words.` }],
         }),
@@ -227,7 +227,7 @@ async function executeStep(
         method: 'POST',
         headers: { 'x-api-key': anthropicKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
         body: JSON.stringify({
-          model: 'claude-3-haiku-20240307',
+          model: 'claude-haiku-4-5-20251001',
           max_tokens: 400,
           messages: [{ role: 'user', content: `You are CLARA, LifeLink Sync's AI. Lee needs a decision on: "${step.details}"\n\nAnalyse the options. Recommend the best choice with reasoning. Be concise — 3 sentences max.` }],
         }),

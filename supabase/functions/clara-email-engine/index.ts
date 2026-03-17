@@ -24,7 +24,7 @@ async function generateEmail(sequence: string, name: string, language: string, t
     method: 'POST',
     headers: { 'x-api-key': anthropicKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
     body: JSON.stringify({
-      model: 'claude-3-haiku-20240307',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 600,
       messages: [{ role: 'user', content: `You are CLARA writing a ${sequence} email for LifeLink Sync.\n\nMember: ${name}\nWho they protect: ${whoFor}\nLanguage: ${language}\nTrigger: ${triggerReason}\n\nWrite a warm, personal email that feels like it comes from a real person who cares about their safety.\n\nSubject line: compelling, under 8 words.\nBody: 3-4 short paragraphs max.\nCTA: single clear action.\n\nRespond JSON:\n{"subject":"...","body_html":"...","body_text":"..."}` }],
     }),

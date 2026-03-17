@@ -124,7 +124,7 @@ async function handleDemo(msg: string): Promise<{ proposal: string; data: unknow
     method: 'POST',
     headers: { 'x-api-key': anthropicKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
     body: JSON.stringify({
-      model: 'claude-3-haiku-20240307',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 300,
       messages: [{ role: 'user', content: `Extract demo booking details from this message. Respond with JSON only:\n{"contact_name":"name","contact_phone":"phone or null","contact_email":"email or null","preferred_time":"time or null","notes":"any notes"}\n\nMessage: "${msg}"` }],
     }),
@@ -368,7 +368,7 @@ serve(async (req) => {
             'content-type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'claude-3-haiku-20240307',
+            model: 'claude-haiku-4-5-20251001',
             max_tokens: 300,
             system: `You are CLARA in sales mode for Lee Wakeman, owner of LifeLink Sync. He's asking about sales. Respond concisely. If you can't help, suggest: pipeline, chase, demo, conversion, forecast.`,
             messages: [{ role: 'user', content: msg }],

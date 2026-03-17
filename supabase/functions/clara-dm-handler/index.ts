@@ -34,7 +34,7 @@ async function classifyDM(text: string): Promise<{ category: string; language: s
     method: 'POST',
     headers: { 'x-api-key': anthropicKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
     body: JSON.stringify({
-      model: 'claude-3-haiku-20240307',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 200,
       messages: [{ role: 'user', content: `Classify this DM for LifeLink Sync:\nMessage: "${text}"\n\nCategories: interested, pricing, support, complaint, spam, other\nAlso extract: language (en/es/nl/other), urgency (low/medium/high), who_for (self/mum/dad/other/unknown)\n\nRespond JSON only:\n{"category":"...","language":"...","urgency":"...","who_for":"..."}` }],
     }),
@@ -102,7 +102,7 @@ serve(async (req) => {
           method: 'POST',
           headers: { 'x-api-key': anthropicKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
           body: JSON.stringify({
-            model: 'claude-3-haiku-20240307',
+            model: 'claude-haiku-4-5-20251001',
             max_tokens: 200,
             system: 'You are CLARA from LifeLink Sync. Respond to this social media DM warmly and concisely. Direct them to https://lifelink-sync.com if relevant.',
             messages: [{ role: 'user', content: message_text }],

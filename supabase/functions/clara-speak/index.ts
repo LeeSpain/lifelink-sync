@@ -1,8 +1,9 @@
 // Clara Speak — TTS outbound call via Twilio
-// Makes CLARA call a phone number and speak a message using Twilio TTS
-// Detects country from phone prefix for language/voice selection
+// Uses DB-based language detection, falls back to phone prefix
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { getContactLanguage, getVoiceSettings, getClaraSpeakGreeting } from '../_shared/language.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -15,25 +16,13 @@ function escapeXml(str: string): string {
   }[c] || c));
 }
 
-function getLocale(phone: string) {
-  if (phone.startsWith('+34')) return { voice: 'Polly.Conchita', language: 'es-ES', greeting: 'Hola. Soy CLARA, tu asistente de seguridad personal de LifeLink Sync.', noResponse: 'No se ha recibido respuesta. Se está alertando a sus contactos de emergencia.', pressPrompt: 'Pulse 1 para confirmar que está bien. Pulse 2 para activar respuesta de emergencia.' };
-  if (phone.startsWith('+31')) return { voice: 'Polly.Lotte', language: 'nl-NL', greeting: 'Hallo. Ik ben CLARA, uw persoonlijke veiligheidsassistent van LifeLink Sync.', noResponse: 'Geen reactie ontvangen. Uw noodcontacten worden nu gewaarschuwd.', pressPrompt: 'Druk 1 om te bevestigen dat u veilig bent. Druk 2 voor noodhulp.' };
-  return { voice: 'Polly.Joanna', language: 'en-GB', greeting: 'Hello. This is CLARA, your personal safety assistant from LifeLink Sync.', noResponse: 'No response received. Alerting your emergency contacts now.', pressPrompt: 'Press 1 to confirm you are safe. Press 2 to trigger emergency response.' };
-}
-
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
 
   try {
-    const {
-      to,
-      message,
-      voice: voiceOverride,
-      language: langOverride,
-      callbackUrl,
-    } = await req.json();
+    const { to, message, voice: voiceOverride, language: langOverride, callbackUrl } = await req.json();
 
     if (!to || !message) {
       return new Response(
@@ -47,16 +36,18 @@ serve(async (req) => {
     const fromNumber = Deno.env.get('TWILIO_PHONE_NUMBER')
       || Deno.env.get('TWILIO_WHATSAPP_FROM')?.replace('whatsapp:', '');
 
-    if (!accountSid || !authToken) {
+    if (!accountSid || !authToken || !fromNumber) {
       throw new Error('Twilio not configured');
     }
-    if (!fromNumber) {
-      throw new Error('No Twilio phone number configured');
-    }
 
-    const locale = getLocale(to);
-    const voice = voiceOverride || locale.voice;
-    const language = langOverride || locale.language;
+    // Get language from DB, fall back to phone prefix
+    const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
+    const contactLang = await getContactLanguage(supabase, { phone: to });
+    const vs = getVoiceSettings(contactLang);
+    const greetings = getClaraSpeakGreeting(contactLang);
+
+    const voice = voiceOverride || vs.voice;
+    const language = langOverride || vs.language;
 
     const responseUrl = callbackUrl
       || 'https://cprbgquiqbyoyrffznny.supabase.co/functions/v1/clara-speak-response';
@@ -64,7 +55,7 @@ serve(async (req) => {
     const twiml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Say voice="${voice}" language="${language}">
-    ${escapeXml(locale.greeting)}
+    ${escapeXml(greetings.greeting)}
   </Say>
   <Pause length="0.5"/>
   <Say voice="${voice}" language="${language}">
@@ -72,13 +63,13 @@ serve(async (req) => {
   </Say>
   <Pause length="1"/>
   <Say voice="${voice}" language="${language}">
-    ${escapeXml(locale.pressPrompt)}
+    ${escapeXml(greetings.pressPrompt)}
   </Say>
   <Gather numDigits="1" action="${responseUrl}" method="POST" timeout="10">
     <Pause length="5"/>
   </Gather>
   <Say voice="${voice}" language="${language}">
-    ${escapeXml(locale.noResponse)}
+    ${escapeXml(greetings.noResponse)}
   </Say>
 </Response>`;
 
@@ -86,9 +77,7 @@ serve(async (req) => {
     formData.append('To', to);
     formData.append('From', fromNumber);
     formData.append('Twiml', twiml);
-    if (callbackUrl) {
-      formData.append('StatusCallback', callbackUrl);
-    }
+    if (callbackUrl) formData.append('StatusCallback', callbackUrl);
 
     const response = await fetch(
       `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Calls.json`,
@@ -103,12 +92,9 @@ serve(async (req) => {
     );
 
     const result = await response.json();
+    if (!response.ok) throw new Error(result.message || 'Twilio call failed');
 
-    if (!response.ok) {
-      throw new Error(result.message || 'Twilio call failed');
-    }
-
-    console.log('clara-speak: call initiated', { to, callSid: result.sid, language });
+    console.log('clara-speak:', { to, callSid: result.sid, lang: contactLang });
 
     return new Response(
       JSON.stringify({ success: true, callSid: result.sid, status: result.status }),

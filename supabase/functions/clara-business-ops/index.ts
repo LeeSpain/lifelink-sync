@@ -206,7 +206,7 @@ async function handleInvite(msg: string): Promise<{ proposal: string; data: unkn
     method: 'POST',
     headers: { 'x-api-key': anthropicKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
     body: JSON.stringify({
-      model: 'claude-3-haiku-20240307',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 300,
       messages: [{ role: 'user', content: `Extract invite details from this message. Respond with JSON only:\n{"contact_name":"name","contact_phone":"phone or null","contact_email":"email or null","who_for":"self|mum|dad|parents|business|unsure","channel":"whatsapp"}\n\nMessage: "${msg}"` }],
     }),
