@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { TrendingUp, Users, Target, CheckCircle, Zap, Kanban, List, Plus, Filter, Mail, Trash2 } from "lucide-react";
+import { TrendingUp, Users, Target, CheckCircle, Zap, Kanban, List, Plus, Filter, Mail, Trash2, XCircle, Bot, RefreshCw } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
 import { useEnhancedLeads, EnhancedLead } from '@/hooks/useEnhancedLeads';
 import { LeadDetailModal } from '@/components/admin/leads/LeadDetailModal';
 import { LeadKanbanBoard } from '@/components/admin/leads/LeadKanbanBoard';
@@ -27,6 +28,7 @@ interface LeadEngagement {
 }
 
 const LeadsPage: React.FC = () => {
+  const navigate = useNavigate();
   const [filteredLeads, setFilteredLeads] = useState<EnhancedLead[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -34,9 +36,12 @@ const LeadsPage: React.FC = () => {
   const [interestFilter, setInterestFilter] = useState('all');
   const [selectedLead, setSelectedLead] = useState<EnhancedLead | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showAddLead, setShowAddLead] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list');
   const [enrollments, setEnrollments] = useState<Map<string, SequenceEnrollment>>(new Map());
   const [engagements, setEngagements] = useState<Map<string, LeadEngagement>>(new Map());
+  const [addForm, setAddForm] = useState({ full_name: '', email: '', phone: '', lead_source: 'manual_invite', notes: '', preferred_language: 'en' });
+  const [addSaving, setAddSaving] = useState(false);
   const { toast } = useToast();
   
   const { leads, loading, updateLeadStatus, deleteLead } = useEnhancedLeads();
@@ -154,6 +159,39 @@ const LeadsPage: React.FC = () => {
     }
   };
 
+  const handleAddLead = async () => {
+    if (!addForm.full_name.trim()) { toast({ title: 'Name required', variant: 'destructive' }); return; }
+    setAddSaving(true);
+    try {
+      const nameParts = addForm.full_name.trim().split(' ');
+      const { error } = await supabase.from('leads').insert({
+        first_name: nameParts[0],
+        last_name: nameParts.slice(1).join(' ') || null,
+        full_name: addForm.full_name,
+        email: addForm.email || `${Date.now()}@lead.lifelink-sync.com`,
+        phone: addForm.phone || null,
+        lead_source: addForm.lead_source,
+        status: 'new',
+        interest_level: 5,
+        lead_score: 20,
+        language: addForm.preferred_language,
+        notes: addForm.notes || null,
+        tags: [addForm.lead_source],
+        session_id: crypto.randomUUID(),
+      });
+      if (error) throw error;
+      toast({ title: 'Lead added successfully' });
+      setShowAddLead(false);
+      setAddForm({ full_name: '', email: '', phone: '', lead_source: 'manual_invite', notes: '', preferred_language: 'en' });
+      // Reload leads
+      window.location.reload();
+    } catch (err: any) {
+      toast({ title: 'Failed to add lead', description: err.message, variant: 'destructive' });
+    } finally {
+      setAddSaving(false);
+    }
+  };
+
   const handleLeadClick = (lead: EnhancedLead) => {
     setSelectedLead(lead);
     setIsModalOpen(true);
@@ -181,7 +219,15 @@ const LeadsPage: React.FC = () => {
             {viewMode === 'list' ? <Kanban className="h-4 w-4 mr-2" /> : <List className="h-4 w-4 mr-2" />}
             {viewMode === 'list' ? 'Kanban View' : 'List View'}
           </Button>
-          <Button>
+          <Button variant="outline" onClick={() => navigate('/admin-dashboard/command-centre')}>
+            <Bot className="h-4 w-4 mr-2" />
+            Ask CLARA
+          </Button>
+          <Button variant="outline" onClick={() => navigate('/admin-dashboard/manual-invite')}>
+            <Mail className="h-4 w-4 mr-2" />
+            Send Invite
+          </Button>
+          <Button onClick={() => setShowAddLead(true)} className="bg-red-500 hover:bg-red-600 text-white">
             <Plus className="h-4 w-4 mr-2" />
             Add Lead
           </Button>
@@ -482,6 +528,62 @@ const LeadsPage: React.FC = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       />
+
+      {/* Add Lead Modal */}
+      {showAddLead && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={e => { if (e.target === e.currentTarget) setShowAddLead(false); }}>
+          <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-gray-900">Add New Lead</h2>
+              <button onClick={() => setShowAddLead(false)} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center"><XCircle className="w-4 h-4 text-gray-400" /></button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">Full name *</Label>
+                <Input value={addForm.full_name} onChange={e => setAddForm(f => ({ ...f, full_name: e.target.value }))} placeholder="e.g. David Slader" className="rounded-xl" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">Email</Label>
+                  <Input type="email" value={addForm.email} onChange={e => setAddForm(f => ({ ...f, email: e.target.value }))} placeholder="email@example.com" className="rounded-xl" />
+                </div>
+                <div>
+                  <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">WhatsApp / Phone</Label>
+                  <Input value={addForm.phone} onChange={e => setAddForm(f => ({ ...f, phone: e.target.value }))} placeholder="+34 600 000 000" className="rounded-xl" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">Source</Label>
+                  <select value={addForm.lead_source} onChange={e => setAddForm(f => ({ ...f, lead_source: e.target.value }))} className="w-full h-9 px-3 rounded-xl border border-gray-200 text-sm">
+                    <option value="manual_invite">Manual Invite</option>
+                    <option value="whatsapp_chat">WhatsApp Chat</option>
+                    <option value="contact_form">Contact Form</option>
+                    <option value="referral">Referral</option>
+                    <option value="website">Website</option>
+                  </select>
+                </div>
+                <div>
+                  <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">Language</Label>
+                  <select value={addForm.preferred_language} onChange={e => setAddForm(f => ({ ...f, preferred_language: e.target.value }))} className="w-full h-9 px-3 rounded-xl border border-gray-200 text-sm">
+                    <option value="en">English</option>
+                    <option value="es">Spanish</option>
+                    <option value="nl">Dutch</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">Notes</Label>
+                <textarea value={addForm.notes} onChange={e => setAddForm(f => ({ ...f, notes: e.target.value }))} placeholder="Any notes about this lead..." rows={3} className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-red-500/20" />
+              </div>
+            </div>
+            <div className="p-6 border-t border-gray-100 flex gap-3">
+              <Button variant="outline" onClick={() => setShowAddLead(false)} className="flex-1">Cancel</Button>
+              <Button onClick={handleAddLead} disabled={addSaving} className="flex-1 bg-red-500 hover:bg-red-600 text-white">{addSaving ? 'Saving...' : 'Add Lead'}</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
