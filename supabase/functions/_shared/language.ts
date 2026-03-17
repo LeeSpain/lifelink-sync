@@ -6,6 +6,13 @@ export type Language = 'en' | 'es' | 'nl';
 
 export const DEFAULT_LANGUAGE: Language = 'en';
 
+// Lee's number — ALWAYS English regardless of +34 prefix
+export const LEE_PHONE = '+34643706877';
+
+export function isLeeNumber(phone: string): boolean {
+  return phone.includes('34643706877');
+}
+
 // ─────────────────────────────────────
 // GET CONTACT LANGUAGE FROM DB
 // Falls back to phone prefix only if DB has no preference
@@ -19,6 +26,11 @@ export async function getContactLanguage(
     userId?: string;
   }
 ): Promise<Language> {
+  // 0. Lee Wakeman ALWAYS gets English (his +34 number is Spanish prefix but he's English)
+  if (options.phone && isLeeNumber(options.phone)) {
+    return 'en';
+  }
+
   // 1. Check profiles table (for registered users)
   if (options.userId) {
     try {
