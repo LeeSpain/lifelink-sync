@@ -104,6 +104,9 @@ export default function ManualInvitePage() {
     roughNote: '',
   });
   const [claraRelationship, setClaraRelationship] = useState('friendly');
+  const [claraGenerating, setClaraGenerating] = useState(false);
+  const [claraGeneratedMessage, setClaraGeneratedMessage] = useState('');
+  const [claraEditingPreview, setClaraEditingPreview] = useState(false);
   const [claraSending, setClaraSending] = useState(false);
   const [claraSent, setClaraSent] = useState(false);
   const [claraSentName, setClaraSentName] = useState('');
@@ -270,17 +273,16 @@ Return the message text only. No preamble.`,
     }
   };
 
-  // ─── Send via CLARA (auto mode) ───
-  const handleClaraSend = async () => {
+  // ─── Generate CLARA message (step 1) ───
+  const handleClaraGenerate = async () => {
     if (!canSendClara) return;
-    setClaraSending(true);
+    setClaraGenerating(true);
     try {
-      // Let CLARA generate and send the message
       const response = await supabase.functions.invoke('ai-chat', {
         body: {
           message: `You are CLARA, the AI assistant for LifeLink Sync — a personal emergency protection platform.
 
-Lee Wakeman wants you to write and send a WhatsApp message to invite someone to LifeLink Sync.
+Lee Wakeman wants you to write a WhatsApp message to invite someone to LifeLink Sync.
 
 Contact name: ${claraForm.name}
 Protection for: ${claraForm.protectionFor}
@@ -312,27 +314,38 @@ Return the message text only. No preamble.`,
 
       const claraMessage = response.data?.response || response.data?.reply || '';
       if (!claraMessage) throw new Error('CLARA could not generate a message');
+      setClaraGeneratedMessage(claraMessage);
+    } catch (err) {
+      console.error('CLARA generate error:', err);
+      toast({ title: 'Could not reach CLARA. Try again.', variant: 'destructive' });
+    } finally {
+      setClaraGenerating(false);
+    }
+  };
 
-      // Send it via WhatsApp
+  // ─── Send CLARA message (step 2 — after review) ───
+  const handleClaraSend = async () => {
+    if (!claraGeneratedMessage || !canSendClara) return;
+    setClaraSending(true);
+    try {
       const { data: sendResult, error: sendError } = await supabase.functions.invoke('clara-escalation', {
         body: {
           type: 'manual_invite',
           contact_name: claraForm.name,
           contact_phone: claraForm.whatsapp.trim(),
-          message: claraMessage,
+          message: claraGeneratedMessage,
         },
       });
       if (sendError) throw new Error(sendError.message || 'Failed to send');
       if (!sendResult?.success) throw new Error('Delivery failed — check WhatsApp number');
 
-      // Log to DB
       await (supabase as any).from('manual_invites').insert({
         contact_name: claraForm.name,
         contact_whatsapp: claraForm.whatsapp || null,
         protection_for: claraForm.protectionFor,
         personal_message: claraForm.roughNote || null,
         send_via: 'whatsapp',
-        message_sent: claraMessage,
+        message_sent: claraGeneratedMessage,
         relationship_tone: claraRelationship,
         clara_enhanced: true,
         whatsapp_sent: true,
@@ -370,6 +383,8 @@ Return the message text only. No preamble.`,
     setClaraSent(false);
     setClaraSentName('');
     setClaraRelationship('friendly');
+    setClaraGeneratedMessage('');
+    setClaraEditingPreview(false);
   };
 
   const channelBadge = () => {
@@ -773,113 +788,248 @@ Return the message text only. No preamble.`,
         </div>
       )}
 
-      {/* ─── CLARA MODE: Simplified form ─── */}
+      {/* ─── CLARA MODE: Form + Preview ─── */}
       {senderMode === 'clara' && (
-        <div className="max-w-xl">
-          {claraSent ? (
-            <div className="text-center py-8">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Sparkles className="w-8 h-8 text-green-500" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          {/* LEFT — Form */}
+          <div>
+            {claraSent ? (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Sparkles className="w-8 h-8 text-green-500" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">CLARA sent it!</h3>
+                <p className="text-gray-500 text-sm">Message sent to {claraSentName}</p>
+                <p className="text-gray-400 text-xs mt-1">CLARA will follow up automatically if they don't respond</p>
+                <button
+                  onClick={resetClara}
+                  className="mt-6 text-red-500 text-sm font-medium hover:text-red-600"
+                >
+                  Send another →
+                </button>
               </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-2">CLARA sent it!</h3>
-              <p className="text-gray-500 text-sm">Message sent to {claraSentName}</p>
-              <p className="text-gray-400 text-xs mt-1">CLARA will follow up automatically if they don't respond</p>
-              <button
-                onClick={resetClara}
-                className="mt-6 text-red-500 text-sm font-medium hover:text-red-600"
-              >
-                Send another →
-              </button>
-            </div>
-          ) : (
-            <div className="bg-white border border-gray-200 rounded-2xl p-6">
-              <h3 className="font-bold text-gray-900 mb-1">Just tell CLARA who they are</h3>
-              <p className="text-gray-500 text-sm mb-6">She'll write and send the perfect message for you.</p>
+            ) : (
+              <div className="bg-white border border-gray-200 rounded-2xl p-6">
+                <h3 className="font-bold text-gray-900 mb-1">Just tell CLARA who they are</h3>
+                <p className="text-gray-500 text-sm mb-6">She'll write the perfect message. You review it, then send.</p>
 
-              <div className="space-y-4">
-                <div>
-                  <Label>Contact name *</Label>
-                  <Input
-                    value={claraForm.name}
-                    onChange={e => updateClara('name', e.target.value)}
-                    placeholder="John Smith"
-                  />
-                </div>
-                <div>
-                  <Label>WhatsApp number *</Label>
-                  <Input
-                    type="tel"
-                    value={claraForm.whatsapp}
-                    onChange={e => updateClara('whatsapp', e.target.value)}
-                    placeholder="+44 7700 900000"
-                  />
-                </div>
-                <div>
-                  <Label>Who is protection for? *</Label>
-                  <Select value={claraForm.protectionFor} onValueChange={v => updateClara('protectionFor', v)}>
-                    <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
-                    <SelectContent>
-                      {protectionOptions.map(o => (
-                        <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                <div className="space-y-4">
+                  <div>
+                    <Label>Contact name *</Label>
+                    <Input
+                      value={claraForm.name}
+                      onChange={e => { updateClara('name', e.target.value); setClaraGeneratedMessage(''); }}
+                      placeholder="John Smith"
+                    />
+                  </div>
+                  <div>
+                    <Label>WhatsApp number *</Label>
+                    <Input
+                      type="tel"
+                      value={claraForm.whatsapp}
+                      onChange={e => updateClara('whatsapp', e.target.value)}
+                      placeholder="+44 7700 900000"
+                    />
+                  </div>
+                  <div>
+                    <Label>Who is protection for? *</Label>
+                    <Select value={claraForm.protectionFor} onValueChange={v => { updateClara('protectionFor', v); setClaraGeneratedMessage(''); }}>
+                      <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                      <SelectContent>
+                        {protectionOptions.map(o => (
+                          <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label className="mb-2 block">Relationship</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {relationships.map(r => (
+                        <button
+                          key={r.value}
+                          type="button"
+                          onClick={() => { setClaraRelationship(r.value); setClaraGeneratedMessage(''); }}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm transition-all border ${
+                            claraRelationship === r.value
+                              ? 'bg-red-50 border-red-500 text-red-700 font-medium'
+                              : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+                          }`}
+                        >
+                          <span>{r.emoji}</span>
+                          <span>{r.label}</span>
+                        </button>
                       ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                    </div>
+                  </div>
 
-                <div>
-                  <Label className="mb-2 block">Relationship</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {relationships.map(r => (
-                      <button
-                        key={r.value}
-                        type="button"
-                        onClick={() => setClaraRelationship(r.value)}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm transition-all border ${
-                          claraRelationship === r.value
-                            ? 'bg-red-50 border-red-500 text-red-700 font-medium'
-                            : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
-                        }`}
-                      >
-                        <span>{r.emoji}</span>
-                        <span>{r.label}</span>
-                      </button>
-                    ))}
+                  <div>
+                    <Label>Rough note about them <span className="text-gray-400 font-normal">(optional)</span></Label>
+                    <Textarea
+                      value={claraForm.roughNote}
+                      onChange={e => { updateClara('roughNote', e.target.value); setClaraGeneratedMessage(''); }}
+                      placeholder="e.g. He's a mate, his mum lives alone in Málaga. Has 3 kids."
+                      rows={3}
+                    />
                   </div>
                 </div>
 
-                <div>
-                  <Label>Rough note about them <span className="text-gray-400 font-normal">(optional)</span></Label>
-                  <Textarea
-                    value={claraForm.roughNote}
-                    onChange={e => updateClara('roughNote', e.target.value)}
-                    placeholder="e.g. He's a mate, his mum lives alone in Málaga. Has 3 kids."
-                    rows={3}
-                  />
+                <Button
+                  onClick={handleClaraGenerate}
+                  disabled={!canSendClara || claraGenerating}
+                  className="w-full bg-red-500 hover:bg-red-600 text-white py-4 rounded-xl text-base font-semibold mt-6 h-auto"
+                >
+                  {claraGenerating ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      CLARA is writing...
+                    </span>
+                  ) : claraGeneratedMessage ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <RefreshCw className="w-5 h-5" />
+                      Regenerate Message
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center gap-2">
+                      <Sparkles className="w-5 h-5" />
+                      Let CLARA Write It →
+                    </span>
+                  )}
+                </Button>
+                <p className="text-xs text-gray-400 text-center mt-3">
+                  CLARA writes, you review, then send. Signed as: CLARA, LifeLink Sync
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* RIGHT — Preview */}
+          <div className="lg:sticky lg:top-6">
+            {claraSent ? (
+              <div className="bg-white border border-green-200 rounded-2xl p-8 text-center">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-8 h-8 text-green-500" />
+                </div>
+                <h3 className="text-gray-900 font-bold text-lg mb-2">Delivered!</h3>
+                <p className="text-gray-500 text-sm mb-4">{claraSentName} will receive the message shortly via WhatsApp.</p>
+                <details className="text-left mb-4">
+                  <summary className="text-xs text-gray-400 cursor-pointer text-center">View sent message</summary>
+                  <div className="mt-3 bg-gray-50 rounded-xl p-3 text-xs text-gray-600 whitespace-pre-wrap">{claraGeneratedMessage}</div>
+                </details>
+              </div>
+            ) : !claraGeneratedMessage ? (
+              <div className="bg-white border border-dashed border-gray-300 rounded-2xl p-8 text-center">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Eye className="w-8 h-8 text-gray-300" />
+                </div>
+                <h3 className="text-gray-400 font-medium mb-2">Preview will appear here</h3>
+                <p className="text-gray-300 text-sm">Fill in the details and click "Let CLARA Write It" to see the message before sending</p>
+              </div>
+            ) : (
+              <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+                {/* Header */}
+                <div className="bg-gray-50 border-b border-gray-200 px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center text-red-600 font-bold text-sm">
+                      {claraForm.name?.[0]?.toUpperCase() || '?'}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900">{claraForm.name}</p>
+                      <p className="text-xs text-gray-400">{claraForm.whatsapp}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Body */}
+                <div className="px-6 py-5">
+                  <div className="flex flex-wrap items-center gap-2 mb-4">
+                    <span className="text-xs bg-blue-50 text-blue-600 border border-blue-200 px-3 py-1 rounded-full font-medium">
+                      📱 WhatsApp
+                    </span>
+                    <span className="text-xs bg-red-50 text-red-600 border border-red-200 px-3 py-1 rounded-full font-medium">
+                      {relationships.find(r => r.value === claraRelationship)?.label} tone
+                    </span>
+                    <span className="text-xs bg-purple-50 text-purple-600 border border-purple-200 px-3 py-1 rounded-full font-medium flex items-center gap-1">
+                      <Sparkles className="w-3 h-3" /> CLARA
+                    </span>
+                  </div>
+
+                  {/* WhatsApp bubble */}
+                  {claraEditingPreview ? (
+                    <Textarea
+                      value={claraGeneratedMessage}
+                      onChange={e => setClaraGeneratedMessage(e.target.value)}
+                      className="w-full border border-gray-300 rounded-xl p-3 text-sm text-gray-700 min-h-[120px] focus:border-red-500 mb-4"
+                      rows={6}
+                    />
+                  ) : (
+                    <div className="bg-[#dcf8c6] rounded-2xl rounded-tr-sm p-4 relative mb-4">
+                      <p className="text-gray-800 text-sm leading-relaxed whitespace-pre-wrap">{claraGeneratedMessage}</p>
+                      <p className="text-right text-[10px] text-gray-400 mt-2">
+                        {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ✓✓
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-3 mb-4">
+                    <button
+                      type="button"
+                      onClick={() => setClaraEditingPreview(!claraEditingPreview)}
+                      className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1"
+                    >
+                      <Pencil className="w-3 h-3" />
+                      {claraEditingPreview ? 'Done editing' : 'Edit message'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleClaraGenerate}
+                      disabled={claraGenerating}
+                      className="text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1 disabled:opacity-40"
+                    >
+                      <RefreshCw className={`w-3 h-3 ${claraGenerating ? 'animate-spin' : ''}`} />
+                      Regenerate
+                    </button>
+                  </div>
+
+                  <p className="text-xs text-gray-400 mb-2">
+                    {claraGeneratedMessage.split(/\s+/).filter(Boolean).length} words · {claraGeneratedMessage.length} characters
+                  </p>
+
+                  {claraForm.protectionFor && (
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <Shield className="w-3.5 h-3.5 text-red-400" />
+                      <span>Protection for: {protectionOptions.find(o => o.value === claraForm.protectionFor)?.label}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Footer — Accept & Send */}
+                <div className="px-6 pb-6">
+                  <Button
+                    onClick={handleClaraSend}
+                    disabled={claraSending}
+                    className="w-full bg-red-500 hover:bg-red-600 text-white py-4 rounded-xl text-base font-semibold mb-3 h-auto"
+                  >
+                    {claraSending ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Sending...
+                      </span>
+                    ) : (
+                      <span className="flex items-center justify-center gap-2">
+                        <Send className="w-5 h-5" />
+                        Accept & Send via CLARA
+                      </span>
+                    )}
+                  </Button>
+                  <p className="text-xs text-gray-300 text-center mt-2">
+                    Signed as: CLARA, on behalf of Lee Wakeman
+                  </p>
                 </div>
               </div>
-
-              <Button
-                onClick={handleClaraSend}
-                disabled={!canSendClara || claraSending}
-                className="w-full bg-red-500 hover:bg-red-600 text-white py-4 rounded-xl text-base font-semibold mt-6 h-auto"
-              >
-                {claraSending ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    CLARA is writing & sending...
-                  </span>
-                ) : (
-                  <span className="flex items-center justify-center gap-2">
-                    <Sparkles className="w-5 h-5" />
-                    Send via CLARA →
-                  </span>
-                )}
-              </Button>
-              <p className="text-xs text-gray-400 text-center mt-3">
-                CLARA will write and send a personalised message immediately. Signed as: CLARA, LifeLink Sync
-              </p>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       )}
     </div>
