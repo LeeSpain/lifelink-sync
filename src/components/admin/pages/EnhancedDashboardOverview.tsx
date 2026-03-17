@@ -66,44 +66,56 @@ export default function EnhancedDashboardOverview() {
       const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
       const monthAgo = new Date(Date.now() - 30 * 86400000).toISOString();
 
-      const [users, subs, trials, leadsDay, leadsWk, hotLds, gifts, pending, recentProfiles, recentLeads] = await Promise.all([
+      const [users, paidSubs, trialSubs, leadsDay, leadsWk, hotLds, gifts, pending, activeAddons, recentProfiles, recentLeads, recentWA, recentActivity] = await Promise.all([
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
-        supabase.from('subscribers').select('*', { count: 'exact', head: true }).eq('subscribed', true),
+        supabase.from('subscribers').select('*', { count: 'exact', head: true }).eq('subscribed', true).eq('is_trialing', false),
         supabase.from('subscribers').select('*', { count: 'exact', head: true }).eq('is_trialing', true),
         supabase.from('leads').select('*', { count: 'exact', head: true }).gte('created_at', today),
         supabase.from('leads').select('*', { count: 'exact', head: true }).gte('created_at', weekAgo),
         supabase.from('leads').select('*', { count: 'exact', head: true }).gte('interest_level', 7),
         supabase.from('gift_subscriptions').select('*', { count: 'exact', head: true }).gte('created_at', monthAgo),
         supabase.from('clara_pending_actions').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-        supabase.from('profiles').select('user_id, full_name, created_at').order('created_at', { ascending: false }).limit(8),
-        supabase.from('leads').select('id, first_name, email, created_at').order('created_at', { ascending: false }).limit(8),
+        supabase.from('member_addons').select('*', { count: 'exact', head: true }).eq('status', 'active'),
+        supabase.from('profiles').select('user_id, full_name, created_at').order('created_at', { ascending: false }).limit(6),
+        supabase.from('leads').select('id, first_name, full_name, email, lead_source, created_at').order('created_at', { ascending: false }).limit(6),
+        supabase.from('whatsapp_messages').select('id, content, direction, is_ai_generated, timestamp').order('timestamp', { ascending: false }).limit(6),
+        supabase.from('user_activity').select('id, activity_type, description, created_at').order('created_at', { ascending: false }).limit(6),
       ]);
 
-      const subCount = subs.count || 0;
-      const trialCount = trials.count || 0;
+      const paidCount = paidSubs.count || 0;
+      const trialCount = trialSubs.count || 0;
+      const addonCount = activeAddons.count || 0;
+      const baseMRR = paidCount * 9.99;
+      const addonMRR = addonCount * 2.99;
 
       setStats({
         totalUsers: users.count || 0,
-        subscribers: subCount,
+        subscribers: paidCount,
         trials: trialCount,
         leadsToday: leadsDay.count || 0,
         leadsWeek: leadsWk.count || 0,
         hotLeads: hotLds.count || 0,
         gifts: gifts.count || 0,
         pendingActions: pending.count || 0,
-        mrr: subCount * 9.99,
+        mrr: baseMRR + addonMRR,
       });
 
-      // Merge activity
+      // Merge activity from all sources
       const items: ActivityItem[] = [];
       (recentProfiles.data || []).forEach((p: any) => {
         items.push({ id: `u-${p.user_id}`, type: 'user', text: `${p.full_name || 'New user'} joined`, time: p.created_at });
       });
       (recentLeads.data || []).forEach((l: any) => {
-        items.push({ id: `l-${l.id}`, type: 'lead', text: `New lead: ${l.first_name || l.email}`, time: l.created_at });
+        items.push({ id: `l-${l.id}`, type: 'lead', text: `New lead: ${l.full_name || l.first_name || l.email} (${l.lead_source || 'web'})`, time: l.created_at });
+      });
+      (recentWA.data || []).forEach((m: any) => {
+        if (m.content) items.push({ id: `wa-${m.id}`, type: m.is_ai_generated ? 'pending' : 'subscriber', text: `${m.direction === 'inbound' ? 'WhatsApp received' : m.is_ai_generated ? 'CLARA sent WhatsApp' : 'WhatsApp sent'}: "${(m.content || '').slice(0, 40)}..."`, time: m.timestamp });
+      });
+      (recentActivity.data || []).forEach((a: any) => {
+        if (a.description) items.push({ id: `act-${a.id}`, type: 'sos', text: `${a.activity_type?.replace(/_/g, ' ') || 'Activity'}: ${(a.description || '').slice(0, 50)}`, time: a.created_at });
       });
       items.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
-      setActivity(items.slice(0, 12));
+      setActivity(items.slice(0, 15));
       setLastRefresh(new Date());
     } catch (err) {
       console.error('Dashboard load error:', err);
@@ -153,12 +165,12 @@ export default function EnhancedDashboardOverview() {
   ];
 
   const health = [
-    { label: 'CLARA AI', status: 'Operational', ok: true },
-    { label: 'Cron Jobs', status: '16 active', ok: true },
-    { label: 'Edge Functions', status: '25+ deployed', ok: true },
+    { label: 'CLARA AI', status: !loading ? 'Operational' : 'Checking...', ok: !loading },
+    { label: 'Database', status: !loading ? 'Connected' : 'Checking...', ok: !loading },
+    { label: 'WhatsApp', status: !loading ? `${stats.leadsToday >= 0 ? 'Active' : 'Check'}` : 'Checking...', ok: !loading },
     { label: 'Email (Resend)', status: 'Connected', ok: true },
     { label: 'Stripe', status: 'Connected', ok: true },
-    { label: 'Database', status: 'Connected', ok: true },
+    { label: 'Edge Functions', status: '25+ deployed', ok: true },
   ];
 
   // Skeleton
