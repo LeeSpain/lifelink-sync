@@ -317,13 +317,14 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
 
       // 2. Log lead activity
       if (leadId) {
-        await (supabase as any).from('lead_activities').insert({
+        const { error: actErr } = await (supabase as any).from('lead_activities').insert({
           lead_id: leadId,
           activity_type: 'whatsapp_sent',
           subject: `Manual invite sent${useEnhanced ? ' (CLARA enhanced)' : ''}`,
           content: messageToSend,
           metadata: { channel: form.sendVia, phone: cleanPhone, ai_generated: useEnhanced, relationship, language: contactLanguage },
-        }).catch(() => {});
+        });
+        if (actErr) console.warn('Activity log error:', actErr);
       }
 
       // 3. Create WhatsApp conversation + message if sent via WhatsApp
@@ -342,10 +343,11 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
           await (supabase as any).from('whatsapp_conversations').update({ contact_name: form.name, metadata: { lead_id: leadId, source: 'manual_invite' } }).eq('id', convId);
         }
         if (convId) {
-          await (supabase as any).from('whatsapp_messages').insert({
+          const { error: msgErr } = await (supabase as any).from('whatsapp_messages').insert({
             conversation_id: convId, direction: 'outbound', message_type: 'text',
             content: messageToSend, is_ai_generated: useEnhanced, status: 'sent',
-          }).catch(() => {});
+          });
+          if (msgErr) console.warn('Message log error:', msgErr);
         }
       }
 
@@ -486,13 +488,14 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
 
       // 2. Log lead activity
       if (leadId2) {
-        await (supabase as any).from('lead_activities').insert({
+        const { error: actErr2 } = await (supabase as any).from('lead_activities').insert({
           lead_id: leadId2,
           activity_type: 'whatsapp_sent',
           subject: 'CLARA invite sent via WhatsApp',
           content: claraGeneratedMessage,
           metadata: { channel: 'whatsapp', phone: cleanPhone, ai_generated: true, relationship: claraRelationship },
-        }).catch(() => {});
+        });
+        if (actErr2) console.warn('Activity log error:', actErr2);
       }
 
       // 3. Create WhatsApp conversation + message
@@ -509,10 +512,11 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
           await (supabase as any).from('whatsapp_conversations').update({ contact_name: claraForm.name, metadata: { lead_id: leadId2, source: 'clara_invite' } }).eq('id', convId2);
         }
         if (convId2) {
-          await (supabase as any).from('whatsapp_messages').insert({
+          const { error: msgErr2 } = await (supabase as any).from('whatsapp_messages').insert({
             conversation_id: convId2, direction: 'outbound', message_type: 'text',
             content: claraGeneratedMessage, is_ai_generated: true, status: 'sent',
-          }).catch(() => {});
+          });
+          if (msgErr2) console.warn('Message log error:', msgErr2);
         }
       }
 
