@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
@@ -6,8 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import {
   UserPlus, Users, Shield, Zap,
   Smartphone, Radio, Monitor,
-  MessageSquare, MapPin, FileText, Phone, AlertTriangle,
-  Gift,
+  MessageSquare, MapPin, FileText, Phone, Headphones,
+  Gift, Mic, Star, Activity, Clock, Heart, Volume2, Check
 } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
@@ -22,10 +21,10 @@ function HeroSection() {
         <span className="text-primary text-sm font-semibold tracking-wider uppercase">
           {t('howItWorksPage.label', 'HOW IT WORKS')}
         </span>
-        <h1 className="text-4xl md:text-6xl font-bold font-poppins mb-6 mt-4 leading-tight text-[hsl(215,25%,27%)]">
+        <h1 className="text-4xl md:text-6xl font-bold font-poppins mb-6 mt-4 leading-tight text-gray-900">
           {t('howItWorksPage.heading', 'Protection that works while you live your life')}
         </h1>
-        <p className="text-lg md:text-xl text-gray-500 max-w-xl mx-auto font-inter">
+        <p className="text-lg md:text-xl text-gray-500 max-w-xl mx-auto">
           {t('howItWorksPage.subtitle', 'Set up in 2 minutes. CLARA watches over you and your loved ones 24/7.')}
         </p>
       </div>
@@ -47,9 +46,7 @@ function StepsSection() {
     <section className="py-20 bg-white">
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-4 gap-8 relative">
-          {/* Connecting line (desktop only) */}
           <div className="hidden md:block absolute top-12 left-[12.5%] right-[12.5%] h-[2px] bg-gray-200" />
-
           {steps.map((step, i) => {
             const Icon = step.icon;
             return (
@@ -57,13 +54,13 @@ function StepsSection() {
                 <div className="w-12 h-12 rounded-full bg-red-500 text-white font-bold text-lg flex items-center justify-center mx-auto mb-4 relative z-10 shadow-lg shadow-red-500/20">
                   {i + 1}
                 </div>
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                  <Icon className="h-5 w-5 text-primary" />
+                <div className="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center mx-auto mb-3">
+                  <Icon className="h-5 w-5 text-red-500" />
                 </div>
-                <h3 className="text-lg font-semibold text-[hsl(215,25%,27%)] mb-2">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   {t(`howItWorksPage.${step.titleKey}`, step.titleFallback)}
                 </h3>
-                <p className="text-sm text-gray-500 leading-relaxed max-w-[220px] mx-auto font-inter">
+                <p className="text-sm text-gray-500 leading-relaxed max-w-[220px] mx-auto">
                   {t(`howItWorksPage.${step.descKey}`, step.descFallback)}
                 </p>
               </div>
@@ -76,94 +73,36 @@ function StepsSection() {
 }
 
 // ── Section 3: Three Ways to Trigger SOS ────────────────────
-function PhoneMockup() {
-  return (
-    <div className="mt-4 mx-auto" style={{ maxWidth: 180 }}>
-      <div className="rounded-[32px] p-2 border-2 border-gray-200 bg-white shadow-lg">
-        <img
-          src="/screenshots/family-mobile.png"
-          alt="Family mobile app"
-          className="rounded-[26px] w-full block"
-          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; const next = (e.target as HTMLImageElement).nextElementSibling as HTMLElement; if (next) next.style.display = 'flex'; }}
-        />
-        <div className="hidden h-[240px] items-center justify-center rounded-[26px] bg-gray-50 text-gray-400 text-xs text-center p-5">
-          <div>
-            <Smartphone className="h-8 w-8 mx-auto mb-2 opacity-50" />
-            <span>Family App Preview</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function PendantVisual() {
-  return (
-    <div className="mt-4 flex justify-center">
-      <div className="relative">
-        <div className="absolute inset-0 rounded-full blur-xl bg-red-500/10 animate-pulse" style={{ width: 100, height: 100 }} />
-        <div className="relative w-[100px] h-[100px] rounded-full flex items-center justify-center text-lg font-bold text-white bg-red-500 shadow-lg shadow-red-500/20">
-          SOS
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function TabletMockup() {
-  return (
-    <div className="mt-4 mx-auto" style={{ maxWidth: 260 }}>
-      <div className="rounded-2xl p-2 border-2 border-gray-200 bg-white shadow-lg" style={{ aspectRatio: '4/3' }}>
-        <img
-          src="/screenshots/tablet-dashboard.png"
-          alt="Tablet dashboard"
-          className="rounded-[10px] w-full h-full object-cover block"
-          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; const next = (e.target as HTMLImageElement).nextElementSibling as HTMLElement; if (next) next.style.display = 'flex'; }}
-        />
-        <div className="hidden h-full items-center justify-center rounded-[10px] bg-gray-50 text-gray-400 text-xs text-center p-5">
-          <div>
-            <Monitor className="h-8 w-8 mx-auto mb-2 opacity-50" />
-            <span>Tablet Dashboard Preview</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 const triggerCards = [
   {
     icon: Smartphone,
     title: 'Mobile App',
     desc: 'One tap on the app sends your location and alerts your full emergency circle.',
     tag: 'Always with you',
-    visual: <PhoneMockup />,
   },
   {
     icon: Radio,
     title: 'SOS Pendant',
     desc: 'Waterproof Bluetooth pendant. 6-month battery. Works anywhere your phone has signal.',
     tag: 'Worn 24/7',
-    visual: <PendantVisual />,
   },
   {
     icon: Monitor,
     title: 'Tablet Dashboard',
     desc: 'Fixed tablet at home. CLARA monitors activity and can detect if something is wrong.',
     tag: 'Always on at home',
-    visual: <TabletMockup />,
   },
 ];
 
 function TriggersSection() {
   return (
-    <section className="py-20 bg-[#F3F4F6]">
+    <section className="py-20 bg-gray-50">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-[hsl(215,25%,27%)] font-poppins mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             Three ways to call for help
           </h2>
-          <p className="text-gray-500 text-lg font-inter">
+          <p className="text-gray-500 text-lg">
             However you need it, whenever you need it.
           </p>
         </div>
@@ -172,19 +111,84 @@ function TriggersSection() {
           {triggerCards.map((card, i) => {
             const Icon = card.icon;
             return (
-              <div
-                key={i}
-                className="rounded-2xl p-6 bg-white border border-[#E5E7EB] shadow-sm hover:shadow-lg hover:border-red-200 transition-all duration-300 group relative overflow-hidden"
-              >
+              <div key={i} className="rounded-2xl p-6 bg-white border border-gray-200 shadow-sm hover:shadow-lg hover:border-red-200 transition-all duration-300 group relative overflow-hidden">
                 <Badge className="absolute top-4 right-4 bg-red-50 text-red-600 border-red-200 text-[10px]">
                   {card.tag}
                 </Badge>
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-red-100 transition-colors">
-                  <Icon className="h-5 w-5 text-primary" />
+                <div className="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center mb-4 group-hover:bg-red-100 transition-colors">
+                  <Icon className="h-5 w-5 text-red-500" />
                 </div>
-                <h3 className="text-lg font-semibold text-[hsl(215,25%,27%)] mb-2">{card.title}</h3>
-                <p className="text-sm text-gray-500 leading-relaxed font-inter">{card.desc}</p>
-                {card.visual}
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{card.title}</h3>
+                <p className="text-sm text-gray-500 leading-relaxed">{card.desc}</p>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Smart speaker note */}
+        <div className="max-w-5xl mx-auto mt-6">
+          <div className="bg-white rounded-2xl border border-gray-200 p-5 flex items-center gap-4">
+            <div className="w-12 h-12 bg-gray-800 rounded-2xl flex items-center justify-center flex-shrink-0">
+              <Volume2 className="w-6 h-6 text-white" />
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold text-gray-900 mb-0.5">Voice activation</p>
+              <p className="text-gray-500 text-sm">Say "CLARA, help me" hands-free from your phone, tablet, or anywhere CLARA is listening — even if your phone is out of reach.</p>
+            </div>
+            <span className="text-xs bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-full font-medium flex-shrink-0 hidden sm:block">
+              Hands-free
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Section 4: Everything Included ──────────────────────────
+const featureCards = [
+  { icon: Mic, title: 'Voice Activation', desc: 'Say "CLARA, help me" hands-free. Works on your phone, tablet, and smart speakers.', tag: 'Hands-free', addon: false },
+  { icon: Smartphone, title: 'Mobile App SOS', desc: 'One tap on the app triggers your full emergency circle instantly from anywhere.', tag: 'Always with you', addon: false },
+  { icon: Radio, title: 'SOS Pendant', desc: 'Waterproof Bluetooth pendant. 6-month battery. Press once for immediate help.', tag: 'Worn 24/7', addon: false },
+  { icon: Monitor, title: 'Tablet Dashboard', desc: 'Fixed tablet at home. Always-on CLARA monitoring. Voice activated. Family messages.', tag: 'Always home', addon: false },
+  { icon: Users, title: 'Family Circle', desc: 'Connect up to 5 emergency contacts. They get instant alerts, live location and your medical profile.', tag: 'Stay connected', addon: false },
+  { icon: MapPin, title: 'Live GPS Location', desc: 'Real-time location shared with your circle during any emergency — updated every 30 seconds.', tag: 'Find me fast', addon: false },
+  { icon: Heart, title: 'Medical Profile', desc: 'Blood type, allergies, medications and conditions sent automatically to first responders.', tag: 'Life-saving info', addon: false },
+  { icon: Phone, title: 'Conference Bridge', desc: 'Your family joins a live call during any emergency to coordinate response together.', tag: 'Coordinate fast', addon: false },
+  { icon: Headphones, title: 'Instant Callback', desc: 'If no one responds, a real person calls you back within 60 seconds to confirm you are safe.', tag: 'Never alone', addon: false },
+  { icon: Activity, title: 'Daily Wellbeing', desc: 'CLARA checks in daily. Tracks mood, sleep and pain. Sends a digest to your family.', tag: 'Add-on · €2.99', addon: true },
+  { icon: Clock, title: 'Medication Reminder', desc: 'CLARA reminds you to take medication. Logs it. Alerts family if a dose is missed.', tag: 'Add-on · €2.99', addon: true },
+  { icon: Star, title: 'CLARA AI 24/7', desc: 'Your personal AI safety companion. Available around the clock via chat, voice, or WhatsApp.', tag: 'Always on', addon: false },
+];
+
+function FeaturesSection() {
+  return (
+    <section className="py-20 bg-white">
+      <div className="container mx-auto px-4 max-w-6xl">
+        <div className="text-center mb-10">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+            Everything included in your plan
+          </h2>
+          <p className="text-gray-500">
+            One subscription. Complete protection.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {featureCards.map((f, i) => {
+            const Icon = f.icon;
+            return (
+              <div key={i} className="bg-white rounded-2xl border border-gray-100 p-5 hover:shadow-md hover:border-red-100 transition-all group">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-10 h-10 bg-red-500 rounded-xl flex items-center justify-center group-hover:bg-red-600 transition-colors">
+                    <Icon className="w-5 h-5 text-white" />
+                  </div>
+                  <span className={`text-xs font-medium px-2.5 py-1 rounded-full border ${f.addon ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-red-50 text-red-600 border-red-100'}`}>
+                    {f.tag}
+                  </span>
+                </div>
+                <h3 className="font-bold text-gray-900 text-sm mb-1">{f.title}</h3>
+                <p className="text-gray-500 text-xs leading-relaxed">{f.desc}</p>
               </div>
             );
           })}
@@ -194,39 +198,47 @@ function TriggersSection() {
   );
 }
 
-// ── Section 4: What Happens When SOS Fires ──────────────────
+// ── Section 5: What Happens When SOS Fires ──────────────────
 const sosSteps = [
-  { icon: MessageSquare, title: 'Circle alerted instantly', desc: 'WhatsApp + SMS sent to all emergency contacts', color: 'text-red-500 bg-red-50 border-red-200' },
-  { icon: MapPin, title: 'GPS location shared live', desc: 'Your real-time location streamed to your circle', color: 'text-red-500 bg-red-50 border-red-200' },
-  { icon: FileText, title: 'Medical profile sent', desc: 'Conditions, medications, and allergies shared with first responders', color: 'text-amber-600 bg-amber-50 border-amber-200' },
-  { icon: Phone, title: 'Conference call opens', desc: 'Your entire family circle connected on one call to coordinate', color: 'text-amber-600 bg-amber-50 border-amber-200' },
-  { icon: AlertTriangle, title: 'CLARA escalates', desc: 'If no one responds, CLARA escalates and keeps trying', color: 'text-green-600 bg-green-50 border-green-200' },
+  { icon: MessageSquare, title: 'Your family is alerted instantly', desc: 'Every member of your emergency circle gets a WhatsApp, SMS and email alert simultaneously — within seconds.' },
+  { icon: MapPin, title: 'Your live location is shared', desc: 'Your exact GPS coordinates are sent to your family circle and update in real time so they can find you.' },
+  { icon: FileText, title: 'Your medical profile is sent', desc: 'Blood type, allergies, medications and conditions are automatically shared with your contacts and first responders.' },
+  { icon: Phone, title: 'A conference bridge opens', desc: 'Your family can join a live call together to coordinate the response — no confusion, everyone connected.' },
+  { icon: Headphones, title: 'Instant callback arranged', desc: 'If no one responds within 60 seconds, a real person calls you back to confirm you are safe.' },
 ];
 
 function SOSFlowSection() {
   return (
-    <section className="py-20 bg-white">
-      <div className="container mx-auto px-4 max-w-3xl">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-[hsl(215,25%,27%)] font-poppins mb-4">
+    <section className="py-20 bg-gray-50">
+      <div className="container mx-auto px-4 max-w-5xl">
+        <div className="text-center mb-10">
+          <span className="inline-flex items-center gap-2 bg-red-50 text-red-600 text-xs font-semibold px-4 py-1.5 rounded-full border border-red-100 mb-4">
+            In the next 30 seconds
+          </span>
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
             What happens the moment you press SOS
           </h2>
+          <p className="text-gray-500 max-w-xl mx-auto">
+            CLARA coordinates everything instantly — you just need to press one button.
+          </p>
         </div>
 
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {sosSteps.map((step, i) => {
             const Icon = step.icon;
             return (
-              <div key={i} className="flex items-start gap-4">
-                <div className={`w-10 h-10 rounded-full border flex items-center justify-center flex-shrink-0 ${step.color}`}>
-                  <span className="text-sm font-bold">{i + 1}</span>
-                </div>
-                <div className="flex-1 pt-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Icon className={`h-4 w-4 ${step.color.split(' ')[0]}`} />
-                    <h3 className="font-semibold text-[hsl(215,25%,27%)]">{step.title}</h3>
+              <div key={i} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex items-start gap-4 hover:shadow-md hover:border-red-100 transition-all">
+                <div className="relative flex-shrink-0">
+                  <div className="w-12 h-12 bg-red-500 rounded-2xl flex items-center justify-center">
+                    <Icon className="w-5 h-5 text-white" />
                   </div>
-                  <p className="text-sm text-gray-500 font-inter">{step.desc}</p>
+                  <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-gray-900 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">{i + 1}</span>
+                  </div>
+                </div>
+                <div>
+                  <p className="font-bold text-gray-900 mb-1 text-sm">{step.title}</p>
+                  <p className="text-gray-500 text-xs leading-relaxed">{step.desc}</p>
                 </div>
               </div>
             );
@@ -237,13 +249,13 @@ function SOSFlowSection() {
   );
 }
 
-// ── Section 5: CTA ──────────────────────────────────────────
+// ── Section 6: CTA ──────────────────────────────────────────
 function CTASection() {
   const { t } = useTranslation();
   return (
     <section className="py-20 bg-gray-900">
       <div className="container mx-auto px-4 text-center max-w-2xl">
-        <h2 className="text-3xl md:text-4xl font-bold text-white font-poppins mb-8">
+        <h2 className="text-3xl md:text-4xl font-bold text-white mb-8">
           {t('howItWorksPage.ctaHeading', 'Start protecting yourself or someone you love today')}
         </h2>
 
@@ -263,7 +275,7 @@ function CTASection() {
         </div>
 
         <p className="text-sm text-gray-400">
-          7-day free trial &middot; No card required &middot; Cancel anytime
+          7-day free trial · No card required · Cancel anytime
         </p>
       </div>
     </section>
@@ -280,6 +292,7 @@ export default function HowItWorksPage() {
       <HeroSection />
       <StepsSection />
       <TriggersSection />
+      <FeaturesSection />
       <SOSFlowSection />
       <CTASection />
       <Footer />
