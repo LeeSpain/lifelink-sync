@@ -108,15 +108,29 @@ UPDATE public.site_content SET value = '{
 }'
 WHERE key = 'riven_content_templates';
 
--- 3. Fix riven_settings model name — update any gpt-5 references
-UPDATE public.riven_settings SET ai_model = 'gpt-4o' WHERE ai_model LIKE 'gpt-5%';
+-- 3. Fix riven_settings model name — update any gpt-5 references (skip if column missing)
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'riven_settings' AND column_name = 'ai_model'
+  ) THEN
+    UPDATE public.riven_settings SET ai_model = 'gpt-4o' WHERE ai_model LIKE 'gpt-5%';
+  END IF;
+END $$;
 
--- 4. Fix ai_model_settings — update any gpt-5 references
-UPDATE public.ai_model_settings SET model_id = 'gpt-4o' WHERE model_id LIKE 'gpt-5%';
+-- 4. Fix ai_model_settings — update any gpt-5 references (skip if column does not exist)
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'ai_model_settings' AND column_name = 'model_id'
+  ) THEN
+    UPDATE public.ai_model_settings SET model_id = 'gpt-4o' WHERE model_id LIKE 'gpt-5%';
+  END IF;
+END $$;
 
 -- 5. Update ICE SOS training data to LifeLink Sync
 UPDATE public.training_data SET
-  answer = REPLACE(answer, 'ICE SOS Premium', 'LifeLink Sync'),
-  answer = REPLACE(answer, 'ICE SOS Business', 'LifeLink Sync Business'),
-  answer = REPLACE(answer, 'ICE SOS', 'LifeLink Sync')
+  answer = REPLACE(REPLACE(REPLACE(answer, 'ICE SOS Premium', 'LifeLink Sync'), 'ICE SOS Business', 'LifeLink Sync Business'), 'ICE SOS', 'LifeLink Sync')
 WHERE answer LIKE '%ICE SOS%';

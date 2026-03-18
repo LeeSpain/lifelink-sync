@@ -2,7 +2,7 @@
 CREATE TABLE IF NOT EXISTS public.lead_invites (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   lead_id UUID NOT NULL REFERENCES public.leads(id) ON DELETE CASCADE,
-  token TEXT NOT NULL UNIQUE DEFAULT encode(gen_random_bytes(16), 'hex'),
+  token TEXT NOT NULL UNIQUE DEFAULT replace(gen_random_uuid()::text, '-', ''),
 
   -- Channels sent
   sms_sent BOOLEAN DEFAULT false,

@@ -1,11 +1,18 @@
 -- Update CLARA daily Facebook CRON to skip if Riven already posted today
-SELECT cron.unschedule('clara-daily-facebook-post');
+
+-- Remove old job if exists (ignore error if not found)
+DO $outer$
+BEGIN
+  PERFORM cron.unschedule('clara-daily-facebook-post');
+EXCEPTION WHEN OTHERS THEN
+  NULL;
+END $outer$;
 
 SELECT cron.schedule(
   'clara-daily-facebook-post',
   '0 8 * * *',
-  $$
-  DO $$
+  $cron_body$
+  DO $inner$
   BEGIN
     -- Only post if Riven hasn't already posted or scheduled for today
     IF NOT EXISTS (
@@ -26,6 +33,6 @@ SELECT cron.schedule(
         )
       );
     END IF;
-  END $$;
-  $$
+  END $inner$;
+  $cron_body$
 );
