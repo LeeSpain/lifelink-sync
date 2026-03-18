@@ -564,6 +564,7 @@ serve(async (req) => {
 
   const token = Deno.env.get("FACEBOOK_PAGE_ACCESS_TOKEN")!;
   const pageId = Deno.env.get("FACEBOOK_PAGE_ID")!;
+  console.log(`🔑 Token loaded: ${token ? token.substring(0, 10) + "..." + token.substring(token.length - 5) : "MISSING"} | Page ID: ${pageId}`);
   const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY")!;
   const verifyToken =
     Deno.env.get("FACEBOOK_WEBHOOK_VERIFY_TOKEN") ?? "lifelink_clara_2026";
