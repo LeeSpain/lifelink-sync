@@ -124,7 +124,8 @@ export default function ManualInvitePage() {
   // ─── CLARA Mode State ───
   const [claraForm, setClaraForm] = useState({
     name: '',
-    whatsapp: '',
+    phone: '',
+    email: '',
     protectionFor: '',
     roughNote: '',
   });
@@ -161,7 +162,7 @@ export default function ManualInvitePage() {
 
   const canSend = form.name.trim() && form.protectionFor && anyChannelSelected && !needsEmail && !needsPhone;
 
-  const canSendClara = claraForm.name.trim() && claraForm.whatsapp.trim() && claraForm.protectionFor;
+  const canSendClara = claraForm.name.trim() && (claraForm.phone.trim() || claraForm.email.trim()) && claraForm.protectionFor;
 
   // ─── Auto-translate when language changes or enhanced message updates ───
   useEffect(() => {
@@ -407,113 +408,54 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
     if (!claraGeneratedMessage || !canSendClara) return;
     setClaraSending(true);
     try {
-      const { data: sendResult, error: sendError } = await supabase.functions.invoke('clara-escalation', {
+      const cleanPhone = claraForm.phone?.replace(/\s/g, '') || null;
+
+      // Build channels based on what info is provided
+      const claraSendChannels: string[] = [];
+      if (cleanPhone) claraSendChannels.push('sms');
+      if (claraForm.email?.trim()) claraSendChannels.push('email');
+
+      // Call send-invite — handles lead creation, token, and all channel sending
+      const { data: sendResult, error: sendError } = await supabase.functions.invoke('send-invite', {
         body: {
-          type: 'manual_invite',
-          contact_name: claraForm.name,
-          contact_phone: claraForm.whatsapp.trim(),
-          message: claraGeneratedMessage,
+          name: claraForm.name.trim(),
+          phone: cleanPhone,
+          email: claraForm.email?.trim() || null,
+          channels: claraSendChannels.length > 0 ? claraSendChannels : undefined,
+          notes: `CLARA invite. Protection for: ${claraForm.protectionFor}. ${claraForm.roughNote || ''}`.trim(),
         },
       });
-      if (sendError) throw new Error(sendError.message || 'Failed to send');
-      if (!sendResult?.success) throw new Error('Delivery failed — check WhatsApp number');
 
-      const { error: dbError } = await (supabase as any).from('manual_invites').insert({
+      if (sendError) throw new Error(sendError.message || 'Failed to send');
+      if (!sendResult?.success) throw new Error(sendResult?.error || 'Invite delivery failed');
+
+      // Log to manual_invites for admin history
+      await (supabase as any).from('manual_invites').insert({
         contact_name: claraForm.name,
-        contact_whatsapp: claraForm.whatsapp || null,
+        contact_email: claraForm.email || null,
+        contact_whatsapp: cleanPhone,
         protection_for: claraForm.protectionFor,
         personal_message: claraForm.roughNote || null,
-        send_via: 'whatsapp',
+        send_via: claraSendChannels.join(',') || 'link',
         message_sent: claraGeneratedMessage,
         relationship_tone: claraRelationship,
         clara_enhanced: true,
-        whatsapp_sent: true,
+        email_sent: !!sendResult?.channels?.email?.sent,
+        whatsapp_sent: false,
         status: 'sent',
+      }).then(({ error: dbErr }: { error: unknown }) => {
+        if (dbErr) console.warn('Failed to log invite to DB:', dbErr);
       });
-      if (dbError) console.warn('Failed to log invite to DB:', dbError);
 
-      // ── Full CRM tracking (CLARA mode) ──
-      const nameParts = claraForm.name.trim().split(' ');
-      const cleanPhone = claraForm.whatsapp?.replace(/\s/g, '') || null;
-
-      // 1. Create or update lead
-      const { data: existingLead2 } = await (supabase as any).from('leads').select('id').eq('phone', cleanPhone).maybeSingle();
-      let leadId2 = existingLead2?.id;
-
-      if (!leadId2) {
-        const { data: newLead2 } = await (supabase as any).from('leads').insert({
-          first_name: nameParts[0] || claraForm.name,
-          last_name: nameParts.slice(1).join(' ') || null,
-          full_name: claraForm.name,
-          email: `${(cleanPhone || '').replace(/[^0-9]/g, '')}@invite.lifelink-sync.com`,
-          phone: cleanPhone,
-          lead_source: 'clara_invite',
-          status: 'contacted',
-          interest_level: 5,
-          lead_score: 30,
-          last_contacted_at: new Date().toISOString(),
-          notes: `CLARA invite via WhatsApp. Protection for: ${claraForm.protectionFor}. ${claraForm.roughNote || ''}`.trim(),
-          tags: ['clara-invite', claraForm.protectionFor].filter(Boolean),
-        }).select('id').single();
-        leadId2 = newLead2?.id;
-      } else {
-        await (supabase as any).from('leads').update({ status: 'contacted', last_contacted_at: new Date().toISOString(), lead_score: 30 }).eq('id', leadId2);
-      }
-
-      // 2. Log lead activity
-      if (leadId2) {
-        const { error: actErr2 } = await (supabase as any).from('lead_activities').insert({
-          lead_id: leadId2,
-          activity_type: 'whatsapp_sent',
-          subject: 'CLARA invite sent via WhatsApp',
-          content: claraGeneratedMessage,
-          metadata: { channel: 'whatsapp', phone: cleanPhone, ai_generated: true, relationship: claraRelationship },
-        });
-        if (actErr2) console.warn('Activity log error:', actErr2);
-      }
-
-      // 3. Create WhatsApp conversation + message
-      if (cleanPhone && sendResult?.whatsapp_sent) {
-        const { data: existingConv2 } = await (supabase as any).from('whatsapp_conversations').select('id').eq('phone_number', cleanPhone).maybeSingle();
-        let convId2 = existingConv2?.id;
-        if (!convId2) {
-          const { data: newConv2 } = await (supabase as any).from('whatsapp_conversations').insert({
-            phone_number: cleanPhone, contact_name: claraForm.name, status: 'active',
-            metadata: { lead_id: leadId2, source: 'clara_invite' },
-          }).select('id').single();
-          convId2 = newConv2?.id;
-        } else {
-          await (supabase as any).from('whatsapp_conversations').update({ contact_name: claraForm.name, metadata: { lead_id: leadId2, source: 'clara_invite' } }).eq('id', convId2);
-        }
-        if (convId2) {
-          const { error: msgErr2 } = await (supabase as any).from('whatsapp_messages').insert({
-            conversation_id: convId2, direction: 'outbound', message_type: 'text',
-            content: claraGeneratedMessage, is_ai_generated: true, status: 'sent',
-          });
-          if (msgErr2) console.warn('Message log error:', msgErr2);
-        }
-      }
-
-      // Create invite token for share links
-      let claraInviteToken = '';
-      try {
-        if (leadId2) {
-          const { data: invite } = await (supabase as any)
-            .from('lead_invites')
-            .insert({ lead_id: leadId2 })
-            .select('token')
-            .single();
-          claraInviteToken = invite?.token || '';
-        }
-      } catch (e) {
-        console.warn('Token generation failed:', e);
-      }
+      const sentChannels: string[] = [];
+      if (sendResult?.channels?.sms?.sent) sentChannels.push('SMS');
+      if (sendResult?.channels?.email?.sent) sentChannels.push('Email');
 
       setClaraSentName(claraForm.name);
-      setClaraSentToken(claraInviteToken);
-      setClaraSentPhone(claraForm.whatsapp?.replace(/\s/g, '') || '');
+      setClaraSentToken(sendResult?.token || '');
+      setClaraSentPhone(cleanPhone || '');
       setClaraSent(true);
-      toast({ title: 'CLARA sent it!', description: `Message sent to ${claraForm.name} via WhatsApp` });
+      toast({ title: 'CLARA sent it!', description: `Invite sent to ${claraForm.name} via ${sentChannels.join(' + ') || 'Link'}` });
     } catch (err) {
       console.error('CLARA send error:', err);
       toast({
@@ -542,7 +484,7 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
   };
 
   const resetClara = () => {
-    setClaraForm({ name: '', whatsapp: '', protectionFor: '', roughNote: '' });
+    setClaraForm({ name: '', phone: '', email: '', protectionFor: '', roughNote: '' });
     setClaraSent(false);
     setClaraSentName('');
     setClaraSentToken('');
@@ -1080,12 +1022,22 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
                     />
                   </div>
                   <div>
-                    <Label>WhatsApp number *</Label>
+                    <Label>Phone number *</Label>
                     <Input
                       type="tel"
-                      value={claraForm.whatsapp}
-                      onChange={e => updateClara('whatsapp', e.target.value)}
+                      value={claraForm.phone}
+                      onChange={e => updateClara('phone', e.target.value)}
                       placeholder="+44 7700 900000"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">SMS will be sent to this number</p>
+                  </div>
+                  <div>
+                    <Label>Email address</Label>
+                    <Input
+                      type="email"
+                      value={claraForm.email}
+                      onChange={e => updateClara('email', e.target.value)}
+                      placeholder="john@example.com (optional)"
                     />
                   </div>
                   <div>
@@ -1194,7 +1146,7 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
                     </div>
                     <div>
                       <p className="font-semibold text-gray-900">{claraForm.name}</p>
-                      <p className="text-xs text-gray-400">{claraForm.whatsapp}</p>
+                      <p className="text-xs text-gray-400">{claraForm.phone}</p>
                     </div>
                   </div>
                 </div>
