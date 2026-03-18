@@ -114,7 +114,7 @@ const useAdminMenuItems = () => {
       items: [
         { title: 'Leads', url: "/admin-dashboard/leads", icon: Target },
         { title: 'Lead Intelligence', url: "/admin-dashboard/lead-intelligence", icon: Brain },
-        { title: 'Manual Invite', url: "/admin-dashboard/manual-invite", icon: Send },
+        { title: 'Invite Centre', url: "/admin-dashboard/manual-invite", icon: Send },
         { title: 'Conversations', url: "/admin-dashboard/conversations", icon: MessageSquare },
         { title: 'Referrals', url: "/admin-dashboard/referrals", icon: Gift },
       ]

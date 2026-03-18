@@ -4,12 +4,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { Send, Eye, Loader2, CheckCircle, Mail, Phone, Sparkles, RefreshCw, Shield, Pencil, User, Check } from 'lucide-react';
+import { Send, Eye, Loader2, CheckCircle, Mail, Phone, Sparkles, RefreshCw, Shield, Pencil, User, Check, Copy, ExternalLink, MessageSquare } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useQuery } from '@tanstack/react-query';
+import { toast as sonnerToast } from 'sonner';
 
 const protectionOptions = [
   { value: 'themselves', label: 'Themselves' },
@@ -1267,6 +1270,143 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
           </div>
         </div>
       )}
+
+      {/* ─── Section 2: All Sent Invites ──────────────────────────────────────── */}
+      <SentInvitesList refreshKey={sent || claraSent} />
     </div>
+  );
+}
+
+// ─── Sent Invites List ───────────────────────────────────────────────────────
+
+function SentInvitesList({ refreshKey }: { refreshKey: boolean }) {
+  const navigate = useNavigate();
+
+  const { data: invites, isLoading, refetch } = useQuery({
+    queryKey: ['sent-invites', refreshKey],
+    queryFn: async () => {
+      // Query manual_invites (the existing table used by this page)
+      const { data: manual, error: manualErr } = await (supabase as any)
+        .from('manual_invites')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (manualErr) {
+        console.warn('Failed to load manual_invites:', manualErr);
+        return [];
+      }
+      return manual || [];
+    },
+    staleTime: 30_000,
+  });
+
+  const getStatusBadge = (invite: any) => {
+    if (invite.status === 'sent') {
+      return { label: 'Sent', color: 'bg-blue-100 text-blue-700' };
+    }
+    return { label: invite.status || 'Unknown', color: 'bg-gray-100 text-gray-600' };
+  };
+
+  const copyInviteLink = (name: string) => {
+    const url = `https://lifelink-sync.com/invite?from=Lee+Wakeman&name=${encodeURIComponent(name)}`;
+    navigator.clipboard.writeText(url);
+    sonnerToast.success('Link copied');
+  };
+
+  if (isLoading) {
+    return (
+      <Card className="mt-8">
+        <CardHeader><CardTitle>Sent Invites</CardTitle></CardHeader>
+        <CardContent><p className="text-sm text-muted-foreground">Loading...</p></CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="mt-8">
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle className="flex items-center gap-2">
+            <Send className="h-5 w-5" /> All Sent Invites
+          </CardTitle>
+          <CardDescription>{invites?.length || 0} invites sent</CardDescription>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => refetch()}>
+          <RefreshCw className="h-4 w-4 mr-1" /> Refresh
+        </Button>
+      </CardHeader>
+      <CardContent>
+        {!invites?.length ? (
+          <p className="text-sm text-muted-foreground py-4">No invites sent yet. Use the form above to send your first one!</p>
+        ) : (
+          <div className="space-y-3">
+            {invites.map((invite: any) => {
+              const badge = getStatusBadge(invite);
+              return (
+                <div key={invite.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/30">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-sm">{invite.contact_name}</p>
+                      <Badge className={`text-xs ${badge.color}`}>{badge.label}</Badge>
+                      {invite.clara_enhanced && (
+                        <Badge className="text-xs bg-purple-100 text-purple-700">
+                          <Sparkles className="h-3 w-3 mr-0.5" /> CLARA
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
+                      {/* Channel icons */}
+                      {invite.whatsapp_sent && (
+                        <span className="flex items-center gap-1 text-green-600">
+                          <Phone className="h-3 w-3" /> WhatsApp
+                        </span>
+                      )}
+                      {invite.email_sent && (
+                        <span className="flex items-center gap-1 text-blue-600">
+                          <Mail className="h-3 w-3" /> Email
+                        </span>
+                      )}
+                      {!invite.whatsapp_sent && invite.contact_whatsapp && (
+                        <span className="flex items-center gap-1 text-gray-400">
+                          <Phone className="h-3 w-3" /> WA failed
+                        </span>
+                      )}
+                      {!invite.email_sent && invite.contact_email && (
+                        <span className="flex items-center gap-1 text-gray-400">
+                          <Mail className="h-3 w-3" /> Email failed
+                        </span>
+                      )}
+                      <span>{new Date(invite.created_at).toLocaleDateString()}</span>
+                      {invite.protection_for && (
+                        <span>For: {invite.protection_for}</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 ml-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => copyInviteLink(invite.contact_name)}
+                      title="Copy invite link"
+                    >
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => navigate('/admin-dashboard/leads')}
+                      title="View leads"
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
