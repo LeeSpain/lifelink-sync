@@ -1,14 +1,8 @@
 /**
  * clara-command-agent
  * CLARA's agentic WhatsApp handler for Lee (admin only).
- * Uses Anthropic tool_use to execute business commands:
- * - Post to Facebook
- * - Send lead invites
- * - Get lead/member/Facebook stats
- * - Trigger Riven campaigns
- *
+ * Uses Anthropic tool_use for business commands.
  * Receives forwarded Twilio webhook from whatsapp-inbound.
- * Replies to Lee via Twilio WhatsApp.
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
@@ -31,7 +25,7 @@ const supabase = createClient(supabaseUrl, serviceRoleKey, {
   auth: { persistSession: false },
 });
 
-// ── Send WhatsApp reply to Lee ─────────────────────────────────────────────
+// ── Send WhatsApp reply ────────────────────────────────────────────────────
 
 async function replyToLee(message: string, phone: string) {
   const to = phone.startsWith("whatsapp:") ? phone : `whatsapp:${phone}`;
@@ -43,197 +37,264 @@ async function replyToLee(message: string, phone: string) {
         Authorization: "Basic " + btoa(`${twilioSid}:${twilioToken}`),
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: new URLSearchParams({
-        To: to,
-        From: twilioFrom,
-        Body: message,
-      }),
+      body: new URLSearchParams({ To: to, From: twilioFrom, Body: message }),
     }
   );
 }
 
-// ── Tool definitions for Anthropic ─────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// SYSTEM PROMPT — CLARA's permanent brain
+// ═══════════════════════════════════════════════════════════════════════════
+
+const SYSTEM_PROMPT = `You are CLARA — Connected Lifeline And Response Assistant — the AI brain of LifeLink Sync, an emergency protection platform for families.
+
+Lee Wakeman is your owner and the founder of LifeLink Sync. He is messaging you on WhatsApp. You are his personal AI business operator. When Lee messages you, you ACT — you do not just talk about what you could do.
+
+YOUR PERSONALITY WITH LEE:
+- Direct, efficient, no fluff
+- Confirm actions with a brief summary
+- Use emojis sparingly but effectively
+- Sign off actions with what happened + what's next if relevant
+
+WHAT YOU CAN DO — USE THESE TOOLS IMMEDIATELY:
+
+SOCIAL MEDIA:
+- post_to_facebook: Post content + AI image to Facebook page (generates content from topic OR uses exact text Lee gives)
+- get_facebook_stats: Page followers, reach, engagement insights
+
+LEADS & INVITES:
+- send_lead_invite: Send invite to anyone (name + phone = SMS sent immediately)
+- get_lead_pipeline: Lead funnel stats (invited/clicked/talking/trial/subscribed) + today's activity
+
+BUSINESS STATS:
+- get_business_stats: Subscribers, MRR, trials, new signups, SOS events
+
+MESSAGING:
+- send_messenger_message: Send Facebook Messenger message to a specific person
+- generate_invite_link: Generate a personal invite link for a customer in conversation
+
+RULES:
+1. ALWAYS use a tool when one applies — never just offer to help
+2. If Lee says "invite [name] on [number]" → use send_lead_invite IMMEDIATELY, no confirmation needed
+3. If Lee says "post about [topic] on Facebook" → use post_to_facebook IMMEDIATELY
+4. If Lee says "how many members" → use get_business_stats IMMEDIATELY
+5. NEVER ask "are you sure?" — Lee is always sure
+6. If a tool fails, tell Lee what went wrong and suggest an alternative
+7. Keep replies under 200 words unless Lee asks for a full report
+8. NEVER say "I don't have access to" or "I can't" — you have all the tools above
+
+KEY FACTS:
+- Individual Plan: €9.99/month, 7-day free trial, no card needed
+- Add-ons: Daily Wellbeing €2.99, Medication Reminder €2.99, Family Link €2.99
+- CLARA Complete: FREE when both wellness add-ons active
+- Markets: Spain (112), UK (999), Netherlands (112)
+- Website: lifelink-sync.com
+- Facebook Page ID: 1022860360912464`;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// TOOL DEFINITIONS
+// ═══════════════════════════════════════════════════════════════════════════
 
 const TOOLS = [
   {
     name: "post_to_facebook",
     description:
-      "Creates and posts content to the LifeLink Sync Facebook page. Can generate the post text from a topic, or post exact text Lee provides.",
+      "Creates and immediately publishes a post to the LifeLink Sync Facebook page. Generates content and an AI image automatically unless custom_text is provided. Use whenever Lee asks to post anything on Facebook.",
     input_schema: {
       type: "object" as const,
       properties: {
         topic: {
           type: "string",
-          description: "Topic or theme for the post (CLARA generates text)",
+          description: "Topic or theme for the post (e.g. 'family safety', 'medication reminders')",
         },
         custom_text: {
           type: "string",
-          description: "Exact text to post (if Lee provides specific wording)",
+          description: "Exact post text if Lee specified it. Use this instead of generating.",
         },
         generate_image: {
           type: "boolean",
-          description: "Whether to generate an AI image for the post",
+          description: "Whether to generate an AI image. Default true.",
+        },
+        scheduled_time: {
+          type: "string",
+          description: "ISO datetime to schedule the post (optional). If omitted, posts immediately.",
         },
       },
       required: ["topic"],
     },
   },
   {
+    name: "get_facebook_stats",
+    description:
+      "Returns LifeLink Sync Facebook page info and insights: followers, fans, reach, engagement.",
+    input_schema: {
+      type: "object" as const,
+      properties: {},
+    },
+  },
+  {
     name: "send_lead_invite",
     description:
-      "Sends a personalised invite to a new lead via SMS, WhatsApp and/or email. Use when Lee gives a name and phone number or email.",
+      "Sends a personalised CLARA invite to a new lead via SMS and optionally WhatsApp/email. Creates the lead record automatically. Use immediately when Lee gives a name and phone number.",
     input_schema: {
       type: "object" as const,
       properties: {
-        name: { type: "string", description: "Contact first name" },
-        phone: {
-          type: "string",
-          description:
-            "Phone number with country code e.g. +34999999999",
-        },
-        email: {
-          type: "string",
-          description: "Email address (optional)",
-        },
-        notes: {
-          type: "string",
-          description: "Any context about the person (optional)",
-        },
+        name: { type: "string", description: "Contact name" },
+        phone: { type: "string", description: "Phone with country code e.g. +34999999999" },
+        email: { type: "string", description: "Email address (optional, enables email channel)" },
+        notes: { type: "string", description: "Context about the person (optional)" },
       },
       required: ["name"],
     },
   },
   {
-    name: "get_lead_stats",
+    name: "get_lead_pipeline",
     description:
-      "Returns the current lead pipeline statistics — invited, clicked, talking, trial, subscribed counts",
+      "Returns lead pipeline stats: counts per stage (not_invited, invited, clicked, talking, trial, subscribed) plus today's click and trial activity.",
     input_schema: {
       type: "object" as const,
       properties: {},
     },
   },
   {
-    name: "get_member_stats",
+    name: "get_business_stats",
     description:
-      "Returns subscriber count, trial count, and MRR statistics",
+      "Returns key LifeLink Sync business metrics: active subscribers, MRR, active trials, new signups, SOS events.",
     input_schema: {
       type: "object" as const,
-      properties: {},
+      properties: {
+        period: {
+          type: "string",
+          description: "'today', 'week', or 'month'. Default 'today'.",
+        },
+      },
     },
   },
   {
-    name: "get_facebook_insights",
-    description: "Returns Facebook page performance insights (followers, reach, engagement)",
+    name: "send_messenger_message",
+    description:
+      "Sends a Facebook Messenger message to a specific person using their PSID.",
     input_schema: {
       type: "object" as const,
-      properties: {},
+      properties: {
+        recipient_psid: { type: "string", description: "Facebook Page-Scoped ID" },
+        message: { type: "string", description: "Message text" },
+      },
+      required: ["recipient_psid", "message"],
     },
   },
   {
-    name: "get_recent_signups",
-    description: "Returns today's new signups and recent trial starts",
+    name: "generate_invite_link",
+    description:
+      "Generates a personal invite link for someone. Use when a customer is interested and you want to give them a trackable link.",
     input_schema: {
       type: "object" as const,
-      properties: {},
+      properties: {
+        name: { type: "string", description: "Person's name" },
+        phone: { type: "string", description: "Their phone number" },
+        notes: { type: "string", description: "Conversation context" },
+      },
+      required: ["phone"],
     },
   },
 ];
 
-// ── Tool execution handlers ────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// TOOL EXECUTION HANDLERS
+// ═══════════════════════════════════════════════════════════════════════════
 
 async function executeTool(
   name: string,
   input: Record<string, any>
 ): Promise<string> {
-  switch (name) {
-    case "post_to_facebook":
-      return await toolPostToFacebook(input);
-    case "send_lead_invite":
-      return await toolSendInvite(input);
-    case "get_lead_stats":
-      return await toolGetLeadStats();
-    case "get_member_stats":
-      return await toolGetMemberStats();
-    case "get_facebook_insights":
-      return await toolGetFacebookInsights();
-    case "get_recent_signups":
-      return await toolGetRecentSignups();
-    default:
-      return `Unknown tool: ${name}`;
+  try {
+    switch (name) {
+      case "post_to_facebook":
+        return await toolPostToFacebook(input);
+      case "get_facebook_stats":
+        return await toolGetFacebookStats();
+      case "send_lead_invite":
+        return await toolSendInvite(input);
+      case "get_lead_pipeline":
+        return await toolGetLeadPipeline();
+      case "get_business_stats":
+        return await toolGetBusinessStats(input);
+      case "send_messenger_message":
+        return await toolSendMessenger(input);
+      case "generate_invite_link":
+        return await toolGenerateInviteLink(input);
+      default:
+        return `Unknown tool: ${name}`;
+    }
+  } catch (e: any) {
+    console.error(`Tool ${name} failed:`, e);
+    return JSON.stringify({ error: e.message });
   }
 }
 
-async function toolPostToFacebook(
-  input: Record<string, any>
-): Promise<string> {
-  try {
-    const postText =
-      input.custom_text ||
-      (await generateFacebookPost(input.topic));
+// ── post_to_facebook ───────────────────────────────────────────────────────
 
-    // Generate image if requested
-    let imageUrl: string | null = null;
-    if (input.generate_image) {
-      try {
-        const { data: imgData } = await supabase.functions.invoke(
-          "image-generator",
-          {
-            body: {
-              prompt: input.topic,
-              platform: "facebook",
-              style: "natural",
-              size: "1024x1024",
-            },
-          }
-        );
-        imageUrl = imgData?.imageUrl || null;
-      } catch (e) {
-        console.warn("Image generation failed:", e);
-      }
-    }
+async function toolPostToFacebook(input: Record<string, any>): Promise<string> {
+  const postText = input.custom_text || (await generateFacebookPost(input.topic));
 
-    // Post via facebook-manager
-    const payload: Record<string, any> = {
-      action: "post",
-      message: postText,
-    };
-    if (imageUrl) payload.link = imageUrl;
-
-    const { data, error } = await supabase.functions.invoke(
-      "facebook-manager",
-      { body: payload }
-    );
-
-    if (error) return `Facebook post failed: ${error.message}`;
-    if (!data?.success) return `Facebook post failed: ${data?.error || "unknown error"}`;
-
-    const postId = data?.data?.id || "unknown";
-
-    // Log to marketing_content
+  // Generate image (default true)
+  let imageUrl: string | null = null;
+  if (input.generate_image !== false) {
     try {
-      await supabase.from("marketing_content").insert({
-        platform: "facebook",
-        title: input.topic,
-        body_text: postText,
-        image_url: imageUrl,
-        status: "published",
-        posted_at: new Date().toISOString(),
-        platform_post_id: postId,
-        content_type: "social_post",
+      const { data: imgData } = await supabase.functions.invoke("image-generator", {
+        body: {
+          prompt: `${input.topic} family safety lifestyle`,
+          platform: "facebook",
+          style: "natural",
+          size: "1024x1024",
+        },
       });
+      imageUrl = imgData?.imageUrl || imgData?.image || null;
     } catch (e) {
-      console.warn("Marketing content log failed:", e);
+      console.warn("Image generation failed, posting without image:", e);
     }
-
-    return JSON.stringify({
-      success: true,
-      post_id: postId,
-      text_preview: postText.substring(0, 150),
-      has_image: !!imageUrl,
-    });
-  } catch (e: any) {
-    return `Error: ${e.message}`;
   }
+
+  // Post via facebook-manager
+  const payload: Record<string, any> = { action: "post", message: postText };
+  if (imageUrl) payload.link = imageUrl;
+  if (input.scheduled_time) {
+    payload.scheduled_time = Math.floor(new Date(input.scheduled_time).getTime() / 1000);
+  }
+
+  const { data, error } = await supabase.functions.invoke("facebook-manager", {
+    body: payload,
+  });
+
+  if (error) throw new Error(error.message);
+  if (!data?.success) throw new Error(data?.error || "Facebook post failed");
+
+  const postId = data?.data?.id || "unknown";
+
+  // Log to marketing_content
+  try {
+    await supabase.from("marketing_content").insert({
+      platform: "facebook",
+      title: input.topic,
+      body_text: postText,
+      image_url: imageUrl,
+      status: input.scheduled_time ? "scheduled" : "published",
+      posted_at: input.scheduled_time ? null : new Date().toISOString(),
+      scheduled_at: input.scheduled_time || null,
+      platform_post_id: postId,
+      content_type: "social_post",
+    });
+  } catch (e) {
+    console.warn("Marketing content log failed:", e);
+  }
+
+  return JSON.stringify({
+    success: true,
+    post_id: postId,
+    content_preview: postText.substring(0, 150),
+    has_image: !!imageUrl,
+    scheduled: !!input.scheduled_time,
+  });
 }
 
 async function generateFacebookPost(topic: string): Promise<string> {
@@ -246,7 +307,7 @@ async function generateFacebookPost(topic: string): Promise<string> {
     },
     body: JSON.stringify({
       model: "claude-haiku-4-5-20251001",
-      max_tokens: 500,
+      max_tokens: 400,
       messages: [
         {
           role: "user",
@@ -255,10 +316,11 @@ async function generateFacebookPost(topic: string): Promise<string> {
 Rules:
 - Warm, empowering tone — never fear-based
 - 100-200 words
-- Include the 7-day free trial CTA: lifelink-sync.com
+- Include 7-day free trial CTA: lifelink-sync.com
 - Include 2-3 relevant hashtags (#LifeLinkSync always)
 - Include 1-2 relevant emojis
 - End with a clear CTA
+- No bullet points — flowing text
 
 Output ONLY the post text, nothing else.`,
         },
@@ -266,159 +328,177 @@ Output ONLY the post text, nothing else.`,
     }),
   });
   const data = await res.json();
-  return data.content?.[0]?.text || `LifeLink Sync — ${topic}. Start your free trial at lifelink-sync.com`;
+  return (
+    data.content?.[0]?.text ||
+    `LifeLink Sync — ${topic}. Start your free trial at lifelink-sync.com #LifeLinkSync`
+  );
 }
 
-async function toolSendInvite(
-  input: Record<string, any>
-): Promise<string> {
+// ── get_facebook_stats ─────────────────────────────────────────────────────
+
+async function toolGetFacebookStats(): Promise<string> {
+  // Page info
+  const { data: pageData } = await supabase.functions.invoke("facebook-manager", {
+    body: { action: "get_page_info" },
+  });
+  const info = pageData?.data || {};
+
+  // Page insights
+  let insights: any[] = [];
   try {
-    // Build channels array based on what contact info was provided
-    const sendChannels: string[] = [];
-    if (input.phone) sendChannels.push("sms");
-    if (input.email) sendChannels.push("email");
-
-    const { data, error } = await supabase.functions.invoke("send-invite", {
-      body: {
-        name: input.name,
-        phone: input.phone || undefined,
-        email: input.email || undefined,
-        notes: input.notes || undefined,
-        channels: sendChannels.length > 0 ? sendChannels : undefined,
-      },
+    const { data: insightsData } = await supabase.functions.invoke("facebook-manager", {
+      body: { action: "get_insights", period: "day" },
     });
-
-    if (error) return `Invite failed: ${error.message}`;
-    if (!data?.success) return `Invite failed: ${data?.error || "unknown"}`;
-
-    // Build summary for CLARA to relay to Lee
-    const sentVia: string[] = [];
-    if (data.channels?.sms?.sent) sentVia.push("SMS");
-    if (data.channels?.whatsapp?.sent) sentVia.push("WhatsApp");
-    if (data.channels?.email?.sent) sentVia.push("Email");
-    if (data.channels?.messenger?.sent) sentVia.push("Messenger");
-
-    return JSON.stringify({
-      success: true,
-      name: input.name,
-      invite_url: data.invite_url,
-      token: data.token,
-      sent_via: sentVia.length > 0 ? sentVia : ["Link generated"],
-      lead_id: data.lead_id,
-    });
-  } catch (e: any) {
-    return `Error: ${e.message}`;
+    insights = insightsData?.data?.data || [];
+  } catch {
+    /* non-fatal */
   }
+
+  const impressions = insights.find((m: any) => m.name === "page_impressions")?.values?.slice(-1)[0]?.value || 0;
+  const engaged = insights.find((m: any) => m.name === "page_engaged_users")?.values?.slice(-1)[0]?.value || 0;
+
+  return JSON.stringify({
+    page_name: info.name,
+    followers: info.followers_count,
+    fans: info.fan_count,
+    category: info.category,
+    daily_impressions: impressions,
+    daily_engaged: engaged,
+  });
 }
 
-async function toolGetLeadStats(): Promise<string> {
+// ── send_lead_invite ───────────────────────────────────────────────────────
+
+async function toolSendInvite(input: Record<string, any>): Promise<string> {
+  const channels: string[] = [];
+  if (input.phone) channels.push("sms", "whatsapp");
+  if (input.email) channels.push("email");
+
+  const { data, error } = await supabase.functions.invoke("send-invite", {
+    body: {
+      name: input.name,
+      phone: input.phone || undefined,
+      email: input.email || undefined,
+      notes: input.notes || undefined,
+      channels: channels.length > 0 ? channels : undefined,
+    },
+  });
+
+  if (error) throw new Error(error.message);
+  if (!data?.success) throw new Error(data?.error || "Invite failed");
+
+  const sentVia: string[] = [];
+  if (data.channels?.sms?.sent) sentVia.push("SMS");
+  if (data.channels?.whatsapp?.sent) sentVia.push("WhatsApp");
+  if (data.channels?.email?.sent) sentVia.push("Email");
+
+  return JSON.stringify({
+    success: true,
+    name: input.name,
+    invite_url: data.invite_url,
+    token: data.token,
+    sent_via: sentVia.length > 0 ? sentVia : ["Link generated"],
+    lead_id: data.lead_id,
+  });
+}
+
+// ── get_lead_pipeline ──────────────────────────────────────────────────────
+
+async function toolGetLeadPipeline(): Promise<string> {
   const { data } = await supabase.from("leads").select("invite_status");
-  if (!data) return "No lead data available";
+  if (!data) return JSON.stringify({ total: 0 });
 
   const counts: Record<string, number> = {};
   data.forEach((l: any) => {
-    const status = l.invite_status || "not_invited";
-    counts[status] = (counts[status] || 0) + 1;
+    const s = l.invite_status || "not_invited";
+    counts[s] = (counts[s] || 0) + 1;
   });
+
+  // Today's activity
+  const today = new Date().toISOString().split("T")[0];
+  const { count: clickedToday } = await supabase
+    .from("lead_invites")
+    .select("id", { count: "exact", head: true })
+    .gte("clicked_at", today);
+
+  const { count: trialToday } = await supabase
+    .from("lead_invites")
+    .select("id", { count: "exact", head: true })
+    .gte("trial_started_at", today);
 
   return JSON.stringify({
     total: data.length,
-    ...counts,
+    pipeline: counts,
+    today: { clicked: clickedToday || 0, trial_started: trialToday || 0 },
   });
 }
 
-async function toolGetMemberStats(): Promise<string> {
-  const { count: totalSubs } = await supabase
-    .from("subscribers")
-    .select("id", { count: "exact", head: true })
-    .eq("subscribed", true);
+// ── get_business_stats ─────────────────────────────────────────────────────
 
-  const { count: trialing } = await supabase
-    .from("subscribers")
-    .select("id", { count: "exact", head: true })
-    .eq("is_trialing", true);
+async function toolGetBusinessStats(input: Record<string, any>): Promise<string> {
+  const period = input.period || "today";
+  const since =
+    period === "today"
+      ? new Date(new Date().setHours(0, 0, 0, 0)).toISOString()
+      : period === "week"
+      ? new Date(Date.now() - 7 * 86400000).toISOString()
+      : new Date(Date.now() - 30 * 86400000).toISOString();
 
-  const { count: paid } = await supabase
-    .from("subscribers")
-    .select("id", { count: "exact", head: true })
-    .eq("subscribed", true)
-    .eq("is_trialing", false);
+  const [subs, newSignups, trials, sos] = await Promise.all([
+    supabase.from("subscribers").select("id", { count: "exact", head: true }).eq("subscribed", true),
+    supabase.from("subscribers").select("id", { count: "exact", head: true }).gte("created_at", since),
+    supabase.from("subscribers").select("id", { count: "exact", head: true }).eq("is_trialing", true),
+    supabase.from("sos_events").select("id", { count: "exact", head: true }).gte("created_at", since),
+  ]);
 
+  const paid = (subs.count || 0);
   return JSON.stringify({
-    total_subscribers: totalSubs || 0,
-    trialing: trialing || 0,
-    paid: paid || 0,
-    mrr: `€${((paid || 0) * 9.99).toFixed(2)}`,
+    active_subscribers: paid,
+    mrr: `€${(paid * 9.99).toFixed(2)}`,
+    active_trials: trials.count || 0,
+    new_signups: newSignups.count || 0,
+    sos_events: sos.count || 0,
+    period,
   });
 }
 
-async function toolGetFacebookInsights(): Promise<string> {
-  try {
-    const { data, error } = await supabase.functions.invoke(
-      "facebook-manager",
-      { body: { action: "get_page_info" } }
-    );
+// ── send_messenger_message ─────────────────────────────────────────────────
 
-    if (error || !data?.success) return "Could not fetch Facebook insights";
+async function toolSendMessenger(input: Record<string, any>): Promise<string> {
+  const { data, error } = await supabase.functions.invoke("facebook-manager", {
+    body: {
+      action: "send_message",
+      recipient_id: input.recipient_psid,
+      message: input.message,
+    },
+  });
 
-    const info = data.data;
-    return JSON.stringify({
-      page_name: info?.name,
-      followers: info?.followers_count,
-      fans: info?.fan_count,
-      category: info?.category,
-    });
-  } catch (e: any) {
-    return `Error: ${e.message}`;
-  }
+  if (error) throw new Error(error.message);
+  return JSON.stringify({ success: true, data });
 }
 
-async function toolGetRecentSignups(): Promise<string> {
-  const today = new Date().toISOString().split("T")[0];
+// ── generate_invite_link ───────────────────────────────────────────────────
 
-  const { data: todayTrials, count: trialCount } = await supabase
-    .from("trial_tracking")
-    .select("id, created_at", { count: "exact" })
-    .gte("created_at", today);
+async function toolGenerateInviteLink(input: Record<string, any>): Promise<string> {
+  const { data, error } = await supabase.functions.invoke("send-invite", {
+    body: {
+      name: input.name || `User ${input.phone?.slice(-4)}`,
+      phone: input.phone,
+      notes: input.notes || "Generated from WhatsApp conversation",
+    },
+  });
 
-  const { data: todayLeads, count: leadCount } = await supabase
-    .from("leads")
-    .select("id, first_name, created_at", { count: "exact" })
-    .gte("created_at", today);
-
+  if (error) throw new Error(error.message);
   return JSON.stringify({
-    today_trials: trialCount || 0,
-    today_leads: leadCount || 0,
-    lead_names: (todayLeads || []).slice(0, 5).map((l: any) => l.first_name),
+    success: true,
+    invite_url: data?.invite_url,
+    token: data?.token,
   });
 }
 
-// ── CLARA system prompt for command agent ──────────────────────────────────
-
-const SYSTEM_PROMPT = `You are CLARA, Lee Wakeman's AI business assistant for LifeLink Sync.
-
-Lee is messaging you on WhatsApp. You have tools to execute business actions on his behalf.
-
-CAPABILITIES — YOU CAN DO ALL OF THESE RIGHT NOW:
-- Post content to the LifeLink Sync Facebook page using the post_to_facebook tool
-- Send CLARA invites to new leads (SMS, WhatsApp, email) using the send_lead_invite tool
-- Check lead pipeline stats using get_lead_stats
-- Check subscriber/member stats using get_member_stats
-- Check Facebook page insights using get_facebook_insights
-- Check today's signups using get_recent_signups
-
-CRITICAL RULES:
-- You CAN post to Facebook. You have FULL access via the post_to_facebook tool. When Lee asks you to post anything on Facebook, USE THE TOOL IMMEDIATELY. Do NOT say you cannot do it. Do NOT just offer to draft it. CALL THE TOOL.
-- When Lee says "post about [topic]" → call post_to_facebook with that topic. Do not ask for confirmation.
-- When Lee says "post [exact text] on Facebook" → call post_to_facebook with custom_text. Do not ask for confirmation.
-- When Lee gives you a name and phone number or email and asks you to invite them, ALWAYS use the send_lead_invite tool IMMEDIATELY. Do not ask for confirmation — just send it. Examples: "Invite David on +34999999999", "Send invite to Sarah sarah@example.com", "Invite John +447700900000 he's a friend".
-- For stats/insights: call the relevant tool and report the numbers.
-- Be concise — WhatsApp messages should be short.
-- Use emojis sparingly for readability.
-- After a tool executes, summarize the result for Lee in plain WhatsApp language.
-- NEVER say "I don't have access to" or "I can't post to" — you have all the tools listed above.`;
-
-// ── Main handler ───────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// MAIN HANDLER
+// ═══════════════════════════════════════════════════════════════════════════
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -426,7 +506,6 @@ serve(async (req) => {
   }
 
   try {
-    // Parse Twilio webhook payload (forwarded from whatsapp-inbound)
     const rawText = await req.text();
     const params = new URLSearchParams(rawText);
     const body = params.get("Body") ?? "";
@@ -439,10 +518,10 @@ serve(async (req) => {
 
     console.log(`🤖 CLARA command agent — Lee says: "${body.substring(0, 100)}"`);
 
-    // Check if this is a dev command (forward to clara-dev-agent)
-    const devKeywords = /\b(code|deploy|fix bug|update component|create file|edit file|git|branch|PR|pull request|merge)\b/i;
+    // Dev commands → forward to clara-dev-agent
+    const devKeywords =
+      /\b(code|deploy|fix bug|update component|create file|edit file|git|branch|PR|pull request|merge)\b/i;
     if (devKeywords.test(body)) {
-      // Forward to dev agent instead
       await fetch(`${supabaseUrl}/functions/v1/clara-dev-agent`, {
         method: "POST",
         headers: {
@@ -479,7 +558,7 @@ serve(async (req) => {
       return new Response("", { status: 200 });
     }
 
-    // Process response — may contain text and/or tool_use blocks
+    // Process response — text and/or tool_use blocks
     const contentBlocks = aiResponse.content || [];
     let textReply = "";
     const toolResults: Array<{
@@ -489,15 +568,12 @@ serve(async (req) => {
     }> = [];
 
     for (const block of contentBlocks) {
-      if (block.type === "text") {
-        textReply += block.text;
-      }
+      if (block.type === "text") textReply += block.text;
 
       if (block.type === "tool_use") {
-        console.log(`🔧 Executing tool: ${block.name}`, block.input);
+        console.log(`🔧 Executing tool: ${block.name}`, JSON.stringify(block.input).substring(0, 200));
         const result = await executeTool(block.name, block.input);
-        console.log(`🔧 Tool result: ${result.substring(0, 200)}`);
-
+        console.log(`🔧 Tool result: ${result.substring(0, 300)}`);
         toolResults.push({
           type: "tool_result",
           tool_use_id: block.id,
@@ -535,18 +611,17 @@ serve(async (req) => {
       }
     }
 
-    // Send reply to Lee via WhatsApp
+    // Send reply via WhatsApp
     if (textReply.trim()) {
-      // Strip markdown for clean WhatsApp
       const clean = textReply
-        .replace(/\*\*(.*?)\*\*/g, "*$1*") // Bold → WhatsApp bold
+        .replace(/\*\*(.*?)\*\*/g, "*$1*")
         .replace(/#{1,6}\s/g, "")
         .replace(/\[(.*?)\]\(.*?\)/g, "$1");
 
       await replyToLee(clean, phone);
     }
 
-    // Log the interaction
+    // Log interaction
     try {
       await supabase.from("clara_pa_actions").insert({
         action_type: "whatsapp_command",
@@ -558,34 +633,25 @@ serve(async (req) => {
           tools_used: toolResults.map((t) => t.tool_use_id),
         },
       });
-    } catch (e) {
-      console.warn("PA action log failed:", e);
+    } catch {
+      /* non-fatal */
     }
 
     return new Response("", { status: 200 });
   } catch (error: any) {
     console.error("clara-command-agent error:", error);
-
-    // Try to notify Lee of the error
     try {
       const params = new URLSearchParams(await req.clone().text());
       const phone = (params.get("From") ?? "").replace("whatsapp:", "");
       if (phone) {
-        await replyToLee(
-          `Sorry, I hit an error: ${error.message?.substring(0, 100)}. Try again.`,
-          phone
-        );
+        await replyToLee(`Sorry, error: ${error.message?.substring(0, 80)}. Try again.`, phone);
       }
     } catch {
       /* non-fatal */
     }
-
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
