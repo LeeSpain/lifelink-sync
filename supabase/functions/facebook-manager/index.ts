@@ -41,10 +41,20 @@ async function fbApi(
     opts.headers = { "Content-Type": "application/json" };
     opts.body = JSON.stringify(body);
   }
+  console.log(`📘 FB API ${method} ${path.split("?")[0]}`);
   const res = await fetch(url, opts);
   const data = await res.json();
   if (data.error) {
-    throw new Error(`FB API: ${data.error.message}`);
+    console.error(`❌ FB API error on ${method} ${path}:`, JSON.stringify({
+      message: data.error.message,
+      type: data.error.type,
+      code: data.error.code,
+      error_subcode: data.error.error_subcode,
+      fbtrace_id: data.error.fbtrace_id,
+    }));
+    throw new Error(
+      `FB API [${data.error.code}/${data.error.error_subcode || ""}]: ${data.error.message} (type: ${data.error.type})`
+    );
   }
   return data;
 }
@@ -108,12 +118,22 @@ async function handleAction(
     }
 
     case "post": {
+      // Verify token works before posting
+      try {
+        const pageCheck = await fbApi(`/${pageId}?fields=id,name`, token);
+        console.log(`✅ Token verified — page: ${pageCheck.name} (${pageCheck.id})`);
+      } catch (e: any) {
+        console.error("❌ Token verification failed:", e.message);
+        throw new Error(`Token check failed before posting: ${e.message}`);
+      }
+
       const body: Record<string, unknown> = { message: params.message };
       if (params.link) body.link = params.link;
       if (params.scheduled_time) {
         body.scheduled_publish_time = params.scheduled_time;
         body.published = false;
       }
+      console.log(`📝 Posting to ${pageId}/feed:`, JSON.stringify(body).substring(0, 200));
       const result = await fbApi(`/${pageId}/feed`, token, "POST", body);
 
       // Log to social_media_analytics
