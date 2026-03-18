@@ -11,6 +11,7 @@ interface PreviewContent {
   title: string;
   body_text: string;
   hashtags: string[];
+  image_url?: string;
 }
 
 interface Step6PreviewProps {
@@ -341,6 +342,13 @@ export function Step6Preview({
                     <span className="ml-1 text-xs">Regenerate</span>
                   </Button>
                 </div>
+                {preview.image_url && (
+                  <img
+                    src={preview.image_url}
+                    alt={preview.title}
+                    className="w-full h-40 object-cover rounded-lg mb-2"
+                  />
+                )}
                 <p className="font-medium text-sm mb-1">{preview.title}</p>
                 <p className="text-xs text-muted-foreground whitespace-pre-wrap line-clamp-6">
                   {preview.body_text}

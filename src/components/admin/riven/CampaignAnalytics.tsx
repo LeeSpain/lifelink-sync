@@ -1,6 +1,10 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { RefreshCw } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import type { Campaign, CampaignContent } from "@/hooks/useRivenCampaign";
 
 interface CampaignAnalyticsProps {
@@ -9,6 +13,46 @@ interface CampaignAnalyticsProps {
 }
 
 export function CampaignAnalytics({ content, campaign }: CampaignAnalyticsProps) {
+  const [syncing, setSyncing] = useState(false);
+
+  const handleSyncAnalytics = async () => {
+    setSyncing(true);
+    try {
+      const publishedFbPosts = content.filter(
+        (c) => c.platform === "facebook" && c.status === "published"
+      );
+
+      if (publishedFbPosts.length === 0) {
+        toast.info("No published Facebook posts to sync");
+        setSyncing(false);
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke("facebook-manager", {
+        body: { action: "get_insights", period: "day" },
+      });
+
+      if (error) throw new Error(error.message);
+
+      // Update campaign analytics with latest data
+      const insights = data?.data?.data || [];
+      const impressions = insights.find((m: any) => m.name === "page_impressions")?.values?.[0]?.value || 0;
+      const engaged = insights.find((m: any) => m.name === "page_engaged_users")?.values?.[0]?.value || 0;
+
+      await supabase.from("campaign_analytics").upsert({
+        campaign_id: campaign.id,
+        total_impressions: impressions,
+        total_engagement: engaged,
+        synced_at: new Date().toISOString(),
+      }, { onConflict: "campaign_id" });
+
+      toast.success(`Synced: ${impressions} impressions, ${engaged} engaged`);
+    } catch (err: any) {
+      toast.error(err.message || "Sync failed");
+    } finally {
+      setSyncing(false);
+    }
+  };
   const platformStats = useMemo(() => {
     const stats: Record<
       string,
@@ -58,6 +102,14 @@ export function CampaignAnalytics({ content, campaign }: CampaignAnalyticsProps)
 
   return (
     <div className="space-y-6">
+      {/* Sync button */}
+      <div className="flex justify-end">
+        <Button variant="outline" size="sm" onClick={handleSyncAnalytics} disabled={syncing}>
+          <RefreshCw className={`h-4 w-4 mr-1 ${syncing ? 'animate-spin' : ''}`} />
+          {syncing ? 'Syncing...' : 'Sync Facebook Analytics'}
+        </Button>
+      </div>
+
       {/* Summary cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Card className="p-4 text-center">
