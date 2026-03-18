@@ -53,8 +53,13 @@ async function fbApi(
 
 async function claraReply(
   userMessage: string,
-  anthropicKey: string
+  anthropicKey: string,
+  extraContext?: string
 ): Promise<string> {
+  const systemPrompt = extraContext
+    ? `${CLARA_MESSENGER_PROMPT}\n\nAdditional context: ${extraContext}`
+    : CLARA_MESSENGER_PROMPT;
+
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
@@ -65,7 +70,7 @@ async function claraReply(
     body: JSON.stringify({
       model: "claude-sonnet-4-20250514",
       max_tokens: 500,
-      system: CLARA_MESSENGER_PROMPT,
+      system: systemPrompt,
       messages: [{ role: "user", content: userMessage }],
     }),
   });
@@ -184,6 +189,129 @@ async function handleAction(
   }
 }
 
+// ─── Handle invite ref from Messenger postback/referral ──────────────────────
+
+async function handleInviteRef(
+  refParam: string,
+  senderId: string,
+  supabase: any,
+  supabaseUrl: string,
+  serviceRoleKey: string
+): Promise<{ leadName: string | null; leadId: string | null }> {
+  // ref format: "invite_TOKEN"
+  if (!refParam?.startsWith("invite_")) return { leadName: null, leadId: null };
+
+  const token = refParam.replace("invite_", "");
+  try {
+    const { data: invite } = await supabase
+      .from("lead_invites")
+      .select("id, lead_id")
+      .eq("token", token)
+      .maybeSingle();
+
+    if (!invite) return { leadName: null, leadId: null };
+
+    // Mark messenger started
+    await supabase
+      .from("lead_invites")
+      .update({
+        messenger_started: true,
+        messenger_started_at: new Date().toISOString(),
+      })
+      .eq("id", invite.id);
+
+    // Get lead name
+    const { data: lead } = await supabase
+      .from("leads")
+      .select("first_name, full_name")
+      .eq("id", invite.lead_id)
+      .maybeSingle();
+
+    // Update lead status
+    await supabase
+      .from("leads")
+      .update({
+        invite_status: "talking",
+        preferred_channel: "messenger",
+        facebook_psid: senderId,
+        first_reply_at: new Date().toISOString(),
+      })
+      .eq("id", invite.lead_id);
+
+    return {
+      leadName: lead?.full_name || lead?.first_name || null,
+      leadId: invite.lead_id,
+    };
+  } catch (e) {
+    console.warn("Invite ref processing failed:", e);
+    return { leadName: null, leadId: null };
+  }
+}
+
+// ─── Proactive invite generation ─────────────────────────────────────────────
+
+async function maybeGenerateProactiveInvite(
+  senderId: string,
+  conversationId: string,
+  supabase: any,
+  supabaseUrl: string,
+  serviceRoleKey: string
+): Promise<string | null> {
+  try {
+    // Count messages in this conversation
+    const { count } = await supabase
+      .from("unified_messages")
+      .select("id", { count: "exact", head: true })
+      .eq("conversation_id", conversationId);
+
+    // Only trigger after 3+ exchanges (6+ messages = 3 inbound + 3 outbound)
+    if (!count || count < 6) return null;
+
+    // Check if we already sent an invite to this PSID
+    const { data: existingLead } = await supabase
+      .from("leads")
+      .select("id")
+      .eq("facebook_psid", senderId)
+      .maybeSingle();
+
+    if (existingLead) {
+      const { data: existingInvite } = await supabase
+        .from("lead_invites")
+        .select("id")
+        .eq("lead_id", existingLead.id)
+        .maybeSingle();
+
+      if (existingInvite) return null; // Already invited
+    }
+
+    // Generate invite
+    const inviteRes = await fetch(
+      `${supabaseUrl}/functions/v1/send-invite`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${serviceRoleKey}`,
+        },
+        body: JSON.stringify({
+          name: `Messenger User ${senderId.slice(-4)}`,
+          facebook_psid: senderId,
+          notes: "Organic Facebook Messenger conversation — auto-generated invite",
+        }),
+      }
+    );
+    const inviteData = await inviteRes.json();
+
+    if (inviteData.success && inviteData.invite_url) {
+      console.log(`🔗 Proactive invite generated for ${senderId}: ${inviteData.invite_url}`);
+      return inviteData.invite_url;
+    }
+  } catch (e) {
+    console.warn("Proactive invite generation failed:", e);
+  }
+  return null;
+}
+
 // ─── Webhook handler (inbound from Meta) ─────────────────────────────────────
 
 async function handleWebhook(
@@ -191,92 +319,165 @@ async function handleWebhook(
   token: string,
   pageId: string,
   supabase: any,
-  anthropicKey: string
+  anthropicKey: string,
+  supabaseUrl: string,
+  serviceRoleKey: string
 ) {
   const results: string[] = [];
 
   if (!body.entry) return { processed: 0 };
 
   for (const entry of body.entry) {
-    // Messenger messages
+    // Messenger referral postbacks (when someone clicks m.me link with ref)
     if (entry.messaging) {
       for (const event of entry.messaging) {
-        if (!event.message?.text) continue;
         const senderId = event.sender?.id;
-        // Skip messages from the page itself
         if (senderId === pageId) continue;
 
-        const userText = event.message.text;
-        console.log(`📩 Messenger from ${senderId}: ${userText}`);
+        // Handle referral (from m.me?ref=invite_TOKEN)
+        const refParam =
+          event.referral?.ref ||
+          event.postback?.referral?.ref ||
+          null;
 
-        // Generate CLARA reply
-        const reply = await claraReply(userText, anthropicKey);
+        let inviteContext: { leadName: string | null; leadId: string | null } = {
+          leadName: null,
+          leadId: null,
+        };
 
-        // Send reply via Messenger
-        await fbApi(`/me/messages`, token, "POST", {
-          recipient: { id: senderId },
-          message: { text: reply },
-          messaging_type: "RESPONSE",
-        });
-
-        // Log conversation
-        try {
-          // Find or create conversation
-          const { data: existing } = await supabase
-            .from("unified_conversations")
-            .select("id")
-            .eq("channel", "facebook_messenger")
-            .eq("contact_name", senderId)
-            .limit(1)
-            .maybeSingle();
-
-          let conversationId = existing?.id;
-
-          if (!conversationId) {
-            const { data: created } = await supabase
-              .from("unified_conversations")
-              .insert({
-                channel: "facebook_messenger",
-                contact_name: senderId,
-                status: "active",
-                last_message_at: new Date().toISOString(),
-              })
-              .select("id")
-              .single();
-            conversationId = created?.id;
-          } else {
-            await supabase
-              .from("unified_conversations")
-              .update({ last_message_at: new Date().toISOString() })
-              .eq("id", conversationId);
-          }
-
-          if (conversationId) {
-            // Log inbound message
-            await supabase.from("unified_messages").insert({
-              conversation_id: conversationId,
-              direction: "inbound",
-              content: userText,
-              sender_name: senderId,
-              content_type: "text",
-              status: "delivered",
-            });
-            // Log outbound CLARA reply
-            await supabase.from("unified_messages").insert({
-              conversation_id: conversationId,
-              direction: "outbound",
-              content: reply,
-              sender_name: "CLARA",
-              is_ai_generated: true,
-              content_type: "text",
-              status: "sent",
-            });
-          }
-        } catch (e) {
-          console.warn("Conversation log failed:", e);
+        if (refParam) {
+          inviteContext = await handleInviteRef(
+            refParam,
+            senderId,
+            supabase,
+            supabaseUrl,
+            serviceRoleKey
+          );
         }
 
-        results.push(`Replied to ${senderId}`);
+        // Handle text messages
+        if (event.message?.text) {
+          const userText = event.message.text;
+          console.log(`📩 Messenger from ${senderId}: ${userText}`);
+
+          // Build extra context if this is an invited lead
+          let extraContext: string | undefined;
+          if (inviteContext.leadName) {
+            extraContext = `This person (${inviteContext.leadName}) was personally invited by Lee Wakeman. Give them a warm, personalised welcome. Mention that Lee thought LifeLink Sync would be perfect for them. Offer the 7-day free trial.`;
+          }
+
+          // Generate CLARA reply
+          let reply = inviteContext.leadName
+            ? `Hi ${inviteContext.leadName}! 👋 I'm CLARA, Lee Wakeman's AI assistant for LifeLink Sync. Lee thought our emergency protection platform might be perfect for you and your family. Can I tell you a bit about what we do? It only takes 2 minutes and there's a free 7-day trial — no card needed 😊`
+            : await claraReply(userText, anthropicKey, extraContext);
+
+          // Check if we should include a proactive invite link
+          // Find or create conversation first
+          let conversationId: string | null = null;
+          try {
+            const { data: existing } = await supabase
+              .from("unified_conversations")
+              .select("id")
+              .eq("channel", "facebook_messenger")
+              .eq("contact_name", senderId)
+              .limit(1)
+              .maybeSingle();
+
+            conversationId = existing?.id;
+
+            if (!conversationId) {
+              const { data: created } = await supabase
+                .from("unified_conversations")
+                .insert({
+                  channel: "facebook_messenger",
+                  contact_name: senderId,
+                  status: "active",
+                  lead_id: inviteContext.leadId,
+                  last_message_at: new Date().toISOString(),
+                })
+                .select("id")
+                .single();
+              conversationId = created?.id;
+            } else {
+              const updates: Record<string, any> = {
+                last_message_at: new Date().toISOString(),
+              };
+              if (inviteContext.leadId) updates.lead_id = inviteContext.leadId;
+              await supabase
+                .from("unified_conversations")
+                .update(updates)
+                .eq("id", conversationId);
+            }
+          } catch (e) {
+            console.warn("Conversation log failed:", e);
+          }
+
+          // For non-invited users, check if we should proactively invite
+          if (!inviteContext.leadName && conversationId) {
+            const inviteUrl = await maybeGenerateProactiveInvite(
+              senderId,
+              conversationId,
+              supabase,
+              supabaseUrl,
+              serviceRoleKey
+            );
+            if (inviteUrl) {
+              // Re-generate reply with invite context
+              reply = await claraReply(
+                userText,
+                anthropicKey,
+                `You've been having a great conversation with this person. Include this personal link naturally in your response: ${inviteUrl} — mention it's their personal link to start a free 7-day trial.`
+              );
+            }
+          }
+
+          // Send reply via Messenger
+          await fbApi(`/me/messages`, token, "POST", {
+            recipient: { id: senderId },
+            message: { text: reply },
+            messaging_type: "RESPONSE",
+          });
+
+          // Log messages
+          if (conversationId) {
+            try {
+              await supabase.from("unified_messages").insert({
+                conversation_id: conversationId,
+                direction: "inbound",
+                content: userText,
+                sender_name: senderId,
+                content_type: "text",
+                status: "delivered",
+              });
+              await supabase.from("unified_messages").insert({
+                conversation_id: conversationId,
+                direction: "outbound",
+                content: reply,
+                sender_name: "CLARA",
+                is_ai_generated: true,
+                content_type: "text",
+                status: "sent",
+              });
+            } catch (e) {
+              console.warn("Message log failed:", e);
+            }
+          }
+
+          results.push(`Replied to ${senderId}`);
+        }
+
+        // Handle postback without text (e.g. Get Started button)
+        if (event.postback && !event.message?.text) {
+          const sendName = inviteContext.leadName || "there";
+          const welcomeMsg = `Hi ${sendName}! 👋 I'm CLARA, the AI assistant for LifeLink Sync — a 24/7 emergency protection platform for individuals and families. How can I help you today?`;
+
+          await fbApi(`/me/messages`, token, "POST", {
+            recipient: { id: senderId },
+            message: { text: welcomeMsg },
+            messaging_type: "RESPONSE",
+          });
+          results.push(`Welcome message to ${senderId}`);
+        }
       }
     }
 
@@ -346,12 +547,12 @@ serve(async (req) => {
   const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY")!;
   const verifyToken =
     Deno.env.get("FACEBOOK_WEBHOOK_VERIFY_TOKEN") ?? "lifelink_clara_2026";
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-  const supabase = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-    { auth: { persistSession: false } }
-  );
+  const supabase = createClient(supabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false },
+  });
 
   try {
     // ── Webhook verification (GET from Meta) ─────────────────────────────────
@@ -381,7 +582,9 @@ serve(async (req) => {
         token,
         pageId,
         supabase,
-        anthropicKey
+        anthropicKey,
+        supabaseUrl,
+        serviceRoleKey
       );
       return new Response(JSON.stringify(result), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

@@ -8,12 +8,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { TrendingUp, Users, Target, CheckCircle, Zap, Kanban, List, Plus, Filter, Mail, Trash2, XCircle, Bot, RefreshCw } from "lucide-react";
+import { TrendingUp, Users, Target, CheckCircle, Zap, Kanban, List, Plus, Filter, Mail, Trash2, XCircle, Bot, RefreshCw, Send, Copy, ExternalLink, MessageSquare, Phone, Eye } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { useEnhancedLeads, EnhancedLead } from '@/hooks/useEnhancedLeads';
 import { LeadDetailModal } from '@/components/admin/leads/LeadDetailModal';
 import { LeadKanbanBoard } from '@/components/admin/leads/LeadKanbanBoard';
 import { supabase } from '@/integrations/supabase/client';
+import { toast as sonnerToast } from 'sonner';
 
 interface SequenceEnrollment {
   lead_id: string;
@@ -27,6 +28,173 @@ interface LeadEngagement {
   last_reply_at: string | null;
 }
 
+// ─── Invite Pipeline Summary ─────────────────────────────────────────────────
+
+function InvitePipelineSummary({ leads }: { leads: EnhancedLead[] }) {
+  const stages = [
+    { key: 'not_invited', label: 'Not Invited', color: 'bg-gray-100 text-gray-700' },
+    { key: 'invited', label: 'Invited', color: 'bg-blue-100 text-blue-700' },
+    { key: 'clicked', label: 'Clicked', color: 'bg-yellow-100 text-yellow-700' },
+    { key: 'talking', label: 'Talking', color: 'bg-purple-100 text-purple-700' },
+    { key: 'trial', label: 'Trial', color: 'bg-green-100 text-green-700' },
+    { key: 'subscribed', label: 'Subscribed', color: 'bg-red-100 text-red-700' },
+  ];
+
+  return (
+    <div className="flex flex-wrap gap-3 p-4 bg-white border rounded-xl">
+      <span className="font-semibold text-sm text-gray-900 mr-2 self-center">
+        Total: {leads.length}
+      </span>
+      {stages.map(s => {
+        const count = leads.filter((l: any) => (l.invite_status || 'not_invited') === s.key).length;
+        return (
+          <Badge key={s.key} className={`${s.color} text-xs px-3 py-1`}>
+            {s.label}: {count}
+          </Badge>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── Send Invite Modal ───────────────────────────────────────────────────────
+
+function SendInviteModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
+  const [form, setForm] = useState({ name: '', phone: '', email: '', facebook_psid: '', notes: '' });
+  const [sending, setSending] = useState(false);
+  const [result, setResult] = useState<{ invite_url?: string; channels?: any } | null>(null);
+
+  const handleSend = async () => {
+    if (!form.name.trim()) { sonnerToast.error('Name is required'); return; }
+    if (!form.phone && !form.email && !form.facebook_psid) {
+      sonnerToast.error('At least one contact method is required (phone, email, or Messenger ID)');
+      return;
+    }
+    setSending(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-invite', {
+        body: {
+          name: form.name,
+          phone: form.phone || undefined,
+          email: form.email || undefined,
+          facebook_psid: form.facebook_psid || undefined,
+          notes: form.notes || undefined,
+        },
+      });
+      if (error) throw new Error(error.message);
+      if (!data?.success) throw new Error(data?.error ?? 'Failed to send invite');
+      setResult(data);
+      sonnerToast.success('Invite sent!');
+      onSuccess();
+    } catch (err: any) {
+      sonnerToast.error(err.message);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const copyUrl = () => {
+    if (result?.invite_url) {
+      navigator.clipboard.writeText(result.invite_url);
+      sonnerToast.success('Copied to clipboard');
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl max-h-[90vh] overflow-y-auto">
+        <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+            <Send className="h-5 w-5 text-red-500" />
+            Send CLARA Invite
+          </h2>
+          <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center">
+            <XCircle className="w-4 h-4 text-gray-400" />
+          </button>
+        </div>
+
+        {result ? (
+          <div className="p-6 space-y-4">
+            <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+              <p className="text-green-800 font-semibold text-sm">Invite sent successfully!</p>
+              <div className="mt-3 flex items-center gap-2">
+                <Input value={result.invite_url || ''} readOnly className="text-xs" />
+                <Button variant="outline" size="sm" onClick={copyUrl}>
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-gray-700">Channel results:</p>
+              {result.channels?.sms && (
+                <div className="flex items-center gap-2 text-xs">
+                  <Phone className="h-3 w-3" />
+                  SMS: {result.channels.sms.success ? 'Sent' : `Failed — ${result.channels.sms.error}`}
+                </div>
+              )}
+              {result.channels?.email && (
+                <div className="flex items-center gap-2 text-xs">
+                  <Mail className="h-3 w-3" />
+                  Email: {result.channels.email.success ? 'Sent' : `Failed — ${result.channels.email.error}`}
+                </div>
+              )}
+              {result.channels?.messenger && (
+                <div className="flex items-center gap-2 text-xs">
+                  <MessageSquare className="h-3 w-3" />
+                  Messenger: {result.channels.messenger.success ? 'Sent' : `Failed — ${result.channels.messenger.error}`}
+                </div>
+              )}
+            </div>
+            <Button onClick={onClose} className="w-full">Done</Button>
+          </div>
+        ) : (
+          <div className="p-6 space-y-4">
+            <div>
+              <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">Full name *</Label>
+              <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. David Smith" className="rounded-xl" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">Phone / WhatsApp</Label>
+                <Input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+34 600 000 000" className="rounded-xl" />
+              </div>
+              <div>
+                <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">Email</Label>
+                <Input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="email@example.com" className="rounded-xl" />
+              </div>
+            </div>
+            <div>
+              <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">Facebook Messenger PSID (optional)</Label>
+              <Input value={form.facebook_psid} onChange={e => setForm(f => ({ ...f, facebook_psid: e.target.value }))} placeholder="e.g. 123456789" className="rounded-xl" />
+            </div>
+            <div>
+              <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">Notes</Label>
+              <textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder="Any notes about this person..." rows={2} className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-red-500/20" />
+            </div>
+            <div className="bg-gray-50 rounded-xl p-3">
+              <p className="text-xs font-semibold text-gray-500 mb-1">Preview — CLARA will send:</p>
+              <p className="text-xs text-gray-600">
+                "Hi {form.name || '[Name]'}! Lee Wakeman asked me to reach out. I'm CLARA, the AI assistant for LifeLink Sync. Lee thought this might be perfect for you — your personal link: [invite URL]"
+              </p>
+              <p className="text-xs text-gray-400 mt-2">
+                Sent via: {[form.phone && 'SMS', form.email && 'Email', form.facebook_psid && 'Messenger'].filter(Boolean).join(' + ') || 'No channels selected'}
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <Button variant="outline" onClick={onClose} className="flex-1">Cancel</Button>
+              <Button onClick={handleSend} disabled={sending} className="flex-1 bg-red-500 hover:bg-red-600 text-white">
+                {sending ? 'Sending...' : 'Send Invite'}
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Main LeadsPage ──────────────────────────────────────────────────────────
+
 const LeadsPage: React.FC = () => {
   const navigate = useNavigate();
   const [filteredLeads, setFilteredLeads] = useState<EnhancedLead[]>([]);
@@ -37,32 +205,31 @@ const LeadsPage: React.FC = () => {
   const [selectedLead, setSelectedLead] = useState<EnhancedLead | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showAddLead, setShowAddLead] = useState(false);
+  const [showSendInvite, setShowSendInvite] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list');
   const [enrollments, setEnrollments] = useState<Map<string, SequenceEnrollment>>(new Map());
   const [engagements, setEngagements] = useState<Map<string, LeadEngagement>>(new Map());
   const [addForm, setAddForm] = useState({ full_name: '', email: '', phone: '', lead_source: 'manual_invite', notes: '', preferred_language: 'en' });
   const [addSaving, setAddSaving] = useState(false);
   const { toast } = useToast();
-  
-  const { leads, loading, updateLeadStatus, deleteLead } = useEnhancedLeads();
+
+  const { leads, loading, updateLeadStatus, deleteLead, refreshLeads } = useEnhancedLeads();
 
   useEffect(() => {
     filterLeads();
   }, [leads, searchTerm, statusFilter, sourceFilter, interestFilter]);
 
-  // Load sequence enrollments and engagements for displayed leads
   useEffect(() => {
     const loadEnrollmentsAndEngagements = async () => {
       if (leads.length === 0) return;
-      
+
       const leadIds = leads.map(l => l.id);
-      
-      // Load enrollments
+
       const { data: enrollmentData, error: enrollmentError } = await supabase
         .from('followup_enrollments')
         .select('lead_id, status, current_step')
         .in('lead_id', leadIds);
-      
+
       if (!enrollmentError && enrollmentData) {
         const enrollmentMap = new Map<string, SequenceEnrollment>();
         enrollmentData.forEach((e: any) => {
@@ -71,12 +238,11 @@ const LeadsPage: React.FC = () => {
         setEnrollments(enrollmentMap);
       }
 
-      // Load engagements (replies)
       const { data: engagementData, error: engagementError } = await supabase
         .from('riven_lead_engagement')
         .select('lead_id, total_replies, last_reply_at')
         .in('lead_id', leadIds);
-      
+
       if (!engagementError && engagementData) {
         const engagementMap = new Map<string, LeadEngagement>();
         engagementData.forEach((e: any) => {
@@ -85,7 +251,7 @@ const LeadsPage: React.FC = () => {
         setEngagements(engagementMap);
       }
     };
-    
+
     loadEnrollmentsAndEngagements();
   }, [leads]);
 
@@ -93,7 +259,7 @@ const LeadsPage: React.FC = () => {
     let filtered = leads;
 
     if (searchTerm) {
-      filtered = filtered.filter(lead => 
+      filtered = filtered.filter(lead =>
         lead.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (lead.phone && lead.phone.includes(searchTerm)) ||
         (lead.first_name && lead.first_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -159,6 +325,37 @@ const LeadsPage: React.FC = () => {
     }
   };
 
+  const getInviteStatusBadge = (status: string) => {
+    const map: Record<string, { label: string; color: string }> = {
+      'not_invited': { label: 'Not Invited', color: 'bg-gray-100 text-gray-600' },
+      'invited': { label: 'Invited', color: 'bg-blue-100 text-blue-700' },
+      'clicked': { label: 'Clicked', color: 'bg-yellow-100 text-yellow-700' },
+      'talking': { label: 'Talking', color: 'bg-purple-100 text-purple-700' },
+      'trial': { label: 'Trial', color: 'bg-green-100 text-green-700' },
+      'subscribed': { label: 'Subscribed', color: 'bg-red-100 text-red-700 font-bold' },
+      'lost': { label: 'Lost', color: 'bg-gray-200 text-gray-500' },
+    };
+    return map[status] || map['not_invited'];
+  };
+
+  const handleSendInviteForLead = async (lead: EnhancedLead) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('send-invite', {
+        body: {
+          name: `${lead.first_name || ''} ${lead.last_name || ''}`.trim() || lead.email,
+          phone: lead.phone || undefined,
+          email: lead.email || undefined,
+        },
+      });
+      if (error) throw new Error(error.message);
+      if (!data?.success) throw new Error(data?.error ?? 'Failed');
+      sonnerToast.success(`Invite sent to ${lead.first_name || lead.email}!`);
+      refreshLeads();
+    } catch (err: any) {
+      sonnerToast.error(err.message);
+    }
+  };
+
   const handleAddLead = async () => {
     if (!addForm.full_name.trim()) { toast({ title: 'Name required', variant: 'destructive' }); return; }
     setAddSaving(true);
@@ -183,8 +380,7 @@ const LeadsPage: React.FC = () => {
       toast({ title: 'Lead added successfully' });
       setShowAddLead(false);
       setAddForm({ full_name: '', email: '', phone: '', lead_source: 'manual_invite', notes: '', preferred_language: 'en' });
-      // Reload leads
-      window.location.reload();
+      refreshLeads();
     } catch (err: any) {
       toast({ title: 'Failed to add lead', description: err.message, variant: 'destructive' });
     } finally {
@@ -211,10 +407,13 @@ const LeadsPage: React.FC = () => {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Lead Management</h1>
           <p className="text-gray-400 text-sm mt-0.5">
-            Professional CRM with AI-powered insights and automation
+            CLARA invite system + full CRM pipeline
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => refreshLeads()}>
+            <RefreshCw className="h-4 w-4 mr-1" /> Refresh
+          </Button>
           <Button variant="outline" onClick={() => setViewMode(viewMode === 'list' ? 'kanban' : 'list')}>
             {viewMode === 'list' ? <Kanban className="h-4 w-4 mr-2" /> : <List className="h-4 w-4 mr-2" />}
             {viewMode === 'list' ? 'Kanban View' : 'List View'}
@@ -223,16 +422,19 @@ const LeadsPage: React.FC = () => {
             <Bot className="h-4 w-4 mr-2" />
             Ask CLARA
           </Button>
-          <Button variant="outline" onClick={() => navigate('/admin-dashboard/manual-invite')}>
-            <Mail className="h-4 w-4 mr-2" />
-            Send Invite
-          </Button>
-          <Button onClick={() => setShowAddLead(true)} className="bg-red-500 hover:bg-red-600 text-white">
+          <Button onClick={() => setShowAddLead(true)} variant="outline">
             <Plus className="h-4 w-4 mr-2" />
             Add Lead
           </Button>
+          <Button onClick={() => setShowSendInvite(true)} className="bg-red-500 hover:bg-red-600 text-white">
+            <Send className="h-4 w-4 mr-2" />
+            New Invite
+          </Button>
         </div>
       </div>
+
+      {/* Invite Pipeline Summary */}
+      <InvitePipelineSummary leads={leads as any} />
 
       {/* Stats Cards */}
       <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
@@ -374,7 +576,7 @@ const LeadsPage: React.FC = () => {
           <CardHeader>
             <CardTitle>Leads ({filteredLeads.length})</CardTitle>
             <CardDescription>
-              Professional CRM with enhanced lead tracking and management
+              Full CRM with invite tracking and CLARA automation
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -383,134 +585,140 @@ const LeadsPage: React.FC = () => {
             ) : (
               <ScrollArea className="h-[600px]">
                 <div className="space-y-4">
-                  {filteredLeads.map((lead) => (
-                    <div
-                      key={lead.id}
-                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 cursor-pointer"
-                      onClick={() => handleLeadClick(lead)}
-                    >
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-4">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              <p className="font-medium">
-                                {lead.first_name} {lead.last_name}
-                              </p>
-                              {lead.language && lead.language !== 'en' && (
-                                <span className="text-sm" title={lead.language === 'es' ? 'Spanish' : lead.language === 'nl' ? 'Dutch' : 'English'}>
-                                  {lead.language === 'es' ? '\u{1F1EA}\u{1F1F8}' : lead.language === 'nl' ? '\u{1F1F3}\u{1F1F1}' : '\u{1F1EC}\u{1F1E7}'}
-                                </span>
-                              )}
-                              {lead.lead_score > 0 && (
-                                <Badge variant="outline" className="text-xs">
-                                  Score: {lead.lead_score}
-                                </Badge>
+                  {filteredLeads.map((lead) => {
+                    const inviteStatus = (lead as any).invite_status || 'not_invited';
+                    const inviteBadge = getInviteStatusBadge(inviteStatus);
+
+                    return (
+                      <div
+                        key={lead.id}
+                        className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 cursor-pointer"
+                        onClick={() => handleLeadClick(lead)}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-4">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <p className="font-medium">
+                                  {lead.first_name} {lead.last_name}
+                                </p>
+                                {lead.language && lead.language !== 'en' && (
+                                  <span className="text-sm" title={lead.language === 'es' ? 'Spanish' : lead.language === 'nl' ? 'Dutch' : 'English'}>
+                                    {lead.language === 'es' ? '\u{1F1EA}\u{1F1F8}' : lead.language === 'nl' ? '\u{1F1F3}\u{1F1F1}' : '\u{1F1EC}\u{1F1E7}'}
+                                  </span>
+                                )}
+                                {lead.lead_score > 0 && (
+                                  <Badge variant="outline" className="text-xs">
+                                    Score: {lead.lead_score}
+                                  </Badge>
+                                )}
+                              </div>
+                              <p className="text-sm text-muted-foreground">{lead.email}</p>
+                              {lead.phone && (
+                                <p className="text-xs text-muted-foreground">{lead.phone}</p>
                               )}
                             </div>
-                            <p className="text-sm text-muted-foreground">{lead.email}</p>
-                            {lead.company_name && (
-                              <p className="text-sm text-muted-foreground">
-                                {lead.job_title} at {lead.company_name}
-                              </p>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2 flex-wrap">
-                            {/* Sequence enrollment badge */}
-                            {enrollments.get(lead.id) && (
-                              <Badge 
-                                className={`text-xs flex items-center gap-1 ${
-                                  enrollments.get(lead.id)?.status === 'active' 
-                                    ? 'bg-purple-100 text-purple-800' 
-                                    : 'bg-gray-100 text-gray-600'
-                                }`}
-                              >
-                                <Mail className="h-3 w-3" />
-                                Sequence: {enrollments.get(lead.id)?.status === 'active' 
-                                  ? `Step ${enrollments.get(lead.id)?.current_step}` 
-                                  : enrollments.get(lead.id)?.status}
+                            <div className="flex items-center gap-2 flex-wrap">
+                              {/* Invite status badge */}
+                              <Badge className={`text-xs ${inviteBadge.color}`}>
+                                {inviteBadge.label}
                               </Badge>
+                              {/* Sequence enrollment badge */}
+                              {enrollments.get(lead.id) && (
+                                <Badge
+                                  className={`text-xs flex items-center gap-1 ${
+                                    enrollments.get(lead.id)?.status === 'active'
+                                      ? 'bg-purple-100 text-purple-800'
+                                      : 'bg-gray-100 text-gray-600'
+                                  }`}
+                                >
+                                  <Mail className="h-3 w-3" />
+                                  Sequence: {enrollments.get(lead.id)?.status === 'active'
+                                    ? `Step ${enrollments.get(lead.id)?.current_step}`
+                                    : enrollments.get(lead.id)?.status}
+                                </Badge>
+                              )}
+                              {/* Replied badge */}
+                              {engagements.get(lead.id) && (engagements.get(lead.id)!.total_replies > 0 || engagements.get(lead.id)!.last_reply_at) && (
+                                <Badge className="text-xs flex items-center gap-1 bg-green-100 text-green-800">
+                                  <CheckCircle className="h-3 w-3" />
+                                  Replied ({engagements.get(lead.id)?.total_replies || 1})
+                                </Badge>
+                              )}
+                              {lead.lead_source && (() => {
+                                const src = getSourceBadge(lead.lead_source);
+                                return <Badge className={`text-xs ${src.color}`}>{src.label}</Badge>;
+                              })()}
+                              <Badge className={getInterestColor(lead.interest_level)}>
+                                {getInterestLabel(lead.interest_level)} ({lead.interest_level})
+                              </Badge>
+                              <Badge className={getStatusColor(lead.status)}>
+                                {lead.status}
+                              </Badge>
+                            </div>
+                            <div className="text-right">
+                              {lead.deal_value && (
+                                <p className="text-sm font-medium">
+                                  ${lead.deal_value.toLocaleString()}
+                                </p>
+                              )}
+                              <p className="text-xs text-muted-foreground">
+                                {new Date(lead.created_at).toLocaleDateString()}
+                              </p>
+                              {lead.next_follow_up_at && (
+                                <p className="text-xs text-orange-600">
+                                  Follow-up: {new Date(lead.next_follow_up_at).toLocaleDateString()}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="ml-4 flex flex-col gap-1">
+                          <div onClick={(e) => e.stopPropagation()}>
+                            {inviteStatus === 'not_invited' && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="text-red-600 hover:bg-red-50 mb-1 w-full"
+                                onClick={() => handleSendInviteForLead(lead)}
+                              >
+                                <Send className="h-3 w-3 mr-1" /> Invite
+                              </Button>
                             )}
-                            {/* Replied badge */}
-                            {engagements.get(lead.id) && (engagements.get(lead.id)!.total_replies > 0 || engagements.get(lead.id)!.last_reply_at) && (
-                              <Badge 
-                                className="text-xs flex items-center gap-1 bg-green-100 text-green-800"
-                                title={engagements.get(lead.id)?.last_reply_at 
-                                  ? `Last reply: ${new Date(engagements.get(lead.id)!.last_reply_at!).toLocaleDateString()}`
-                                  : undefined
+                            <Select
+                              value={lead.status}
+                              onValueChange={(newStatus) => updateLeadStatus(lead.id, newStatus)}
+                            >
+                            <SelectTrigger className="w-32">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="new">New</SelectItem>
+                              <SelectItem value="qualified">Qualified</SelectItem>
+                              <SelectItem value="proposal">Proposal</SelectItem>
+                              <SelectItem value="negotiation">Negotiation</SelectItem>
+                              <SelectItem value="converted">Converted</SelectItem>
+                              <SelectItem value="lost">Lost</SelectItem>
+                            </SelectContent>
+                            </Select>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-gray-400 hover:text-red-600 hover:bg-red-50 mt-1"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (confirm(`Delete lead "${lead.first_name || lead.email}"? This cannot be undone.`)) {
+                                  deleteLead(lead.id);
                                 }
-                              >
-                                <CheckCircle className="h-3 w-3" />
-                                Replied ({engagements.get(lead.id)?.total_replies || 1})
-                              </Badge>
-                            )}
-                            {lead.lead_source && (() => {
-                              const src = getSourceBadge(lead.lead_source);
-                              return <Badge className={`text-xs ${src.color}`}>{src.label}</Badge>;
-                            })()}
-                            <Badge className={getInterestColor(lead.interest_level)}>
-                              {getInterestLabel(lead.interest_level)} ({lead.interest_level})
-                            </Badge>
-                            <Badge className={getStatusColor(lead.status)}>
-                              {lead.status}
-                            </Badge>
-                          </div>
-                          <div className="text-right">
-                            {lead.deal_value && (
-                              <p className="text-sm font-medium">
-                                ${lead.deal_value.toLocaleString()}
-                              </p>
-                            )}
-                            <p className="text-xs text-muted-foreground">
-                              {new Date(lead.created_at).toLocaleDateString()}
-                            </p>
-                            {lead.next_follow_up_at && (
-                              <p className="text-xs text-orange-600">
-                                Follow-up: {new Date(lead.next_follow_up_at).toLocaleDateString()}
-                              </p>
-                            )}
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
                           </div>
                         </div>
-                        {lead.conversation_summary && (
-                          <p className="text-sm text-muted-foreground mt-2 truncate">
-                            {lead.conversation_summary}
-                          </p>
-                        )}
                       </div>
-                      <div className="ml-4">
-                        <div onClick={(e) => e.stopPropagation()}>
-                          <Select
-                            value={lead.status}
-                            onValueChange={(newStatus) => updateLeadStatus(lead.id, newStatus)}
-                          >
-                          <SelectTrigger className="w-32">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="new">New</SelectItem>
-                            <SelectItem value="qualified">Qualified</SelectItem>
-                            <SelectItem value="proposal">Proposal</SelectItem>
-                            <SelectItem value="negotiation">Negotiation</SelectItem>
-                            <SelectItem value="converted">Converted</SelectItem>
-                            <SelectItem value="lost">Lost</SelectItem>
-                          </SelectContent>
-                          </Select>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-gray-400 hover:text-red-600 hover:bg-red-50 mt-2"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (confirm(`Delete lead "${lead.first_name || lead.email}"? This cannot be undone.`)) {
-                                deleteLead(lead.id);
-                              }
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   {filteredLeads.length === 0 && (
                     <div className="text-center py-8 text-muted-foreground">
                       No leads found matching your criteria
@@ -528,6 +736,14 @@ const LeadsPage: React.FC = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       />
+
+      {/* Send Invite Modal */}
+      {showSendInvite && (
+        <SendInviteModal
+          onClose={() => setShowSendInvite(false)}
+          onSuccess={() => refreshLeads()}
+        />
+      )}
 
       {/* Add Lead Modal */}
       {showAddLead && (

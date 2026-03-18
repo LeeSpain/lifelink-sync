@@ -241,6 +241,57 @@ serve(async (req) => {
         }
       }
 
+      // ── Lead invite conversion: check if new subscriber matches a lead ──
+      try {
+        const convEmail = event?.data?.object?.customer_email || event?.data?.object?.customer_details?.email;
+        if (convEmail) {
+          const { data: matchedLead } = await supabase
+            .from('leads')
+            .select('id')
+            .eq('email', convEmail)
+            .maybeSingle();
+
+          if (matchedLead) {
+            // Mark lead_invites as subscribed
+            const { data: invites } = await supabase
+              .from('lead_invites')
+              .select('id')
+              .eq('lead_id', matchedLead.id)
+              .eq('subscribed', false);
+
+            if (invites?.length) {
+              await supabase
+                .from('lead_invites')
+                .update({ subscribed: true, subscribed_at: new Date().toISOString() })
+                .eq('lead_id', matchedLead.id);
+            }
+
+            // Update lead status
+            await supabase
+              .from('leads')
+              .update({
+                invite_status: 'subscribed',
+                lead_score: 100,
+                subscribed_at: new Date().toISOString(),
+              })
+              .eq('id', matchedLead.id);
+
+            // Link subscriber to lead
+            const subUserId = ownerUserId || userId || event?.data?.object?.metadata?.user_id;
+            if (subUserId) {
+              await supabase
+                .from('subscribers')
+                .update({ lead_id: matchedLead.id })
+                .eq('user_id', subUserId);
+            }
+
+            console.log('🎯 Lead converted to subscriber:', matchedLead.id);
+          }
+        }
+      } catch (leadConvErr) {
+        console.warn('Lead conversion tracking failed (non-fatal):', leadConvErr);
+      }
+
       // Update subscription billing status if this is subscription-related
       if (ownerUserId) {
         const { error: updateError } = await supabase
