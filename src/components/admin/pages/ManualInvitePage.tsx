@@ -1483,20 +1483,25 @@ function SentInvitesList({ refreshKey }: { refreshKey: boolean }) {
   const { data: invites, isLoading, refetch } = useQuery({
     queryKey: ['sent-invites', refreshKey],
     queryFn: async () => {
-      // Query manual_invites (the existing table used by this page)
-      const { data: manual, error: manualErr } = await (supabase as any)
-        .from('manual_invites')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(50);
+      try {
+        const { data: manual, error: manualErr } = await (supabase as any)
+          .from('manual_invites')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(50);
 
-      if (manualErr) {
-        console.warn('Failed to load manual_invites:', manualErr);
+        if (manualErr) {
+          console.warn('Failed to load manual_invites:', manualErr);
+          return [];
+        }
+        return manual || [];
+      } catch (e) {
+        console.warn('manual_invites query error:', e);
         return [];
       }
-      return manual || [];
     },
     staleTime: 30_000,
+    retry: false,
   });
 
   const getStatusBadge = (invite: any) => {
@@ -1539,7 +1544,7 @@ function SentInvitesList({ refreshKey }: { refreshKey: boolean }) {
           <p className="text-sm text-muted-foreground py-4">No invites sent yet. Use the form above to send your first one!</p>
         ) : (
           <div className="space-y-3">
-            {invites.map((invite: any) => {
+            {(invites || []).map((invite: any) => {
               const badge = getStatusBadge(invite);
               return (
                 <div key={invite.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/30">

@@ -88,30 +88,38 @@ const LeadsPage: React.FC = () => {
 
       const leadIds = leads.map(l => l.id);
 
-      const { data: enrollmentData, error: enrollmentError } = await supabase
-        .from('followup_enrollments')
-        .select('lead_id, status, current_step')
-        .in('lead_id', leadIds);
+      try {
+        const { data: enrollmentData, error: enrollmentError } = await supabase
+          .from('followup_enrollments')
+          .select('lead_id, status, current_step')
+          .in('lead_id', leadIds);
 
-      if (!enrollmentError && enrollmentData) {
-        const enrollmentMap = new Map<string, SequenceEnrollment>();
-        enrollmentData.forEach((e: any) => {
-          enrollmentMap.set(e.lead_id, e);
-        });
-        setEnrollments(enrollmentMap);
+        if (!enrollmentError && enrollmentData) {
+          const enrollmentMap = new Map<string, SequenceEnrollment>();
+          enrollmentData.forEach((e: any) => {
+            enrollmentMap.set(e.lead_id, e);
+          });
+          setEnrollments(enrollmentMap);
+        }
+      } catch (e) {
+        console.warn('followup_enrollments query failed:', e);
       }
 
-      const { data: engagementData, error: engagementError } = await supabase
-        .from('riven_lead_engagement')
-        .select('lead_id, total_replies, last_reply_at')
-        .in('lead_id', leadIds);
+      try {
+        const { data: engagementData, error: engagementError } = await supabase
+          .from('riven_lead_engagement')
+          .select('lead_id, total_replies, last_reply_at')
+          .in('lead_id', leadIds);
 
-      if (!engagementError && engagementData) {
-        const engagementMap = new Map<string, LeadEngagement>();
-        engagementData.forEach((e: any) => {
-          engagementMap.set(e.lead_id, e);
-        });
-        setEngagements(engagementMap);
+        if (!engagementError && engagementData) {
+          const engagementMap = new Map<string, LeadEngagement>();
+          engagementData.forEach((e: any) => {
+            engagementMap.set(e.lead_id, e);
+          });
+          setEngagements(engagementMap);
+        }
+      } catch (e) {
+        console.warn('riven_lead_engagement query failed:', e);
       }
     };
 

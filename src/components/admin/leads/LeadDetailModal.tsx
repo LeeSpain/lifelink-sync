@@ -81,16 +81,24 @@ function InvitePipelineBar({ currentStatus }: { currentStatus: string }) {
 function ConversationsTab({ leadId }: { leadId: string }) {
   const [messages, setMessages] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     (async () => {
       setLoading(true);
+      setError(null);
       try {
-        // Find conversations linked to this lead
-        const { data: convos } = await supabase
+        // Find conversations linked to this lead — lead_id column may not exist yet
+        const { data: convos, error: convErr } = await supabase
           .from('unified_conversations')
           .select('id')
           .eq('lead_id', leadId);
+
+        if (convErr) {
+          console.warn('unified_conversations query failed (lead_id column may not exist):', convErr.message);
+          setLoading(false);
+          return;
+        }
 
         if (convos?.length) {
           const convoIds = convos.map(c => c.id);
@@ -101,8 +109,9 @@ function ConversationsTab({ leadId }: { leadId: string }) {
             .order('created_at', { ascending: true });
           setMessages(msgs || []);
         }
-      } catch (e) {
+      } catch (e: any) {
         console.warn('Failed to load conversations:', e);
+        setError(e.message);
       }
       setLoading(false);
     })();
@@ -155,7 +164,7 @@ export const LeadDetailModal: React.FC<LeadDetailModalProps> = ({
     if (!lead) return;
     setEditForm(lead);
 
-    // Load activities for this specific lead (don't put loadActivities in deps — it's unstable)
+    // Load activities for this specific lead
     (async () => {
       try {
         const { data, error } = await supabase
@@ -165,9 +174,11 @@ export const LeadDetailModal: React.FC<LeadDetailModalProps> = ({
           .order('created_at', { ascending: false });
         if (!error && data) {
           setLeadActivities(data);
+        } else if (error) {
+          console.warn('lead_activities query failed:', error.message);
         }
       } catch (e) {
-        console.error('Failed to load lead activities:', e);
+        console.warn('Failed to load lead activities:', e);
       }
     })();
   }, [lead?.id]); // eslint-disable-line react-hooks/exhaustive-deps
