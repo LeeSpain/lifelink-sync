@@ -67,16 +67,26 @@ serve(async (req) => {
   });
 
   try {
-    const { name, phone, email, facebook_psid, notes } = await req.json();
+    const body = await req.json();
+    const { name, phone, email, facebook_psid, notes, channels } = body;
 
     if (!name?.trim()) {
       throw new Error("Name is required");
     }
 
+    // Determine which channels to fire
+    // If explicit channels array provided, use it; otherwise infer from fields
+    const activeChannels: string[] = channels?.length
+      ? channels
+      : [
+          ...(email ? ["email"] : []),
+          ...(phone ? ["sms"] : []),
+          ...(facebook_psid ? ["messenger"] : []),
+        ];
+
     // ── 1. Upsert lead ────────────────────────────────────────────────────────
     let leadId: string | null = null;
 
-    // Try to find existing lead by phone or email
     if (phone) {
       const { data: byPhone } = await supabase
         .from("leads")
@@ -121,8 +131,7 @@ serve(async (req) => {
       if (createErr) throw new Error(`Lead create failed: ${createErr.message}`);
       leadId = created.id;
     } else {
-      // Update existing lead with any new info
-      const updates: Record<string, any> = {};
+      const updates: Record<string, unknown> = {};
       if (facebook_psid) updates.facebook_psid = facebook_psid;
       if (notes) updates.notes = notes;
       if (Object.keys(updates).length > 0) {
@@ -143,27 +152,28 @@ serve(async (req) => {
 
     // ── 3. Build invite URLs per channel ──────────────────────────────────────
     const smsUrl = `${INVITE_BASE_URL}?ref=${token}&ch=sms`;
+    const whatsappUrl = `${INVITE_BASE_URL}?ref=${token}&ch=whatsapp`;
     const emailUrl = `${INVITE_BASE_URL}?ref=${token}&ch=email`;
     const messengerUrl = `${INVITE_BASE_URL}?ref=${token}&ch=messenger`;
 
-    const smsMessage = `Hi ${name}! Lee Wakeman asked me to reach out. I'm CLARA, the AI assistant for LifeLink Sync. Lee thought this might be perfect for you — your personal link: ${smsUrl} Reply STOP to opt out.`;
+    const smsMessage = `Hi ${name}! Lee Wakeman asked CLARA to reach out about LifeLink Sync. Your personal link: ${smsUrl} Reply STOP to opt out.`;
+    const whatsappMessage = `Hi ${name}! Lee Wakeman asked me to reach out. I'm CLARA, the AI assistant for LifeLink Sync. Lee thought this might be perfect for you — your personal link: ${whatsappUrl} Reply STOP to opt out.`;
     const messengerMessage = `Hi ${name}! Lee Wakeman asked me to reach out. I'm CLARA, LifeLink Sync's AI assistant. Lee thought LifeLink Sync could be perfect for you — click your personal link to find out more: ${messengerUrl}`;
 
     // ── 4. Fire channels in parallel ──────────────────────────────────────────
-    const results: Record<string, any> = {};
-
+    const results: Record<string, Record<string, unknown>> = {};
     const promises: Promise<void>[] = [];
 
-    // SMS via Twilio
-    if (phone) {
+    const twilioSid = Deno.env.get("TWILIO_ACCOUNT_SID") || "";
+    const twilioAuth = Deno.env.get("TWILIO_AUTH_TOKEN") || "";
+    const twilioFrom = Deno.env.get("TWILIO_PHONE_NUMBER") || "";
+
+    // SMS via Twilio (plain text SMS)
+    if (activeChannels.includes("sms") && phone) {
       promises.push(
         (async () => {
           try {
-            const twilioSid = Deno.env.get("TWILIO_ACCOUNT_SID")!;
-            const twilioAuth = Deno.env.get("TWILIO_AUTH_TOKEN")!;
-            const twilioFrom = Deno.env.get("TWILIO_PHONE_NUMBER")!;
-
-            const smsRes = await fetch(
+            const res = await fetch(
               `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`,
               {
                 method: "POST",
@@ -178,31 +188,62 @@ serve(async (req) => {
                 }),
               }
             );
-            const smsData = await smsRes.json();
-            results.sms = { success: true, sid: smsData.sid };
-
+            const data = await res.json();
+            results.sms = { sent: !data.error_code, sid: data.sid };
             await supabase
               .from("lead_invites")
-              .update({
-                sms_sent: true,
-                sms_sent_at: new Date().toISOString(),
-                sms_sid: smsData.sid || null,
-              })
+              .update({ sms_sent: true, sms_sent_at: new Date().toISOString(), sms_sid: data.sid || null })
               .eq("id", inviteId);
-          } catch (e: any) {
-            console.warn("SMS send failed:", e.message);
-            results.sms = { success: false, error: e.message };
+          } catch (e: unknown) {
+            const msg = e instanceof Error ? e.message : String(e);
+            console.warn("SMS send failed:", msg);
+            results.sms = { sent: false, error: msg };
+          }
+        })()
+      );
+    }
+
+    // WhatsApp via Twilio (whatsapp: prefix)
+    if (activeChannels.includes("whatsapp") && phone) {
+      promises.push(
+        (async () => {
+          try {
+            const res = await fetch(
+              `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`,
+              {
+                method: "POST",
+                headers: {
+                  Authorization: "Basic " + btoa(`${twilioSid}:${twilioAuth}`),
+                  "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: new URLSearchParams({
+                  To: `whatsapp:${phone}`,
+                  From: `whatsapp:${twilioFrom}`,
+                  Body: whatsappMessage,
+                }),
+              }
+            );
+            const data = await res.json();
+            results.whatsapp = { sent: !data.error_code, sid: data.sid };
+            await supabase
+              .from("lead_invites")
+              .update({ whatsapp_sent: true, whatsapp_sent_at: new Date().toISOString() })
+              .eq("id", inviteId);
+          } catch (e: unknown) {
+            const msg = e instanceof Error ? e.message : String(e);
+            console.warn("WhatsApp send failed:", msg);
+            results.whatsapp = { sent: false, error: msg };
           }
         })()
       );
     }
 
     // Email via Resend
-    if (email) {
+    if (activeChannels.includes("email") && email) {
       promises.push(
         (async () => {
           try {
-            const emailRes = await fetch("https://api.resend.com/emails", {
+            const res = await fetch("https://api.resend.com/emails", {
               method: "POST",
               headers: {
                 Authorization: `Bearer ${Deno.env.get("RESEND_API_KEY")}`,
@@ -215,31 +256,27 @@ serve(async (req) => {
                 html: buildInviteEmailHTML(name, emailUrl),
               }),
             });
-            const emailData = await emailRes.json();
-            results.email = { success: true, id: emailData.id };
-
+            const data = await res.json();
+            results.email = { sent: true, id: data.id };
             await supabase
               .from("lead_invites")
-              .update({
-                email_sent: true,
-                email_sent_at: new Date().toISOString(),
-                email_message_id: emailData.id || null,
-              })
+              .update({ email_sent: true, email_sent_at: new Date().toISOString(), email_message_id: data.id || null })
               .eq("id", inviteId);
-          } catch (e: any) {
-            console.warn("Email send failed:", e.message);
-            results.email = { success: false, error: e.message };
+          } catch (e: unknown) {
+            const msg = e instanceof Error ? e.message : String(e);
+            console.warn("Email send failed:", msg);
+            results.email = { sent: false, error: msg };
           }
         })()
       );
     }
 
     // Messenger via facebook-manager
-    if (facebook_psid) {
+    if (activeChannels.includes("messenger") && facebook_psid) {
       promises.push(
         (async () => {
           try {
-            const messengerRes = await fetch(
+            const res = await fetch(
               `${supabaseUrl}/functions/v1/facebook-manager`,
               {
                 method: "POST",
@@ -254,20 +291,16 @@ serve(async (req) => {
                 }),
               }
             );
-            const messengerData = await messengerRes.json();
-            results.messenger = { success: true, data: messengerData };
-
+            const data = await res.json();
+            results.messenger = { sent: true, data };
             await supabase
               .from("lead_invites")
-              .update({
-                messenger_sent: true,
-                messenger_sent_at: new Date().toISOString(),
-                messenger_recipient_id: facebook_psid,
-              })
+              .update({ messenger_sent: true, messenger_sent_at: new Date().toISOString(), messenger_recipient_id: facebook_psid })
               .eq("id", inviteId);
-          } catch (e: any) {
-            console.warn("Messenger send failed:", e.message);
-            results.messenger = { success: false, error: e.message };
+          } catch (e: unknown) {
+            const msg = e instanceof Error ? e.message : String(e);
+            console.warn("Messenger send failed:", msg);
+            results.messenger = { sent: false, error: msg };
           }
         })()
       );
@@ -297,21 +330,17 @@ serve(async (req) => {
         event_data: {
           lead_id: leadId,
           token,
-          channels: {
-            sms: !!phone,
-            email: !!email,
-            messenger: !!facebook_psid,
-          },
+          channels: activeChannels,
+          results,
         },
-        channel: phone ? "sms" : email ? "email" : "messenger",
+        channel: activeChannels[0] || "link",
       });
     } catch (e) {
       console.warn("Timeline log failed:", e);
     }
 
-    console.log(
-      `📤 Invite sent for ${name} (${token}) — SMS:${!!phone} Email:${!!email} Messenger:${!!facebook_psid}`
-    );
+    const channelList = activeChannels.join(", ");
+    console.log(`📤 Invite sent for ${name} (${token}) — channels: ${channelList}`);
 
     return new Response(
       JSON.stringify({
@@ -325,10 +354,11 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       }
     );
-  } catch (err: any) {
-    console.error("❌ send-invite error:", err.message);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("❌ send-invite error:", msg);
     return new Response(
-      JSON.stringify({ success: false, error: err.message }),
+      JSON.stringify({ success: false, error: msg }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

@@ -89,11 +89,22 @@ export default function ManualInvitePage() {
   const [form, setForm] = useState({
     name: '',
     email: '',
-    whatsapp: '',
+    phone: '',
+    messengerPsid: '',
     protectionFor: '',
     personalMessage: '',
-    sendVia: 'email' as 'email' | 'whatsapp' | 'both',
   });
+  const [channels, setChannels] = useState({
+    email: true,
+    whatsapp: false,
+    sms: false,
+    messenger: false,
+    link: false,
+  });
+  const toggleChannel = (ch: keyof typeof channels) => {
+    setChannels(prev => ({ ...prev, [ch]: !prev[ch] }));
+    setSent(false);
+  };
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [sentMessage, setSentMessage] = useState('');
@@ -142,22 +153,13 @@ export default function ManualInvitePage() {
     ? enhancedMessage
     : generateMessage(form.name || 'there', form.protectionFor, form.personalMessage);
 
-  const displayMessage = useEnhanced && enhancedMessage
-    ? enhancedMessage
-    : rawNote
-      ? rawNote
-      : '';
-
-  const hasMessage = !!(enhancedMessage || rawNote.trim() || form.personalMessage.trim());
   const hasContact = form.name.trim().length > 0;
-  // Show preview when we have at least a contact name — template fills in the rest
   const showPreview = hasContact;
+  const anyChannelSelected = channels.email || channels.whatsapp || channels.sms || channels.messenger || channels.link;
+  const needsEmail = channels.email && !form.email.trim();
+  const needsPhone = (channels.whatsapp || channels.sms) && !form.phone.trim();
 
-  const canSend = form.name.trim() && form.protectionFor && (
-    (form.sendVia === 'email' && form.email.trim()) ||
-    (form.sendVia === 'whatsapp' && form.whatsapp.trim()) ||
-    (form.sendVia === 'both' && form.email.trim() && form.whatsapp.trim())
-  );
+  const canSend = form.name.trim() && form.protectionFor && anyChannelSelected && !needsEmail && !needsPhone;
 
   const canSendClara = claraForm.name.trim() && claraForm.whatsapp.trim() && claraForm.protectionFor;
 
@@ -167,7 +169,7 @@ export default function ManualInvitePage() {
       setTranslatedMessage('');
       return;
     }
-    const msgToTranslate = enhancedMessage || rawNote || form.personalMessage;
+    const msgToTranslate = enhancedMessage || rawNote || previewMessage;
     if (!msgToTranslate) {
       setTranslatedMessage('');
       return;
@@ -262,143 +264,70 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
     }
   };
 
-  // ─── Send (Lee mode) ───
+  // ─── Send (Lee mode) — calls send-invite edge function ───
   const handleSend = async () => {
     if (!canSend) return;
     setSending(true);
     try {
-      const messageToSend = contactLanguage !== 'en' && translatedMessage
-        ? translatedMessage
-        : previewMessage;
-      const sendPayload: Record<string, unknown> = {
-        type: 'manual_invite',
-        contact_name: form.name,
-        message: messageToSend,
-      };
-      if ((form.sendVia === 'whatsapp' || form.sendVia === 'both') && form.whatsapp.trim()) {
-        sendPayload.contact_phone = form.whatsapp.trim();
-      }
-      if ((form.sendVia === 'email' || form.sendVia === 'both') && form.email.trim()) {
-        sendPayload.contact_email = form.email.trim();
-      }
+      const activeChannels = Object.entries(channels)
+        .filter(([, v]) => v)
+        .map(([k]) => k)
+        .filter(k => k !== 'link'); // link is always generated, not a send channel
 
-      const { data: sendResult, error: sendError } = await supabase.functions.invoke('clara-escalation', {
-        body: sendPayload,
+      const cleanPhone = form.phone?.replace(/\s/g, '') || null;
+
+      // Call send-invite — handles lead creation, token, and all channel sending
+      const { data: sendResult, error: sendError } = await supabase.functions.invoke('send-invite', {
+        body: {
+          name: form.name.trim(),
+          phone: cleanPhone,
+          email: form.email.trim() || null,
+          facebook_psid: form.messengerPsid.trim() || null,
+          channels: activeChannels,
+          notes: `Protection for: ${form.protectionFor}. ${rawNote || ''}`.trim(),
+        },
       });
-      if (sendError) throw new Error(sendError.message || 'Failed to send invite');
-      if (!sendResult?.success) throw new Error('Invite delivery failed — check WhatsApp number or email address');
 
-      const { error: dbError } = await (supabase as any).from('manual_invites').insert({
+      if (sendError) throw new Error(sendError.message || 'Failed to send invite');
+      if (!sendResult?.success) throw new Error(sendResult?.error || 'Invite delivery failed');
+
+      // Log to manual_invites for the admin history view
+      await (supabase as any).from('manual_invites').insert({
         contact_name: form.name,
         contact_email: form.email || null,
-        contact_whatsapp: form.whatsapp || null,
+        contact_whatsapp: cleanPhone,
         protection_for: form.protectionFor,
         personal_message: (useEnhanced ? enhancedMessage : rawNote || form.personalMessage) || null,
-        send_via: form.sendVia,
+        send_via: activeChannels.join(','),
         message_sent: previewMessage,
         relationship_tone: relationship,
         clara_enhanced: useEnhanced,
         preferred_language: contactLanguage,
-        email_sent: sendResult?.email_sent || false,
-        whatsapp_sent: sendResult?.whatsapp_sent || false,
-        email_error: sendResult?.email_error || null,
-        whatsapp_error: null,
+        email_sent: !!sendResult?.channels?.email?.sent,
+        whatsapp_sent: !!sendResult?.channels?.whatsapp?.sent,
         status: 'sent',
+      }).then(({ error: dbErr }: { error: unknown }) => {
+        if (dbErr) console.warn('Failed to log invite to DB:', dbErr);
       });
-      if (dbError) console.warn('Failed to log invite to DB:', dbError);
 
-      // ── Full CRM tracking ──
-      const nameParts = form.name.trim().split(' ');
-      const cleanPhone = form.whatsapp?.replace(/\s/g, '') || null;
+      const inviteToken = sendResult?.token || '';
+      const channelResults = sendResult?.channels || {};
 
-      // 1. Create or update lead
-      const { data: existingLead } = await (supabase as any).from('leads').select('id').eq('phone', cleanPhone).maybeSingle();
-      let leadId = existingLead?.id;
-
-      if (!leadId) {
-        const { data: newLead } = await (supabase as any).from('leads').insert({
-          first_name: nameParts[0] || form.name,
-          last_name: nameParts.slice(1).join(' ') || null,
-          full_name: form.name,
-          email: form.email || `${(cleanPhone || '').replace(/[^0-9]/g, '')}@invite.lifelink-sync.com`,
-          phone: cleanPhone,
-          lead_source: 'manual_invite',
-          language: contactLanguage,
-          status: 'contacted',
-          interest_level: 5,
-          lead_score: 30,
-          last_contacted_at: new Date().toISOString(),
-          notes: `Invited via ${form.sendVia}. Protection for: ${form.protectionFor}. ${rawNote || ''}`.trim(),
-          tags: ['manual-invite', form.protectionFor].filter(Boolean),
-        }).select('id').single();
-        leadId = newLead?.id;
-      } else {
-        await (supabase as any).from('leads').update({ status: 'contacted', last_contacted_at: new Date().toISOString(), lead_score: 30 }).eq('id', leadId);
-      }
-
-      // 2. Log lead activity
-      if (leadId) {
-        const { error: actErr } = await (supabase as any).from('lead_activities').insert({
-          lead_id: leadId,
-          activity_type: 'whatsapp_sent',
-          subject: `Manual invite sent${useEnhanced ? ' (CLARA enhanced)' : ''}`,
-          content: messageToSend,
-          metadata: { channel: form.sendVia, phone: cleanPhone, ai_generated: useEnhanced, relationship, language: contactLanguage },
-        });
-        if (actErr) console.warn('Activity log error:', actErr);
-      }
-
-      // 3. Create WhatsApp conversation + message if sent via WhatsApp
-      if (cleanPhone && (sendResult?.whatsapp_sent)) {
-        const { data: existingConv } = await (supabase as any).from('whatsapp_conversations').select('id').eq('phone_number', cleanPhone).maybeSingle();
-        let convId = existingConv?.id;
-        if (!convId) {
-          const { data: newConv } = await (supabase as any).from('whatsapp_conversations').insert({
-            phone_number: cleanPhone,
-            contact_name: form.name,
-            status: 'active',
-            metadata: { lead_id: leadId, source: 'manual_invite' },
-          }).select('id').single();
-          convId = newConv?.id;
-        } else {
-          await (supabase as any).from('whatsapp_conversations').update({ contact_name: form.name, metadata: { lead_id: leadId, source: 'manual_invite' } }).eq('id', convId);
-        }
-        if (convId) {
-          const { error: msgErr } = await (supabase as any).from('whatsapp_messages').insert({
-            conversation_id: convId, direction: 'outbound', message_type: 'text',
-            content: messageToSend, is_ai_generated: useEnhanced, status: 'sent',
-          });
-          if (msgErr) console.warn('Message log error:', msgErr);
-        }
-      }
-
-      // Create invite token for share links
-      let inviteToken = '';
-      try {
-        if (leadId) {
-          const { data: invite } = await (supabase as any)
-            .from('lead_invites')
-            .insert({ lead_id: leadId })
-            .select('token')
-            .single();
-          inviteToken = invite?.token || '';
-        }
-      } catch (e) {
-        console.warn('Token generation failed:', e);
-      }
-
+      // Build summary
+      const sentChannels: string[] = [];
+      if (channelResults.email?.sent) sentChannels.push('Email');
+      if (channelResults.whatsapp?.sent) sentChannels.push('WhatsApp');
+      if (channelResults.sms?.sent) sentChannels.push('SMS');
+      if (channelResults.messenger?.sent) sentChannels.push('Messenger');
+      if (channels.link) sentChannels.push('Link');
       setSentMessage(previewMessage);
       setSentToken(inviteToken);
       setSentName(form.name);
-      setSentPhone(form.whatsapp?.replace(/\s/g, '') || '');
+      setSentPhone(cleanPhone || '');
       setSent(true);
-      const channels = [
-        sendResult?.whatsapp_sent && 'WhatsApp',
-        sendResult?.email_sent && 'Email',
-      ].filter(Boolean).join(' + ');
       toast({
         title: 'Invite Sent',
-        description: `Personalised invite sent to ${form.name} via ${channels || form.sendVia}`,
+        description: `Personalised invite sent to ${form.name} via ${sentChannels.join(' + ') || 'Link'}`,
       });
     } catch (err) {
       console.error('Failed to send invite:', err);
@@ -598,7 +527,8 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
   };
 
   const reset = () => {
-    setForm({ name: '', email: '', whatsapp: '', protectionFor: '', personalMessage: '', sendVia: 'email' });
+    setForm({ name: '', email: '', phone: '', messengerPsid: '', protectionFor: '', personalMessage: '' });
+    setChannels({ email: true, whatsapp: false, sms: false, messenger: false, link: false });
     setSent(false);
     setSentMessage('');
     setSentToken('');
@@ -623,9 +553,13 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
   };
 
   const channelBadge = () => {
-    if (form.sendVia === 'both') return '📱 WhatsApp + 📧 Email';
-    if (form.sendVia === 'whatsapp') return '📱 WhatsApp';
-    return '📧 Email';
+    const parts: string[] = [];
+    if (channels.email) parts.push('Email');
+    if (channels.whatsapp) parts.push('WhatsApp');
+    if (channels.sms) parts.push('SMS');
+    if (channels.messenger) parts.push('Messenger');
+    if (channels.link) parts.push('Link');
+    return parts.join(' + ') || 'Link only';
   };
 
   // ─── Preview Panel (Lee mode) ───
@@ -634,7 +568,7 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
       return (
         <InviteSentPanel
           name={sentName || form.name}
-          phone={sentPhone || form.whatsapp?.replace(/\s/g, '')}
+          phone={sentPhone || form.phone?.replace(/\s/g, '')}
           token={sentToken}
           sentMessage={sentMessage}
           claraEnhanced={useEnhanced}
@@ -667,9 +601,7 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
             <div>
               <p className="font-semibold text-gray-900">{form.name || 'Contact name'}</p>
               <p className="text-xs text-gray-400">
-                {form.sendVia === 'whatsapp' || form.sendVia === 'both'
-                  ? form.whatsapp || '+00 000 000 0000'
-                  : form.email || 'email@example.com'}
+                {form.phone || form.email || 'contact info'}
               </p>
             </div>
           </div>
@@ -690,23 +622,7 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
             )}
           </div>
 
-          {!hasMessage ? (
-            <div className="mb-3">
-              <p className="text-[10px] text-gray-400 font-medium mb-1 uppercase tracking-wider">Template preview</p>
-              <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
-                <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-wrap">{previewMessage}</p>
-              </div>
-              <p className="text-xs text-gray-400 mt-2">Write a rough note and let CLARA enhance it, or send this template as-is.</p>
-            </div>
-          ) : !enhancedMessage && rawNote ? (
-            <div className="mb-4">
-              <p className="text-[10px] text-amber-500 font-medium mb-2 uppercase tracking-wider">Raw note (not yet enhanced by CLARA)</p>
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-                <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">{rawNote}</p>
-              </div>
-              <p className="text-xs text-amber-600 mt-2">Click "Let CLARA write this" to turn this into a polished invite, or send as-is using the template.</p>
-            </div>
-          ) : isEditingPreview ? (
+          {isEditingPreview ? (
             <Textarea
               value={enhancedMessage}
               onChange={e => setEnhancedMessage(e.target.value)}
@@ -714,37 +630,55 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
               rows={6}
             />
           ) : (
-            <>
-              {(form.sendVia === 'whatsapp' || form.sendVia === 'both') && (
+            <div className="mb-3">
+              {(channels.whatsapp || channels.sms) && (
                 <div className="mb-3">
-                  {form.sendVia === 'both' && <p className="text-[10px] text-gray-400 font-medium mb-1 uppercase tracking-wider">WhatsApp</p>}
+                  <p className="text-[10px] text-gray-400 font-medium mb-1 uppercase tracking-wider">
+                    {channels.whatsapp && channels.sms ? 'WhatsApp / SMS' : channels.whatsapp ? 'WhatsApp' : 'SMS'}
+                  </p>
                   <div className="bg-[#dcf8c6] rounded-2xl rounded-tr-sm p-4 relative">
-                    <p className="text-gray-800 text-sm leading-relaxed whitespace-pre-wrap">{displayMessage}</p>
+                    <p className="text-gray-800 text-sm leading-relaxed whitespace-pre-wrap">{previewMessage}</p>
                     <p className="text-right text-[10px] text-gray-400 mt-2">
                       {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ✓✓
                     </p>
                   </div>
                 </div>
               )}
-              {(form.sendVia === 'email' || form.sendVia === 'both') && (
+              {channels.email && (
                 <div className="mb-3">
-                  {form.sendVia === 'both' && <p className="text-[10px] text-gray-400 font-medium mb-1 uppercase tracking-wider">Email</p>}
+                  <p className="text-[10px] text-gray-400 font-medium mb-1 uppercase tracking-wider">Email</p>
                   <div className="border border-gray-200 rounded-xl overflow-hidden">
                     <div className="bg-gray-50 border-b border-gray-200 px-4 py-3">
                       <p className="text-xs text-gray-500">
                         <span className="font-medium">To:</span> {form.name || 'Contact'} &lt;{form.email || 'email@example.com'}&gt;
                       </p>
                       <p className="text-xs text-gray-500 mt-1">
-                        <span className="font-medium">Subject:</span> {form.name?.split(' ')[0] || 'Hi'}, Lee thought you'd want to see this
+                        <span className="font-medium">Subject:</span> Lee Wakeman asked CLARA to reach out to you
                       </p>
                     </div>
                     <div className="p-4">
-                      <p className="text-gray-800 text-sm leading-relaxed whitespace-pre-wrap">{displayMessage}</p>
+                      <p className="text-gray-800 text-sm leading-relaxed whitespace-pre-wrap">{previewMessage}</p>
                     </div>
                   </div>
                 </div>
               )}
-            </>
+              {channels.messenger && (
+                <div className="mb-3">
+                  <p className="text-[10px] text-gray-400 font-medium mb-1 uppercase tracking-wider">Messenger</p>
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                    <p className="text-gray-800 text-sm leading-relaxed whitespace-pre-wrap">{previewMessage}</p>
+                  </div>
+                </div>
+              )}
+              {!channels.email && !channels.whatsapp && !channels.sms && !channels.messenger && (
+                <div className="mb-3">
+                  <p className="text-[10px] text-gray-400 font-medium mb-1 uppercase tracking-wider">Invite message</p>
+                  <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                    <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-wrap">{previewMessage}</p>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
 
           {contactLanguage !== 'en' && (enhancedMessage || rawNote) && (
@@ -900,14 +834,57 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
                   <Label>Contact Name *</Label>
                   <Input value={form.name} onChange={e => update('name', e.target.value)} placeholder="John Smith" />
                 </div>
+
+                {/* ─── Send Via — channel checkboxes ─── */}
                 <div>
-                  <Label>Email Address</Label>
-                  <Input type="email" value={form.email} onChange={e => update('email', e.target.value)} placeholder="john@example.com" />
+                  <Label className="mb-2 block">Send Via (select all that apply)</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {([
+                      { key: 'email' as const, icon: <Mail className="h-3.5 w-3.5" />, label: 'Email' },
+                      { key: 'whatsapp' as const, icon: <MessageSquare className="h-3.5 w-3.5" />, label: 'WhatsApp' },
+                      { key: 'sms' as const, icon: <Phone className="h-3.5 w-3.5" />, label: 'SMS' },
+                      { key: 'messenger' as const, icon: <MessageCircle className="h-3.5 w-3.5" />, label: 'Messenger' },
+                      { key: 'link' as const, icon: <ExternalLink className="h-3.5 w-3.5" />, label: 'Link only' },
+                    ] as const).map(ch => (
+                      <button
+                        key={ch.key}
+                        type="button"
+                        onClick={() => toggleChannel(ch.key)}
+                        className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-sm transition-all ${
+                          channels[ch.key]
+                            ? 'bg-red-50 border-red-400 text-red-700 font-medium'
+                            : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+                        }`}
+                      >
+                        {ch.icon}
+                        <span>{ch.label}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <div>
-                  <Label>WhatsApp Number</Label>
-                  <Input type="tel" value={form.whatsapp} onChange={e => update('whatsapp', e.target.value)} placeholder="+44 7700 900000" />
-                </div>
+
+                {/* Conditional fields based on selected channels */}
+                {channels.email && (
+                  <div>
+                    <Label>Email Address {channels.email && '*'}</Label>
+                    <Input type="email" value={form.email} onChange={e => update('email', e.target.value)} placeholder="john@example.com" />
+                  </div>
+                )}
+                {(channels.whatsapp || channels.sms) && (
+                  <div>
+                    <Label>Phone Number {(channels.whatsapp || channels.sms) && '*'}</Label>
+                    <Input type="tel" value={form.phone} onChange={e => update('phone', e.target.value)} placeholder="+44 7700 900000" />
+                    <p className="text-xs text-muted-foreground mt-1">International format with country code</p>
+                  </div>
+                )}
+                {channels.messenger && (
+                  <div>
+                    <Label>Messenger ID (PSID)</Label>
+                    <Input value={form.messengerPsid} onChange={e => update('messengerPsid', e.target.value)} placeholder="Optional — leave blank for shareable link" />
+                    <p className="text-xs text-muted-foreground mt-1">Leave blank to generate a shareable Messenger link instead</p>
+                  </div>
+                )}
+
                 <div>
                   <Label>Who is protection for? *</Label>
                   <Select value={form.protectionFor} onValueChange={v => update('protectionFor', v)}>
@@ -920,26 +897,8 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
                   </Select>
                 </div>
                 <div>
-                  <Label>Send Via *</Label>
-                  <RadioGroup value={form.sendVia} onValueChange={v => update('sendVia', v)} className="flex gap-4 mt-2">
-                    <div className="flex items-center gap-2">
-                      <RadioGroupItem value="email" id="via-email" />
-                      <Label htmlFor="via-email" className="flex items-center gap-1"><Mail className="h-3.5 w-3.5" /> Email</Label>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <RadioGroupItem value="whatsapp" id="via-whatsapp" />
-                      <Label htmlFor="via-whatsapp" className="flex items-center gap-1"><Phone className="h-3.5 w-3.5" /> WhatsApp</Label>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <RadioGroupItem value="both" id="via-both" />
-                      <Label htmlFor="via-both">Both</Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-                <div>
                   <Label className="flex items-center gap-2 text-sm font-semibold text-gray-700 mb-2">
                     Their preferred language
-                    <span className="text-xs font-normal text-gray-400">(used for translation)</span>
                   </Label>
                   <div className="flex gap-2">
                     {([
@@ -962,12 +921,7 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
                       </button>
                     ))}
                   </div>
-                  {contactLanguage !== 'en' && (
-                    <div className="flex items-start gap-2 bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-700 mt-2">
-                      <p>Write your message in English. CLARA will automatically translate it to {contactLanguage === 'es' ? 'Spanish' : 'Dutch'} before sending. You'll see the translation in the preview.</p>
-                    </div>
-                  )}
-                  {form.whatsapp?.startsWith('+34') && contactLanguage === 'en' && (
+                  {form.phone?.startsWith('+34') && contactLanguage === 'en' && (
                     <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-700 mt-2">
                       <p>This is a Spanish number but the message will send in English. If they speak Spanish, switch to Español above.</p>
                     </div>
@@ -1081,9 +1035,9 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
             {!canSend && hasContact && (
               <p className="text-xs text-amber-500 text-center">
                 {!form.protectionFor ? 'Select who protection is for' :
-                 form.sendVia === 'email' && !form.email.trim() ? 'Enter an email address' :
-                 form.sendVia === 'whatsapp' && !form.whatsapp.trim() ? 'Enter a WhatsApp number' :
-                 form.sendVia === 'both' && (!form.email.trim() || !form.whatsapp.trim()) ? 'Enter both email and WhatsApp number' :
+                 !anyChannelSelected ? 'Select at least one channel' :
+                 needsEmail ? 'Enter an email address' :
+                 needsPhone ? 'Enter a phone number' :
                  'Fill in required fields'}
               </p>
             )}
