@@ -536,8 +536,11 @@ serve(async (req) => {
 
     console.log(`🤖 CLARA command agent — Lee says: "${body.substring(0, 100)}"`);
 
-    // Dev commands → forward to clara-dev-agent
-    if (/\b(code|deploy|fix bug|update component|create file|edit file|git|branch|PR|pull request|merge)\b/i.test(body)) {
+    // Dev commands → forward to clara-dev-agent (ONLY genuine dev tasks)
+    const isBusinessCommand = /\b(post|facebook|invite|lead|member|stats|revenue|subscriber|trial|signup|messenger|sms|whatsapp|campaign|how many|check|insights)\b/i.test(body);
+    const isDevCommand = /\b(deploy function|deploy edge|push to github|git push|git commit|npm run|npm install|supabase db|supabase functions|fix the bug|fix bug|edit file|create file|update component|pull request|merge branch|code review)\b/i.test(body);
+    if (isDevCommand && !isBusinessCommand) {
+      console.log(`🔧 Dev command detected, forwarding to dev agent: "${body.substring(0, 60)}"`);
       await fetch(`${supabaseUrl}/functions/v1/clara-dev-agent`, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded", Authorization: `Bearer ${serviceRoleKey}` },
