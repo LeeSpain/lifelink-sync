@@ -21,6 +21,7 @@ import SignOutPage from "./pages/SignOutPage";
 import AuthCallback from "./pages/AuthCallback";
 import InvitePage from "./pages/InvitePage";
 import CommandCentre from "./pages/CommandCentre";
+import LiveDashboardPage from "./pages/LiveDashboardPage";
 
 // Live Map Pages
 import MapScreen from "./pages/MapScreen";
@@ -169,6 +170,9 @@ function AppWithTracking() {
 
                 {/* Command Centre (standalone fullscreen) */}
                 <Route path="/command-centre" element={<CommandCentre />} />
+
+                {/* Live Dashboard (PIN-protected, no Supabase auth) */}
+                <Route path="/live" element={<LiveDashboardPage />} />
 
                 {/* Invite Landing Page */}
                 <Route path="/invite" element={<InvitePage />} />
