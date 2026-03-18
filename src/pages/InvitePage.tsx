@@ -21,7 +21,7 @@ export default function InvitePage() {
         // Look up invite by token
         const { data: invite } = await supabase
           .from('lead_invites')
-          .select('id, lead_id, clicked, expires_at')
+          .select('id, lead_id, clicked, click_count, expires_at')
           .eq('token', ref)
           .maybeSingle();
 
@@ -33,21 +33,16 @@ export default function InvitePage() {
           return;
         }
 
-        // Mark clicked
+        // Mark clicked and increment count
         await supabase
           .from('lead_invites')
           .update({
             clicked: true,
             clicked_at: new Date().toISOString(),
             clicked_channel: ch,
-            click_count: (invite.clicked ? undefined : 1),
+            click_count: (invite.click_count || 0) + 1,
           })
           .eq('id', invite.id);
-
-        // Increment click count via RPC-like update
-        await supabase.rpc('increment_invite_clicks', { invite_id: invite.id }).catch(() => {
-          // RPC may not exist yet — non-fatal
-        });
 
         // Get lead name
         const { data: lead } = await supabase

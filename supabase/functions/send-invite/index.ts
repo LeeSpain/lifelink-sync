@@ -285,6 +285,30 @@ serve(async (req) => {
       })
       .eq("id", leadId);
 
+    // ── 6. Log to contact_timeline ──────────────────────────────────────────
+    try {
+      await supabase.from("contact_timeline").insert({
+        contact_email: email || null,
+        contact_phone: phone || null,
+        contact_name: name,
+        event_type: "lead_captured",
+        event_category: "sales",
+        event_title: `CLARA invite sent to ${name}`,
+        event_data: {
+          lead_id: leadId,
+          token,
+          channels: {
+            sms: !!phone,
+            email: !!email,
+            messenger: !!facebook_psid,
+          },
+        },
+        channel: phone ? "sms" : email ? "email" : "messenger",
+      });
+    } catch (e) {
+      console.warn("Timeline log failed:", e);
+    }
+
     console.log(
       `📤 Invite sent for ${name} (${token}) — SMS:${!!phone} Email:${!!email} Messenger:${!!facebook_psid}`
     );

@@ -285,6 +285,20 @@ serve(async (req) => {
                 .eq('user_id', subUserId);
             }
 
+            // Log to contact_timeline
+            try {
+              await supabase.from('contact_timeline').insert({
+                contact_email: convEmail,
+                event_type: 'subscription_change',
+                event_category: 'sales',
+                event_title: 'Lead converted to subscriber!',
+                event_data: { lead_id: matchedLead.id },
+                channel: 'stripe',
+              });
+            } catch (tlErr) {
+              console.warn('Timeline log failed:', tlErr);
+            }
+
             console.log('🎯 Lead converted to subscriber:', matchedLead.id);
           }
         }

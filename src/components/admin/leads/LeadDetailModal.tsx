@@ -34,11 +34,104 @@ import {
   Clock
 } from 'lucide-react';
 import { EnhancedLead, LeadActivity, useEnhancedLeads } from '@/hooks/useEnhancedLeads';
+import { supabase } from '@/integrations/supabase/client';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface LeadDetailModalProps {
   lead: EnhancedLead | null;
   isOpen: boolean;
   onClose: () => void;
+}
+
+// ─── Invite Pipeline Progress Bar ────────────────────────────────────────────
+
+const INVITE_STAGES = [
+  { key: 'not_invited', label: 'New' },
+  { key: 'invited', label: 'Invited' },
+  { key: 'clicked', label: 'Clicked' },
+  { key: 'talking', label: 'Talking' },
+  { key: 'trial', label: 'Trial' },
+  { key: 'subscribed', label: 'Subscribed' },
+];
+
+function InvitePipelineBar({ currentStatus }: { currentStatus: string }) {
+  const currentIdx = INVITE_STAGES.findIndex(s => s.key === currentStatus);
+  return (
+    <div className="flex items-center gap-1 my-3">
+      {INVITE_STAGES.map((stage, i) => {
+        const passed = i <= currentIdx;
+        const isCurrent = i === currentIdx;
+        return (
+          <div key={stage.key} className="flex items-center gap-1">
+            {i > 0 && <div className={`h-0.5 w-4 ${passed ? 'bg-red-400' : 'bg-gray-200'}`} />}
+            <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+              isCurrent ? 'bg-red-500 text-white' : passed ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-400'
+            }`}>
+              {passed && i < currentIdx ? '\u2713' : ''} {stage.label}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ─── Conversations Tab ───────────────────────────────────────────────────────
+
+function ConversationsTab({ leadId }: { leadId: string }) {
+  const [messages, setMessages] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    (async () => {
+      setLoading(true);
+      try {
+        // Find conversations linked to this lead
+        const { data: convos } = await supabase
+          .from('unified_conversations')
+          .select('id')
+          .eq('lead_id', leadId);
+
+        if (convos?.length) {
+          const convoIds = convos.map(c => c.id);
+          const { data: msgs } = await supabase
+            .from('unified_messages')
+            .select('*')
+            .in('conversation_id', convoIds)
+            .order('created_at', { ascending: true });
+          setMessages(msgs || []);
+        }
+      } catch (e) {
+        console.warn('Failed to load conversations:', e);
+      }
+      setLoading(false);
+    })();
+  }, [leadId]);
+
+  if (loading) return <p className="text-sm text-muted-foreground py-4">Loading conversations...</p>;
+  if (messages.length === 0) return <p className="text-sm text-muted-foreground py-4">No conversations yet</p>;
+
+  return (
+    <ScrollArea className="h-[400px]">
+      <div className="space-y-2 p-2">
+        {messages.map((msg) => (
+          <div key={msg.id} className={`flex ${msg.direction === 'outbound' ? 'justify-end' : 'justify-start'}`}>
+            <div className={`max-w-[75%] rounded-2xl px-4 py-2 text-sm ${
+              msg.direction === 'outbound'
+                ? 'bg-red-500 text-white rounded-br-sm'
+                : 'bg-gray-100 text-gray-900 rounded-bl-sm'
+            }`}>
+              <p>{msg.content}</p>
+              <p className={`text-xs mt-1 ${msg.direction === 'outbound' ? 'text-red-200' : 'text-gray-400'}`}>
+                {msg.sender_name} &middot; {new Date(msg.created_at).toLocaleString()}
+                {msg.is_ai_generated && ' (AI)'}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </ScrollArea>
+  );
 }
 
 export const LeadDetailModal: React.FC<LeadDetailModalProps> = ({
@@ -179,10 +272,14 @@ export const LeadDetailModal: React.FC<LeadDetailModalProps> = ({
           </DialogDescription>
         </DialogHeader>
 
+        {/* Invite Pipeline Progress */}
+        <InvitePipelineBar currentStatus={(lead as any).invite_status || 'not_invited'} />
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="activities">Activities</TabsTrigger>
+            <TabsTrigger value="activities">Timeline</TabsTrigger>
+            <TabsTrigger value="conversations">Conversations</TabsTrigger>
             <TabsTrigger value="communication">Communication</TabsTrigger>
             <TabsTrigger value="tasks">Tasks</TabsTrigger>
           </TabsList>
@@ -368,6 +465,10 @@ export const LeadDetailModal: React.FC<LeadDetailModalProps> = ({
                 </Card>
               ))}
             </div>
+          </TabsContent>
+
+          <TabsContent value="conversations" className="space-y-4">
+            <ConversationsTab leadId={lead.id} />
           </TabsContent>
 
           <TabsContent value="communication" className="space-y-4">
