@@ -4316,5 +4316,14 @@
     "peaceOfMindDesc": "Whether you're retired on the Costa del Sol, working in Barcelona, or exploring rural Andalucía, LifeLink Sync's bilingual support ensures you're never alone in an emergency. Our team knows the local systems, speaks the language, and is available 24/7 to help.",
     "readyToJoin": "Ready to Join LifeLink Sync?",
     "readyToJoinDesc": "Get professional bilingual emergency support designed specifically for expats living in Spain."
+  },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "genericError": "An unexpected error occurred. Please try again.",
+    "chunkError": "A required module failed to load. This usually fixes itself on reload.",
+    "tryAgain": "Try Again",
+    "reloadPage": "Reload Page",
+    "retryAttempt": "Retry attempt {{count}}",
+    "errorDetails": "Error Details"
   }
 }

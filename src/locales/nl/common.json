@@ -4316,5 +4316,14 @@
     "peaceOfMindDesc": "Of je nu met pensioen bent aan de Costa del Sol, werkt in Barcelona of het landelijke Andalusië verkent, de tweetalige ondersteuning van LifeLink Sync zorgt ervoor dat je nooit alleen bent in een noodgeval. Ons team kent de lokale systemen, spreekt de taal en is 24/7 beschikbaar om te helpen.",
     "readyToJoin": "Klaar om Lid te Worden van LifeLink Sync?",
     "readyToJoinDesc": "Krijg professionele tweetalige noodondersteuning speciaal ontworpen voor expats die in Spanje wonen."
+  },
+  "errorBoundary": {
+    "title": "Er ging iets mis",
+    "genericError": "Er is een onverwachte fout opgetreden. Probeer het opnieuw.",
+    "chunkError": "Een vereiste module kon niet worden geladen. Dit lost zich meestal op bij herladen.",
+    "tryAgain": "Opnieuw proberen",
+    "reloadPage": "Pagina herladen",
+    "retryAttempt": "Poging {{count}}",
+    "errorDetails": "Foutdetails"
   }
 }

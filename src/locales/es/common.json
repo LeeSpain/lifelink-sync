@@ -4316,5 +4316,14 @@
     "peaceOfMindDesc": "Ya estés jubilado en la Costa del Sol, trabajando en Barcelona o explorando la Andalucía rural, el soporte bilingüe de LifeLink Sync asegura que nunca estés solo en una emergencia. Nuestro equipo conoce los sistemas locales, habla el idioma y está disponible 24/7 para ayudar.",
     "readyToJoin": "¿Listo para Unirte a LifeLink Sync?",
     "readyToJoinDesc": "Obtén soporte de emergencia bilingüe profesional diseñado específicamente para expatriados que viven en España."
+  },
+  "errorBoundary": {
+    "title": "Algo salió mal",
+    "genericError": "Ocurrió un error inesperado. Por favor, inténtalo de nuevo.",
+    "chunkError": "Un módulo necesario no se pudo cargar. Esto suele solucionarse al recargar.",
+    "tryAgain": "Intentar de nuevo",
+    "reloadPage": "Recargar página",
+    "retryAttempt": "Intento {{count}}",
+    "errorDetails": "Detalles del error"
   }
 }

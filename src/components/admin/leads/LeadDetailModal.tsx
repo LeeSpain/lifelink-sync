@@ -148,14 +148,29 @@ export const LeadDetailModal: React.FC<LeadDetailModalProps> = ({
   
   const { toast } = useToast();
   const { triggerAutomation } = useEmailAutomation();
-  const { activities, updateLead, addActivity, scheduleFollowUp, loadActivities } = useEnhancedLeads();
+  const { updateLead, addActivity, scheduleFollowUp, loadActivities } = useEnhancedLeads();
+  const [leadActivities, setLeadActivities] = useState<LeadActivity[]>([]);
 
   useEffect(() => {
-    if (lead) {
-      setEditForm(lead);
-      loadActivities(lead.id);
-    }
-  }, [lead, loadActivities]);
+    if (!lead) return;
+    setEditForm(lead);
+
+    // Load activities for this specific lead (don't put loadActivities in deps — it's unstable)
+    (async () => {
+      try {
+        const { data, error } = await supabase
+          .from('lead_activities')
+          .select('*')
+          .eq('lead_id', lead.id)
+          .order('created_at', { ascending: false });
+        if (!error && data) {
+          setLeadActivities(data);
+        }
+      } catch (e) {
+        console.error('Failed to load lead activities:', e);
+      }
+    })();
+  }, [lead?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSave = async () => {
     if (!lead) return;
@@ -442,7 +457,10 @@ export const LeadDetailModal: React.FC<LeadDetailModalProps> = ({
 
           <TabsContent value="activities" className="space-y-4">
             <div className="space-y-2">
-              {activities.filter(a => a.lead_id === lead.id).map((activity) => (
+              {leadActivities.length === 0 && (
+                <p className="text-sm text-muted-foreground py-4">No activity recorded yet</p>
+              )}
+              {leadActivities.map((activity) => (
                 <Card key={activity.id} className="p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2">
