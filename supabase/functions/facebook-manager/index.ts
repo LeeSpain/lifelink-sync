@@ -118,29 +118,6 @@ async function handleAction(
     }
 
     case "post": {
-      // Verify token type — must be a PAGE token, not a USER token
-      try {
-        // GET /me with this token should return the PAGE (not a person)
-        const meCheck = await fbApi(`/me?fields=id,name,category`, token);
-        console.log(`🔍 Token identity: id=${meCheck.id} name="${meCheck.name}" category="${meCheck.category || "NONE"}"`);
-
-        if (meCheck.id !== pageId) {
-          console.error(`❌ Token mismatch! /me returns id=${meCheck.id} but PAGE_ID=${pageId}`);
-          console.error(`This means the token is a USER token, not a PAGE token.`);
-          console.error(`Fix: use a Page Access Token from business.facebook.com → System Users → CLARA → Generate Token → select the page`);
-          throw new Error(
-            `Wrong token type: /me returns "${meCheck.name}" (${meCheck.id}) but page is ${pageId}. ` +
-            `You need a PAGE Access Token, not a User Access Token. ` +
-            `Go to business.facebook.com → System Users → CLARA → Generate Token → select the LifeLink Sync page.`
-          );
-        }
-        console.log(`✅ Token is a PAGE token for: ${meCheck.name}`);
-      } catch (e: any) {
-        if (e.message.includes("Wrong token type")) throw e;
-        console.error("❌ Token verification failed:", e.message);
-        throw new Error(`Token check failed: ${e.message}`);
-      }
-
       const body: Record<string, unknown> = { message: params.message };
       if (params.link) body.link = params.link;
       if (params.scheduled_time) {
@@ -576,9 +553,40 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const token = Deno.env.get("FACEBOOK_PAGE_ACCESS_TOKEN")!;
+  let token = Deno.env.get("FACEBOOK_PAGE_ACCESS_TOKEN")!;
   const pageId = Deno.env.get("FACEBOOK_PAGE_ID")!;
-  console.log(`🔑 Token loaded: ${token ? token.substring(0, 10) + "..." + token.substring(token.length - 5) : "MISSING"} | Page ID: ${pageId}`);
+  console.log(`🔑 Token loaded: ${token ? token.substring(0, 15) + "..." : "MISSING"} | Page ID: ${pageId}`);
+
+  // ── Verify token is a PAGE token, auto-exchange if it's a USER token ──
+  try {
+    const meRes = await fetch(`${FB_API}/me?fields=id,name,category&access_token=${token}`);
+    const meData = await meRes.json();
+    console.log(`🔍 Token identity: id=${meData.id} name="${meData.name}" category="${meData.category || "NONE"}"`);
+
+    if (meData.id && meData.id !== pageId) {
+      // Token is for a USER, not the PAGE — exchange it
+      console.log(`⚠️ Token is a User token (${meData.name}), exchanging for Page token...`);
+      const exchangeRes = await fetch(
+        `${FB_API}/${pageId}?fields=access_token&access_token=${token}`
+      );
+      const exchangeData = await exchangeRes.json();
+
+      if (exchangeData.access_token) {
+        token = exchangeData.access_token;
+        console.log(`✅ Exchanged for Page token: ${token.substring(0, 15)}...`);
+      } else {
+        console.error(`❌ Token exchange failed:`, JSON.stringify(exchangeData));
+        console.error(`Fix: generate a Page Access Token at business.facebook.com → System Users → CLARA`);
+      }
+    } else if (meData.id === pageId) {
+      console.log(`✅ Token is already a Page token for: ${meData.name}`);
+    } else if (meData.error) {
+      console.error(`❌ Token invalid:`, meData.error.message);
+    }
+  } catch (e) {
+    console.warn("Token identity check failed (proceeding anyway):", e);
+  }
+
   const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY")!;
   const verifyToken =
     Deno.env.get("FACEBOOK_WEBHOOK_VERIFY_TOKEN") ?? "lifelink_clara_2026";
