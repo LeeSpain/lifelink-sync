@@ -119,7 +119,7 @@ function MosaicSection() {
     </div>
   );
   return (
-    <section className="py-16 sm:py-20 bg-white">
+    <section className="py-16 sm:py-20 bg-gray-50">
       <div className="max-w-5xl mx-auto px-4">
         <div className="text-center mb-12">
           <span className="text-red-500 text-xs font-semibold uppercase tracking-widest mb-3 block">{t('howItWorksPage.whatYouGet', 'What you get')}</span>
