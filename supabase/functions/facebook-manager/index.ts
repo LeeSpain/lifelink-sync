@@ -118,13 +118,27 @@ async function handleAction(
     }
 
     case "post": {
-      // Verify token works before posting
+      // Verify token type — must be a PAGE token, not a USER token
       try {
-        const pageCheck = await fbApi(`/${pageId}?fields=id,name`, token);
-        console.log(`✅ Token verified — page: ${pageCheck.name} (${pageCheck.id})`);
+        // GET /me with this token should return the PAGE (not a person)
+        const meCheck = await fbApi(`/me?fields=id,name,category`, token);
+        console.log(`🔍 Token identity: id=${meCheck.id} name="${meCheck.name}" category="${meCheck.category || "NONE"}"`);
+
+        if (meCheck.id !== pageId) {
+          console.error(`❌ Token mismatch! /me returns id=${meCheck.id} but PAGE_ID=${pageId}`);
+          console.error(`This means the token is a USER token, not a PAGE token.`);
+          console.error(`Fix: use a Page Access Token from business.facebook.com → System Users → CLARA → Generate Token → select the page`);
+          throw new Error(
+            `Wrong token type: /me returns "${meCheck.name}" (${meCheck.id}) but page is ${pageId}. ` +
+            `You need a PAGE Access Token, not a User Access Token. ` +
+            `Go to business.facebook.com → System Users → CLARA → Generate Token → select the LifeLink Sync page.`
+          );
+        }
+        console.log(`✅ Token is a PAGE token for: ${meCheck.name}`);
       } catch (e: any) {
+        if (e.message.includes("Wrong token type")) throw e;
         console.error("❌ Token verification failed:", e.message);
-        throw new Error(`Token check failed before posting: ${e.message}`);
+        throw new Error(`Token check failed: ${e.message}`);
       }
 
       const body: Record<string, unknown> = { message: params.message };
@@ -133,7 +147,7 @@ async function handleAction(
         body.scheduled_publish_time = params.scheduled_time;
         body.published = false;
       }
-      console.log(`📝 Posting to ${pageId}/feed:`, JSON.stringify(body).substring(0, 200));
+      console.log(`📝 Posting to /${pageId}/feed:`, JSON.stringify(body).substring(0, 200));
       const result = await fbApi(`/${pageId}/feed`, token, "POST", body);
 
       // Log to social_media_analytics
