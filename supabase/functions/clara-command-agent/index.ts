@@ -81,14 +81,24 @@ const TOOLS = [
   {
     name: "send_lead_invite",
     description:
-      "Sends a CLARA invite to a new lead via SMS, WhatsApp and/or email",
+      "Sends a personalised invite to a new lead via SMS, WhatsApp and/or email. Use when Lee gives a name and phone number or email.",
     input_schema: {
       type: "object" as const,
       properties: {
-        name: { type: "string", description: "Lead's name" },
-        phone: { type: "string", description: "Phone number with country code" },
-        email: { type: "string", description: "Email address" },
-        notes: { type: "string", description: "Notes about the person" },
+        name: { type: "string", description: "Contact first name" },
+        phone: {
+          type: "string",
+          description:
+            "Phone number with country code e.g. +34999999999",
+        },
+        email: {
+          type: "string",
+          description: "Email address (optional)",
+        },
+        notes: {
+          type: "string",
+          description: "Any context about the person (optional)",
+        },
       },
       required: ["name"],
     },
@@ -263,22 +273,38 @@ async function toolSendInvite(
   input: Record<string, any>
 ): Promise<string> {
   try {
+    // Build channels array based on what contact info was provided
+    const sendChannels: string[] = [];
+    if (input.phone) sendChannels.push("sms");
+    if (input.email) sendChannels.push("email");
+
     const { data, error } = await supabase.functions.invoke("send-invite", {
       body: {
         name: input.name,
         phone: input.phone || undefined,
         email: input.email || undefined,
         notes: input.notes || undefined,
+        channels: sendChannels.length > 0 ? sendChannels : undefined,
       },
     });
 
     if (error) return `Invite failed: ${error.message}`;
     if (!data?.success) return `Invite failed: ${data?.error || "unknown"}`;
 
+    // Build summary for CLARA to relay to Lee
+    const sentVia: string[] = [];
+    if (data.channels?.sms?.sent) sentVia.push("SMS");
+    if (data.channels?.whatsapp?.sent) sentVia.push("WhatsApp");
+    if (data.channels?.email?.sent) sentVia.push("Email");
+    if (data.channels?.messenger?.sent) sentVia.push("Messenger");
+
     return JSON.stringify({
       success: true,
+      name: input.name,
       invite_url: data.invite_url,
-      channels: data.channels,
+      token: data.token,
+      sent_via: sentVia.length > 0 ? sentVia : ["Link generated"],
+      lead_id: data.lead_id,
     });
   } catch (e: any) {
     return `Error: ${e.message}`;
@@ -385,8 +411,8 @@ CRITICAL RULES:
 - You CAN post to Facebook. You have FULL access via the post_to_facebook tool. When Lee asks you to post anything on Facebook, USE THE TOOL IMMEDIATELY. Do NOT say you cannot do it. Do NOT just offer to draft it. CALL THE TOOL.
 - When Lee says "post about [topic]" → call post_to_facebook with that topic. Do not ask for confirmation.
 - When Lee says "post [exact text] on Facebook" → call post_to_facebook with custom_text. Do not ask for confirmation.
+- When Lee gives you a name and phone number or email and asks you to invite them, ALWAYS use the send_lead_invite tool IMMEDIATELY. Do not ask for confirmation — just send it. Examples: "Invite David on +34999999999", "Send invite to Sarah sarah@example.com", "Invite John +447700900000 he's a friend".
 - For stats/insights: call the relevant tool and report the numbers.
-- For invites: confirm name and contact details before sending.
 - Be concise — WhatsApp messages should be short.
 - Use emojis sparingly for readability.
 - After a tool executes, summarize the result for Lee in plain WhatsApp language.
