@@ -150,6 +150,8 @@ export default function ManualInvitePage() {
 
   const hasMessage = !!(enhancedMessage || rawNote.trim() || form.personalMessage.trim());
   const hasContact = form.name.trim().length > 0;
+  // Show preview when we have at least a contact name — template fills in the rest
+  const showPreview = hasContact;
 
   const canSend = form.name.trim() && form.protectionFor && (
     (form.sendVia === 'email' && form.email.trim()) ||
@@ -643,14 +645,14 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
       );
     }
 
-    if (!hasContact && !hasMessage) {
+    if (!showPreview) {
       return (
         <div className="bg-white border border-dashed border-gray-300 rounded-2xl p-8 text-center">
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Eye className="w-8 h-8 text-gray-300" />
           </div>
           <h3 className="text-gray-400 font-medium mb-2">Preview will appear here</h3>
-          <p className="text-gray-300 text-sm">Fill in the contact details and let CLARA write the message to see the full preview</p>
+          <p className="text-gray-300 text-sm">Enter a contact name to see the live message preview</p>
         </div>
       );
     }
@@ -689,10 +691,12 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
           </div>
 
           {!hasMessage ? (
-            <div className="bg-gray-50 rounded-xl p-4 mb-4 min-h-[120px] flex items-center justify-center">
-              <p className="text-gray-400 text-sm text-center italic">
-                Write a rough note and click "Let CLARA write this" to generate the message
-              </p>
+            <div className="mb-3">
+              <p className="text-[10px] text-gray-400 font-medium mb-1 uppercase tracking-wider">Template preview</p>
+              <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-wrap">{previewMessage}</p>
+              </div>
+              <p className="text-xs text-gray-400 mt-2">Write a rough note and let CLARA enhance it, or send this template as-is.</p>
             </div>
           ) : !enhancedMessage && rawNote ? (
             <div className="mb-4">
@@ -1055,6 +1059,34 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
                 )}
               </CardContent>
             </Card>
+
+            {/* ─── SEND BUTTON (visible on left form panel) ─── */}
+            <Button
+              onClick={handleSend}
+              disabled={!canSend || sending}
+              className="w-full bg-red-500 hover:bg-red-600 text-white py-5 rounded-xl text-base font-semibold h-auto shadow-lg"
+            >
+              {sending ? (
+                <span className="flex items-center justify-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Sending invite...
+                </span>
+              ) : (
+                <span className="flex items-center justify-center gap-2">
+                  <Send className="w-5 h-5" />
+                  Send Invite
+                </span>
+              )}
+            </Button>
+            {!canSend && hasContact && (
+              <p className="text-xs text-amber-500 text-center">
+                {!form.protectionFor ? 'Select who protection is for' :
+                 form.sendVia === 'email' && !form.email.trim() ? 'Enter an email address' :
+                 form.sendVia === 'whatsapp' && !form.whatsapp.trim() ? 'Enter a WhatsApp number' :
+                 form.sendVia === 'both' && (!form.email.trim() || !form.whatsapp.trim()) ? 'Enter both email and WhatsApp number' :
+                 'Fill in required fields'}
+              </p>
+            )}
           </div>
 
           <div className="lg:sticky lg:top-6">
@@ -1595,22 +1627,47 @@ function SentInvitesList({ refreshKey }: { refreshKey: boolean }) {
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 ml-2">
+                  <div className="flex items-center gap-1.5 ml-2 flex-shrink-0">
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
+                      className="h-7 px-2.5 text-xs gap-1"
                       onClick={() => copyInviteLink(invite.contact_name)}
                       title="Copy invite link"
                     >
-                      <Copy className="h-3 w-3" />
+                      <Copy className="h-3 w-3" /> Copy
                     </Button>
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
-                      onClick={() => navigate('/admin-dashboard/leads')}
-                      title="View leads"
+                      className="h-7 px-2.5 text-xs gap-1"
+                      onClick={async () => {
+                        try {
+                          await supabase.functions.invoke('send-invite', {
+                            body: {
+                              name: invite.contact_name,
+                              phone: invite.contact_whatsapp || null,
+                              email: invite.contact_email || null,
+                            },
+                          });
+                          sonnerToast.success(`Invite resent to ${invite.contact_name}`);
+                          refetch();
+                        } catch {
+                          sonnerToast.error('Resend failed');
+                        }
+                      }}
+                      title="Resend invite"
                     >
-                      <ExternalLink className="h-3 w-3" />
+                      <RefreshCw className="h-3 w-3" /> Resend
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-7 px-2.5 text-xs gap-1"
+                      onClick={() => navigate('/admin-dashboard/leads')}
+                      title="View in leads"
+                    >
+                      <ExternalLink className="h-3 w-3" /> Lead
                     </Button>
                   </div>
                 </div>
