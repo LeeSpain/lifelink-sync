@@ -2,6 +2,10 @@ import { useSearchParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
+// CLARA contact constants — used for deep links
+const CLARA_WHATSAPP_NUMBER = import.meta.env.VITE_CLARA_WHATSAPP_NUMBER || '+17277615366';
+const CLARA_MESSENGER_PAGE_ID = '1022860360912464';
+
 export default function InvitePage() {
   const [searchParams] = useSearchParams();
   const fromName = searchParams.get('from') || 'Lee Wakeman';
@@ -61,11 +65,11 @@ export default function InvitePage() {
     })();
   }, [ref, ch]);
 
-  // Track channel choice and open deep link
+  // Track channel choice and update lead status
   const trackChannel = async (channel: string) => {
     if (ref) {
       try {
-        const updates: Record<string, any> = {};
+        const updates: Record<string, unknown> = {};
         if (channel === 'whatsapp') {
           updates.whatsapp_started = true;
           updates.whatsapp_started_at = new Date().toISOString();
@@ -105,13 +109,24 @@ export default function InvitePage() {
   };
 
   const displayName = leadName || toName;
+  const cleanNumber = CLARA_WHATSAPP_NUMBER.replace('+', '');
 
+  // WhatsApp — opens chat directly with CLARA
   const waMessage = encodeURIComponent(
+    `Hi CLARA! I got an invite from Lee Wakeman.${displayName ? ` I'm ${displayName}.` : ''} I'd love to find out more about LifeLink Sync!`
+  );
+  const waLink = `https://wa.me/${cleanNumber}?text=${waMessage}`;
+
+  // Messenger — opens the LifeLink Sync page Messenger with CLARA
+  const messengerLink = `https://m.me/${CLARA_MESSENGER_PAGE_ID}${ref ? `?ref=invite_${ref}` : ''}`;
+
+  // SMS — opens SMS app with pre-filled message to CLARA's number
+  const smsMessage = encodeURIComponent(
     `Hi CLARA! I got an invite from Lee Wakeman.${displayName ? ` I'm ${displayName}.` : ''} I'd like to find out more about LifeLink Sync.`
   );
-  const waLink = `https://wa.me/17277615366?text=${waMessage}`;
-  const messengerLink = `https://m.me/1022860360912464${ref ? `?ref=invite_${ref}` : ''}`;
-  const smsLink = `sms:+17277615366&body=${encodeURIComponent(`Hi CLARA! I got an invite from Lee Wakeman. I'd like to find out more about LifeLink Sync.`)}`;
+  const smsLink = `sms:${CLARA_WHATSAPP_NUMBER}?body=${smsMessage}`;
+
+  // Direct signup
   const signupLink = `https://lifelink-sync.com/onboarding${ref ? `?ref=${ref}` : ''}`;
 
   return (
@@ -158,7 +173,7 @@ export default function InvitePage() {
           className="flex items-center justify-center gap-3 w-full bg-green-500 text-white rounded-2xl py-4 font-bold text-sm mb-3 hover:bg-green-600 transition-colors"
         >
           <span>&#x1F4AC;</span>
-          Chat on WhatsApp
+          Chat with CLARA on WhatsApp
         </a>
 
         <a
@@ -169,7 +184,7 @@ export default function InvitePage() {
           className="flex items-center justify-center gap-3 w-full bg-blue-500 text-white rounded-2xl py-4 font-bold text-sm mb-3 hover:bg-blue-600 transition-colors"
         >
           <span>&#x1F4D8;</span>
-          Chat on Messenger
+          Chat with CLARA on Messenger
         </a>
 
         <a
@@ -178,7 +193,7 @@ export default function InvitePage() {
           className="flex items-center justify-center gap-3 w-full bg-gray-500 text-white rounded-2xl py-4 font-bold text-sm mb-3 hover:bg-gray-600 transition-colors"
         >
           <span>&#x1F4F1;</span>
-          Continue via SMS
+          Chat with CLARA via SMS
         </a>
 
         <a

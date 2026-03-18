@@ -48,6 +48,7 @@ interface RivenSettings {
   hashtag_strategy: string;
   emoji_usage: string;
   cta_style: string;
+  image_model: string;
   audience_targeting: string;
 }
 
@@ -71,7 +72,8 @@ export default function RivenConfigurationPage() {
     hashtag_strategy: 'moderate',
     emoji_usage: 'minimal',
     cta_style: 'direct',
-    audience_targeting: 'families'
+    audience_targeting: 'families',
+    image_model: 'gemini',
   });
 
   const [loading, setLoading] = useState(true);
@@ -81,10 +83,9 @@ export default function RivenConfigurationPage() {
   const { toast } = useToast();
 
   const availableModels = [
-    { value: 'gpt-5-2025-08-07', label: 'GPT-5 (Latest)', description: 'Most advanced model' },
-    { value: 'gpt-4.1-2025-04-14', label: 'GPT-4.1 (Recommended)', description: 'Reliable flagship model' },
-    { value: 'gpt-5-mini-2025-08-07', label: 'GPT-5 Mini', description: 'Fast and efficient' },
-    { value: 'o3-2025-04-16', label: 'O3 Reasoning', description: 'Advanced reasoning' }
+    { value: 'gpt-4o', label: 'GPT-4o (Recommended)', description: 'Best balance of quality and speed' },
+    { value: 'gpt-4o-mini', label: 'GPT-4o Mini', description: 'Fast and efficient' },
+    { value: 'claude-sonnet-4-20250514', label: 'Claude Sonnet 4', description: 'Used by Riven campaign generator' },
   ];
 
   const contentModerationLevels = [
@@ -187,6 +188,7 @@ export default function RivenConfigurationPage() {
         auto_approve_content: settings.auto_approve_content,
         preferred_posting_times: JSON.stringify(settings.preferred_posting_times),
         default_budget: settings.default_budget,
+        image_model: settings.image_model || 'gemini',
         user_id: userData.user.id
       };
 
@@ -356,13 +358,40 @@ export default function RivenConfigurationPage() {
             </div>
             <div className="px-8 py-6 w-full space-y-4">
               <div>
-                <Label className="text-sm font-medium">Image Generation</Label>
-                <div className="flex items-center gap-2 mt-1">
-                  <Badge variant="outline">
-                    <Bot className="h-3 w-3 mr-1" />
-                    OpenAI DALL-E
-                  </Badge>
-                  <span className="text-sm text-muted-foreground">Image generation always uses OpenAI</span>
+                <Label className="text-sm font-medium">Image Generation Model</Label>
+                <div className="mt-2 space-y-2">
+                  {[
+                    { id: 'gemini', name: 'Gemini Imagen 3', provider: 'Google', badge: 'FREE', badgeColor: 'text-green-600 bg-green-100', desc: 'High quality AI images. Free generous quota.', recommended: true },
+                    { id: 'dalle3', name: 'DALL-E 3', provider: 'OpenAI', badge: '~€0.04/image', badgeColor: 'text-blue-600 bg-blue-100', desc: 'Premium quality, excellent photorealism.' },
+                    { id: 'flux', name: 'Flux 1.1 Pro', provider: 'Replicate', badge: '~€0.003/image', badgeColor: 'text-purple-600 bg-purple-100', desc: 'Ultra fast and cheap for high volume.' },
+                  ].map((m) => (
+                    <div
+                      key={m.id}
+                      onClick={() => setSettings({ ...settings, image_model: m.id })}
+                      className={`cursor-pointer rounded-lg border-2 p-3 transition-all ${
+                        settings.image_model === m.id
+                          ? 'border-red-500 bg-red-50'
+                          : 'border-gray-200 hover:border-gray-400'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <span className="font-medium text-sm">{m.name}</span>
+                          <span className="text-xs text-muted-foreground ml-2">{m.provider}</span>
+                          {m.recommended && (
+                            <Badge className="ml-2 bg-green-100 text-green-700 text-[10px]">Recommended</Badge>
+                          )}
+                          <p className="text-xs text-muted-foreground">{m.desc}</p>
+                        </div>
+                        <div className="text-right">
+                          <Badge className={`text-xs ${m.badgeColor}`}>{m.badge}</Badge>
+                          {settings.image_model === m.id && (
+                            <div className="text-xs text-red-500 mt-1">Active</div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
               <div>

@@ -8,11 +8,16 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { Send, Eye, Loader2, CheckCircle, Mail, Phone, Sparkles, RefreshCw, Shield, Pencil, User, Check, Copy, ExternalLink, MessageSquare } from 'lucide-react';
+import { Send, Eye, Loader2, CheckCircle, Mail, Phone, Sparkles, RefreshCw, Shield, Pencil, User, Check, Copy, ExternalLink, MessageSquare, MessageCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery } from '@tanstack/react-query';
 import { toast as sonnerToast } from 'sonner';
+
+// CLARA contact constants — used for deep links
+const CLARA_WHATSAPP_NUMBER = import.meta.env.VITE_CLARA_WHATSAPP_NUMBER || '+17277615366';
+const CLARA_MESSENGER_PAGE_ID = '1022860360912464';
+const INVITE_BASE_URL = 'https://lifelink-sync.com/invite';
 
 const protectionOptions = [
   { value: 'themselves', label: 'Themselves' },
@@ -92,6 +97,9 @@ export default function ManualInvitePage() {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [sentMessage, setSentMessage] = useState('');
+  const [sentToken, setSentToken] = useState('');
+  const [sentName, setSentName] = useState('');
+  const [sentPhone, setSentPhone] = useState('');
   const [relationship, setRelationship] = useState('friendly');
   const [rawNote, setRawNote] = useState('');
   const [enhancedMessage, setEnhancedMessage] = useState('');
@@ -116,6 +124,8 @@ export default function ManualInvitePage() {
   const [claraSending, setClaraSending] = useState(false);
   const [claraSent, setClaraSent] = useState(false);
   const [claraSentName, setClaraSentName] = useState('');
+  const [claraSentToken, setClaraSentToken] = useState('');
+  const [claraSentPhone, setClaraSentPhone] = useState('');
 
   const update = (field: string, value: string) => {
     setForm(prev => ({ ...prev, [field]: value }));
@@ -360,7 +370,25 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
         }
       }
 
+      // Create invite token for share links
+      let inviteToken = '';
+      try {
+        if (leadId) {
+          const { data: invite } = await (supabase as any)
+            .from('lead_invites')
+            .insert({ lead_id: leadId })
+            .select('token')
+            .single();
+          inviteToken = invite?.token || '';
+        }
+      } catch (e) {
+        console.warn('Token generation failed:', e);
+      }
+
       setSentMessage(previewMessage);
+      setSentToken(inviteToken);
+      setSentName(form.name);
+      setSentPhone(form.whatsapp?.replace(/\s/g, '') || '');
       setSent(true);
       const channels = [
         sendResult?.whatsapp_sent && 'WhatsApp',
@@ -535,7 +563,24 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
         }
       }
 
+      // Create invite token for share links
+      let claraInviteToken = '';
+      try {
+        if (leadId2) {
+          const { data: invite } = await (supabase as any)
+            .from('lead_invites')
+            .insert({ lead_id: leadId2 })
+            .select('token')
+            .single();
+          claraInviteToken = invite?.token || '';
+        }
+      } catch (e) {
+        console.warn('Token generation failed:', e);
+      }
+
       setClaraSentName(claraForm.name);
+      setClaraSentToken(claraInviteToken);
+      setClaraSentPhone(claraForm.whatsapp?.replace(/\s/g, '') || '');
       setClaraSent(true);
       toast({ title: 'CLARA sent it!', description: `Message sent to ${claraForm.name} via WhatsApp` });
     } catch (err) {
@@ -554,6 +599,9 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
     setForm({ name: '', email: '', whatsapp: '', protectionFor: '', personalMessage: '', sendVia: 'email' });
     setSent(false);
     setSentMessage('');
+    setSentToken('');
+    setSentName('');
+    setSentPhone('');
     setRawNote('');
     setEnhancedMessage('');
     setUseEnhanced(false);
@@ -565,6 +613,8 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
     setClaraForm({ name: '', whatsapp: '', protectionFor: '', roughNote: '' });
     setClaraSent(false);
     setClaraSentName('');
+    setClaraSentToken('');
+    setClaraSentPhone('');
     setClaraRelationship('friendly');
     setClaraGeneratedMessage('');
     setClaraEditingPreview(false);
@@ -580,29 +630,16 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
   const renderPreviewPanel = () => {
     if (sent) {
       return (
-        <div className="bg-white border border-green-200 rounded-2xl p-8 text-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle className="w-8 h-8 text-green-500" />
-          </div>
-          <h3 className="text-gray-900 font-bold text-lg mb-2">Invite sent!</h3>
-          <p className="text-gray-500 text-sm mb-1">{form.name} will receive your message shortly.</p>
-          <p className="text-gray-400 text-xs mb-6">Sent via: {channelBadge()}</p>
-          {useEnhanced && (
-            <p className="text-xs text-red-500 mb-4 flex items-center justify-center gap-1">
-              <Sparkles className="w-3 h-3" /> Enhanced by CLARA
-            </p>
-          )}
-          <details className="text-left mb-6">
-            <summary className="text-xs text-gray-400 cursor-pointer text-center">View sent message</summary>
-            <div className="mt-3 bg-gray-50 rounded-xl p-3 text-xs text-gray-600 whitespace-pre-wrap">{sentMessage}</div>
-          </details>
-          <button onClick={reset} className="w-full bg-red-500 text-white py-3 rounded-xl text-sm font-medium mb-2 hover:bg-red-600">
-            Send another invite
-          </button>
-          <button onClick={() => navigate('/admin-dashboard/leads')} className="w-full text-gray-400 text-sm py-2 hover:text-gray-600">
-            View in leads →
-          </button>
-        </div>
+        <InviteSentPanel
+          name={sentName || form.name}
+          phone={sentPhone || form.whatsapp?.replace(/\s/g, '')}
+          token={sentToken}
+          sentMessage={sentMessage}
+          claraEnhanced={useEnhanced}
+          channelLabel={channelBadge()}
+          onReset={reset}
+          onViewLeads={() => navigate('/admin-dashboard/leads')}
+        />
       );
     }
 
@@ -1032,20 +1069,16 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
           {/* LEFT — Form */}
           <div>
             {claraSent ? (
-              <div className="text-center py-8">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Sparkles className="w-8 h-8 text-green-500" />
-                </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-2">CLARA sent it!</h3>
-                <p className="text-gray-500 text-sm">Message sent to {claraSentName}</p>
-                <p className="text-gray-400 text-xs mt-1">CLARA will follow up automatically if they don't respond</p>
-                <button
-                  onClick={resetClara}
-                  className="mt-6 text-red-500 text-sm font-medium hover:text-red-600"
-                >
-                  Send another →
-                </button>
-              </div>
+              <InviteSentPanel
+                name={claraSentName}
+                phone={claraSentPhone}
+                token={claraSentToken}
+                sentMessage={claraGeneratedMessage}
+                claraEnhanced={true}
+                channelLabel="WhatsApp"
+                onReset={resetClara}
+                onViewLeads={() => navigate('/admin-dashboard/leads')}
+              />
             ) : (
               <div className="bg-white border border-gray-200 rounded-2xl p-6">
                 <h3 className="font-bold text-gray-900 mb-1">Just tell CLARA who they are</h3>
@@ -1145,13 +1178,14 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
           {/* RIGHT — Preview */}
           <div className="lg:sticky lg:top-6">
             {claraSent ? (
-              <div className="bg-white border border-green-200 rounded-2xl p-8 text-center">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle className="w-8 h-8 text-green-500" />
+              <div className="bg-white border border-green-200 rounded-2xl p-6 text-center">
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <CheckCircle className="w-6 h-6 text-green-500" />
                 </div>
-                <h3 className="text-gray-900 font-bold text-lg mb-2">Delivered!</h3>
-                <p className="text-gray-500 text-sm mb-4">{claraSentName} will receive the message shortly via WhatsApp.</p>
-                <details className="text-left mb-4">
+                <h3 className="text-gray-900 font-bold text-base mb-1">Delivered!</h3>
+                <p className="text-gray-500 text-sm mb-3">{claraSentName} will receive the message via WhatsApp.</p>
+                <p className="text-gray-400 text-xs">Share links are on the left panel if you want to send via other channels too.</p>
+                <details className="text-left mt-4">
                   <summary className="text-xs text-gray-400 cursor-pointer text-center">View sent message</summary>
                   <div className="mt-3 bg-gray-50 rounded-xl p-3 text-xs text-gray-600 whitespace-pre-wrap">{claraGeneratedMessage}</div>
                 </details>
@@ -1273,6 +1307,184 @@ Write the message now. Output ONLY the message itself, no explanation or preambl
 
       {/* ─── Section 2: All Sent Invites ──────────────────────────────────────── */}
       <SentInvitesList refreshKey={sent || claraSent} />
+    </div>
+  );
+}
+
+// ─── Invite Sent Panel — 4-channel share links ─────────────────────────────
+
+interface InviteSentPanelProps {
+  name: string;
+  phone?: string;
+  token: string;
+  sentMessage: string;
+  claraEnhanced: boolean;
+  channelLabel: string;
+  onReset: () => void;
+  onViewLeads: () => void;
+}
+
+function InviteSentPanel({
+  name,
+  phone,
+  token,
+  sentMessage,
+  claraEnhanced,
+  channelLabel,
+  onReset,
+  onViewLeads,
+}: InviteSentPanelProps) {
+  const [copiedLink, setCopiedLink] = useState<string | null>(null);
+  const firstName = name?.split(' ')[0] || name;
+  const cleanNumber = CLARA_WHATSAPP_NUMBER.replace('+', '');
+
+  // WhatsApp — opens chat directly with CLARA
+  const waMessage = encodeURIComponent(
+    `Hi CLARA! I got an invite from Lee Wakeman. I'm ${firstName}. I'd love to find out more about LifeLink Sync!`
+  );
+  const waLink = `https://wa.me/${cleanNumber}?text=${waMessage}`;
+
+  // Messenger — opens CLARA on the LifeLink Sync page
+  const messengerLink = `https://m.me/${CLARA_MESSENGER_PAGE_ID}${token ? `?ref=invite_${token}` : ''}`;
+
+  // SMS — opens SMS with pre-filled message to CLARA
+  const smsMessage = encodeURIComponent(
+    `Hi CLARA! I got an invite from Lee Wakeman. I'm ${firstName}. I'd like to find out more about LifeLink Sync.`
+  );
+  const smsLink = `sms:${CLARA_WHATSAPP_NUMBER}?body=${smsMessage}`;
+
+  // Direct invite link (for email/iMessage)
+  const directLink = token
+    ? `${INVITE_BASE_URL}?ref=${token}&from=Lee+Wakeman&name=${encodeURIComponent(name)}`
+    : `${INVITE_BASE_URL}?from=Lee+Wakeman&name=${encodeURIComponent(name)}`;
+
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedLink(label);
+    sonnerToast.success('Link copied!');
+    setTimeout(() => setCopiedLink(null), 2000);
+  };
+
+  const channels = [
+    {
+      id: 'whatsapp',
+      icon: <MessageSquare className="w-4 h-4" />,
+      label: 'WhatsApp',
+      description: `Opens chat with CLARA on WhatsApp`,
+      link: waLink,
+      copyValue: waLink,
+      color: 'bg-green-500 hover:bg-green-600',
+      textColor: 'text-green-600',
+      borderColor: 'border-green-200',
+      bgColor: 'bg-green-50',
+    },
+    {
+      id: 'messenger',
+      icon: <MessageCircle className="w-4 h-4" />,
+      label: 'Facebook Messenger',
+      description: `Opens CLARA on LifeLink Sync Messenger`,
+      link: messengerLink,
+      copyValue: messengerLink,
+      color: 'bg-blue-500 hover:bg-blue-600',
+      textColor: 'text-blue-600',
+      borderColor: 'border-blue-200',
+      bgColor: 'bg-blue-50',
+    },
+    {
+      id: 'sms',
+      icon: <Phone className="w-4 h-4" />,
+      label: 'SMS',
+      description: `Opens SMS to CLARA's number`,
+      link: smsLink,
+      copyValue: smsLink,
+      color: 'bg-gray-500 hover:bg-gray-600',
+      textColor: 'text-gray-600',
+      borderColor: 'border-gray-200',
+      bgColor: 'bg-gray-50',
+    },
+    {
+      id: 'direct',
+      icon: <ExternalLink className="w-4 h-4" />,
+      label: 'Direct link (email / iMessage)',
+      description: directLink.replace('https://', ''),
+      link: directLink,
+      copyValue: directLink,
+      color: 'bg-red-500 hover:bg-red-600',
+      textColor: 'text-red-600',
+      borderColor: 'border-red-200',
+      bgColor: 'bg-red-50',
+    },
+  ];
+
+  return (
+    <div className="bg-white border border-green-200 rounded-2xl overflow-hidden">
+      {/* Header */}
+      <div className="bg-green-50 border-b border-green-200 px-6 py-5 text-center">
+        <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+          <CheckCircle className="w-7 h-7 text-green-500" />
+        </div>
+        <h3 className="text-gray-900 font-bold text-lg mb-1">Invite sent!</h3>
+        <p className="text-gray-500 text-sm">{name} will receive your message via {channelLabel}.</p>
+        {claraEnhanced && (
+          <p className="text-xs text-purple-500 mt-2 flex items-center justify-center gap-1">
+            <Sparkles className="w-3 h-3" /> Enhanced by CLARA
+          </p>
+        )}
+      </div>
+
+      {/* Share links */}
+      <div className="px-6 py-5">
+        <p className="text-sm font-semibold text-gray-700 mb-3">Also share via:</p>
+        <div className="space-y-3">
+          {channels.map((ch) => (
+            <div key={ch.id} className={`border ${ch.borderColor} rounded-xl p-3 ${ch.bgColor}`}>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className={ch.textColor}>{ch.icon}</span>
+                <span className="text-sm font-semibold text-gray-800">{ch.label}</span>
+              </div>
+              <p className="text-xs text-gray-500 mb-2 truncate">{ch.description}</p>
+              <div className="flex gap-2">
+                <a
+                  href={ch.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`flex-1 text-center text-xs font-medium text-white py-2 rounded-lg ${ch.color} transition-colors`}
+                >
+                  {ch.id === 'direct' ? 'Open Link' : `Open ${ch.label.split(' ')[0]}`}
+                </a>
+                <button
+                  onClick={() => copyToClipboard(ch.copyValue, ch.id)}
+                  className="flex items-center gap-1 text-xs font-medium text-gray-600 bg-white border border-gray-200 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  {copiedLink === ch.id ? (
+                    <><Check className="w-3 h-3 text-green-500" /> Copied</>
+                  ) : (
+                    <><Copy className="w-3 h-3" /> Copy</>
+                  )}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Sent message detail */}
+      <div className="px-6 pb-4">
+        <details className="text-left">
+          <summary className="text-xs text-gray-400 cursor-pointer text-center">View sent message</summary>
+          <div className="mt-3 bg-gray-50 rounded-xl p-3 text-xs text-gray-600 whitespace-pre-wrap">{sentMessage}</div>
+        </details>
+      </div>
+
+      {/* Actions */}
+      <div className="px-6 pb-6 space-y-2">
+        <button onClick={onReset} className="w-full bg-red-500 text-white py-3 rounded-xl text-sm font-medium hover:bg-red-600 transition-colors">
+          Send another invite
+        </button>
+        <button onClick={onViewLeads} className="w-full text-gray-400 text-sm py-2 hover:text-gray-600 transition-colors">
+          View in leads
+        </button>
+      </div>
     </div>
   );
 }
