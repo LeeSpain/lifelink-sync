@@ -1,6 +1,5 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import Anthropic from "https://esm.sh/@anthropic-ai/sdk@0.30.1";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -119,13 +118,12 @@ serve(async (req) => {
     // 2. Build the full content schedule (day × platform × posts_per_day)
     const schedule = buildSchedule(platforms, duration_days, start_date, weekly_themes);
 
-    // 3. Generate content for all posts in batches via Claude
-    const anthropic = new Anthropic({
-      apiKey: Deno.env.get("ANTHROPIC_API_KEY")!,
-    });
+    // 3. Generate content for all posts in batches via Claude (direct fetch)
+    const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY");
+    if (!anthropicKey) throw new Error("ANTHROPIC_API_KEY not configured");
 
     const allPosts: GeneratedPost[] = [];
-    const usedAngles: Map<string, Set<string>> = new Map(); // platform -> set of recent angles
+    const usedAngles: Map<string, Set<string>> = new Map();
 
     // Process in batches of up to 10 posts per Claude call
     const BATCH_SIZE = 10;
@@ -138,7 +136,6 @@ serve(async (req) => {
         const hook = pickNext(HOOK_STYLES);
         const cta = pickNext(CTA_TYPES);
 
-        // Track used angles per platform
         if (!usedAngles.has(slot.platform)) usedAngles.set(slot.platform, new Set());
         const platformAngles = usedAngles.get(slot.platform)!;
         platformAngles.add(angle);
@@ -149,16 +146,31 @@ serve(async (req) => {
 
       const prompt = buildPrompt(batchWithAngles, goal, tone, audiences, weekly_themes);
 
-      const message = await anthropic.messages.create({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 4096,
-        messages: [{ role: "user", content: prompt }],
+      const claudeRes = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": anthropicKey,
+          "anthropic-version": "2023-06-01",
+        },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 4096,
+          messages: [{ role: "user", content: prompt }],
+        }),
       });
 
-      const text =
-        message.content[0].type === "text" ? message.content[0].text : "";
+      if (!claudeRes.ok) {
+        const errBody = await claudeRes.text();
+        console.error("Claude API error:", claudeRes.status, errBody);
+        throw new Error(`Claude API error: ${claudeRes.status}`);
+      }
 
-      // Parse JSON array from response
+      const claudeData = await claudeRes.json();
+      const text = claudeData.content?.[0]?.type === "text"
+        ? claudeData.content[0].text
+        : "";
+
       const parsed = parseClaudeResponse(text, batchWithAngles);
       allPosts.push(...parsed);
     }
@@ -200,23 +212,25 @@ serve(async (req) => {
 
     if (contentError) throw contentError;
 
-    // 5. Record angle usage for future uniqueness tracking
-    const angleRows = allPosts.map((post) => ({
-      campaign_id: campaign.id,
-      platform: post.platform,
-      content_angle: post.content_angle,
-      hook_style: post.hook_style,
-      cta_type: post.cta_type,
-      day_number: post.day_number,
-    }));
-
-    // Insert in batches to avoid conflicts
-    for (let i = 0; i < angleRows.length; i += 50) {
-      await supabase
-        .from("riven_content_angles")
-        .upsert(angleRows.slice(i, i + 50), {
-          onConflict: "campaign_id,platform,day_number",
-        });
+    // 5. Record angle usage (non-fatal if table missing)
+    try {
+      const angleRows = allPosts.map((post) => ({
+        campaign_id: campaign.id,
+        platform: post.platform,
+        content_angle: post.content_angle,
+        hook_style: post.hook_style,
+        cta_type: post.cta_type,
+        day_number: post.day_number,
+      }));
+      for (let i = 0; i < angleRows.length; i += 50) {
+        await supabase
+          .from("riven_content_angles")
+          .upsert(angleRows.slice(i, i + 50), {
+            onConflict: "campaign_id,platform,day_number",
+          });
+      }
+    } catch (e) {
+      console.warn("Angle tracking failed (non-fatal):", e);
     }
 
     // 6. Generate images for visual-platform posts (first 6 to avoid timeout)

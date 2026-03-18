@@ -176,6 +176,44 @@ export function Step6Preview({
       const content = await invokeWithRetry(enabledPlatforms);
       if (content) {
         setPreviews(content);
+
+        // Generate images for visual platforms in background (non-blocking)
+        const VISUAL = new Set(["facebook", "instagram", "twitter", "linkedin"]);
+        const visualPreviews = content.filter(
+          (c: PreviewContent) => VISUAL.has(c.platform)
+        );
+        if (visualPreviews.length > 0) {
+          // Fire and forget — images appear as they complete
+          visualPreviews.forEach(async (preview: PreviewContent) => {
+            try {
+              const { data: imgData } = await supabase.functions.invoke(
+                "image-generator",
+                {
+                  body: {
+                    prompt:
+                      (preview.title || "") +
+                      " — " +
+                      (preview.body_text || "").substring(0, 200),
+                    platform: preview.platform,
+                    style: "natural",
+                    size: "1024x1024",
+                  },
+                }
+              );
+              if (imgData?.imageUrl) {
+                setPreviews((prev) =>
+                  prev.map((p) =>
+                    p.platform === preview.platform
+                      ? { ...p, image_url: imgData.imageUrl }
+                      : p
+                  )
+                );
+              }
+            } catch (e) {
+              console.warn(`Image gen failed for ${preview.platform}:`, e);
+            }
+          });
+        }
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);

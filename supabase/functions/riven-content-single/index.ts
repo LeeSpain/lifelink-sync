@@ -1,5 +1,4 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import Anthropic from "https://esm.sh/@anthropic-ai/sdk@0.30.1";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -24,18 +23,7 @@ interface SingleContentRequest {
   seo_optimize?: boolean;
 }
 
-// Wrap a promise with a timeout
-function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
-  return Promise.race([
-    promise,
-    new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error("TIMEOUT")), ms)
-    ),
-  ]);
-}
-
 serve(async (req) => {
-  // CORS preflight — always respond
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
@@ -70,8 +58,6 @@ serve(async (req) => {
         400
       );
     }
-
-    const anthropic = new Anthropic({ apiKey });
 
     const contentTypeMap: Record<string, string> = {
       twitter: "tweet (max 280 chars, punchy, 3-5 hashtags)",
@@ -113,17 +99,54 @@ ${seo_optimize ? '- "seo_title": SEO-optimized title (blog only)\n- "meta_descri
 
 No markdown wrapping, no explanation. Just the JSON array.`;
 
-    // 50-second timeout (Supabase limit is 60s, leave margin)
-    const message = await withTimeout(
-      anthropic.messages.create({
+    // Direct fetch to Anthropic API (no SDK — matches all other working edge functions)
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 50_000);
+
+    const claudeRes = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
         model: "claude-sonnet-4-20250514",
         max_tokens: 4096,
         messages: [{ role: "user", content: prompt }],
       }),
-      50_000
-    );
+      signal: controller.signal,
+    });
 
-    const text = message.content[0].type === "text" ? message.content[0].text : "";
+    clearTimeout(timeout);
+
+    if (!claudeRes.ok) {
+      const errBody = await claudeRes.text();
+      console.error("Claude API error:", claudeRes.status, errBody);
+
+      if (claudeRes.status === 401) {
+        return jsonResponse(
+          { error: "AI API key is invalid. Contact admin.", code: "NOT_CONFIGURED" },
+          503
+        );
+      }
+      if (claudeRes.status === 429) {
+        return jsonResponse(
+          { error: "AI rate limit reached. Wait a moment and try again.", code: "RATE_LIMIT" },
+          429
+        );
+      }
+      return jsonResponse(
+        { error: "Content generation failed. Please try again.", code: "API_ERROR" },
+        500
+      );
+    }
+
+    const claudeData = await claudeRes.json();
+    const text = claudeData.content?.[0]?.type === "text"
+      ? claudeData.content[0].text
+      : "";
+
     const jsonMatch = text.match(/\[[\s\S]*\]/);
     if (!jsonMatch) {
       console.error("No JSON array in Claude response:", text.substring(0, 200));
@@ -138,27 +161,12 @@ No markdown wrapping, no explanation. Just the JSON array.`;
     return jsonResponse({ success: true, content: results });
   } catch (error) {
     const err = error as Error;
-    console.error("riven-content-single error:", err.message, err.stack);
+    console.error("riven-content-single error:", err.message);
 
-    if (err.message === "TIMEOUT") {
+    if (err.name === "AbortError" || err.message === "TIMEOUT") {
       return jsonResponse(
         { error: "Content generation timed out. Please try again.", code: "TIMEOUT" },
         504
-      );
-    }
-
-    // Anthropic API errors
-    if (err.message?.includes("authentication") || err.message?.includes("401")) {
-      return jsonResponse(
-        { error: "AI API key is invalid. Contact admin.", code: "NOT_CONFIGURED" },
-        503
-      );
-    }
-
-    if (err.message?.includes("rate") || err.message?.includes("429")) {
-      return jsonResponse(
-        { error: "AI rate limit reached. Wait a moment and try again.", code: "RATE_LIMIT" },
-        429
       );
     }
 
