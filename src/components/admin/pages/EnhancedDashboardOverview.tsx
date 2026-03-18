@@ -33,12 +33,22 @@ interface Stats {
   totalUsers: number;
   subscribers: number;
   trials: number;
+  expiringTrials: number;
+  signupsToday: number;
+  signupsYesterday: number;
   leadsToday: number;
   leadsWeek: number;
   hotLeads: number;
   gifts: number;
   pendingActions: number;
   mrr: number;
+  baseMrr: number;
+  addonMrr: number;
+  addonCount: number;
+  sosToday: number;
+  sosActive: number;
+  claraComplete: number;
+  churnMonth: number;
 }
 
 interface ActivityItem {
@@ -54,28 +64,47 @@ export default function EnhancedDashboardOverview() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<Stats>({
-    totalUsers: 0, subscribers: 0, trials: 0, leadsToday: 0,
-    leadsWeek: 0, hotLeads: 0, gifts: 0, pendingActions: 0, mrr: 0,
+    totalUsers: 0, subscribers: 0, trials: 0, expiringTrials: 0,
+    signupsToday: 0, signupsYesterday: 0,
+    leadsToday: 0, leadsWeek: 0, hotLeads: 0, gifts: 0, pendingActions: 0,
+    mrr: 0, baseMrr: 0, addonMrr: 0, addonCount: 0,
+    sosToday: 0, sosActive: 0, claraComplete: 0, churnMonth: 0,
   });
   const [activity, setActivity] = useState<ActivityItem[]>([]);
   const [lastRefresh, setLastRefresh] = useState(new Date());
 
   const load = async () => {
     try {
-      const today = new Date().toISOString().split('T')[0];
+      // Same date boundaries as Command Centre
+      const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
+      const today = todayStart.toISOString();
+      const yesterdayStart = new Date(todayStart); yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+      const yesterday = yesterdayStart.toISOString();
+      const monthStart = new Date(todayStart); monthStart.setDate(1);
+      const month = monthStart.toISOString();
       const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
-      const monthAgo = new Date(Date.now() - 30 * 86400000).toISOString();
+      const twoDays = new Date(Date.now() + 2 * 86400000).toISOString();
 
-      const [users, paidSubs, trialSubs, leadsDay, leadsWk, hotLds, gifts, pending, activeAddons, recentProfiles, recentLeads, recentWA, recentActivity] = await Promise.all([
+      // Aligned queries — same tables + filters as Command Centre
+      const [users, paidSubs, trials, expTrials, sToday, sYesterday, leadsDay, leadsWk, hotLds, gifts, pending, addons, clara, churn, sosT, sosA, recentProfiles, recentLeads, recentWA, recentActivity] = await Promise.all([
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
         supabase.from('subscribers').select('*', { count: 'exact', head: true }).eq('subscribed', true).eq('is_trialing', false),
-        supabase.from('subscribers').select('*', { count: 'exact', head: true }).eq('is_trialing', true),
+        // Trials: use trial_tracking (same as Command Centre) not subscribers.is_trialing
+        supabase.from('trial_tracking').select('*', { count: 'exact', head: true }).eq('status', 'active'),
+        supabase.from('trial_tracking').select('*', { count: 'exact', head: true }).eq('status', 'active').lte('trial_end', twoDays),
+        // Sign-ups today: use subscribers created today (same as Command Centre)
+        supabase.from('subscribers').select('*', { count: 'exact', head: true }).gte('created_at', today),
+        supabase.from('subscribers').select('*', { count: 'exact', head: true }).gte('created_at', yesterday).lt('created_at', today),
         supabase.from('leads').select('*', { count: 'exact', head: true }).gte('created_at', today),
         supabase.from('leads').select('*', { count: 'exact', head: true }).gte('created_at', weekAgo),
         supabase.from('leads').select('*', { count: 'exact', head: true }).gte('interest_level', 7),
-        supabase.from('gift_subscriptions').select('*', { count: 'exact', head: true }).gte('created_at', monthAgo),
+        supabase.from('gift_subscriptions').select('*', { count: 'exact', head: true }).gte('created_at', month),
         supabase.from('clara_pending_actions').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-        supabase.from('member_addons').select('*', { count: 'exact', head: true }).eq('status', 'active'),
+        supabase.from('member_addons').select('addon_id, status, addon:addon_id(slug)').eq('status', 'active'),
+        supabase.from('subscribers').select('*', { count: 'exact', head: true }).eq('clara_complete_unlocked', true),
+        supabase.from('subscribers').select('*', { count: 'exact', head: true }).eq('subscribed', false).gte('updated_at', month),
+        supabase.from('sos_incidents').select('*', { count: 'exact', head: true }).gte('created_at', today),
+        supabase.from('sos_incidents').select('*', { count: 'exact', head: true }).eq('status', 'in_progress'),
         supabase.from('profiles').select('user_id, full_name, created_at').order('created_at', { ascending: false }).limit(6),
         supabase.from('leads').select('id, first_name, full_name, email, lead_source, created_at').order('created_at', { ascending: false }).limit(6),
         supabase.from('whatsapp_messages').select('id, content, direction, is_ai_generated, timestamp').order('timestamp', { ascending: false }).limit(6),
@@ -83,21 +112,31 @@ export default function EnhancedDashboardOverview() {
       ]);
 
       const paidCount = paidSubs.count || 0;
-      const trialCount = trialSubs.count || 0;
-      const addonCount = activeAddons.count || 0;
+      const addonRows = (addons.data as any[]) || [];
+      const addonCount = addonRows.length;
       const baseMRR = paidCount * 9.99;
       const addonMRR = addonCount * 2.99;
 
       setStats({
         totalUsers: users.count || 0,
         subscribers: paidCount,
-        trials: trialCount,
+        trials: trials.count || 0,
+        expiringTrials: expTrials.count || 0,
+        signupsToday: sToday.count || 0,
+        signupsYesterday: sYesterday.count || 0,
         leadsToday: leadsDay.count || 0,
         leadsWeek: leadsWk.count || 0,
         hotLeads: hotLds.count || 0,
         gifts: gifts.count || 0,
         pendingActions: pending.count || 0,
-        mrr: baseMRR + addonMRR,
+        mrr: Math.round((baseMRR + addonMRR) * 100) / 100,
+        baseMrr: Math.round(baseMRR * 100) / 100,
+        addonMrr: Math.round(addonMRR * 100) / 100,
+        addonCount,
+        sosToday: sosT.count || 0,
+        sosActive: sosA.count || 0,
+        claraComplete: clara.count || 0,
+        churnMonth: churn.count || 0,
       });
 
       // Merge activity from all sources
@@ -130,6 +169,17 @@ export default function EnhancedDashboardOverview() {
     return () => clearInterval(interval);
   }, []);
 
+  // Realtime subscriptions — same tables as Command Centre
+  useEffect(() => {
+    const channels = [
+      supabase.channel('dash-subs').on('postgres_changes', { event: '*', schema: 'public', table: 'subscribers' }, () => load()).subscribe(),
+      supabase.channel('dash-sos').on('postgres_changes', { event: '*', schema: 'public', table: 'sos_incidents' }, () => load()).subscribe(),
+      supabase.channel('dash-addons').on('postgres_changes', { event: '*', schema: 'public', table: 'member_addons' }, () => load()).subscribe(),
+      supabase.channel('dash-leads').on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, () => load()).subscribe(),
+    ];
+    return () => { channels.forEach(c => supabase.removeChannel(c)); };
+  }, []);
+
   const activityIcon = (type: string) => {
     const map: Record<string, { icon: typeof Users; color: string }> = {
       user: { icon: UserPlus, color: 'blue' },
@@ -143,16 +193,16 @@ export default function EnhancedDashboardOverview() {
     return map[type] || map.user;
   };
 
-  // ── Metric tiles config ──
+  // ── Metric tiles config — aligned with Command Centre ──
   const tiles = [
-    { label: 'Total Users', value: stats.totalUsers.toString(), icon: Users, color: 'blue', sub: 'All accounts' },
-    { label: 'Paying Subscribers', value: stats.subscribers.toString(), icon: CreditCard, color: 'green', sub: 'Active paid plans' },
-    { label: 'Active Trials', value: stats.trials.toString(), icon: Clock, color: 'amber', sub: 'Currently trialing' },
-    { label: 'Conversion', value: stats.totalUsers > 0 ? `${Math.round((stats.subscribers / stats.totalUsers) * 100)}%` : '—', icon: TrendingUp, color: 'purple', sub: 'Users → paid' },
-    { label: 'MRR', value: fmtCurrency(stats.mrr), icon: DollarSign, color: 'green', sub: 'Est. monthly revenue' },
-    { label: 'Leads (7 days)', value: stats.leadsWeek.toString(), icon: Zap, color: 'yellow', sub: `${stats.hotLeads} hot (score ≥7)` },
-    { label: 'Gifts (30 days)', value: stats.gifts.toString(), icon: Gift, color: 'pink', sub: 'Gift subscriptions sold' },
-    { label: 'CLARA Pending', value: stats.pendingActions.toString(), icon: Bell, color: stats.pendingActions > 0 ? 'red' : 'gray', sub: 'Waiting for approval', onClick: () => navigate('/admin-dashboard/command-centre') },
+    { label: 'Active Members', value: stats.subscribers.toString(), icon: Users, color: 'green', sub: stats.signupsToday > 0 ? `+${stats.signupsToday} today` : 'Paid subscribers' },
+    { label: 'Est. MRR', value: fmtCurrency(stats.mrr), icon: DollarSign, color: 'green', sub: `Base: ${fmtCurrency(stats.baseMrr)} · Add-ons: ${fmtCurrency(stats.addonMrr)}` },
+    { label: 'Active Trials', value: stats.trials.toString(), icon: Clock, color: 'amber', sub: stats.expiringTrials > 0 ? `${stats.expiringTrials} expiring in 48h` : 'None expiring soon' },
+    { label: 'Sign-ups Today', value: stats.signupsToday.toString(), icon: UserPlus, color: 'blue', sub: `Yesterday: ${stats.signupsYesterday}` },
+    { label: 'SOS Alerts', value: stats.sosToday.toString(), icon: AlertTriangle, color: stats.sosActive > 0 ? 'red' : 'green', sub: stats.sosActive > 0 ? `${stats.sosActive} ACTIVE NOW` : 'All clear' },
+    { label: 'Leads (7 days)', value: stats.leadsWeek.toString(), icon: Zap, color: 'yellow', sub: `${stats.hotLeads} hot (score ≥7) · ${stats.leadsToday} today` },
+    { label: 'Add-ons Active', value: stats.addonCount.toString(), icon: Bell, color: 'blue', sub: `CLARA Complete: ${stats.claraComplete}` },
+    { label: 'Churn This Month', value: stats.churnMonth.toString(), icon: TrendingUp, color: stats.churnMonth > 0 ? 'red' : 'green', sub: stats.churnMonth === 0 ? 'Zero churn — perfect month' : `${stats.churnMonth} lost` },
   ];
 
   const actions = [
@@ -194,10 +244,10 @@ export default function EnhancedDashboardOverview() {
         </div>
         <div className="flex items-center gap-0 divide-x divide-gray-700">
           {[
-            { label: 'Subscribers', value: loading ? '—' : stats.subscribers },
+            { label: 'Members', value: loading ? '—' : stats.subscribers },
             { label: 'MRR', value: loading ? '—' : fmtCurrency(stats.mrr) },
             { label: 'Trials', value: loading ? '—' : stats.trials },
-            { label: 'Leads Today', value: loading ? '—' : stats.leadsToday },
+            { label: 'Sign-ups Today', value: loading ? '—' : stats.signupsToday },
           ].map(h => (
             <div key={h.label} className="text-center px-5">
               <p className="text-xl sm:text-2xl font-bold text-white">{h.value}</p>
@@ -305,7 +355,7 @@ export default function EnhancedDashboardOverview() {
               {[
                 { stage: 'Total Users', count: stats.totalUsers, color: 'gray' },
                 { stage: 'Active Trials', count: stats.trials, color: 'amber' },
-                { stage: 'Paid Subscribers', count: stats.subscribers, color: 'green' },
+                { stage: 'Active Members', count: stats.subscribers, color: 'green' },
                 { stage: 'Hot Leads', count: stats.hotLeads, color: 'red' },
               ].map(s => {
                 const max = Math.max(stats.totalUsers, 1);
