@@ -229,7 +229,8 @@ serve(async (req) => {
     const bypassAdminRoute = params.get('_bypass_admin_route') === '1';
 
     if (normalizedAdmin && normalizedFrom === normalizedAdmin && !bypassAdminRoute) {
-      const devAgentUrl = Deno.env.get('SUPABASE_URL') + '/functions/v1/clara-dev-agent';
+      // Route to command agent (handles business commands + forwards dev commands)
+      const devAgentUrl = Deno.env.get('SUPABASE_URL') + '/functions/v1/clara-command-agent';
 
       // If voice, replace Body in the forwarded payload so dev-agent gets the text
       let forwardBody = rawText;
