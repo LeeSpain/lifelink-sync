@@ -550,21 +550,53 @@ serve(async (req) => {
     }
 
     // ── CONVERSATION MEMORY ─────────────────────────────────────────────────
-    const conversationId = await getOrCreateConversation(phone);
-
-    // Save inbound message
-    if (conversationId) {
-      await saveMessage(conversationId, "inbound", body);
+    let conversationId: string | null = null;
+    try {
+      conversationId = await getOrCreateConversation(phone);
+      if (conversationId) {
+        await saveMessage(conversationId, "inbound", body);
+      }
+    } catch (e) {
+      console.warn("Conversation memory failed (non-fatal):", e);
     }
 
-    // Load recent conversation history
-    const history = conversationId ? await loadRecentMessages(conversationId) : [];
+    // Build messages — always ensure valid alternating user/assistant format
+    // Just use the current message to avoid malformed history breaking Anthropic
+    let messages: Array<{ role: "user" | "assistant"; content: string }> = [];
+    try {
+      if (conversationId) {
+        const history = await loadRecentMessages(conversationId);
+        // Deduplicate consecutive same-role messages
+        const cleaned: typeof history = [];
+        for (const msg of history) {
+          if (cleaned.length === 0 || cleaned[cleaned.length - 1].role !== msg.role) {
+            cleaned.push(msg);
+          } else {
+            // Merge consecutive same-role messages
+            cleaned[cleaned.length - 1].content += "\n" + msg.content;
+          }
+        }
+        // Ensure it ends with user message (the current one)
+        if (cleaned.length > 0 && cleaned[cleaned.length - 1].role === "user") {
+          messages = cleaned;
+        } else if (cleaned.length > 0) {
+          // History ends with assistant — add current as new user
+          messages = [...cleaned, { role: "user", content: body }];
+        }
+      }
+    } catch (e) {
+      console.warn("History load failed (non-fatal):", e);
+    }
 
-    // Build messages array with history + current message
-    // History already includes the current message (just saved), so use it directly
-    const messages = history.length > 0
-      ? history
-      : [{ role: "user" as const, content: body }];
+    // Fallback: just the current message
+    if (messages.length === 0) {
+      messages = [{ role: "user", content: body }];
+    }
+
+    // Ensure first message is user (Anthropic requirement)
+    if (messages[0]?.role !== "user") {
+      messages = [{ role: "user", content: body }];
+    }
 
     // Add error context if Lee is asking about a failure
     let systemWithContext = SYSTEM_PROMPT;
@@ -572,7 +604,9 @@ serve(async (req) => {
       systemWithContext += `\n\nLAST ERROR: ${lastToolError}`;
     }
 
-    // Call Anthropic with tool_use + conversation history
+    console.log(`📡 Calling Anthropic API with ${messages.length} messages...`);
+
+    // Call Anthropic with tool_use
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -589,7 +623,17 @@ serve(async (req) => {
       }),
     });
 
+    console.log(`📡 Anthropic response status: ${response.status}`);
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error(`❌ Anthropic HTTP ${response.status}:`, errText.substring(0, 500));
+      await replyToLee(`Anthropic API error (HTTP ${response.status}). Check logs.`, phone);
+      return new Response("", { status: 200 });
+    }
+
     const aiResponse = await response.json();
+    console.log(`📡 Anthropic stop_reason: ${aiResponse.stop_reason}, blocks: ${aiResponse.content?.length || 0}`);
 
     if (aiResponse.error) {
       console.error("Anthropic error:", JSON.stringify(aiResponse.error));
