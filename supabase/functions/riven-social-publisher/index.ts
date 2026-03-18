@@ -225,18 +225,35 @@ serve(async (req) => {
         status = "pending_manual";
     }
 
-    // Update the content record
+    // Update the content record with platform_post_id in engagement_metrics
     const updateData: Record<string, unknown> = {
       status,
       published_at: status === "published" ? new Date().toISOString() : null,
       platform_post_id: platformPostId || null,
       post_url: postUrl || null,
+      engagement_metrics: platformPostId
+        ? { [`${platform}_post_id`]: platformPostId, post_url: postUrl }
+        : null,
     };
 
     await supabase
       .from("marketing_content")
       .update(updateData)
       .eq("id", content_id);
+
+    // Log to social_media_analytics for unified cross-publisher analytics
+    if (platformPostId && status === "published") {
+      try {
+        await supabase.from("social_media_analytics").insert({
+          content_id,
+          platform,
+          platform_post_id: platformPostId,
+          data_date: new Date().toISOString().split("T")[0],
+        });
+      } catch (e) {
+        console.warn("Analytics log failed (non-fatal):", e);
+      }
+    }
 
     return new Response(
       JSON.stringify({
