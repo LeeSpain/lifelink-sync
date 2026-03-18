@@ -150,6 +150,11 @@ serve(async (req) => {
     const token = invite.token;
     const inviteId = invite.id;
 
+    if (!token) {
+      throw new Error("Token generation failed — lead_invites table may need migration");
+    }
+    console.log(`🔑 Invite token generated: ${token.substring(0, 8)}...`);
+
     // ── 3. Build invite URLs per channel ──────────────────────────────────────
     const smsUrl = `${INVITE_BASE_URL}?ref=${token}&ch=sms`;
     const whatsappUrl = `${INVITE_BASE_URL}?ref=${token}&ch=whatsapp`;
@@ -203,39 +208,10 @@ serve(async (req) => {
       );
     }
 
-    // WhatsApp via Twilio (whatsapp: prefix)
-    if (activeChannels.includes("whatsapp") && phone) {
-      promises.push(
-        (async () => {
-          try {
-            const res = await fetch(
-              `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`,
-              {
-                method: "POST",
-                headers: {
-                  Authorization: "Basic " + btoa(`${twilioSid}:${twilioAuth}`),
-                  "Content-Type": "application/x-www-form-urlencoded",
-                },
-                body: new URLSearchParams({
-                  To: `whatsapp:${phone}`,
-                  From: `whatsapp:${twilioFrom}`,
-                  Body: whatsappMessage,
-                }),
-              }
-            );
-            const data = await res.json();
-            results.whatsapp = { sent: !data.error_code, sid: data.sid };
-            await supabase
-              .from("lead_invites")
-              .update({ whatsapp_sent: true, whatsapp_sent_at: new Date().toISOString() })
-              .eq("id", inviteId);
-          } catch (e: unknown) {
-            const msg = e instanceof Error ? e.message : String(e);
-            console.warn("WhatsApp send failed:", msg);
-            results.whatsapp = { sent: false, error: msg };
-          }
-        })()
-      );
+    // WhatsApp auto-send disabled — number not registered as WhatsApp Business.
+    // WhatsApp deep link is still available as a manual share option in the UI.
+    if (activeChannels.includes("whatsapp")) {
+      results.whatsapp = { sent: false, error: "WhatsApp auto-send disabled (no WA Business number)" };
     }
 
     // Email via Resend

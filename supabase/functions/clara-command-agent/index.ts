@@ -423,7 +423,7 @@ async function toolGetFacebookStats(): Promise<string> {
 
 async function toolSendInvite(input: Record<string, any>): Promise<string> {
   const channels: string[] = [];
-  if (input.phone) channels.push("sms", "whatsapp");
+  if (input.phone) channels.push("sms");
   if (input.email) channels.push("email");
 
   const invRes = await fetch(`${supabaseUrl}/functions/v1/send-invite`, {
