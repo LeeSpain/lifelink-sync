@@ -553,9 +553,17 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  let token = Deno.env.get("FACEBOOK_PAGE_ACCESS_TOKEN")!;
-  const pageId = Deno.env.get("FACEBOOK_PAGE_ID")!;
-  console.log(`🔑 Token loaded: ${token ? token.substring(0, 15) + "..." : "MISSING"} | Page ID: ${pageId}`);
+  const rawToken = Deno.env.get("FACEBOOK_PAGE_ACCESS_TOKEN");
+  let token = rawToken || "";
+  const pageId = Deno.env.get("FACEBOOK_PAGE_ID") || "";
+  console.log("🔑 ENV DIAGNOSTIC:", {
+    token_exists: !!rawToken,
+    token_length: rawToken?.length || 0,
+    token_prefix: rawToken?.substring(0, 20) || "EMPTY",
+    token_suffix: rawToken?.substring((rawToken?.length || 0) - 10) || "EMPTY",
+    page_id: pageId,
+    starts_with_EAA: rawToken?.startsWith("EAA") || false,
+  });
 
   // ── Verify token is a PAGE token, auto-exchange if it's a USER token ──
   try {
