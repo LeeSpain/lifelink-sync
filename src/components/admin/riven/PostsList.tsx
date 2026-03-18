@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Zap, Trash2, Search, Download, CheckSquare } from "lucide-react";
+import { Zap, Trash2, Search, Download, CheckSquare, ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { CampaignContent } from "@/hooks/useRivenCampaign";
 
@@ -28,9 +28,10 @@ interface PostsListProps {
   onPublish: (post: CampaignContent) => void;
   onUpdate: (id: string, updates: Partial<CampaignContent>) => void;
   onDelete: (id: string) => void;
+  onGenerateImage?: (post: CampaignContent) => void;
 }
 
-export function PostsList({ content, onPublish, onUpdate, onDelete }: PostsListProps) {
+export function PostsList({ content, onPublish, onUpdate, onDelete, onGenerateImage }: PostsListProps) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [platformFilter, setPlatformFilter] = useState<string | null>(null);
@@ -190,6 +191,7 @@ export function PostsList({ content, onPublish, onUpdate, onDelete }: PostsListP
               <TableHead className="text-xs">Day</TableHead>
               <TableHead className="text-xs">Platform</TableHead>
               <TableHead className="text-xs">Angle</TableHead>
+              <TableHead className="text-xs w-12">Image</TableHead>
               <TableHead className="text-xs">Content</TableHead>
               <TableHead className="text-xs">Scheduled</TableHead>
               <TableHead className="text-xs">Status</TableHead>
@@ -214,6 +216,19 @@ export function PostsList({ content, onPublish, onUpdate, onDelete }: PostsListP
                 <TableCell>
                   <span className="text-xs">{post.content_angle || "—"}</span>
                 </TableCell>
+                <TableCell>
+                  {post.image_url ? (
+                    <img
+                      src={post.image_url}
+                      alt=""
+                      className="h-8 w-8 rounded object-cover"
+                    />
+                  ) : (
+                    <div className="h-8 w-8 rounded bg-muted flex items-center justify-center">
+                      <ImageIcon className="h-3 w-3 text-muted-foreground" />
+                    </div>
+                  )}
+                </TableCell>
                 <TableCell className="max-w-[200px]">
                   <p className="text-xs font-medium truncate">{post.title || "Untitled"}</p>
                 </TableCell>
@@ -234,6 +249,17 @@ export function PostsList({ content, onPublish, onUpdate, onDelete }: PostsListP
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-1">
+                    {!post.image_url && onGenerateImage && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0"
+                        title="Generate image"
+                        onClick={() => onGenerateImage(post)}
+                      >
+                        <ImageIcon className="h-3 w-3" />
+                      </Button>
+                    )}
                     {post.status === "scheduled" && (
                       <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => onPublish(post)}>
                         <Zap className="h-3 w-3" />

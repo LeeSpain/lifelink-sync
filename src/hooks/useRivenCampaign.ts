@@ -23,6 +23,7 @@ export interface CampaignContent {
   content_type: string;
   title: string | null;
   body_text: string | null;
+  image_url: string | null;
   status: string;
   scheduled_at: string | null;
   published_at: string | null;
@@ -216,6 +217,37 @@ export function useRivenCampaign() {
     [activeCampaign, loadContent]
   );
 
+  // Generate image for a single content item
+  const generateImage = useCallback(
+    async (post: CampaignContent) => {
+      const { data, error } = await supabase.functions.invoke(
+        "image-generator",
+        {
+          body: {
+            contentId: post.id,
+            prompt:
+              (post.title || "") +
+              " — " +
+              (post.body_text || "").substring(0, 200),
+            platform: post.platform,
+            style: "natural",
+            size: "1024x1024",
+          },
+        }
+      );
+
+      if (error) throw error;
+
+      // Refresh content to pick up the new image_url
+      if (post.campaign_id) {
+        await loadContent(post.campaign_id);
+      }
+
+      return data;
+    },
+    [loadContent]
+  );
+
   // Clear error
   const clearError = useCallback(() => setError(null), []);
 
@@ -305,6 +337,7 @@ export function useRivenCampaign() {
     toggleCampaignPause,
     updateContent,
     deleteContent,
+    generateImage,
     clearError,
   };
 }

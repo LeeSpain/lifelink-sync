@@ -1,10 +1,10 @@
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
 };
 
 interface ImageGenerationRequest {
@@ -15,187 +15,166 @@ interface ImageGenerationRequest {
   size?: string;
 }
 
+const BRAND_SUFFIX =
+  "Professional, family safety theme, warm lighting, modern clean design, LifeLink Sync brand colors (red accents on dark backgrounds). No text overlays.";
+
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    const { contentId, prompt, platform, style = 'vivid', size = '1024x1024' }: ImageGenerationRequest = await req.json();
+    const {
+      contentId,
+      prompt,
+      platform,
+      style = "natural",
+      size = "1024x1024",
+    }: ImageGenerationRequest = await req.json();
 
-    console.log(`Generating image for content ${contentId ?? 'preview'}`, { prompt, platform, style, size });
+    console.log(
+      `🎨 Generating image for content ${contentId ?? "preview"}`,
+      { platform, style, size }
+    );
 
-    // Generate image with OpenAI first, then fallback to Hugging Face if needed
-    const image = await generateImage(prompt, style, size, platform);
+    const openAIApiKey = Deno.env.get("OPENAI_API_KEY");
+    if (!openAIApiKey) {
+      throw new Error("OPENAI_API_KEY not configured");
+    }
 
+    // Build enhanced prompt with platform context and brand styling
+    const enhancedPrompt = buildPrompt(prompt, platform);
+
+    // Call DALL-E 3
+    const response = await fetch(
+      "https://api.openai.com/v1/images/generations",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${openAIApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "dall-e-3",
+          prompt: enhancedPrompt,
+          n: 1,
+          size,
+          style,
+          response_format: "url",
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errBody = await response.text();
+      console.error("DALL-E 3 API error:", errBody);
+      throw new Error(`DALL-E 3 error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const tempUrl = data.data?.[0]?.url;
+    if (!tempUrl) {
+      throw new Error("DALL-E 3 returned no image URL");
+    }
+
+    // Download the image from the temporary OpenAI URL
+    const imgResponse = await fetch(tempUrl);
+    if (!imgResponse.ok) {
+      throw new Error("Failed to download generated image");
+    }
+    const imgBlob = await imgResponse.blob();
+    const imgBuffer = new Uint8Array(await imgBlob.arrayBuffer());
+
+    // Upload to Supabase Storage (marketing-images bucket)
+    const fileName = `${contentId || crypto.randomUUID()}-${Date.now()}.png`;
+    const storagePath = `campaigns/${fileName}`;
+
+    // Ensure bucket exists (idempotent — error ignored if exists)
+    await supabase.storage.createBucket("marketing-images", {
+      public: true,
+      fileSizeLimit: 10 * 1024 * 1024, // 10MB
+    });
+
+    const { error: uploadError } = await supabase.storage
+      .from("marketing-images")
+      .upload(storagePath, imgBuffer, {
+        contentType: "image/png",
+        upsert: true,
+      });
+
+    if (uploadError) {
+      console.error("Storage upload error:", uploadError);
+      throw new Error("Failed to upload image to storage");
+    }
+
+    // Build permanent public URL
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const imageUrl = `${supabaseUrl}/storage/v1/object/public/marketing-images/${storagePath}`;
+
+    console.log("✅ Image generated and stored:", imageUrl);
+
+    // Update the marketing_content row if contentId was provided
     if (contentId) {
-      // Update content with generated image
-      const { error: updateError } = await supabaseClient
-        .from('marketing_content')
-        .update({ 
-          image_url: image,
-          updated_at: new Date().toISOString()
+      const { error: updateError } = await supabase
+        .from("marketing_content")
+        .update({
+          image_url: imageUrl,
+          updated_at: new Date().toISOString(),
         })
-        .eq('id', contentId);
+        .eq("id", contentId);
 
       if (updateError) {
-        console.error('Failed to update content with image:', updateError);
-        throw new Error('Failed to save generated image');
+        console.error("Failed to update content with image:", updateError);
       }
 
       // Log generation request
-      await supabaseClient
-        .from('content_generation_requests')
-        .insert({
-          campaign_id: null,
-          content_type: 'image',
-          platform,
-          prompt,
-          generated_image_url: image,
-          status: 'completed',
-          completed_at: new Date().toISOString(),
-          generation_metadata: {
-            style,
-            size,
-            model: 'gpt-image-1_or_hf'
-          }
-        });
+      await supabase.from("content_generation_requests").insert({
+        campaign_id: null,
+        content_type: "image",
+        platform,
+        prompt: enhancedPrompt,
+        generated_image_url: imageUrl,
+        status: "completed",
+        completed_at: new Date().toISOString(),
+        generation_metadata: { style, size, model: "dall-e-3" },
+      });
     }
 
-    return new Response(JSON.stringify({ 
-      success: true,
-      image,
-      imageUrl: image,
-      contentId: contentId ?? null
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    });
-
+    return new Response(
+      JSON.stringify({
+        success: true,
+        imageUrl,
+        image: imageUrl,
+        contentId: contentId ?? null,
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   } catch (error) {
-    console.error('Image generation error:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error("❌ Image generation error:", error);
+    return new Response(JSON.stringify({ error: (error as Error).message }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });
 
-async function generateImage(prompt: string, style: string, size: string, platform: string): Promise<string> {
-  const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-  // Enhance prompt based on platform and requirements
-  const enhancedPrompt = enhancePromptForPlatform(prompt, platform);
-  console.log('Generating image with enhanced prompt:', enhancedPrompt);
-
-  if (openAIApiKey) {
-    try {
-      const response = await fetch('https://api.openai.com/v1/images/generations', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${openAIApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'gpt-image-1',
-          prompt: enhancedPrompt,
-          n: 1,
-          size,
-          quality: 'high'
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.data && data.data.length > 0 && data.data[0].b64_json) {
-          return `data:image/png;base64,${data.data[0].b64_json}`;
-        }
-        console.warn('OpenAI returned no b64_json, falling back to Hugging Face');
-      } else {
-        const errText = await response.text();
-        console.error('OpenAI API error:', errText);
-      }
-    } catch (err) {
-      console.error('OpenAI image generation failed, falling back to Hugging Face:', err);
-    }
-  } else {
-    console.warn('OpenAI API key not configured, using Hugging Face');
-  }
-
-  // Fallback to Hugging Face
-  return await generateImageWithHuggingFace(enhancedPrompt, platform);
-}
-
-function enhancePromptForPlatform(prompt: string, platform: string): string {
-  const platformSpecs = {
-    facebook: {
-      aspectRatio: '16:9 or square format',
-      style: 'professional and engaging',
-      requirements: 'high-resolution, suitable for Facebook feed'
-    },
-    instagram: {
-      aspectRatio: 'square 1:1 format',
-      style: 'visually appealing and Instagram-ready',
-      requirements: 'vibrant colors, aesthetic composition for Instagram'
-    },
-    twitter: {
-      aspectRatio: '16:9 format',
-      style: 'eye-catching and shareable',
-      requirements: 'clear and readable for Twitter timeline'
-    },
-    linkedin: {
-      aspectRatio: '16:9 format',
-      style: 'professional and business-appropriate',
-      requirements: 'corporate-friendly, suitable for LinkedIn professional network'
-    },
-    youtube: {
-      aspectRatio: '16:9 format for thumbnail',
-      style: 'attention-grabbing thumbnail style',
-      requirements: 'YouTube thumbnail optimized, bold and clear'
-    }
+function buildPrompt(prompt: string, platform: string): string {
+  const platformHints: Record<string, string> = {
+    facebook:
+      "Square format, engaging social media imagery, suitable for Facebook feed.",
+    instagram:
+      "Square 1:1 format, vibrant and aesthetic, Instagram-optimized.",
+    twitter:
+      "Landscape 16:9 feel but square crop safe, eye-catching for Twitter timeline.",
+    linkedin:
+      "Professional and business-appropriate, clean corporate style.",
   };
 
-  const spec = platformSpecs[platform as keyof typeof platformSpecs] || platformSpecs.facebook;
-
-  return `${prompt}. Create this in ${spec.aspectRatio}, with a ${spec.style} aesthetic. ${spec.requirements}. High quality, professional, ultra-detailed, perfect composition.`;
-}
-
-// Alternative function using Hugging Face if OpenAI is not available
-async function generateImageWithHuggingFace(prompt: string, platform: string): Promise<string> {
-  const hfToken = Deno.env.get('HUGGING_FACE_ACCESS_TOKEN');
-  if (!hfToken) {
-    throw new Error('Hugging Face API token not configured');
-  }
-
-  const enhancedPrompt = enhancePromptForPlatform(prompt, platform);
-
-  const response = await fetch('https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${hfToken}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      inputs: enhancedPrompt,
-      parameters: {
-        guidance_scale: 7.5,
-        num_inference_steps: 25,
-        width: 1024,
-        height: 1024
-      }
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Hugging Face API error: ${response.statusText}`);
-  }
-
-  const imageBlob = await response.blob();
-  const arrayBuffer = await imageBlob.arrayBuffer();
-  const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
-  
-  return `data:image/png;base64,${base64}`;
+  const hint = platformHints[platform] || platformHints.facebook;
+  return `${prompt}. ${hint} ${BRAND_SUFFIX}`;
 }

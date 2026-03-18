@@ -25,6 +25,7 @@ interface CampaignDashboardProps {
   onPublishPost: (post: CampaignContent) => void;
   onUpdateContent: (id: string, updates: Partial<CampaignContent>) => void;
   onDeleteContent: (id: string) => void;
+  onGenerateImage?: (post: CampaignContent) => void;
 }
 
 export function CampaignDashboard({
@@ -35,6 +36,7 @@ export function CampaignDashboard({
   onPublishPost,
   onUpdateContent,
   onDeleteContent,
+  onGenerateImage,
 }: CampaignDashboardProps) {
   const isPaused = campaign.status === "paused";
 
@@ -87,6 +89,9 @@ export function CampaignDashboard({
               {stats.todayPosts.slice(0, 3).map((post) => (
                 <div key={post.id} className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
+                    {post.image_url && (
+                      <img src={post.image_url} alt="" className="h-8 w-8 rounded object-cover flex-shrink-0" />
+                    )}
                     <Badge variant="outline" className="text-xs capitalize">{post.platform}</Badge>
                     <span className="truncate max-w-[200px]">{post.title || "Untitled"}</span>
                   </div>
@@ -140,6 +145,7 @@ export function CampaignDashboard({
             onPublish={onPublishPost}
             onUpdate={onUpdateContent}
             onDelete={onDeleteContent}
+            onGenerateImage={onGenerateImage}
           />
         </TabsContent>
 

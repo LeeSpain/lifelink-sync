@@ -29,6 +29,39 @@ serve(async (req) => {
     const body: PublishRequest = await req.json();
     const { content_id, platform, title, body_text, hashtags } = body;
 
+    // Fetch the content row to get image_url (may have been generated after text)
+    let imageUrl: string | null = null;
+    if (content_id) {
+      const { data: contentRow } = await supabase
+        .from("marketing_content")
+        .select("image_url")
+        .eq("id", content_id)
+        .single();
+      imageUrl = contentRow?.image_url || null;
+    }
+
+    // If no image yet for a visual platform, generate one now
+    const VISUAL_PLATFORMS = ["facebook", "instagram", "twitter", "linkedin"];
+    if (!imageUrl && VISUAL_PLATFORMS.includes(platform) && content_id) {
+      try {
+        const { data: imgData } = await supabase.functions.invoke(
+          "image-generator",
+          {
+            body: {
+              contentId: content_id,
+              prompt: (title || "") + " — " + (body_text || "").substring(0, 200),
+              platform,
+              style: "natural",
+              size: "1024x1024",
+            },
+          }
+        );
+        imageUrl = imgData?.imageUrl || null;
+      } catch (err) {
+        console.warn("Image generation failed before publish, posting without image:", err);
+      }
+    }
+
     let postUrl = "";
     let platformPostId = "";
     let status = "published";
@@ -107,28 +140,50 @@ serve(async (req) => {
       }
 
       case "facebook": {
-        const pageToken = Deno.env.get("FACEBOOK_PAGE_TOKEN");
+        const pageToken = Deno.env.get("FACEBOOK_PAGE_ACCESS_TOKEN") || Deno.env.get("FACEBOOK_PAGE_TOKEN");
         const pageId = Deno.env.get("FACEBOOK_PAGE_ID");
         if (!pageToken || !pageId) {
           status = "pending_manual";
           break;
         }
-        const res = await fetch(
-          `https://graph.facebook.com/v18.0/${pageId}/feed`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              message: body_text,
-              access_token: pageToken,
-            }),
-          }
-        );
+
+        let res: Response;
+        if (imageUrl) {
+          // Post as photo with caption (gets much higher engagement)
+          res = await fetch(
+            `https://graph.facebook.com/v20.0/${pageId}/photos`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                url: imageUrl,
+                caption: body_text,
+                access_token: pageToken,
+              }),
+            }
+          );
+        } else {
+          // Text-only post
+          res = await fetch(
+            `https://graph.facebook.com/v20.0/${pageId}/feed`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                message: body_text,
+                access_token: pageToken,
+              }),
+            }
+          );
+        }
+
         if (res.ok) {
           const data = await res.json();
-          platformPostId = data.id || "";
+          platformPostId = data.id || data.post_id || "";
           postUrl = `https://www.facebook.com/${platformPostId}`;
         } else {
+          const errText = await res.text();
+          console.error("Facebook publish error:", errText);
           status = "failed";
         }
         break;

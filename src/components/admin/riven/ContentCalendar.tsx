@@ -234,6 +234,9 @@ export function ContentCalendar({
             <div className="space-y-2">
               {selectedDayPosts.map((post) => (
                 <div key={post.id} className="flex items-start justify-between p-2 rounded-lg bg-muted/50">
+                  {post.image_url && (
+                    <img src={post.image_url} alt="" className="h-14 w-14 rounded object-cover flex-shrink-0 mr-2" />
+                  )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span className={cn("w-2 h-2 rounded-full", PLATFORM_COLORS[post.platform])} />

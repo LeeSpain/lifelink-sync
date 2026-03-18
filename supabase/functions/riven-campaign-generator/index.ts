@@ -193,9 +193,10 @@ serve(async (req) => {
       return row;
     });
 
-    const { error: contentError } = await supabase
+    const { data: insertedContent, error: contentError } = await supabase
       .from("marketing_content")
-      .insert(contentRows);
+      .insert(contentRows)
+      .select("id, platform, body_text, title");
 
     if (contentError) throw contentError;
 
@@ -218,7 +219,32 @@ serve(async (req) => {
         });
     }
 
-    // 6. Mark campaign as ready
+    // 6. Generate images for visual-platform posts (first 6 to avoid timeout)
+    const VISUAL_PLATFORMS = new Set(["facebook", "instagram", "twitter", "linkedin"]);
+    const visualPosts = (insertedContent || [])
+      .filter((c: { platform: string }) => VISUAL_PLATFORMS.has(c.platform))
+      .slice(0, 6);
+
+    if (visualPosts.length > 0) {
+      console.log(`🎨 Generating images for ${visualPosts.length} visual posts...`);
+      const imageResults = await Promise.allSettled(
+        visualPosts.map((post: { id: string; platform: string; body_text: string; title: string }) =>
+          supabase.functions.invoke("image-generator", {
+            body: {
+              contentId: post.id,
+              prompt: (post.title || "") + " — " + (post.body_text || "").substring(0, 200),
+              platform: post.platform,
+              style: "natural",
+              size: "1024x1024",
+            },
+          })
+        )
+      );
+      const succeeded = imageResults.filter((r) => r.status === "fulfilled").length;
+      console.log(`🎨 Image generation: ${succeeded}/${visualPosts.length} succeeded`);
+    }
+
+    // 7. Mark campaign as ready
     await supabase
       .from("marketing_campaigns")
       .update({ status: "active" })

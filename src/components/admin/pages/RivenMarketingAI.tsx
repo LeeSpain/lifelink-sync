@@ -129,6 +129,7 @@ const RivenMarketingAI = () => {
               onPublishPost={campaign.publishPost}
               onUpdateContent={campaign.updateContent}
               onDeleteContent={campaign.deleteContent}
+              onGenerateImage={campaign.generateImage}
             />
           )}
         </TabsContent>
