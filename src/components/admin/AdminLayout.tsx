@@ -142,6 +142,7 @@ const useAdminMenuItems = () => {
         { title: 'Contact Submissions', url: "/admin-dashboard/contact-submissions", icon: Inbox },
         { title: 'Communication Centre', url: "/admin-dashboard/communication", icon: MessageCircle },
         { title: 'Email Management', url: "/admin-dashboard/email-management", icon: Mail },
+        { title: 'Facebook', url: "/admin-dashboard/facebook", icon: Globe },
       ]
     },
     {
