@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <title>LifeLink Command Centre</title>
+    <meta name="description" content="LifeLink Sync live business metrics dashboard" />
+
+    <!-- PWA — Command Centre specific manifest (fullscreen, landscape, starts at /live) -->
+    <meta name="theme-color" content="#0a0e1a" />
+    <meta name="msapplication-TileColor" content="#0a0e1a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-title" content="Command Centre" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/lovable-uploads/lifelink-sync-icon-192.png" />
+    <link rel="manifest" href="/live-manifest.json" />
+
+    <!-- Performance -->
+    <link rel="dns-prefetch" href="https://cprbgquiqbyoyrffznny.supabase.co" />
+    <link rel="preconnect" href="https://cprbgquiqbyoyrffznny.supabase.co" />
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

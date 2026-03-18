@@ -266,53 +266,6 @@ function Dashboard() {
 export default function LiveDashboardPage() {
   const [authed, setAuthed] = useState(() => sessionStorage.getItem(SESSION_KEY) === 'true');
 
-  // Swap PWA manifest to fullscreen Command Centre version while on /live
-  useEffect(() => {
-    // Save and remove the default manifest
-    const defaultManifest = document.querySelector('link[rel="manifest"]');
-    const defaultHref = defaultManifest?.getAttribute('href') || null;
-    if (defaultManifest) defaultManifest.remove();
-
-    // Inject the live-specific fullscreen manifest
-    const liveManifest = document.createElement('link');
-    liveManifest.rel = 'manifest';
-    liveManifest.href = '/live-manifest.json';
-    document.head.appendChild(liveManifest);
-
-    // Set theme color to match the dark dashboard
-    const themeColor = document.createElement('meta');
-    themeColor.name = 'theme-color';
-    themeColor.content = '#0a0e1a';
-    document.head.appendChild(themeColor);
-
-    // Apple PWA meta tags for fullscreen on iOS
-    const appleMobile = document.createElement('meta');
-    appleMobile.name = 'apple-mobile-web-app-capable';
-    appleMobile.content = 'yes';
-    document.head.appendChild(appleMobile);
-
-    const appleStatusBar = document.createElement('meta');
-    appleStatusBar.name = 'apple-mobile-web-app-status-bar-style';
-    appleStatusBar.content = 'black';
-    document.head.appendChild(appleStatusBar);
-
-    return () => {
-      // Clean up — remove injected tags
-      liveManifest.remove();
-      themeColor.remove();
-      appleMobile.remove();
-      appleStatusBar.remove();
-
-      // Restore default manifest
-      if (defaultHref) {
-        const restored = document.createElement('link');
-        restored.rel = 'manifest';
-        restored.href = defaultHref;
-        document.head.appendChild(restored);
-      }
-    };
-  }, []);
-
   if (!authed) return <PinGate onSuccess={() => setAuthed(true)} />;
   return <Dashboard />;
 }

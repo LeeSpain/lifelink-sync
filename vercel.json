@@ -14,6 +14,10 @@
       "destination": "/tablet.html"
     },
     {
+      "source": "/live",
+      "destination": "/live.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
@@ -60,6 +64,19 @@
     },
     {
       "source": "/tablet-manifest.json",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/manifest+json"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/live-manifest.json",
       "headers": [
         {
           "key": "Content-Type",

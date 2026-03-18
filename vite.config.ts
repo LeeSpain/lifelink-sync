@@ -20,6 +20,7 @@ export default defineConfig(({ mode }) => ({
       input: {
         main: path.resolve(__dirname, 'index.html'),
         clara: path.resolve(__dirname, 'clara.html'),
+        live: path.resolve(__dirname, 'live.html'),
       },
       output: {
         manualChunks: {
