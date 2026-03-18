@@ -1,15 +1,13 @@
 {
   "name": "LifeLink Command Centre",
   "short_name": "Command Centre",
-  "description": "LifeLink Sync live business metrics dashboard",
   "start_url": "/live",
   "id": "/live",
-  "scope": "/live",
+  "scope": "/",
   "display": "fullscreen",
   "background_color": "#0a0e1a",
   "theme_color": "#0a0e1a",
   "orientation": "landscape",
-  "categories": ["business"],
   "icons": [
     {
       "src": "/lovable-uploads/lifelink-sync-icon-192.png",
@@ -20,8 +18,7 @@
     {
       "src": "/lovable-uploads/lifelink-sync-icon-512.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
+      "type": "image/png"
     }
   ]
 }
