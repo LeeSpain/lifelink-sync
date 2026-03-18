@@ -222,17 +222,18 @@ serve(async (req) => {
 
     console.log('WhatsApp inbound:', { phone, bodyLength: body.length, isVoice });
 
-    // ── Route admin messages to dev agent ───────────────────────
+    // ── Route admin messages ─────────────────────────────────────
     const ADMIN_NUMBER = Deno.env.get('ADMIN_WHATSAPP_NUMBER') ?? '';
     const normalizedFrom = fromRaw.replace('whatsapp:', '').replace('+', '');
     const normalizedAdmin = ADMIN_NUMBER.replace('whatsapp:', '').replace('+', '');
     const bypassAdminRoute = params.get('_bypass_admin_route') === '1';
 
     if (normalizedAdmin && normalizedFrom === normalizedAdmin && !bypassAdminRoute) {
-      // Route to command agent (handles business commands + forwards dev commands)
-      const devAgentUrl = Deno.env.get('SUPABASE_URL') + '/functions/v1/clara-command-agent';
+      console.log('📱 Admin message from Lee, routing to command agent...');
 
-      // If voice, replace Body in the forwarded payload so dev-agent gets the text
+      // Forward to command agent
+      const commandAgentUrl = Deno.env.get('SUPABASE_URL') + '/functions/v1/clara-command-agent';
+
       let forwardBody = rawText;
       if (isVoice && voiceTranscript) {
         const forwardParams = new URLSearchParams(rawText);
@@ -241,24 +242,178 @@ serve(async (req) => {
         forwardBody = forwardParams.toString();
       }
 
-      const forwardResponse = await fetch(devAgentUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
-        },
-        body: forwardBody,
-      });
+      try {
+        const forwardResponse = await fetch(commandAgentUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+          },
+          body: forwardBody,
+        });
 
-      console.log('Forwarded to dev agent:', forwardResponse.status);
+        console.log('Forwarded to command agent:', forwardResponse.status);
 
-      // Send voice confirmation to Lee
-      if (isVoice && voiceTranscript) {
-        // Dev agent will respond with its own reply, so we just confirm transcription
-        // The response will come from dev-agent — no need to double-send
+        // If command agent succeeded, we're done — it sends its own reply
+        if (forwardResponse.ok) {
+          return new Response('', { status: 200 });
+        }
+
+        // Command agent failed — fall through to inline handler below
+        console.warn('Command agent returned', forwardResponse.status, '— handling inline');
+      } catch (e) {
+        console.warn('Command agent forward failed:', e, '— handling inline');
       }
 
-      return new Response('', { status: 200 });
+      // ── INLINE FALLBACK: handle Lee's message directly with tools ──
+      // This fires if clara-command-agent is not deployed, crashes, or returns error
+      try {
+        const adminSystemPrompt = `You are CLARA, Lee Wakeman's AI business assistant for LifeLink Sync.
+
+Lee is messaging you on WhatsApp. You have tools to execute actions.
+
+You CAN post to Facebook. You have the post_to_facebook tool. USE THE TOOL IMMEDIATELY when Lee asks to post anything. NEVER say you cannot post to Facebook. NEVER say you can't access Facebook. NEVER offer to draft a post — USE THE TOOL AND POST IT.
+
+You CAN send invites via the send_lead_invite tool. When Lee gives a name and number, use it immediately.
+
+RULES: Be direct. No confirmation needed. Just act. Keep replies under 200 words.`;
+
+        const adminTools = [
+          {
+            name: 'post_to_facebook',
+            description: 'Creates and publishes a post to the LifeLink Sync Facebook page immediately.',
+            input_schema: {
+              type: 'object',
+              properties: {
+                topic: { type: 'string', description: 'Topic for the post' },
+                custom_text: { type: 'string', description: 'Exact text to post (optional)' },
+              },
+              required: ['topic'],
+            },
+          },
+          {
+            name: 'send_lead_invite',
+            description: 'Sends invite to a lead via SMS. Use when Lee gives a name and phone number.',
+            input_schema: {
+              type: 'object',
+              properties: {
+                name: { type: 'string', description: 'Contact name' },
+                phone: { type: 'string', description: 'Phone with country code' },
+                email: { type: 'string', description: 'Email (optional)' },
+              },
+              required: ['name'],
+            },
+          },
+        ];
+
+        const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'x-api-key': anthropicApiKey,
+            'anthropic-version': '2023-06-01',
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 1024,
+            system: adminSystemPrompt,
+            tools: adminTools,
+            messages: [{ role: 'user', content: body }],
+          }),
+        });
+
+        const aiData = await claudeRes.json();
+        const blocks = aiData.content || [];
+        let textReply = '';
+        const toolResults: Array<{ type: 'tool_result'; tool_use_id: string; content: string }> = [];
+
+        for (const block of blocks) {
+          if (block.type === 'text') textReply += block.text;
+          if (block.type === 'tool_use') {
+            console.log(`🔧 Inline tool: ${block.name}`, JSON.stringify(block.input).substring(0, 200));
+            let result = '';
+
+            if (block.name === 'post_to_facebook') {
+              // Generate post text if needed
+              let postText = block.input.custom_text;
+              if (!postText) {
+                const genRes = await fetch('https://api.anthropic.com/v1/messages', {
+                  method: 'POST',
+                  headers: { 'x-api-key': anthropicApiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+                  body: JSON.stringify({
+                    model: 'claude-haiku-4-5-20251001',
+                    max_tokens: 400,
+                    messages: [{ role: 'user', content: `Write a Facebook post for LifeLink Sync about: ${block.input.topic}. Warm tone, 100-200 words, include lifelink-sync.com CTA and #LifeLinkSync hashtag. Output ONLY the post text.` }],
+                  }),
+                });
+                const genData = await genRes.json();
+                postText = genData.content?.[0]?.text || `LifeLink Sync — ${block.input.topic}. Start your free trial at lifelink-sync.com #LifeLinkSync`;
+              }
+
+              // Post via facebook-manager
+              const { data: fbData, error: fbErr } = await supabase.functions.invoke('facebook-manager', {
+                body: { action: 'post', message: postText },
+              });
+
+              if (fbErr || !fbData?.success) {
+                result = JSON.stringify({ error: fbErr?.message || fbData?.error || 'Post failed' });
+              } else {
+                result = JSON.stringify({ success: true, post_id: fbData.data?.id, content_preview: postText.substring(0, 150) });
+              }
+            } else if (block.name === 'send_lead_invite') {
+              const { data: invData, error: invErr } = await supabase.functions.invoke('send-invite', {
+                body: { name: block.input.name, phone: block.input.phone || undefined, email: block.input.email || undefined, channels: block.input.phone ? ['sms'] : undefined },
+              });
+              if (invErr || !invData?.success) {
+                result = JSON.stringify({ error: invErr?.message || invData?.error || 'Invite failed' });
+              } else {
+                result = JSON.stringify({ success: true, name: block.input.name, invite_url: invData.invite_url, token: invData.token });
+              }
+            }
+
+            console.log(`🔧 Inline result: ${result.substring(0, 200)}`);
+            toolResults.push({ type: 'tool_result', tool_use_id: block.id, content: result });
+          }
+        }
+
+        // If tools were used, get final summary from Claude
+        if (toolResults.length > 0) {
+          const followUp = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: { 'x-api-key': anthropicApiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+            body: JSON.stringify({
+              model: 'claude-sonnet-4-20250514',
+              max_tokens: 500,
+              system: adminSystemPrompt,
+              tools: adminTools,
+              messages: [
+                { role: 'user', content: body },
+                { role: 'assistant', content: blocks },
+                { role: 'user', content: toolResults },
+              ],
+            }),
+          });
+          const followUpData = await followUp.json();
+          textReply = '';
+          for (const b of (followUpData.content || [])) {
+            if (b.type === 'text') textReply += b.text;
+          }
+        }
+
+        if (textReply.trim()) {
+          const clean = stripMarkdown(textReply);
+          if (isVoice && voiceTranscript) {
+            await sendWhatsApp(phone, `🎤 *Heard:* "${voiceTranscript.substring(0, 120)}"\n\n${clean}`);
+          } else {
+            await sendWhatsApp(phone, clean);
+          }
+        }
+      } catch (e) {
+        console.error('Inline admin handler error:', e);
+        await sendWhatsApp(phone, 'Sorry Lee, I had a technical issue. Try again.');
+      }
+
+      return new Response(TWIML_OK, { status: 200, headers: { ...corsHeaders, 'Content-Type': 'text/xml' } });
     }
 
     if (!phone || !body.trim()) {
@@ -384,7 +539,7 @@ serve(async (req) => {
       try {
         const ownerPrompt = `You are CLARA, the AI assistant for LifeLink Sync. You are speaking with Lee Wakeman, the OWNER and founder of LifeLink Sync.
 
-CRITICAL: Do NOT treat Lee as a customer. Do NOT offer him a trial or sales pitch. Do NOT quote pricing to him.
+CRITICAL: Do NOT treat Lee as a customer. Do NOT offer him a trial or sales pitch.
 
 You are Lee's personal business assistant. Be direct, concise, and helpful.
 
@@ -393,7 +548,7 @@ When he asks about a feature, explain the technical implementation.
 When he asks about stats, summarize what you know.
 When he gives you an instruction, confirm and act on it.
 
-LifeLink Sync is an emergency protection platform. Individual Plan 9.99 EUR/month, annual 99.90 EUR/year. Family seats, gifts, referral programme all active. 22 edge functions deployed, 10 cron jobs running.
+NOTE: If Lee asks you to POST anything to FACEBOOK or send an INVITE, tell him: "Let me switch to my command mode for that — say it again and I'll handle it with my tools." You DO have Facebook posting and invite tools in command mode.
 
 Keep responses to 2-3 short paragraphs. No bullet points.`;
 
