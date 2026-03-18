@@ -18,24 +18,24 @@ interface AddOnProps {
 const AddOnCard: React.FC<AddOnProps> = ({ name, price, description, features, icon, badge }) => {
   const { t } = useTranslation();
   return (
-  <div className="rounded-xl p-6 border border-border bg-white shadow-sm hover:shadow-lg transition-shadow duration-300">
+  <div className="rounded-xl p-6 border border-gray-200 bg-white shadow-sm hover:shadow-lg transition-shadow duration-300">
     <div className="flex items-center gap-2 mb-3">
-      <div className="text-primary">{icon}</div>
-      <h4 className="text-lg font-bold text-foreground">{name}</h4>
+      <div className="text-red-500">{icon}</div>
+      <h4 className="text-lg font-bold text-gray-900">{name}</h4>
       {badge && (
         <Badge className="bg-primary/10 text-primary text-xs">{badge}</Badge>
       )}
     </div>
     <div className="flex items-baseline gap-1 mb-3">
       <span className="text-2xl font-bold text-primary">{price}</span>
-      <span className="text-sm text-muted-foreground">{t('pricing.perMonth')}</span>
+      <span className="text-sm text-gray-500">{t('pricing.perMonth')}</span>
     </div>
-    <p className="text-sm text-muted-foreground mb-4">{description}</p>
+    <p className="text-sm text-gray-500 mb-4">{description}</p>
     <div className="space-y-2">
       {features.map((feature, i) => (
         <div key={i} className="flex items-start gap-2">
           <Check className="h-3.5 w-3.5 mt-0.5 flex-shrink-0 text-primary" />
-          <span className="text-xs text-muted-foreground">{feature}</span>
+          <span className="text-xs text-gray-500">{feature}</span>
         </div>
       ))}
     </div>
@@ -96,13 +96,14 @@ const Pricing: React.FC = () => {
   ];
 
   return (
-    <section id="pricing" className="py-20 bg-white">
+    <section id="pricing" className="py-20 bg-gray-50">
       <div className="container mx-auto px-4">
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold mb-4 text-foreground">
+          <span className="text-xs font-bold tracking-widest text-red-500 uppercase mb-3 block">PRICING</span>
+          <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-gray-900">
             {t('pricing.heroTitle')}
           </h2>
-          <p className="text-sm text-muted-foreground max-w-2xl mx-auto mb-6">
+          <p className="text-sm text-gray-500 max-w-2xl mx-auto mb-6">
             {t('pricing.heroSubtitle')}
           </p>
           <Button asChild size="lg" className="font-semibold py-6 px-10 bg-primary text-white hover:bg-primary/90 rounded-xl shadow-lg">
@@ -114,7 +115,7 @@ const Pricing: React.FC = () => {
 
           {/* Monthly / Annual Toggle */}
           <div className="flex items-center justify-center gap-3 mt-8">
-            <span className={`text-sm font-medium ${!isAnnual ? 'text-foreground' : 'text-muted-foreground'}`}>
+            <span className={`text-sm font-medium ${!isAnnual ? 'text-gray-900' : 'text-gray-500'}`}>
               {t('pricing.monthly', { defaultValue: 'Monthly' })}
             </span>
             <button
@@ -124,7 +125,7 @@ const Pricing: React.FC = () => {
             >
               <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform ${isAnnual ? 'translate-x-8' : 'translate-x-1'}`} />
             </button>
-            <span className={`text-sm font-medium ${isAnnual ? 'text-foreground' : 'text-muted-foreground'}`}>
+            <span className={`text-sm font-medium ${isAnnual ? 'text-gray-900' : 'text-gray-500'}`}>
               {t('pricing.annual', { defaultValue: 'Annual' })}
             </span>
             {isAnnual && (
@@ -137,7 +138,7 @@ const Pricing: React.FC = () => {
 
         {/* Base Plan */}
         <div className="max-w-lg mx-auto mb-12">
-          <div className="rounded-2xl p-5 sm:p-8 bg-foreground text-background border-primary shadow-xl">
+          <div className="rounded-2xl p-5 sm:p-8 bg-gray-900 text-white border border-gray-800 shadow-xl">
             <Badge className="bg-primary text-white text-xs font-medium mb-4">
               {t('pricing.basePlan.badge')}
             </Badge>
@@ -177,7 +178,7 @@ const Pricing: React.FC = () => {
 
         {/* Gift / Loved One entry */}
         <div className="max-w-lg mx-auto mb-8 text-center">
-          <p className="text-sm text-muted-foreground mb-2">
+          <p className="text-sm text-gray-500 mb-2">
             {t('pricing.buyForSomeone', { defaultValue: 'Want to buy this for someone you love?' })}
           </p>
           <Link to="/gift" className="inline-flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 font-semibold hover:underline">
@@ -188,10 +189,10 @@ const Pricing: React.FC = () => {
 
         {/* Add-ons Section */}
         <div className="max-w-4xl mx-auto mb-8">
-          <h3 className="text-2xl font-bold text-center mb-2 text-foreground">
+          <h3 className="text-2xl font-bold text-center mb-2 text-gray-900">
             {t('pricing.addOnsTitle')}
           </h3>
-          <p className="text-center text-muted-foreground mb-8">
+          <p className="text-center text-gray-500 mb-8">
             {t('pricing.addOnsSubtitle')}
           </p>
 
@@ -205,23 +206,23 @@ const Pricing: React.FC = () => {
           <div className="rounded-xl p-6 bg-primary/5 border border-primary/20 text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
               <Sparkles className="h-5 w-5 text-primary" />
-              <h4 className="text-lg font-bold text-foreground">CLARA Complete</h4>
+              <h4 className="text-lg font-bold text-gray-900">CLARA Complete</h4>
               <Badge className="bg-primary/10 text-primary">{t('pricing.claraComplete.badge')}</Badge>
             </div>
-            <p className="text-sm text-muted-foreground max-w-lg mx-auto">
+            <p className="text-sm text-gray-500 max-w-lg mx-auto">
               {t('pricing.claraComplete.description')}
             </p>
           </div>
         </div>
 
-        <p className="text-center text-sm text-muted-foreground max-w-2xl mx-auto">
+        <p className="text-center text-sm text-gray-500 max-w-2xl mx-auto">
           {t('pricing.callCentreNote')}
         </p>
 
         <div className="mt-6 text-center">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-gray-500">
             {t('pricing.pendantNote')}{' '}
-            <span className="text-muted-foreground/70">
+            <span className="text-gray-500/70">
               {t('pricing.pendantComingSoon', 'Bluetooth Pendant — Coming Soon')}
             </span>
           </p>
