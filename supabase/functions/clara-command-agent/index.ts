@@ -599,6 +599,24 @@ serve(async (req) => {
     let textReply = "";
     const toolResults: Array<{ type: "tool_result"; tool_use_id: string; content: string }> = [];
 
+    // Check if any tools will be called — send instant ack before executing
+    const hasToolUse = contentBlocks.some((b: any) => b.type === "tool_use");
+    if (hasToolUse) {
+      // Build a quick contextual ack based on which tool
+      const firstTool = contentBlocks.find((b: any) => b.type === "tool_use");
+      const ackMessages: Record<string, string> = {
+        post_to_facebook: "⚡ On it — posting to Facebook now...",
+        send_lead_invite: "⚡ On it — sending the invite now...",
+        get_lead_pipeline: "🔄 Pulling lead stats...",
+        get_business_stats: "🔄 Checking the numbers...",
+        get_facebook_stats: "🔄 Checking Facebook stats...",
+        send_messenger_message: "⚡ Sending message...",
+        generate_invite_link: "🔄 Generating invite link...",
+      };
+      const ack = ackMessages[firstTool?.name] || "⚡ On it, Lee...";
+      await replyToLee(ack, phone);
+    }
+
     for (const block of contentBlocks) {
       if (block.type === "text") textReply += block.text;
       if (block.type === "tool_use") {
