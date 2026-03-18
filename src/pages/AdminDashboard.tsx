@@ -65,6 +65,7 @@ import ManualInvitePage from '@/components/admin/pages/ManualInvitePage';
 import ConstitutionPage from '@/components/admin/pages/ConstitutionPage';
 import BudgetControlPage from '@/components/admin/pages/BudgetControlPage';
 import ClaraCommandCentre from '@/components/admin/pages/ClaraCommandCentre';
+import CommandCentrePage from '@/components/admin/pages/CommandCentrePage';
 
 const AdminDashboard: React.FC = () => {
   useScrollToTop();
@@ -78,6 +79,7 @@ const AdminDashboard: React.FC = () => {
         <Route path="revenue" element={<RevenueAnalyticsPage />} />
         <Route path="growth" element={<UserGrowthPage />} />
         <Route path="command-centre" element={<ClaraCommandCentre />} />
+        <Route path="live-dashboard" element={<CommandCentrePage />} />
         <Route path="ai-overview" element={<AIOverview />} />
         <Route path="clara-activity" element={<ClaraActivity />} />
         <Route path="ai-settings" element={<AISettings />} />

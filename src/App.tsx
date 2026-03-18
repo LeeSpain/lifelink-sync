@@ -20,6 +20,7 @@ import AuthPage from "./pages/AuthPage";
 import SignOutPage from "./pages/SignOutPage";
 import AuthCallback from "./pages/AuthCallback";
 import InvitePage from "./pages/InvitePage";
+import CommandCentre from "./pages/CommandCentre";
 
 // Live Map Pages
 import MapScreen from "./pages/MapScreen";
@@ -165,6 +166,9 @@ function AppWithTracking() {
                     </OptimizedSuspense>
                   } />
                 )}
+
+                {/* Command Centre (standalone fullscreen) */}
+                <Route path="/command-centre" element={<CommandCentre />} />
 
                 {/* Invite Landing Page */}
                 <Route path="/invite" element={<InvitePage />} />

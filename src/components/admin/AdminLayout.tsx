@@ -91,6 +91,7 @@ const useAdminMenuItems = () => {
       title: 'Overview',
       items: [
         { title: 'Dashboard', url: "/admin-dashboard", icon: BarChart3 },
+        { title: 'Live Dashboard', url: "/admin-dashboard/live-dashboard", icon: LayoutDashboard },
       ]
     },
     {
