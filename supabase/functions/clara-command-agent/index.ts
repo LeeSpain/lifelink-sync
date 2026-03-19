@@ -19,7 +19,8 @@ const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY")!;
 const twilioSid = Deno.env.get("TWILIO_ACCOUNT_SID")!;
 const twilioToken = Deno.env.get("TWILIO_AUTH_TOKEN")!;
-const twilioFrom = Deno.env.get("TWILIO_WHATSAPP_FROM")!;
+// Twilio WhatsApp sandbox number — must have whatsapp: prefix
+const twilioFrom = Deno.env.get("TWILIO_WHATSAPP_FROM") || "whatsapp:+14155238886";
 
 const supabase = createClient(supabaseUrl, serviceRoleKey, {
   auth: { persistSession: false },
@@ -32,6 +33,9 @@ let lastToolError: string | null = null;
 
 async function replyToLee(message: string, phone: string) {
   const to = phone.startsWith("whatsapp:") ? phone : `whatsapp:${phone}`;
+  // Ensure FROM always has whatsapp: prefix for WhatsApp messages
+  const from = twilioFrom.startsWith("whatsapp:") ? twilioFrom : `whatsapp:${twilioFrom}`;
+  console.log(`📤 Sending WhatsApp: FROM=${from} TO=${to} Body=${message.substring(0, 60)}...`);
   const res = await fetch(
     `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`,
     {
@@ -40,10 +44,11 @@ async function replyToLee(message: string, phone: string) {
         Authorization: "Basic " + btoa(`${twilioSid}:${twilioToken}`),
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: new URLSearchParams({ To: to, From: twilioFrom, Body: message }),
+      body: new URLSearchParams({ To: to, From: from, Body: message }),
     }
   );
-  console.log("WhatsApp reply status:", res.status);
+  const resBody = await res.text();
+  console.log(`📤 WhatsApp reply status: ${res.status}`, resBody.substring(0, 200));
 }
 
 // ── Conversation memory ────────────────────────────────────────────────────
