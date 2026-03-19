@@ -48,30 +48,39 @@ async function replyToLee(message: string, phone: string) {
 
 // ── Conversation memory ────────────────────────────────────────────────────
 
-async function getOrCreateConversation(phone: string): Promise<string> {
-  const { data: existing } = await supabase
-    .from("unified_conversations")
-    .select("id")
-    .eq("channel", "whatsapp_admin")
-    .eq("contact_phone", phone)
-    .limit(1)
-    .maybeSingle();
+async function getOrCreateConversation(phone: string): Promise<string | null> {
+  try {
+    const { data: existing } = await supabase
+      .from("unified_conversations")
+      .select("id")
+      .eq("channel", "whatsapp_admin")
+      .eq("contact_phone", phone)
+      .limit(1)
+      .maybeSingle();
 
-  if (existing) return existing.id;
+    if (existing) return existing.id;
 
-  const { data: created } = await supabase
-    .from("unified_conversations")
-    .insert({
-      channel: "whatsapp_admin",
-      contact_name: "Lee Wakeman",
-      contact_phone: phone,
-      status: "active",
-      last_message_at: new Date().toISOString(),
-    })
-    .select("id")
-    .single();
+    const { data: created, error } = await supabase
+      .from("unified_conversations")
+      .insert({
+        channel: "whatsapp_admin",
+        contact_name: "Lee Wakeman",
+        contact_phone: phone,
+        status: "active",
+        last_message_at: new Date().toISOString(),
+      })
+      .select("id")
+      .single();
 
-  return created?.id;
+    if (error) {
+      console.warn("unified_conversations insert failed:", error.message);
+      return null;
+    }
+    return created?.id ?? null;
+  } catch (e) {
+    console.warn("getOrCreateConversation error:", e);
+    return null;
+  }
 }
 
 async function loadRecentMessages(

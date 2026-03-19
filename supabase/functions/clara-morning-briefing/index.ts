@@ -82,11 +82,21 @@ serve(async (req) => {
       .gte('trial_end', todayStart.toISOString())
       .lte('trial_end', todayEnd.toISOString());
 
-    // ── Active subscribers ─────────────────────────────────────
+    // ── Active subscribers + MRR ────────────────────────────────
     const { count: activeSubscribers } = await supabase
       .from('subscribers')
       .select('id', { count: 'exact' })
-      .eq('subscribed', true);
+      .eq('subscribed', true)
+      .eq('is_trialing', false);
+
+    const { count: activeAddons } = await supabase
+      .from('member_addons')
+      .select('id', { count: 'exact' })
+      .eq('status', 'active');
+
+    const baseMrr = (activeSubscribers ?? 0) * 9.99;
+    const addonMrr = (activeAddons ?? 0) * 2.99;
+    const totalMrr = Math.round((baseMrr + addonMrr) * 100) / 100;
 
     // ── Conversations in last 24h ──────────────────────────────
     const { count: recentConversations } = await supabase
@@ -164,7 +174,9 @@ serve(async (req) => {
       `Active trials: ${activeTrials ?? 0}`,
       `Expiring today: ${expiringToday ?? 0}`,
       '',
-      `Active subscribers: ${activeSubscribers ?? 0}`,
+      `Active members: ${activeSubscribers ?? 0}`,
+      `Est. MRR: \u20AC${totalMrr.toFixed(2)} (base \u20AC${baseMrr.toFixed(2)} + add-ons \u20AC${addonMrr.toFixed(2)})`,
+      `Active add-ons: ${activeAddons ?? 0}`,
       '',
       `Referral conversions (24h): ${referralConversions ?? 0}`,
       `Total active stars: ${totalActiveStars ?? 0}`,
@@ -191,18 +203,57 @@ serve(async (req) => {
       'Have a great day.',
     ].join('\n');
 
-    // ── Send via clara-escalation ──────────────────────────────
-    const { data: escData, error: escErr } = await supabase.functions.invoke('clara-escalation', {
-      body: {
-        type: 'morning_briefing',
-        custom_message: message,
-      },
-    });
+    // ── Send via clara-escalation (primary), then direct Twilio (backup) ──
+    let sent = false;
 
-    if (escErr) {
-      console.error('Escalation failed:', escErr);
+    try {
+      const { error: escErr } = await supabase.functions.invoke('clara-escalation', {
+        body: { type: 'morning_briefing', custom_message: message },
+      });
+      if (!escErr) {
+        sent = true;
+        console.log('Morning briefing sent via clara-escalation');
+      } else {
+        console.warn('clara-escalation failed:', escErr);
+      }
+    } catch (e) {
+      console.warn('clara-escalation invoke failed:', e);
+    }
+
+    // Backup: send directly via Twilio if escalation failed
+    if (!sent) {
+      const twilioSid = Deno.env.get('TWILIO_ACCOUNT_SID');
+      const twilioAuth = Deno.env.get('TWILIO_AUTH_TOKEN');
+      const twilioFrom = Deno.env.get('TWILIO_WHATSAPP_FROM');
+      const leeNumber = Deno.env.get('TWILIO_WHATSAPP_LEE') || Deno.env.get('ADMIN_WHATSAPP_NUMBER');
+
+      if (twilioSid && twilioAuth && twilioFrom && leeNumber) {
+        try {
+          const to = leeNumber.startsWith('whatsapp:') ? leeNumber : `whatsapp:${leeNumber}`;
+          const res = await fetch(
+            `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`,
+            {
+              method: 'POST',
+              headers: {
+                Authorization: 'Basic ' + btoa(`${twilioSid}:${twilioAuth}`),
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
+              body: new URLSearchParams({ To: to, From: twilioFrom, Body: message }),
+            }
+          );
+          sent = res.ok;
+          console.log('Morning briefing sent via direct Twilio:', res.status);
+        } catch (e) {
+          console.error('Direct Twilio send failed:', e);
+        }
+      } else {
+        console.error('Cannot send briefing — missing Twilio secrets or Lee number');
+      }
+    }
+
+    if (!sent) {
       return new Response(
-        JSON.stringify({ success: false, error: 'Failed to send briefing' }),
+        JSON.stringify({ success: false, error: 'Failed to send briefing via both escalation and direct Twilio' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
