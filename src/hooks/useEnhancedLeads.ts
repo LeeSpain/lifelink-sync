@@ -29,6 +29,13 @@ export interface EnhancedLead {
   updated_at: string;
   conversation_summary?: string;
   recommended_plan?: string;
+  contact_confidence?: string;
+  email_verified?: boolean;
+  email_verification_status?: string;
+  email_verified_at?: string;
+  enriched_at?: string;
+  enrichment_source?: string;
+  research_data?: Record<string, any>;
 }
 
 export interface LeadActivity {

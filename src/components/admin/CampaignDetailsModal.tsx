@@ -26,7 +26,8 @@ import {
   TrendingUp,
   FileEdit,
   CheckCircle,
-  XCircle
+  XCircle,
+  Users
 } from 'lucide-react';
 
 interface CampaignDetailsModalProps {
@@ -73,10 +74,13 @@ export const CampaignDetailsModal: React.FC<CampaignDetailsModalProps> = ({
   const [editedContent, setEditedContent] = useState<Partial<ContentItem>>({});
   const [activeTab, setActiveTab] = useState('content');
   const [loading, setLoading] = useState(false);
+  const [contactStats, setContactStats] = useState({ total: 0, withContact: 0 });
+  const [blockedCount, setBlockedCount] = useState(0);
 
   useEffect(() => {
     if (campaign && isOpen) {
       loadCampaignContent();
+      loadContactStats();
       setEditedCampaign({
         title: campaign.title || '',
         description: campaign.description || '',
@@ -84,6 +88,27 @@ export const CampaignDetailsModal: React.FC<CampaignDetailsModalProps> = ({
       });
     }
   }, [campaign, isOpen]);
+
+  const loadContactStats = async () => {
+    try {
+      const { count: total } = await supabase
+        .from('leads')
+        .select('id', { count: 'exact', head: true });
+      const { count: withContact } = await supabase
+        .from('leads')
+        .select('id', { count: 'exact', head: true })
+        .in('contact_confidence', ['verified', 'likely']);
+      setContactStats({ total: total || 0, withContact: withContact || 0 });
+
+      const { count: blocked } = await supabase
+        .from('outreach_messages')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'blocked');
+      setBlockedCount(blocked || 0);
+    } catch {
+      // non-critical
+    }
+  };
 
   const loadCampaignContent = async () => {
     if (!campaign?.id) return;
@@ -578,7 +603,7 @@ export const CampaignDetailsModal: React.FC<CampaignDetailsModalProps> = ({
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm">Total Content</CardTitle>
@@ -607,6 +632,44 @@ export const CampaignDetailsModal: React.FC<CampaignDetailsModalProps> = ({
                   </div>
                 </CardContent>
               </Card>
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-1">
+                    <Users className="h-3.5 w-3.5" />
+                    Contacts Found
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {(() => {
+                    const pct = contactStats.total > 0
+                      ? Math.round((contactStats.withContact / contactStats.total) * 100)
+                      : 0;
+                    const color = pct > 70 ? 'text-green-600' : pct >= 40 ? 'text-amber-600' : 'text-red-600';
+                    return (
+                      <div className={`text-2xl font-bold ${color}`}>
+                        {pct}%
+                      </div>
+                    );
+                  })()}
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {contactStats.withContact} of {contactStats.total} leads
+                  </p>
+                </CardContent>
+              </Card>
+              {blockedCount > 0 && (
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm flex items-center gap-1">
+                      <XCircle className="h-3.5 w-3.5 text-red-500" />
+                      Blocked Sends
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-red-600">{blockedCount}</div>
+                    <p className="text-xs text-muted-foreground mt-1">Invalid emails</p>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </TabsContent>
         </Tabs>

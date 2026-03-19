@@ -14,6 +14,7 @@ import {
   Eye
 } from 'lucide-react';
 import { EnhancedLead, useEnhancedLeads } from '@/hooks/useEnhancedLeads';
+import { ContactConfidenceBadge } from '@/components/admin/leads/ContactConfidenceBadge';
 
 interface LeadKanbanBoardProps {
   leads: EnhancedLead[];
@@ -76,9 +77,12 @@ export const LeadKanbanBoard: React.FC<LeadKanbanBoardProps> = ({
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="font-medium text-sm">
-                    {lead.first_name} {lead.last_name}
-                  </p>
+                  <div className="flex items-center gap-1.5">
+                    <p className="font-medium text-sm">
+                      {lead.first_name} {lead.last_name}
+                    </p>
+                    <ContactConfidenceBadge confidence={lead.contact_confidence} />
+                  </div>
                   <p className="text-xs text-muted-foreground">{lead.email}</p>
                 </div>
               </div>

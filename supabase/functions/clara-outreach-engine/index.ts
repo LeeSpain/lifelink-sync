@@ -8,6 +8,82 @@ const twilioToken = Deno.env.get('TWILIO_AUTH_TOKEN')!;
 const twilioFrom = Deno.env.get('TWILIO_WHATSAPP_FROM')!;
 const leePhone = Deno.env.get('TWILIO_WHATSAPP_LEE')!;
 
+// ─── Logging ────────────────────────────────────────────────────────────────
+
+async function logActivity(leadId: string, action: string, source: string, success: boolean, details: Record<string, unknown> = {}) {
+  try {
+    await supabase.from('lead_enrichment_log').insert({ lead_id: leadId, action, source, success, details });
+  } catch (e) { console.error('[outreach] logActivity error:', e); }
+}
+
+// ─── Email Bounce Guard ─────────────────────────────────────────────────────
+
+async function checkEmailBounce(lead: Record<string, unknown>): Promise<{ allowed: boolean; reason?: string }> {
+  const verificationStatus = lead.email_verification_status as string | null;
+  const confidence = lead.contact_confidence as string | null;
+  const email = lead.email as string | null;
+
+  // Rule 1: Invalid emails are always blocked
+  if (verificationStatus === 'invalid') {
+    return { allowed: false, reason: 'Email marked as invalid — re-enrich this lead first' };
+  }
+
+  // Rule 2: Risky + guessed = too uncertain
+  if (verificationStatus === 'risky' && confidence === 'guessed') {
+    return { allowed: false, reason: 'Email confidence too low — verify before sending' };
+  }
+
+  // Rule 3: Unverified email — verify on the fly via Hunter
+  if (!verificationStatus && email) {
+    try {
+      const { data, error } = await supabase.functions.invoke('enrich-lead', {
+        body: { action: 'verify_email', email, lead_id: lead.id },
+      });
+
+      if (!error && data?.verification) {
+        const status = data.verification.status as string;
+        // Update lead with fresh verification
+        await supabase.from('leads').update({
+          email_verification_status: status,
+          email_verified: status === 'valid',
+          email_verified_at: new Date().toISOString(),
+          contact_confidence: status === 'valid' ? 'verified' : status === 'risky' ? 'likely' : status === 'invalid' ? 'guessed' : lead.contact_confidence,
+        }).eq('id', lead.id);
+
+        if (status === 'invalid') {
+          return { allowed: false, reason: 'Email verified as invalid by Hunter — cleared from lead' };
+        }
+        if (status === 'risky' && confidence === 'guessed') {
+          return { allowed: false, reason: 'Email confidence too low after verification — verify before sending' };
+        }
+      }
+    } catch (e) {
+      console.warn('[outreach] On-the-fly verify failed, proceeding:', e);
+    }
+  }
+
+  return { allowed: true };
+}
+
+async function recordOutreachMessage(
+  leadId: string, channel: string, recipient: string,
+  status: 'sent' | 'blocked', sourceFunction: string,
+  opts: { subject?: string; bodyPreview?: string; blockedReason?: string } = {}
+) {
+  try {
+    await supabase.from('outreach_messages').insert({
+      lead_id: leadId,
+      channel,
+      recipient,
+      subject: opts.subject || null,
+      body_preview: opts.bodyPreview?.slice(0, 500) || null,
+      status,
+      blocked_reason: opts.blockedReason || null,
+      source_function: sourceFunction,
+    });
+  } catch (e) { console.error('[outreach] recordOutreachMessage error:', e); }
+}
+
 const sendWhatsApp = async (to: string, body: string) => {
   await fetch(`https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`, {
     method: 'POST',
@@ -66,14 +142,35 @@ async function processColdLeads(): Promise<{ contacted: number; leads: string[] 
     if (!lead.phone) continue;
 
     try {
+      // Bounce protection — check email before any outreach
+      const bounceCheck = await checkEmailBounce(lead);
+      if (!bounceCheck.allowed) {
+        await recordOutreachMessage(lead.id, 'whatsapp', lead.phone, 'blocked', 'clara-outreach-engine', {
+          bodyPreview: bounceCheck.reason,
+          blockedReason: bounceCheck.reason,
+        });
+        await logActivity(lead.id, 'outreach_blocked', 'clara-outreach-engine', false, {
+          channel: 'whatsapp',
+          reason: bounceCheck.reason,
+        });
+        continue;
+      }
+
       const message = await generateOutreachMessage(lead);
-      const to = lead.phone.startsWith('whatsapp:') ? lead.phone : `whatsapp:${lead.phone}`;
 
       // Write to Riven command queue
       await supabase.from('clara_riven_commands').insert({
         command_type: 'dm_response',
         command_data: { channel: 'whatsapp', to: lead.phone, message, lead_id: lead.id },
         priority: 3,
+      });
+
+      // Record successful outreach
+      await recordOutreachMessage(lead.id, 'whatsapp', lead.phone, 'sent', 'clara-outreach-engine', {
+        bodyPreview: message,
+      });
+      await logActivity(lead.id, 'outreach_sent', 'clara-outreach-engine', true, {
+        channel: 'whatsapp',
       });
 
       // Update lead
@@ -83,7 +180,9 @@ async function processColdLeads(): Promise<{ contacted: number; leads: string[] 
       }).eq('id', lead.id);
 
       contacted.push(lead.email || lead.phone);
-    } catch { /* continue */ }
+    } catch (err) {
+      console.error(`[outreach] Failed for lead ${lead.id}:`, err);
+    }
   }
 
   // Log performance

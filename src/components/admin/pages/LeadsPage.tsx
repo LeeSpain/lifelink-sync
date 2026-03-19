@@ -8,9 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { TrendingUp, Users, Target, CheckCircle, Zap, Kanban, List, Plus, Filter, Mail, Trash2, XCircle, Bot, RefreshCw, Send, ExternalLink } from "lucide-react";
+import { TrendingUp, Users, Target, CheckCircle, Zap, Kanban, List, Plus, Filter, Mail, Trash2, XCircle, Bot, RefreshCw, Send, ExternalLink, Shield } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { useEnhancedLeads, EnhancedLead } from '@/hooks/useEnhancedLeads';
+import { ContactConfidenceBadge } from '@/components/admin/leads/ContactConfidenceBadge';
 import { LeadDetailModal } from '@/components/admin/leads/LeadDetailModal';
 import { LeadKanbanBoard } from '@/components/admin/leads/LeadKanbanBoard';
 import { supabase } from '@/integrations/supabase/client';
@@ -66,6 +67,7 @@ const LeadsPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [sourceFilter, setSourceFilter] = useState('all');
   const [interestFilter, setInterestFilter] = useState('all');
+  const [contactQualityFilter, setContactQualityFilter] = useState('all');
   const [selectedLead, setSelectedLead] = useState<EnhancedLead | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showAddLead, setShowAddLead] = useState(false);
@@ -80,7 +82,7 @@ const LeadsPage: React.FC = () => {
 
   useEffect(() => {
     filterLeads();
-  }, [leads, searchTerm, statusFilter, sourceFilter, interestFilter]);
+  }, [leads, searchTerm, statusFilter, sourceFilter, interestFilter, contactQualityFilter]);
 
   useEffect(() => {
     const loadEnrollmentsAndEngagements = async () => {
@@ -150,6 +152,14 @@ const LeadsPage: React.FC = () => {
     if (interestFilter !== 'all') {
       const level = parseInt(interestFilter);
       filtered = filtered.filter(lead => lead.interest_level >= level);
+    }
+
+    if (contactQualityFilter !== 'all') {
+      if (contactQualityFilter === 'missing') {
+        filtered = filtered.filter(lead => !lead.contact_confidence || lead.contact_confidence === 'unknown');
+      } else {
+        filtered = filtered.filter(lead => lead.contact_confidence === contactQualityFilter);
+      }
     }
 
     setFilteredLeads(filtered);
@@ -356,7 +366,7 @@ const LeadsPage: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
+          <div className="grid gap-4 grid-cols-1 md:grid-cols-3 lg:grid-cols-5">
             <div className="space-y-2">
               <Label htmlFor="search">Search</Label>
               <Input
@@ -417,6 +427,21 @@ const LeadsPage: React.FC = () => {
                 </SelectContent>
               </Select>
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="contactQuality">Contact Quality</Label>
+              <Select value={contactQualityFilter} onValueChange={setContactQualityFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All contacts" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="verified">Verified</SelectItem>
+                  <SelectItem value="likely">Likely</SelectItem>
+                  <SelectItem value="guessed">Guessed</SelectItem>
+                  <SelectItem value="missing">Missing</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -455,6 +480,7 @@ const LeadsPage: React.FC = () => {
                                 <p className="font-medium">
                                   {lead.first_name} {lead.last_name}
                                 </p>
+                                <ContactConfidenceBadge confidence={lead.contact_confidence} />
                                 {lead.language && lead.language !== 'en' && (
                                   <span className="text-sm" title={lead.language === 'es' ? 'Spanish' : lead.language === 'nl' ? 'Dutch' : 'English'}>
                                     {lead.language === 'es' ? '\u{1F1EA}\u{1F1F8}' : lead.language === 'nl' ? '\u{1F1F3}\u{1F1F1}' : '\u{1F1EC}\u{1F1E7}'}

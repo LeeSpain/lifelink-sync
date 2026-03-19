@@ -17,13 +17,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useToast } from '@/components/ui/use-toast';
 import { useEmailAutomation } from '@/hooks/useEmailAutomation';
-import { 
-  User, 
-  Building2, 
-  Mail, 
-  Phone, 
-  Globe, 
-  Calendar, 
+import {
+  User,
+  Building2,
+  Mail,
+  Phone,
+  Globe,
+  Calendar,
   Star,
   MessageSquare,
   Send,
@@ -31,9 +31,15 @@ import {
   Tag,
   DollarSign,
   Percent,
-  Clock
+  Clock,
+  Linkedin,
+  RefreshCw,
+  Database,
+  Shield,
+  AlertTriangle
 } from 'lucide-react';
 import { EnhancedLead, LeadActivity, useEnhancedLeads } from '@/hooks/useEnhancedLeads';
+import { ContactConfidenceBadge, EmailVerificationBadge } from '@/components/admin/leads/ContactConfidenceBadge';
 import { supabase } from '@/integrations/supabase/client';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -140,6 +146,153 @@ function ConversationsTab({ leadId }: { leadId: string }) {
         ))}
       </div>
     </ScrollArea>
+  );
+}
+
+// ─── Contact Intelligence Card ──────────────────────────────────────────────
+
+function ContactIntelligenceCard({ lead }: { lead: EnhancedLead }) {
+  const [enriching, setEnriching] = React.useState(false);
+  const [blockedMessages, setBlockedMessages] = React.useState<Array<{ id: string; channel: string; blocked_reason: string; created_at: string }>>([]);
+  const { toast } = useToast();
+  const research = lead.research_data || {};
+  const hunterData = research.hunter_domain_search as Record<string, any> | undefined;
+  const sourceLabel = lead.enrichment_source
+    ? lead.enrichment_source.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())
+    : 'Not enriched';
+
+  // Load blocked outreach messages for this lead
+  React.useEffect(() => {
+    (async () => {
+      try {
+        const { data } = await supabase
+          .from('outreach_messages')
+          .select('id, channel, blocked_reason, created_at')
+          .eq('lead_id', lead.id)
+          .eq('status', 'blocked')
+          .order('created_at', { ascending: false })
+          .limit(5);
+        if (data) setBlockedMessages(data);
+      } catch { /* non-critical */ }
+    })();
+  }, [lead.id]);
+
+  const handleReEnrich = async () => {
+    setEnriching(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('enrich-lead', {
+        body: { action: 'enrich_single', lead_id: lead.id },
+      });
+      if (error) throw error;
+      toast({ title: 'Enrichment complete', description: `Confidence: ${data?.contact_confidence || 'unknown'}` });
+    } catch (err: any) {
+      toast({ title: 'Enrichment failed', description: err.message, variant: 'destructive' });
+    } finally {
+      setEnriching(false);
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="flex items-center gap-2">
+          <Shield className="h-4 w-4" />
+          Contact Intelligence
+        </CardTitle>
+        <Button variant="outline" size="sm" onClick={handleReEnrich} disabled={enriching}>
+          <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${enriching ? 'animate-spin' : ''}`} />
+          {enriching ? 'Enriching...' : 'Re-enrich'}
+        </Button>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {/* Contact name + role */}
+        <div className="flex items-center gap-2 text-sm">
+          <User className="h-4 w-4 text-muted-foreground" />
+          <span className="font-medium">{lead.first_name} {lead.last_name}</span>
+          {lead.job_title && <span className="text-muted-foreground">({lead.job_title})</span>}
+        </div>
+
+        {/* Email + verification */}
+        <div className="flex items-center gap-2 text-sm">
+          <Mail className="h-4 w-4 text-muted-foreground" />
+          <span>{lead.email || 'No email'}</span>
+          <EmailVerificationBadge status={lead.email_verification_status} />
+        </div>
+
+        {/* Phone */}
+        {lead.phone && (
+          <div className="flex items-center gap-2 text-sm">
+            <Phone className="h-4 w-4 text-muted-foreground" />
+            <span>{lead.phone}</span>
+          </div>
+        )}
+
+        {/* LinkedIn */}
+        {lead.linkedin_url && (
+          <div className="flex items-center gap-2 text-sm">
+            <Linkedin className="h-4 w-4 text-muted-foreground" />
+            <a
+              href={lead.linkedin_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline truncate"
+            >
+              {lead.linkedin_url.replace(/https?:\/\/(www\.)?linkedin\.com\/in\//, '')}
+            </a>
+          </div>
+        )}
+
+        {/* Data source + enriched at */}
+        <div className="flex items-center gap-2 text-sm border-t pt-3">
+          <Database className="h-4 w-4 text-muted-foreground" />
+          <span className="text-muted-foreground">Source:</span>
+          <Badge variant="outline" className="text-xs">{sourceLabel}</Badge>
+          {lead.enriched_at && (
+            <span className="text-xs text-muted-foreground ml-auto">
+              Enriched {new Date(lead.enriched_at).toLocaleDateString()}
+            </span>
+          )}
+        </div>
+
+        {/* Hunter confidence if available */}
+        {hunterData?.hunter_confidence != null && (
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-muted-foreground">Hunter confidence:</span>
+            <span className="font-medium">{hunterData.hunter_confidence}%</span>
+          </div>
+        )}
+
+        {/* Blocked outreach messages */}
+        {blockedMessages.length > 0 && (
+          <div className="border-t pt-3 space-y-2">
+            <p className="text-xs font-medium text-red-600 flex items-center gap-1">
+              <AlertTriangle className="h-3.5 w-3.5" />
+              Blocked Sends ({blockedMessages.length})
+            </p>
+            {blockedMessages.map((msg) => (
+              <div key={msg.id} className="flex items-center justify-between gap-2 p-2 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex items-center gap-2 text-xs flex-1 min-w-0">
+                  <Badge variant="outline" className="bg-red-100 text-red-700 border-red-200 text-xs shrink-0">
+                    Blocked — invalid email
+                  </Badge>
+                  <span className="text-red-600 truncate">{msg.blocked_reason}</span>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="shrink-0 text-xs h-7"
+                  onClick={handleReEnrich}
+                  disabled={enriching}
+                >
+                  <RefreshCw className={`h-3 w-3 mr-1 ${enriching ? 'animate-spin' : ''}`} />
+                  Fix contact
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
@@ -289,6 +442,7 @@ export const LeadDetailModal: React.FC<LeadDetailModalProps> = ({
               </AvatarFallback>
             </Avatar>
             {lead.first_name} {lead.last_name}
+            <ContactConfidenceBadge confidence={lead.contact_confidence} size="md" />
             <Badge className={getStatusColor(lead.status)}>
               {lead.status}
             </Badge>
@@ -444,6 +598,9 @@ export const LeadDetailModal: React.FC<LeadDetailModalProps> = ({
                 </CardContent>
               </Card>
             </div>
+
+            {/* Contact Intelligence */}
+            <ContactIntelligenceCard lead={lead} />
 
             {/* Notes Section */}
             <Card>
